@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:redis="http://www.springframework.org/schema/redis"
+    xmlns:osgi="http://www.springframework.org/schema/osgi"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/redis http://www.springframework.org/schema/redis/spring-redis.xsd
+        http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+<!--Note: this is customized configurer so that it can load properties file from outside of the bundle jar, it does not need the locations for now-->
+<bean id="propertyConfigurer" class="com.rj.elastic.bidcollector.config.CollectorConfigParser">  
+	<property name="locations">  
+	    <list>  
+	        <!-- <value>classpath:resources/config.properties</value>   -->
+	        <!-- <value>/com.rh.elastic.core_1.0.0/config.properties</value> -->
+	    </list>  
+	</property>  
+</bean>
+
+<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+  <property name="corePoolSize" value="5" />
+  <property name="maxPoolSize" value="10" />
+  <property name="queueCapacity" value="25" />
+</bean>
+
+
+<bean id="acInitlistener" class="com.rj.elastic.bidcollector.listeners.RJAppRefreshContextListener"></bean>
+<osgi:service id="initListener" ref="acInitlistener"
+       	interface="org.eclipse.gemini.blueprint.context.event.OsgiBundleApplicationContextListener" >
+</osgi:service>
+<bean id="acFinishedlistener" class="com.rj.elastic.bidcollector.listeners.RJAppCloseContextListener"></bean>
+<osgi:service id="closeListener" ref="acFinishedlistener"
+       	interface="org.eclipse.gemini.blueprint.context.event.OsgiBundleApplicationContextListener" >
+</osgi:service>
+
+<bean id="uuidHandler" class="com.rj.elastic.bidcollector.uuid.ADUUIDHandler"></bean>
+<bean id="uuidReceiver" class="com.rj.elastic.bidcollector.receivers.UUIDReceiver" init-method="start">
+	<property name="handler" ref="uuidHandler"></property>
+</bean>
+
+
+</beans> 

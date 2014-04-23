@@ -82,9 +82,21 @@ message VastRequest{
   message User{
   	//user identifier
   	optional string uid = 1;
-  	optional string countryCode = 2;
+    optional string countryCode = 2;
+    optional string regionName = 3;
+    optional string cityName = 4;
+    optional string latitude = 5;
+    optional string longitude = 6;
+    optional string isp = 7;
+    optional string domain = 8;
+    optional string mcc = 9;
+    optional string mnc = 10;
+    optional string mobile_brand = 11;
+    optional string usageType = 12;
+
   }
   optional User user = 6;
+  optional string ssl = 7;
   /*
   message Mobile{
   	// The platform of the mobile device.  Examples: android, iphone, palm

@@ -1,0 +1,9 @@
+#throttleServConfig
+throttleIP=192.168.20.129
+throttleAdPort=5000
+throttleExpirePort=5102
+throttleServPushPort=5557
+throttleServPullPort=5558
+throttlePubPort=5010
+throttleWorkNum=10
+

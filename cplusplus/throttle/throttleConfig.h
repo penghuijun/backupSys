@@ -147,6 +147,7 @@ class throttleConfig
 {
 public:
 	throttleConfig(const char* configTxt);
+	void readConfig();
 	void display() const;
 	const string& get_configFlieName() const{return m_configName;}
 	const string& get_throttleIP() const {return m_throttleIP;}
@@ -155,6 +156,7 @@ public:
 	unsigned short get_throttleServPushPort() const{return m_servPushPort;}
 	unsigned short get_throttleServPullPort() const{return m_servPullPort;}
 	unsigned short get_throttlePubPort() const {return m_pubPort;}
+	unsigned short get_throttlePubExpPort() const {return m_pubExpPort;}
 	unsigned short get_throttleworkerNum() const{return m_workNum;}
 
 	~throttleConfig()
@@ -171,6 +173,7 @@ private:
 	unsigned short m_servPushPort=0;
 	unsigned short m_servPullPort=0;
 	unsigned short m_pubPort=0;
+	unsigned short m_pubExpPort=0;
 };
 
 #endif

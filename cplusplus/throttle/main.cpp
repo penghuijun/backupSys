@@ -7,7 +7,6 @@
 #include <time.h>
 #include "throttleConfig.h"
 #include "throttle.h"
-#include "masterWorker.h"
 #include "threadpoolmanager.h"
 
 #define rdtsc(low,high) __asm__ \
@@ -15,6 +14,9 @@
 
 pthread_mutex_t mtx=PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cond=PTHREAD_COND_INITIALIZER;
+
+
+pthread_mutex_t tmMutex;
 
 unsigned long long get_cycles()
 {
@@ -28,12 +30,23 @@ unsigned long long get_cycles()
 
 int main(int argc, char *argv[])
 {
-  
+#ifdef DEBUG
+cout << "-------------------------------------------DEBUG   MODE----------------------------------------" << endl;
+#else
+cout << "-------------------------------------------RELEASE MODE----------------------------------------" << endl;
+#endif
+    int major, minor, patch;
+    zmq_version (&major, &minor, &patch);
+    cout <<"Current 0MQ version is "<<major<<"."<<minor<<"."<< patch<<endl;
+
+    pthread_mutex_init(&tmMutex, NULL);
     throttleConfig throttle("throttleConfig.txt");
     throttle.display();
     throttleServ thServ(throttle);
-    masterWorkerServer throServ(throttle.get_throttleworkerNum());
-    throServ.run(thServ);
+    thServ.run();
+  //  masterWorkerServer throServ(throttle.get_throttleworkerNum());
+   // throServ.run(thServ);
+   pthread_mutex_destroy(&tmMutex);
     cout << "end point" << endl;
     return 0;
 }

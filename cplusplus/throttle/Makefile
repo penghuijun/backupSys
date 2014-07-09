@@ -1,9 +1,10 @@
 PKG=`pkg-config --cflags --libs protobuf`
 #G11=g++ `pkg-config --cflags --libs protobuf` -g -DDEBUG
-G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
-#G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g
-throttle: main.o taskpool.o threadpool.o threadpoolmanager.o masterWorker.o throttleConfig.o throttle.o  CommonMessage.pb.o AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o
-	$(G11) -o throttle main.o masterWorker.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o $(PKG) -lhiredis -lzmq -lpthread
+#G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
+G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` 
+throttle: main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o
+	$(G11) -o throttle main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o\
+	 AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o $(PKG) -lhiredis -lzmq -lpthread -levent
 main.o: main.cpp
 	$(G11) -c main.cpp
 #redisClient.o: redisClient.cpp redisClient.h
@@ -22,8 +23,6 @@ throttleConfig.o: throttleConfig.cpp throttleConfig.h
 	$(G11) -c throttleConfig.cpp
 throttle.o: throttle.cpp throttle.h
 	$(G11) -c throttle.cpp 
-masterWorker.o: masterWorker.cpp masterWorker.h
-	$(G11) -c masterWorker.cpp
 taskpool.o: taskpool.cpp taskpool.h
 	$(G11) -c taskpool.cpp
 threadpool.o: threadpool.cpp threadpool.h

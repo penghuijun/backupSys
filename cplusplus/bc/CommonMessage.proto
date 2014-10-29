@@ -1,7 +1,0 @@
-package com.rj.protos.msg;
-
-message CommonMessage {
-  required string businessCode = 1;
-  optional string dataCodingType = 2;
-  required bytes data = 3;
-}

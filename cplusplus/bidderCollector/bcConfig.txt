@@ -1,9 +1,9 @@
 #bcServConfig 
 bcServIP=192.168.20.129;
-bcListenBidPort=6010;
+bcListenBidPort=7013;
 
 throttleIP=192.168.20.129;
-throttlePubVastPort=5010;
+throttlePubVastPort=7012;
 
 subKey{
 5.1;

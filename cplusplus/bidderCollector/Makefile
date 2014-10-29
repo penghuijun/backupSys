@@ -1,6 +1,6 @@
 PKG=`pkg-config --cflags --libs protobuf`
 #G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
-G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` 
+G11=g++ -g --std=c++11 `pkg-config --cflags --libs protobuf` 
 bcServ : main.o taskpool.o threadpool.o threadpoolmanager.o bcServ.o  bcConfig.o CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o
 	$(G11) -o bcServ bcServ.o taskpool.o threadpool.o threadpoolmanager.o main.o bcConfig.o  CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o $(PKG) -lhiredis -lzmq -lpthread -levent
 main.o: main.cpp

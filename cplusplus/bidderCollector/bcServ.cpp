@@ -636,6 +636,125 @@ void bcServ::sendToWorker(char * buf,int bufLen)
     }
 }
 
+
+static int bbb=0;
+void bcServ::bidderHandler(char * pbuf,int size)
+{
+    CommonMessage commMsg;
+    string rsp;
+    BidderResponse bidRsp;
+    string uuid;
+    string bidID;
+    string sockID;
+
+    commMsg.ParseFromArray(pbuf, size);     
+    rsp = commMsg.data();
+    bidRsp.ParseFromString(rsp);
+    uuid = bidRsp.id();
+    bidID = bidRsp.bidderid();
+ //       printf("bb:%d\n", ++bbb);
+    if(uuid.empty())
+    {
+        printf("bidder:: uuid null");
+        return;
+    }
+    time_t timep;
+    time(&timep);
+
+    string bidIDandTime=bidID+":" ;
+    char timebuf[32] ={0};
+    sprintf(timebuf, "<%d>", timep);
+    bidIDandTime += timebuf;
+    bcDataLock();
+    auto bcDataIt = bcDataRecList.find(uuid);
+    if(bcDataIt != bcDataRecList.end())
+    {
+         string bcDataUuid = bcDataIt->first;
+         bcDataRec *bcData = bcDataIt->second;
+         if(bcData)
+         {  
+
+              BCStatus status = bcData->status;
+              if(status == BCStatus::BC_recvSub)//只处理这种情况
+              {  
+              //   printf("b:%d\n", ++bbb);
+                    bcData->bidTime=getLonglongTime();
+                    auto diff = bcData->bidTime-bcData->subTime;
+                    if(diff>=30)
+                    {
+              //          printf("%s----b:%lld-----s:%lld\n", uuid.c_str(), bcData->bidTime, bcData->subTime);
+                    }
+                   bcData->status= BCStatus::BC_recvBidAndSub;
+                   delete[] bcData->buf;
+                   delete bcData;
+                   bcDataRecList.erase(bcDataIt);  
+                   bcDataUnlock();
+                   int recvSize = size+2*UUID_SIZE_MAX+4;
+                
+                   char *recvBuf = new char[recvSize];
+                   memset(recvBuf, 0x00, recvSize);
+                   PUT_LONG(recvBuf ,recvSize-4);
+                   memcpy(recvBuf+4, uuid.c_str(), uuid.size());
+                   memcpy(recvBuf+UUID_SIZE_MAX+4, bidIDandTime.c_str(), bidIDandTime.size());
+                   memcpy(recvBuf+2*UUID_SIZE_MAX+4,pbuf, size);
+    
+                  //send to worker
+                   sendToWorker(recvBuf, recvSize);
+                   delete[] recvBuf;
+
+                   redisDataRec *redis = new redisDataRec;
+                   if(redis)
+                   {  
+                       redis->bidIDAndTime = bidIDandTime;
+                       redis->time = timep;
+                       delDataLock();
+                       redisRecList.insert(pair<string, redisDataRec*>(uuid, redis));
+                       delDataUnlock();
+                   } 
+               }
+               else if(status == BCStatus::BC_recvExpire)
+               {
+                   bcData->status= BCStatus::BC_recvBidAndExp;
+                   bcDataUnlock();   
+               }
+               else if(status == BCStatus::BC_recvSubAndExp)
+               {
+                    delete[] bcData->buf;
+                    delete bcData;
+                    bcDataRecList.erase(bcDataIt);
+                    bcDataUnlock();
+               }
+               else
+               {
+                  bcDataUnlock();
+               }
+         
+          }
+          else
+          {
+              bcDataRecList.erase(bcDataIt);
+              bcDataUnlock();
+          }
+     }
+     else
+     {
+         //      printf("b:%d\n", ++bbb);
+             bcDataRec *bData = new bcDataRec;
+             time(&timep);
+             bData->status = BCStatus::BC_recvBid;
+             bData->buf = new char[size];
+             memcpy(bData->buf, pbuf, size);
+             bData->bufSize = size;
+             bData->bidTime=getLonglongTime();
+             bData->subTime = 0;
+             bData->time = timep;
+             bData->bidIDAndTime = bidIDandTime;
+             bcDataRecList.insert(pair<string, bcDataRec*>(uuid, bData)); 
+             bcDataUnlock();           
+     }   
+}
+
+
 static int iiii=0;
 static int jjjj = 0;
 static int kkkk = 0;
@@ -680,7 +799,8 @@ void bcServ::subVastHandler(char * pbuf,int size)
                  //   printf("%s----s:%lld-----b:%lld\n", uuid.c_str(), bcData->subTime, bcData->bidTime);
                 }
                 int recvSize = bcData->bufSize+2*UUID_SIZE_MAX+4;
-                char *pptr = bcData->buf;    
+                char *pptr = bcData->buf;   
+                delete bcData;
                 bcDataRecList.erase(bcDataIt);
                 bcDataUnlock();   
                 
@@ -690,10 +810,11 @@ void bcServ::subVastHandler(char * pbuf,int size)
                 memcpy(recvBuf+4, uuid.c_str(), uuid.size());
                 memcpy(recvBuf+UUID_SIZE_MAX+4, bcDataBidIdAndTime.c_str(), bcDataBidIdAndTime.size());
                 memcpy(recvBuf+2*UUID_SIZE_MAX+4, bcData->buf, bcData->bufSize);
-                delete pptr;
+
                 //send to worker
                 sendToWorker(recvBuf, recvSize);
-                delete recvBuf;
+                delete[] pptr;
+                delete[] recvBuf;
 
                 redisDataRec *redis = new redisDataRec;
                 if(redis)
@@ -724,13 +845,16 @@ void bcServ::subVastHandler(char * pbuf,int size)
             {
           //      cout<<uuid<<"=========="<<bcDataIt->first<<endl;
          //   printf("***:%d---%s   %d, %d,%d\n", bcStatus, uuid.c_str(), bcData->subTime, bcData->bidTime, bcData->expTime);
+                  delete[] bcData->buf;
+                  delete bcData;
                   bcDataRecList.erase(bcDataIt);
                   bcDataUnlock();     
             }
          }
          else
          {
-           //  printf("22c2\n");
+             delete[] bcData->buf;
+             delete bcData;
              bcDataRecList.erase(bcDataIt);
              bcDataUnlock();
          }
@@ -1042,120 +1166,6 @@ void *bcServ::throttle_request_handler(void *arg)
       return NULL;  
 }
 
-static int bbb=0;
-void bcServ::bidderHandler(char * pbuf,int size)
-{
-    CommonMessage commMsg;
-    string rsp;
-    BidderResponse bidRsp;
-    string uuid;
-    string bidID;
-    string sockID;
-
-    commMsg.ParseFromArray(pbuf, size);     
-    rsp = commMsg.data();
-    bidRsp.ParseFromString(rsp);
-    uuid = bidRsp.id();
-    bidID = bidRsp.bidderid();
- //       printf("bb:%d\n", ++bbb);
-    if(uuid.empty())
-    {
-        printf("bidder:: uuid null");
-        return;
-    }
-    time_t timep;
-    time(&timep);
-
-    string bidIDandTime=bidID+":" ;
-    char timebuf[32] ={0};
-    sprintf(timebuf, "<%d>", timep);
-    bidIDandTime += timebuf;
-    bcDataLock();
-    auto bcDataIt = bcDataRecList.find(uuid);
-    if(bcDataIt != bcDataRecList.end())
-    {
-         string bcDataUuid = bcDataIt->first;
-         bcDataRec *bcData = bcDataIt->second;
-         if(bcData)
-         {  
-
-              BCStatus status = bcData->status;
-              if(status == BCStatus::BC_recvSub)//只处理这种情况
-              {  
-              //   printf("b:%d\n", ++bbb);
-                    bcData->bidTime=getLonglongTime();
-                    auto diff = bcData->bidTime-bcData->subTime;
-                    if(diff>=30)
-                    {
-              //          printf("%s----b:%lld-----s:%lld\n", uuid.c_str(), bcData->bidTime, bcData->subTime);
-                    }
-                   bcData->status= BCStatus::BC_recvBidAndSub;
-                   bcDataRecList.erase(bcDataIt);  
-                   bcDataUnlock();
-                   int recvSize = size+2*UUID_SIZE_MAX+4;
-                
-                   char *recvBuf = new char[recvSize];
-                   memset(recvBuf, 0x00, recvSize);
-                   PUT_LONG(recvBuf ,recvSize-4);
-                   memcpy(recvBuf+4, uuid.c_str(), uuid.size());
-                   memcpy(recvBuf+UUID_SIZE_MAX+4, bidIDandTime.c_str(), bidIDandTime.size());
-                   memcpy(recvBuf+2*UUID_SIZE_MAX+4,pbuf, size);
-    
-                  //send to worker
-                   sendToWorker(recvBuf, recvSize);
-                   delete recvBuf;
-
-                   redisDataRec *redis = new redisDataRec;
-                   if(redis)
-                   {  
-                       redis->bidIDAndTime = bidIDandTime;
-                       redis->time = timep;
-                       delDataLock();
-                       redisRecList.insert(pair<string, redisDataRec*>(uuid, redis));
-                       delDataUnlock();
-                   } 
-               }
-               else if(status == BCStatus::BC_recvExpire)
-               {
-                   bcData->status= BCStatus::BC_recvBidAndExp;
-                   bcDataUnlock();   
-               }
-               else if(status == BCStatus::BC_recvSubAndExp)
-               {
-                    delete[] bcData->buf;
-                    delete bcData;
-                    bcDataRecList.erase(bcDataIt);
-                    bcDataUnlock();
-               }
-               else
-               {
-                  bcDataUnlock();
-               }
-         
-          }
-          else
-          {
-              bcDataRecList.erase(bcDataIt);
-              bcDataUnlock();
-          }
-     }
-     else
-     {
-         //      printf("b:%d\n", ++bbb);
-             bcDataRec *bData = new bcDataRec;
-             time(&timep);
-             bData->status = BCStatus::BC_recvBid;
-             bData->buf = new char[size];
-             memcpy(bData->buf, pbuf, size);
-             bData->bufSize = size;
-             bData->bidTime=getLonglongTime();
-             bData->subTime = 0;
-             bData->time = timep;
-             bData->bidIDAndTime = bidIDandTime;
-             bcDataRecList.insert(pair<string, bcDataRec*>(uuid, bData)); 
-             bcDataUnlock();           
-     }   
-}
 
 
 void bcServ::recvBidder_callback(int fd, short __, void *pair)

@@ -9,12 +9,28 @@ throttleConfig::throttleConfig(const char* configTxt):m_configName(configTxt)
      readConfig();
 }
 
+bool throttleConfig::get_subString(string &src, char first, char end, string &dst)
+{
+    int idx1 = src.find(first);
+    if(idx1 == string::npos) return false;
+    int idx2 = src.find(end);
+    if(idx2 == string::npos) return false;
+    idx1++;
+    if(idx1<=idx2)
+    {
+        dst = src.substr(idx1, idx2-idx1);
+    }
+    else
+    {
+        dst = src.substr(idx2, idx1-idx2);        
+    }
+    return true;
+}
 
 void throttleConfig::readConfig()
 {
     try
     {
-        throttleInfo tInfo; 
         string buf;
         static int throttleAddr = 0;
         int symIdx =0;
@@ -36,58 +52,31 @@ void throttleConfig::readConfig()
         {
             if(buf.empty() || buf.at(0)== '#' || buf.at(0)==' ') continue;               
 
-            if(buf.compare(0, 10, "throttleIP")==0 && ((symIdx = buf.find('=')) != string::npos) )
+            if(buf.compare(0, 10, "throttleIP")==0)
             {
-                value = buf.substr(++symIdx);
-                m_throttleIP= value;
-                throttleAddr = 0x01;
+                if(get_subString(buf, '=', ';', m_throttleIP) == false) throw 0;
             }
-            else if(buf.compare(0, 14, "throttleAdPort")==0 && ((symIdx = buf.find('=')) != string::npos) )
+            else if(buf.compare(0, 14, "throttleAdPort")==0)
             {
-                value = buf.substr(++symIdx);
-                m_throttleAdPort = atoi(value.c_str());
-                throttleAddr |= (0x01<<1);
+               if(get_subString(buf, '=', ';', value) == false) throw 0;     
+                m_throttleAdPort= atoi(value.c_str());
             }
-            else if(buf.compare(0, 18, "throttleExpirePort")==0 && ((symIdx = buf.find('=')) != string::npos) )
+            else if(buf.compare(0, 15, "throttlePubPort")==0)
             {
-                value = buf.substr(++symIdx);
-                m_throttleExpirePort = atoi(value.c_str());
-                throttleAddr |= (0x01<<2);
+                if(get_subString(buf, '=', ';', value) == false) throw 0;     
+                m_pubPort= atoi(value.c_str());  
             }
-            else if(buf.compare(0, 20, "throttleServPushPort")==0 && ((symIdx = buf.find('=')) != string::npos) )
+            else if(buf.compare(0, 15, "throttleWorkNum")==0)
             {
-                value = buf.substr(++symIdx);
-                m_servPushPort= atoi(value.c_str());
-                throttleAddr |= (0x01<<3);
-            }  
-            else if(buf.compare(0, 20, "throttleServPullPort")==0 && ((symIdx = buf.find('=')) != string::npos) )
-            {
-                value = buf.substr(++symIdx);
-                m_servPullPort = atoi(value.c_str());
-            }
-            else if(buf.compare(0, 15, "throttlePubPort")==0 && ((symIdx = buf.find('=')) != string::npos) )
-            {
-                value = buf.substr(++symIdx);
-                m_pubPort= atoi(value.c_str());
-                throttleAddr |= (0x01<<5);
-            }
-            else if(buf.compare(0, 18, "throttlePubExpPort")==0 && ((symIdx = buf.find('=')) != string::npos) )
-            {
-                value = buf.substr(++symIdx);
-                m_pubExpPort = atoi(value.c_str());
-                throttleAddr |= (0x01<<6);
-            }
-            else if(buf.compare(0, 15, "throttleWorkNum")==0 && ((symIdx = buf.find('=')) != string::npos) )
-            {
-                value = buf.substr(++symIdx);
-                m_workNum= atoi(value.c_str());
+                if(get_subString(buf, '=', ';', value) == false) throw 0;     
+                m_workNum= atoi(value.c_str()); 
             }
             else
             {
             }
         }//while
         m_infile.close();
-        if(m_throttleIP.empty()|| m_pubPort == 0|| m_servPullPort == 0|| m_servPushPort == 0 || m_throttleAdPort == 0|| m_throttleExpirePort==0||m_pubExpPort==0) throw 0;
+        if(m_throttleIP.empty()|| m_pubPort == 0 || m_throttleAdPort == 0) throw 0;
         if(m_workNum==0 || m_workNum>100) m_workNum = 1;                  
     }
     catch(...)
@@ -107,9 +96,6 @@ void throttleConfig::display() const
     cout << "config file name: "<< get_configFlieName() << endl;
     cout << "config throttle ip: " << get_throttleIP()<< endl;
     cout << "config throttle Ad port: " << get_throttleAdPort()<< endl;
-    cout << "config throttle expire port: " << get_throttleExpirePort()<< endl;
-    cout << "config throttle serv push port: " << get_throttleServPushPort()<< endl;
-    cout << "config throttle serv pull port: " << get_throttleServPullPort()<< endl;
     cout << "config throttle pub port: " << get_throttlePubPort()<< endl;
     cout << "config throttle worker num: " << get_throttleworkerNum()<< endl;
     cout << "-----------------------------------" << endl;

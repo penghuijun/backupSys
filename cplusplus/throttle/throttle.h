@@ -17,17 +17,13 @@
 
 using namespace std;
 using std::string;
-#define BUFSIZE 4096
+#define BUFSIZE 8192
 
 
 const int	c_master_throttleIP=0x01;
 const int	c_master_adPort=0x02;
-const int	c_master_expPort=0x04;
-const int	c_master_servPush=0x08;
-const int	c_master_servPoll=0x10;
-const int	c_master_publishVast=0x20;
-const int	c_master_publishExp=0x40;
-const int	c_workerNum=0x80;
+const int	c_master_publishVast=0x04;
+const int	c_workerNum=0x08;
 
 enum proStatus
 {
@@ -108,20 +104,28 @@ typedef unsigned char byte;
 
 #define PUBLISHKEYLEN_MAX 50
 
+class throttleServ;
+
+struct eventParam
+{
+	struct event_base* base;
+	throttleServ *serv;
+};
+
+struct fdEvent
+{
+	int fd;
+	struct event *evEvent;
+};
+
 
 class throttleServ
 {
 public:
 	throttleServ(throttleConfig& config);
-	void reloadConfig()
-	{
-		m_throConfChange = 0;
-		readConfigFile();
-	}
 	
 	const char *get_throttleIP() const {return m_throttleIP.c_str();}
 	unsigned short get_throttlePort() const {return m_throttleAdPort;}
-	const void *get_zmqContext() const{return m_zmqContext;}
 
 	void lock(){pthread_mutex_lock(&uuidListMutex);}
 	void unlock(){pthread_mutex_unlock(&uuidListMutex);}
@@ -129,10 +133,13 @@ public:
 	void workerListLock(){pthread_mutex_lock(&workerListMutex);}
 	void workerListUnlock(){pthread_mutex_unlock(&workerListMutex);}
 
-	void uuidListInsert(string uuid, string pub)
+	void speed()
 	{
+	
+	static long long m_begTime=0;
+	static long long m_endTime=0;
+	static int m_count = 0;
 		 lock();
-		// uuidList.insert(pair<string, string>(uuid, pub)); 
 		 m_count++;
 		 if(m_count%10000==1)
 		 {
@@ -157,46 +164,20 @@ public:
 		 	}
 	}
 	bool masterRun();
-	void masterRestart();
+	void masterRestart(struct event_base* base);
 	void workerRestart(eventCallBackParam *param);
-	void workerHandler();
 
-	bool getPublishKey(string& uuid, string &publishKey)
-	{
-		lock();
-		auto it = uuidList.find(uuid);
-		if(it != uuidList.end())
-		{
-			publishKey = it->second;
-			uuidList.erase(it);
-			unlock();
-			return true;
-		}
-		else 
-		{
-			unlock();
-		}
-		return false;
-	}
-
-	void stopWorkerData(eventCallBackParam *param);
 	void *getAdRspHandler()const{return m_adRspHandler;}
 	int  getAdfd() const{return m_adFd;}
-	int  getExpFd() const{return m_expFd;}
-	void *getExpRspHandler() const{return m_zmqExpireRspHandler;}
 	void *getPublishVastHandler() const {return m_publishHandler;}
-	void *getPublishExpHandler() const {return m_publishExpireHandler;}
 
 	int getWorkerNum() const{return m_config.get_throttleworkerNum();}
 	
 	void closeZmqHandlerResource()
 	{
-		int rc1 = zmq_close(m_adRspHandler); 
-        int rc2 =zmq_close(m_zmqExpireRspHandler);     
-        int rc3=zmq_close(m_publishHandler);      
-        int rc4=zmq_close(m_publishExpireHandler);  
-		int rc = zmq_ctx_destroy(m_zmqContext);	
-		cout <<"zmq_ctx_destroy::"<<rc1<<":"<<rc2<<":"<<rc3<<":"<<rc4<<":"<<":"<<rc<<endl;
+		zmq_close(m_adRspHandler);           
+        zmq_close(m_publishHandler);      
+		zmq_ctx_destroy(m_zmqContext);	
 	}
 
 	vector<BC_process_t*>& getWorkerProList() { return m_workerList;}
@@ -205,28 +186,26 @@ public:
 		return (m_workerList.size()>m_workerNum)?true:false;
 	}
 	void run();
-	void workerLoop();
+	void start_worker();
 
 	void addSendUnitToList(void *data, unsigned int dataLen, int workIdx, unsigned int sendID);
 
 	void sendToWorker(char *buf, int size);
 	int getWorkChannel() {return workChannel;}
+	void listenWorkerEvent(struct event_base* base);
 
-	bool getWorkerChannelChanged()
-	{
-		bool ch ;
-		workerListLock();
-		ch = m_workerChannelChanged;
-		workerListUnlock();
-		return ch;
-	}
-	void setWorkerChannelChanged(bool state)
-	{
-		workerListLock();
-		m_workerChannelChanged = state;
-		workerListUnlock();
-	}
-	bool updateServWorkerEvent(void *pair);
+	static void listenEventState(int fd, short __, void *pair);
+	static void *listenVastEvent(void *throttle);
+    static void *recvFromWorker(void *throttle);
+	static void recvFromWorker_cb(int fd, short event, void *pair);
+	static void recvAD_callback(int _, short __, void *pair);
+	static void signal_handler(int signo);
+	static void worker_recvFrom_master_cb(int fd, short event, void *pair);
+	static void hupSigHandler(int fd, short event, void *arg);
+	static void intSigHandler(int fd, short event, void *arg);
+	static void termSigHandler(int fd, short event, void *arg);
+	static void usr1SigHandler(int fd, short event, void *arg);
+
 
 	~throttleServ()
 	{
@@ -235,13 +214,14 @@ public:
 		pthread_mutex_destroy(&workerListMutex);
 	}
 	
+	
 private:
 	void * establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
-	void * bindOrConnect(unsigned int configure, bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
+	void * bindOrConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
 	void readConfigFile();
 	void startNetworkResource();
-	void startWorkerConnect();
 	void updataWorkerList(pid_t pid);
+	
 	throttleConfig& m_config;
 	void *m_zmqContext = nullptr;	
 
@@ -249,51 +229,29 @@ private:
 	unsigned short m_throttleAdPort;
 	void *m_adRspHandler = nullptr;
 	int   m_adFd = 0;
-
-	unsigned short m_throttleExpirePort;
-	void *m_zmqExpireRspHandler = nullptr;
-	int m_expFd=0;
+	struct event *m_adEvent=NULL;
 
 	unsigned short m_publishPort=5010;
 	void *m_publishHandler=nullptr;
 
-	unsigned short m_publishExpirePort=5020;
-	void *m_publishExpireHandler=nullptr;
-/*
-	unsigned short m_servPushPort=5557;
-	unsigned short m_servPullPort=5558;
-	void *m_clientPullHandler=nullptr;
-	void *m_clientPushHandler=nullptr;
-	void *m_servPushHandler=nullptr;
-	void *m_servPollHandler=nullptr;
-	int m_clientPullFd = 0;
-	int m_servPullFd = 0;
-*/
 	pthread_mutex_t uuidListMutex;
 	pthread_mutex_t workerListMutex;
-	map<string, string> uuidList;
 	
 	ThreadPoolManager m_manager;
 
-	long long m_begTime;
-	long long m_endTime;
-	int m_count = 0;
 
 	unsigned int m_throConfChange = 0;
-
-	pthread_t m_adVastPthread;
-	pthread_t m_adExpPthread;
-	pthread_t m_servPullPthread;
 
 	int m_workerNum=1;
 	vector<BC_process_t*>  m_workerList;
 	pid_t m_masterPid;
-	bool m_masterStart=false;
+
 	unsigned int m_sendToWorkerID=0;
 
 	int workChannel;
-
-	bool m_workerChannelChanged=false;
+	int m_eventFd[2];
+	int m_listenWorkerNumFd[2];
+	vector<fdEvent*> m_fdEvent;
 };
 
 

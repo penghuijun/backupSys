@@ -2,9 +2,11 @@ PKG=`pkg-config --cflags --libs protobuf`
 #G11=g++ `pkg-config --cflags --libs protobuf` -g -DDEBUG
 #G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
 G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` 
-throttle: main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o
-	$(G11) -o throttle main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o\
+throttle: *.pb.c main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o AdMobileRequest.pb.o
+	$(G11) -o throttle main.o taskpool.o threadpool.o threadpoolmanager.o throttleConfig.o throttle.o  CommonMessage.pb.o AdMobileRequest.pb.o \
 	 AdVastRequestTemplate.pb.o AdBidderResponseTemplate.pb.o expireddata.pb.o $(PKG) -lhiredis -lzmq -lpthread -levent
+*.pb.c: *.proto
+	protoc --cpp_out=. *.proto
 main.o: main.cpp
 	$(G11) -c main.cpp
 #redisClient.o: redisClient.cpp redisClient.h
@@ -17,6 +19,8 @@ AdVastRequestTemplate.pb.o: AdVastRequestTemplate.pb.cc AdVastRequestTemplate.pb
 	$(G11) -c AdVastRequestTemplate.pb.cc 
 AdBidderResponseTemplate.pb.o: AdBidderResponseTemplate.pb.cc AdBidderResponseTemplate.pb.h
 	$(G11) -c AdBidderResponseTemplate.pb.cc
+AdMobileRequest.pb.o: AdMobileRequest.pb.cc AdMobileRequest.pb.h
+	$(G11) -c AdMobileRequest.pb.cc
 expireddata.pb.o: expireddata.pb.cc expireddata.pb.h
 	$(G11) -c expireddata.pb.cc
 throttleConfig.o: throttleConfig.cpp throttleConfig.h

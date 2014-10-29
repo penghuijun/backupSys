@@ -10,6 +10,7 @@
 #include <utility>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include <event.h>
 #include <signal.h>
@@ -20,14 +21,17 @@
 #include "AdVastRequestTemplate.pb.h"
 #include "AdBidderResponseTemplate.pb.h"
 #include "expireddata.pb.h"
+#include "AdMobileRequest.pb.h"
 #include "throttle.h"
 #include "hiredis.h"
 #include "threadpoolmanager.h"
 
+using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
 using namespace std;
 const char *businessCode_VAST="5.1";
+const char *businessCode_MOBILE="7.1.1";
 
 sig_atomic_t srv_graceful_end = 0;
 sig_atomic_t srv_ungraceful_end = 0;
@@ -50,6 +54,11 @@ unsigned long long getLonglongTime()
 
 void throttleServ::readConfigFile()
 {
+    if(m_throConfChange != 0)
+    {
+        cout <<"can not update configuration now, change the state of throttle or restart:"<<m_throConfChange<<endl;
+        return ;
+    }
     m_config.readConfig();
     string throIP = m_config.get_throttleIP();
     if(throIP != m_throttleIP) 
@@ -66,25 +75,11 @@ void throttleServ::readConfigFile()
             m_throttleAdPort = port;
     }
 
-    port = m_config.get_throttleExpirePort();
-    if(m_throttleExpirePort != port)
-    {
-            m_throConfChange |= c_master_expPort;
-            m_throttleExpirePort = port;
-    }
-
     port = m_config.get_throttlePubPort();
     if(m_publishPort != port)
     {
             m_throConfChange |= c_master_publishVast;
             m_publishPort = port;
-    }  
-
-    port = m_config.get_throttlePubExpPort();
-    if(m_publishExpirePort!= port)
-    {
-            m_throConfChange |= c_master_publishExp;
-            m_publishExpirePort = port;
     }  
 
     unsigned short value = m_config.get_throttleworkerNum();
@@ -99,13 +94,11 @@ void throttleServ::readConfigFile()
 throttleServ::throttleServ(throttleConfig &config):m_config(config)
 {
     pthread_mutex_init(&uuidListMutex, NULL);
-     pthread_mutex_init(&workerListMutex, NULL);
+    pthread_mutex_init(&workerListMutex, NULL);
 
     m_throttleIP = config.get_throttleIP();   
     m_throttleAdPort  = config.get_throttleAdPort();
-    m_throttleExpirePort = config.get_throttleExpirePort();
     m_publishPort = config.get_throttlePubPort();  
-    m_publishExpirePort = config.get_throttlePubExpPort();
     m_workerNum = config.get_throttleworkerNum();
 
 	auto i = 0;
@@ -115,9 +108,10 @@ throttleServ::throttleServ(throttleConfig &config):m_config(config)
 		if(pro == NULL) return;
 		pro->pid = 0;
 		pro->status = PRO_INIT;
+        pro->channel[0]=pro->channel[1]=-1;
 		m_workerList.push_back(pro);
 	};
-    m_throConfChange = 0xFFFFFFFF;	
+    m_throConfChange = 0;	
 }
 
 
@@ -146,6 +140,7 @@ void throttleServ::addSendUnitToList(void * data,unsigned int dataLen,int workId
     char *sendFrame=NULL;
     int frameLen;
     int chanel;   
+    int sendTimes = 0;
     try
     {
         workerListLock();
@@ -154,40 +149,26 @@ void throttleServ::addSendUnitToList(void * data,unsigned int dataLen,int workId
         chanel = pro->channel[0];
         workerListUnlock();
         
-        frameLen = dataLen+8;
+        frameLen = dataLen+4;
         sendFrame = new char[frameLen];
-        PUT_LONG(sendFrame, dataLen+4);
-        PUT_LONG(sendFrame+4, sendID);
+        PUT_LONG(sendFrame, dataLen);
 
-        memcpy(sendFrame+8, data, dataLen);
+        memcpy(sendFrame+4, data, dataLen);
         do
         {   
-            if(pro->status == PRO_KILLING)
-            {
-                usleep(100);
-                continue;
-            }
-            while(chanel == 0)
-            {
-                workerListLock();
-                pro = m_workerList.at((workIdx++)%m_workerNum);
-                chanel = pro->channel[0]; 
-                workerListUnlock();
-                usleep(10);
-            }
             int rc = write(chanel, sendFrame, frameLen);
          
             if(rc>0)
             {
-
                 break;
             }
+        //    if(sendTimes++>=1000) break;
             workerListLock();
             pro = m_workerList.at((workIdx++)%m_workerNum);
             chanel = pro->channel[0]; 
             workerListUnlock();
        }while(1);
-        delete[] sendFrame;
+       delete[] sendFrame;
     }
     catch(std::out_of_range &err)
     {
@@ -196,26 +177,21 @@ void throttleServ::addSendUnitToList(void * data,unsigned int dataLen,int workId
         addSendUnitToList(data, dataLen, 0, sendID);
     }
     catch(...)
-    {
+    {
+
         cout <<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
         throw;
     }
 }
 
-void recvAD_callback(int _, short __, void *pair)
+void throttleServ::recvAD_callback(int _, short __, void *pair)
 {
     zmq_msg_t msg;
     uint32_t events;
     size_t len;
     char buf[BUFSIZE];
 
-    eventCallBackParam *param = (eventCallBackParam*) pair;
-    if(param==NULL) 
-    {
-        cout<<"param is nullptr"<<endl;
-        return;
-    }
-    throttleServ *serv = (throttleServ*) param->serv;
+    throttleServ *serv = (throttleServ*) pair;
     if(serv==NULL) 
     {
         cout<<"serv is nullptr"<<endl;
@@ -232,95 +208,35 @@ void recvAD_callback(int _, short __, void *pair)
             return;
     }
 
-    static int aaa=0;
     if ( events & ZMQ_POLLIN )
     {
         while (1)
         {
             int recvLen = zmq_recv(adrsp, buf, sizeof(buf), ZMQ_NOBLOCK);
-            if ( recvLen == -1 )
+            if(recvLen == -1)
             {
+           
                 break;
             }
-
             recvLen = zmq_recv(adrsp, buf, sizeof(buf), ZMQ_NOBLOCK);
-      
             if ( recvLen == -1 )
             {
+         
                 break;
-            }  
-           // cout <<"sern to worker times="<<++aaa<<endl;
-            serv->sendToWorker(buf, recvLen);
+            }
+          
+            if(recvLen)
+            {
+                serv->sendToWorker(buf, recvLen);
+            }
         }
     }
 }
 
-void recvExp_callback(int _, short __, void *pair)
+
+void throttleServ::recvFromWorker_cb(int fd, short event, void *pair)
 {
-    zmq_msg_t msg;
-    uint32_t events;
-    size_t len;
-    char buf[BUFSIZE];
-
-    eventCallBackParam *param = (eventCallBackParam*) pair;
-    if(param==NULL) 
-    {
-        cout<<"param is nullptr"<<endl;
-        return;
-    }
-    throttleServ *serv = (throttleServ*) param->serv;
-    if(serv==NULL) 
-    {
-        cout<<"serv is nullptr"<<endl;
-        return;
-    }
-    void *expHandler = serv->getExpRspHandler();
-    void *pubExpHandler = serv->getPublishExpHandler();
-
-    len = sizeof(events);
-    int rc = zmq_getsockopt(expHandler, ZMQ_EVENTS, &events, &len);
-    if(rc == -1)
-    {
-        cout <<"adexp is invalid" <<endl;
-        return;
-    }
-    
-    if ( events & ZMQ_POLLIN )
-    {
-        while (1)
-        {
-            int recvLen = zmq_recv(expHandler, buf, sizeof(buf), ZMQ_NOBLOCK);
-            if ( recvLen == -1 )
-            {
-                break;
-            }
-            cout << "exp recvlen:"<< recvLen<<endl;
-            CommonMessage commMsg;
-            commMsg.ParseFromArray(buf, recvLen);
-            string rsp = commMsg.data();
-            ExpiredMessage expireMsg;
-                 
-            expireMsg.ParseFromString(rsp);
-            string uuid = expireMsg.uuid();
-            string expiredata = expireMsg.status();
-            string publishKey;
-            
-            if(serv->getPublishKey(uuid, publishKey))
-            {
-                  publishKey+="EXP";
-                  zmq_send(pubExpHandler, publishKey.c_str(), publishKey.size(),ZMQ_SNDMORE);
-                  zmq_send(pubExpHandler, buf, recvLen, 0);  
-            }
-        
-        }
-    }
-}
-
-
-
-void servPull_callback(int fd, short event, void *pair)
-{
-   // static int sentTbcTimes=0;
+    static int sentTbcTimes=0;
     zmq_msg_t msg;
     uint32_t events;
     int len;
@@ -329,259 +245,114 @@ void servPull_callback(int fd, short event, void *pair)
     char uuid[PUBLISHKEYLEN_MAX];
     string adUUID;
 
-    eventCallBackParam *param = (eventCallBackParam*) pair;
-    if(param==NULL) 
-    {
-        cout<<"param is nullptr"<<endl;
-        return;
-    }
-    throttleServ *serv = (throttleServ*) param->serv;
+    throttleServ *serv = (throttleServ*) pair;
     if(serv==NULL) 
     {
         cout<<"serv is nullptr"<<endl;
         return;
     }
 
-    //int chanel = serv->getWorkChannel();
-   //     cout <<"fd:" << fd<<"channel:"<<chanel<<endl;
+
     int dataLen = 0;
     while(1)
     {
         len = read(fd, buf, 4);
-        if(len == -1) 
-        {
-            break;
-        }
-
-        if(len == 0)
-        {
-      //      cout <<"{}{}}{}{}{}{}{}{}{}{}{}{}{}}{}{}{}{}}{}{}{}{}{}{}{}{}{}{}{}{}{}"<<endl;
-            auto it = param->ev_servPullEventList.begin();
-            for(it = param->ev_servPullEventList.begin(); it != param->ev_servPullEventList.end(); )
-            {
-                servReadWorkerEvent *workEvent = *it;
-                if(workEvent==NULL)
-                {
-                    it++;
-                    continue;
-                }
-                if(workEvent->fd == fd)
-                {
-                    event_del(workEvent->ev);
-                    delete workEvent->ev;
-                    delete workEvent;
-                 //   close(fd);
-                    it = param->ev_servPullEventList.erase(it);
-                }
-                else
-                {
-                    it++;
-                }
-            }
-            bool rc;
-            do
-            {
-                rc = serv->getWorkerChannelChanged();
-                if(rc == false) usleep(1000);
-            }while(rc==false);
-         //   close(fd);
-            serv->updateServWorkerEvent(pair);
-            break;
-        }
-
-        if(serv->getWorkerChannelChanged()==true)
-        {
-            serv->updateServWorkerEvent(pair); 
-        }
         if(len != 4)
         {
-            cout <<"err len:" << len<<endl;
-            break;
+         //   cout <<"err len:" << len<<endl;
+            return;
         }
         dataLen = GET_LONG(buf);
 
-        len = read(fd, buf, dataLen);
-        if(len != dataLen) 
+        char *data_buf = new char[dataLen];
+        len = read(fd, data_buf, dataLen);
+        if(len <= 0)
         {
-            cout <<"servPull_callback read channel exception!!!:"<<len<<":"<<dataLen<<endl;
-            break;
+             delete[] data_buf;
+             return;
         }
-         
-        unsigned int sendID = GET_LONG(buf);
-        dataLen-=sizeof(int);
-        memset(publish, 0, sizeof(publish));
-        memcpy(publish, &buf[0]+sizeof(int), sizeof(publish));
-        dataLen -= PUBLISHKEYLEN_MAX;
-        memcpy(uuid, &buf[0]+PUBLISHKEYLEN_MAX+sizeof(int), sizeof(uuid));
-        dataLen -= PUBLISHKEYLEN_MAX;
-        adUUID = uuid;
+        int idx = len;
+        while(idx < dataLen) 
+        {
+            cout<<"recvFromWorker_cb data exception:"<<dataLen <<"  idx:"<<idx<<endl;
+            len = read(fd, data_buf+idx, dataLen-idx);
+            if(len <= 0)
+            {
+                 delete[] data_buf;
+                 return;
+            }
+            idx += len;
+        }
 
+        serv->speed();
+        memset(publish, 0, sizeof(publish));
+        memcpy(publish, data_buf, sizeof(publish));
+        dataLen -= PUBLISHKEYLEN_MAX;
         void *pubVastHandler = serv->getPublishVastHandler();
-        zmq_send(pubVastHandler, publish, strlen(publish),0);
-        zmq_send(pubVastHandler, &buf[0]+2*PUBLISHKEYLEN_MAX, dataLen, 0);   
-        serv->uuidListInsert(adUUID, publish); 
-      //  cout <<"send to bc:"<<dataLen<<endl;
+        zmq_send(pubVastHandler, publish, strlen(publish), ZMQ_SNDMORE);
+        zmq_send(pubVastHandler, data_buf+PUBLISHKEYLEN_MAX, dataLen, 0);
+        delete[] data_buf;
     }
    
 }
-void event_pthread_cleanup(void *arg)
+
+void throttleServ::listenEventState(int fd, short __, void *pair)
 {
-    cout <<"adRequest_cleanup begin"<<endl;
-
-    if(arg == NULL)
+    eventParam *param = (eventParam *) pair;
+    throttleServ *serv = (throttleServ*)param->serv;
+    char buf[1024]={0};
+    int rc = read(fd, buf, sizeof(buf));
+    if(rc == -1) return;
+    cout<<"state:"<<buf<<endl;
+    if(memcmp(buf,"event", 5) == 0)
     {
-        return;
-    }
-    eventCallBackParam *param = (eventCallBackParam *) arg;
-    if(param->ev_adEvent)
+        cout <<"update connect:"<<getpid()<<endl;
+        serv->masterRestart(param->base);
+    }    
+ 
+    if(memcmp(buf,"delworker", 9) == 0)
     {
-        if(param->ev_adEvent)
-        {
-            event_del(param->ev_adEvent);
-            delete param->ev_adEvent;
-            param->ev_adEvent = NULL;
-        }
-
-        if(param->ev_expEvent)
-        {
-            event_del(param->ev_expEvent);
-            delete param->ev_expEvent;
-            param->ev_adEvent = NULL;
-        }  
-  
-        if(param->ev_clientPullEvent)
-        {
-            event_del(param->ev_clientPullEvent);
-            delete param->ev_clientPullEvent;
-            param->ev_clientPullEvent = NULL;
-        }          
-    }
-
-    if(param->ev_base)
-    {
-        event_base_loopexit(param->ev_base, NULL);
-        event_base_free(param->ev_base);
-    }
-
-    delete param; 
-    cout <<"adRequest_cleanup end"<<endl;
+        cout <<"delworker:"<<getpid()<<endl;
+        serv->listenWorkerEvent(param->base);
+    }    
 }
 
-bool throttleServ::updateServWorkerEvent(void *pair)
-{
-    bool result = false;
-    eventCallBackParam *param = (eventCallBackParam*)  pair;    
-    workerListLock();
-       auto workIt = m_workerList.begin();
-       for( workIt = m_workerList.begin(); workIt != m_workerList.end(); workIt++)
-       {
-            BC_process_t *pro = *workIt;
-            if(pro == NULL) continue;
-          
-            int readChannel = pro->channel[0];
-            auto servIt = param->ev_servPullEventList.begin();
-            for(servIt = param->ev_servPullEventList.begin(); servIt != param->ev_servPullEventList.end(); servIt++)
-            {
-                servReadWorkerEvent *rEvent =  *servIt;
-                if(rEvent == NULL) continue;
-                if(rEvent->fd == readChannel)
-                {
-                    break;
-                }
-            }
-
-            if(servIt == param->ev_servPullEventList.end())//not listen readChannel
-            {
-                struct event * pServRead = event_new(param->ev_base, readChannel, EV_READ|EV_PERSIST, servPull_callback, pair);
-                servReadWorkerEvent *eventR = new servReadWorkerEvent;
-                eventR->fd = readChannel;
-                eventR->ev = pServRead;
-                param->ev_servPullEventList.push_back(eventR);
-                event_add(pServRead, NULL);
-                result = true;
-            }
-       }
-    workerListUnlock();
-    return result;
-}
-
-void *servRecvPollHandle(void *throttle)
+void *throttleServ::recvFromWorker(void *throttle)
 {
     throttleServ *serv = (throttleServ*) throttle;
-    eventCallBackParam *param= new eventCallBackParam;
-    memset(param, 0x00, sizeof(eventCallBackParam));
-    pthread_cleanup_push(event_pthread_cleanup, param);
-    struct event_base* base = event_base_new();   
 
-    vector<BC_process_t*> proVec = serv->getWorkerProList();
-
-    auto it = proVec.begin();
-    for(it = proVec.begin(); it != proVec.end();it++)
-    {
-        BC_process_t *pro = *it;
-        if(pro == NULL) continue;
-        struct event * pEvRead = event_new(base, pro->channel[0], EV_READ|EV_PERSIST, servPull_callback, param);
-        servReadWorkerEvent *event = new servReadWorkerEvent;
-        event->fd = pro->channel[0];
-        cout <<"evnet pro channel:"<< pro->channel[0]<<endl;
-        event->ev = pEvRead;
-        param->ev_servPullEventList.push_back(event);
-        event_add(pEvRead, NULL);
-    }
-    param->serv = throttle;
-    param->ev_base = base;
+    struct event_base* base = event_base_new(); 
+    eventParam *param = new eventParam;
+    param->base = base;
+    param->serv = serv;
+    int ret = socketpair(AF_LOCAL, SOCK_STREAM, 0, serv->m_listenWorkerNumFd);
+    struct event * pEvRead = event_new(base, serv->m_listenWorkerNumFd[0], EV_READ|EV_PERSIST, listenEventState, param); 
+    event_add(pEvRead, NULL);
+    serv->listenWorkerEvent(base);
     event_base_dispatch(base);
-    pthread_cleanup_pop(0); 
-	return NULL;
 }
 
-
-void *adRequestHandle(void *throttle)
+void *throttleServ::listenVastEvent(void *throttle)
 {
-
       throttleServ *serv = (throttleServ*) throttle;
-      int fd = serv->getAdfd();
 
-      eventCallBackParam *param= NULL;
-      param = new eventCallBackParam;
-      memset(param, 0x00, sizeof(eventCallBackParam));
-
-      pthread_cleanup_push(event_pthread_cleanup, param);
-      struct event_base* base = event_base_new();    
-      struct event * pEvRead = event_new(base, fd, EV_READ|EV_PERSIST, recvAD_callback, param);    
-
-      param->serv = throttle;
-      param->ev_base = base;
-      param->ev_adEvent = pEvRead;
-  
+      struct event_base* base = event_base_new(); 
+      eventParam *param = new eventParam;
+      param->base = base;
+      param->serv = serv;
+      int ret = socketpair(AF_LOCAL, SOCK_STREAM, 0, serv->m_eventFd);
+      struct event * pEvRead = event_new(base, serv->m_eventFd[0], EV_READ|EV_PERSIST, listenEventState, param); 
       event_add(pEvRead, NULL);
+      serv->m_adEvent = event_new(base, serv->m_adFd, EV_READ|EV_PERSIST, recvAD_callback, throttle); 
+      event_add(serv->m_adEvent, NULL);
+
       event_base_dispatch(base);
-      pthread_cleanup_pop(0); 
       return NULL;  
 }
-void *expireHandle(void *throttle)
-{
-    throttleServ *serv = (throttleServ*) throttle;
-    int fd = serv->getExpFd();
 
-    eventCallBackParam *param= new eventCallBackParam;
-    memset(param, 0x00, sizeof(eventCallBackParam));
-    
-    pthread_cleanup_push(event_pthread_cleanup, param);
-    struct event_base* base = event_base_new();       
-    struct event * pExpRead = event_new(base, fd, EV_READ|EV_PERSIST, recvExp_callback, param);
-    param->serv = throttle;
-    param->ev_base = base;
-    param->ev_expEvent = pExpRead;
-    event_add(pExpRead, NULL);
-    event_base_dispatch(base);
-    pthread_cleanup_pop(0); 
-	return NULL;
-}
-    
-static int acbd = 0;
-void clientPull_callback(int fd, short event, void *pair)
+void throttleServ::worker_recvFrom_master_cb(int fd, short event, void *pair)
 {
+    ostringstream os;
     eventCallBackParam *param = (eventCallBackParam*) pair;
     if(param==NULL) 
     {
@@ -594,31 +365,43 @@ void clientPull_callback(int fd, short event, void *pair)
         cout<<"serv is nullptr"<<endl;
         return;
     }
-       char buf[1024];
-       int len;
-       int dataLen;
+
+    char buf[4096];
+    int len;
+    int dataLen;
     while(1)
     {
-    
        len = read(fd, buf, 4);
        if(len == -1)
        {
-         // cout<<"+++++++++++++++++++++++++++++++++"<<endl;
-          break;
+          return;
        }
+   
        if(len !=4) break;
-       dataLen = GET_LONG(buf);      
-       len = read(fd, buf, dataLen);
-       if(len != dataLen) 
+       dataLen = GET_LONG(buf); 
+
+       char *data_buf = new char[dataLen];
+       len = read(fd, data_buf, dataLen);
+       if(len <= 0)
        {
-           cout<<"recv data exception:"<<dataLen <<"len:"<<len<<endl;
-           break;
+            delete[] data_buf;
+            return;
        }
-       
- //     cout <<"client pid:"<<getpid()<<"  cnt:"<<++acbd<<endl;
-      static int adTimes=0;
+       int idx = len;
+       while(idx < dataLen) 
+       {
+           cout<<"recv data exception:"<<dataLen <<"  idx:"<<idx<<endl;
+           len = read(fd, data_buf+idx, dataLen-idx);
+           if(len <= 0)
+           {
+                delete[] data_buf;
+                return;
+           }
+           idx += len;
+       }
+
       CommonMessage commMsg;
-      commMsg.ParseFromArray(&buf[4], dataLen-4);     
+      commMsg.ParseFromArray(data_buf, dataLen);     
       string vastStr=commMsg.data();
       string tbusinessCode = commMsg.businesscode();
       string tcountry;
@@ -627,8 +410,8 @@ void clientPull_callback(int fd, short event, void *pair)
       string tbrowser;
       string uuid;
       string publishKey;
-                   
-                                         
+             
+    //  cout<<"buisCode:"<< tbusinessCode<<endl;
       if(tbusinessCode == businessCode_VAST)
       {
          VastRequest vast;
@@ -641,39 +424,37 @@ void clientPull_callback(int fd, short event, void *pair)
          tos = dev.os();
          tbrowser = dev.browser();
       }
+      else if(tbusinessCode == businessCode_MOBILE)
+      {
+        MobileAdRequest mobile;
+        mobile.ParseFromString(vastStr);
+        uuid = mobile.id();
+        MobileAdRequest_User user = mobile.user();
+        tcountry = user.countrycode();
+      }
       else
       {
-         cout << "this businessCode can not analysis:" << tbusinessCode << endl;
+         delete[] data_buf;
          return;
-      }
-                               
-#ifdef DEBUG
-                  //  cout << "bus:" << tbusinessCode << " ad uuid:" << uuid << "  times:" <<++adTimes<< endl;
-                  //  cout <<"recv info::" << tbusinessCode << "  " << tcountry << "  " << tlanguage << "  " << tos << "  " << tbrowser << endl;
-#endif
-                      
-      if(adTimes++%2==0)
-      {
-         publishKey = "5.1.1-CN";
-      }
-      else
-      {
-         publishKey = "5.1.1-US";  
-      }
+      }                       
 
-      int tmpBufLen = 2*PUBLISHKEYLEN_MAX+dataLen+sizeof(int);
+      //printf("uuid:%s\n", uuid.c_str());
+      os.str("");
+      os <<tbusinessCode;//<<"-"<<tcountry;
+      publishKey = os.str();
+  
+      int tmpBufLen = PUBLISHKEYLEN_MAX+dataLen+sizeof(int);
       char *tmpBuf = new char[tmpBufLen];
       memset(tmpBuf, 0x00, tmpBufLen);
-      PUT_LONG(&tmpBuf[0], tmpBufLen-4);
-      memcpy(tmpBuf+sizeof(int), &buf[0], sizeof(int));
-      memcpy(tmpBuf+2*sizeof(int), publishKey.c_str(), publishKey.size());
-      memcpy(tmpBuf+PUBLISHKEYLEN_MAX+2*sizeof(int), uuid.c_str(), uuid.size());
-      memcpy(tmpBuf+2*PUBLISHKEYLEN_MAX+2*sizeof(int), &buf[4], dataLen-sizeof(int));  
+      PUT_LONG(tmpBuf, tmpBufLen-sizeof(int));
+      memcpy(tmpBuf+sizeof(int), publishKey.c_str(), publishKey.size());
+      memcpy(tmpBuf+PUBLISHKEYLEN_MAX+sizeof(int), data_buf, dataLen);  
+      delete[] data_buf; 
       int rc = 0;
       do
       {
-            rc = write(fd, tmpBuf, tmpBufLen); 
-             if(rc > 0 ) break;
+           rc = write(fd, tmpBuf, tmpBufLen); 
+           if(rc > 0 ) break;
                         
       }while(1);
       delete[] tmpBuf; 
@@ -681,40 +462,27 @@ void clientPull_callback(int fd, short event, void *pair)
 }
 
 
-static void
-hupSigHandler(int fd, short event, void *arg)
+void throttleServ::hupSigHandler(int fd, short event, void *arg)
 {
     cout <<"signal hup"<<endl;
     exit(0);
 }
 
 
-static void
-intSigHandler(int fd, short event, void *arg)
+void throttleServ::intSigHandler(int fd, short event, void *arg)
 {
     cout <<"signal int:"<<endl;
- //   eventCallBackParam *param = (eventCallBackParam *) arg;
- //   throttleServ *serv = (throttleServ*) param->serv;
- //   if(serv)
-  //  {
-  //      sleep(1);
-  //      serv->stopWorkerData(param);
-  //  }
    usleep(100);
    exit(0);
 }
 
-static void
-termSigHandler(int fd, short event, void *arg)
+void throttleServ::termSigHandler(int fd, short event, void *arg)
 {
     cout <<"signal term"<<endl;
     exit(0);
 }
 
-
-
-static void
-usr1SigHandler(int fd, short event, void *arg)
+void throttleServ::usr1SigHandler(int fd, short event, void *arg)
 {
     cout <<"signal SIGUSR1"<<endl;
 /*
@@ -726,31 +494,6 @@ usr1SigHandler(int fd, short event, void *arg)
     }*/
 }
 
-
-void throttleServ::workerHandler()
-{  
-    eventCallBackParam *param= new eventCallBackParam;
-    
-    struct event_base* base = event_base_new();    
-    struct event * hup_event = evsignal_new(base, SIGHUP, hupSigHandler, param);
-    struct event * int_event = evsignal_new(base, SIGINT, intSigHandler, param);
-    struct event * term_event = evsignal_new(base, SIGTERM, termSigHandler, param);
-    struct event * usr1_event = evsignal_new(base, SIGUSR1, usr1SigHandler, param);
-    struct event *clientPullEvent = event_new(base, workChannel, EV_READ|EV_PERSIST, clientPull_callback, param);
-
-    param->serv = this;
-    param->ev_base = base;
-    param->ev_clientPullEvent = clientPullEvent;
-    event_add(clientPullEvent, NULL);
-    evsignal_add(hup_event, NULL);
-    evsignal_add(int_event, NULL);
-    evsignal_add(term_event, NULL);
-    evsignal_add(usr1_event, NULL);
-    event_base_dispatch(base);
-}
-
-
-
 void* throttleServ::establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd)
 {
     ostringstream os;
@@ -758,9 +501,8 @@ void* throttleServ::establishConnect(bool client, const char * transType,int zmq
     int rc;
     void *handler = nullptr;
     size_t size;
-    int time = 0;
 
-    int sockfd;
+
     os.str("");
     os << transType << "://" << addr << ":" << port;
     pro = os.str();
@@ -784,39 +526,22 @@ void* throttleServ::establishConnect(bool client, const char * transType,int zmq
 
     if(fd != nullptr&& handler!=nullptr)
     {
-        sockfd = 0;
-        int cnt = 1000;
-        char buf[1024];
-        
-        zmq_setsockopt (handler, ZMQ_RCVHWM, &cnt, sizeof(cnt));
-        zmq_setsockopt (handler, ZMQ_SNDHWM, &cnt, sizeof(cnt));
-        
-        int recvLen = zmq_recv(handler, buf, sizeof(buf), ZMQ_NOBLOCK);
-       
-        rc = zmq_getsockopt(handler, ZMQ_FD, &sockfd, &size);
+    	size = sizeof(int);
+        rc = zmq_getsockopt(handler, ZMQ_FD, fd, &size);
         if(rc != 0 )
         {
-            cout<< "<" << addr << "," << port << ">::" <<"ZMQ_FD faliure::" <<zmq_strerror(zmq_errno())<<"::"<<sockfd<<endl;
+            cout<< "<" << addr << "," << port << ">::" <<"ZMQ_FD faliure::" <<zmq_strerror(zmq_errno())<<endl;
             zmq_close(handler);
             return nullptr; 
         }
-        *fd = sockfd;
+
     }
-
-    zmq_setsockopt (handler, ZMQ_LINGER, &time, sizeof(time));
     return handler;
-}
-
-void throttleServ::stopWorkerData(eventCallBackParam *param)
-{
-        close(workChannel);   
 }
 
 void throttleServ::workerRestart(eventCallBackParam *param)
 {
     if(param == NULL) return;
-    
-    m_throConfChange = 0;
     readConfigFile();
     
     cout <<"workerRestart::m_throConfChange:"<<m_throConfChange<<endl;
@@ -836,262 +561,153 @@ void *getTime(void *arg)
 }
 #endif
 
-void throttleServ::masterRestart()
+void throttleServ::listenWorkerEvent(struct event_base* base)
 {
-    void *handler = NULL;
-        int connectTimes = 0;
-    const int connectMax=3;
-    cout <<"masterRestart::m_throConfChange:"<<m_throConfChange<<endl;
-    if((m_throConfChange&c_master_adPort)==c_master_adPort)
-    {   
-        int rc = zmq_close(m_adRspHandler); 
-        cout <<"c_master_adPort:"<<rc<<endl;
-        m_adRspHandler = NULL;  
-        pthread_cancel(m_adVastPthread);
-        connectTimes = 0;
-       // handler = bindOrConnect(c_master_adPort, false, "tcp", ZMQ_ROUTER, m_throttleIP.c_str(), m_throttleAdPort, &m_adFd);
-       // if(handler != NULL) m_adRspHandler = handler;
-        do
-        {
-            m_adRspHandler = establishConnect(false, "tcp", ZMQ_ROUTER, m_throttleIP.c_str(), m_throttleAdPort, &m_adFd);
-            if(m_adRspHandler == nullptr)
-            {
-                readConfigFile();
-                sleep(1);
-                if(connectTimes++ >= connectMax)
-                {
-                    cout <<"retry to connect to MAX"<<endl;
-                    system("killall throttle");
-                    exit(1);
-                }
-            }
-
-        }while(m_adRspHandler == nullptr);
-        cout <<"advast reconnect to throttle success"<<endl;
-        pthread_create(&m_adVastPthread, NULL, adRequestHandle, this);
-    }
-       
-    if((m_throConfChange&c_master_expPort)==c_master_expPort)
+    workerListLock();
+    auto it1 = m_fdEvent.begin();
+    for(it1 = m_fdEvent.begin(); it1 != m_fdEvent.end();)
     {
-        zmq_close(m_zmqExpireRspHandler); 
-        cout <<"c_master_expPort"<<endl;
-        m_zmqExpireRspHandler = NULL;
-
-        pthread_cancel(m_adExpPthread);
-        handler = bindOrConnect(c_master_expPort, false , "tcp", ZMQ_DEALER, m_throttleIP.c_str(), m_throttleExpirePort,&m_expFd);
-        if(handler != NULL) m_zmqExpireRspHandler = handler;       
-        cout <<"adExp reconnect to throttle success"<<endl;
-        pthread_create(&m_adExpPthread, NULL, expireHandle, this);    
-    }
+        fdEvent *ev = *it1;
+        if(ev == NULL) continue;
+        cout<<"ev:"<<ev->fd<<endl;
+        auto etor1 = m_workerList.begin();
+        for(etor1 = m_workerList.begin(); etor1 != m_workerList.end();etor1++)
+        {
+           BC_process_t *pro = *etor1;
+           if(pro == NULL) continue;
+           cout<<"===:"<<pro->channel[0]<<endl;
+           if(ev->fd == pro->channel[0])break;
+        }
     
-    if((m_throConfChange&c_master_publishVast)==c_master_publishVast)
+        if(etor1 == m_workerList.end())
+        {
+              event_free(ev->evEvent);
+              close(ev->fd); 
+              it1 = m_fdEvent.erase(it1);
+        }
+        else
+        {
+              it1++;
+        }
+     } 
+
+    
+    auto it = m_workerList.begin();
+    for(it = m_workerList.begin(); it != m_workerList.end();it++)
+    {
+        BC_process_t *pro = *it;
+        if(pro == NULL) continue;
+        auto etor = m_fdEvent.begin();
+        for(etor = m_fdEvent.begin(); etor != m_fdEvent.end(); etor++)
+        {
+            fdEvent *ev = *etor;
+            if(ev == NULL)continue;
+            if(ev->fd == pro->channel[0])break;
+        }
+
+        if(etor == m_fdEvent.end())
+        {
+           struct event * pEvRead = event_new(base, pro->channel[0], EV_READ|EV_PERSIST, recvFromWorker_cb, this); 
+           cout <<"new event:"<<pro->channel[0]<<endl;
+           fdEvent *fd_event = new fdEvent;
+           fd_event->fd = pro->channel[0];
+           fd_event->evEvent = pEvRead;
+           m_fdEvent.push_back(fd_event);
+           event_add(pEvRead, NULL);
+        }
+      }   
+ 
+      workerListUnlock();
+
+}
+
+void throttleServ::masterRestart(struct event_base* base)
+{
+    cout <<"masterRestart::m_throConfChange:"<<m_throConfChange<<endl;
+    if(((m_throConfChange&c_master_throttleIP)==c_master_throttleIP) || (m_throConfChange&c_master_adPort)==c_master_adPort)
+    {   
+        zmq_close(m_adRspHandler); 
+        event_del(m_adEvent);
+        m_adRspHandler = bindOrConnect(false, "tcp", ZMQ_ROUTER, m_throttleIP.c_str(), m_throttleAdPort, &m_adFd);
+        m_adEvent = event_new(base, m_adFd, EV_READ|EV_PERSIST, recvAD_callback, this); 
+        event_add(m_adEvent, NULL);
+        m_throConfChange &=(~(c_master_throttleIP|c_master_adPort));
+        cout <<"advast reconnect to throttle success"<<endl;
+    }
+
+    if((m_throConfChange&c_master_publishVast)==c_master_publishVast)
     {
         zmq_close(m_publishHandler);    
-        m_publishHandler = NULL;  
-       // handler = bindOrConnect(c_master_publishVast, false, "tcp", ZMQ_PUB, "*", m_publishPort, nullptr);
-       // if(handler != NULL) m_publishHandler = handler;    
-        connectTimes = 0;
-        do
-        {
-           m_publishHandler = establishConnect(false, "tcp", ZMQ_PUB, "*", m_publishPort, nullptr);
-           if(m_publishHandler == nullptr) 
-           {
-               readConfigFile();
-               sleep(1);
-           }
-           if(connectTimes++ >= connectMax)
-           {
-                cout <<"retry to connect to MAX"<<endl;
-                system("killall throttle");
-                exit(1);
-           }
-        }while(m_publishHandler == nullptr);
-        cout <<"publish vast reconnect to throttle success"<<endl;
+        m_publishHandler = bindOrConnect(false, "tcp", ZMQ_PUB, "*", m_publishPort, nullptr);
+        m_throConfChange &=(~c_master_publishVast);
+        cout <<"publish reconnect to throttle success"<<endl;
     }
 
-    if((m_throConfChange&c_master_publishExp)==c_master_publishExp)
+    if((m_throConfChange&c_workerNum)==c_workerNum)
     {
-         zmq_close(m_publishExpireHandler);  
-        // handler = bindOrConnect(c_master_publishExp, false, "tcp", ZMQ_PUB, "*", m_publishExpirePort, nullptr);
-        // if(handler != NULL) m_publishExpireHandler = handler;
-        connectTimes = 0;
-         do
-         {
-      
-            m_publishExpireHandler= establishConnect(false, "tcp", ZMQ_PUB, "*", m_publishExpirePort, nullptr);
-            if(m_publishExpireHandler == nullptr)
-            {
-               readConfigFile();
-               sleep(1);   
-            }
-            if(connectTimes++ >= connectMax)
-            {
-                cout <<"retry to connect to MAX"<<endl;
-                system("killall throttle");
-                exit(1);
-            }
-         }while(m_publishExpireHandler == nullptr);
-         cout <<"publish expire reconnect to throttle success"<<endl;
+        m_throConfChange &=(~c_workerNum);
     }
+    listenWorkerEvent(base);
 
 }
 
 
 bool throttleServ::masterRun()
 {
-        int *ret;
-        pthread_t worker;
-    // pthread_create(&worker, NULL, getTime, this);
-    // usleep(20);
-        startNetworkResource();
+      startNetworkResource();
     
       //ad thread, expire thread, poll thread
-      pthread_create(&m_adVastPthread, NULL, adRequestHandle, this);
-      pthread_create(&m_adExpPthread, NULL, expireHandle, this);
-      pthread_create(&m_servPullPthread, NULL, servRecvPollHandle, this);
+      pthread_t pth;
+      pthread_t pthl;
+      pthread_create(&pth, NULL, listenVastEvent, this);
+      pthread_create(&pthl, NULL, recvFromWorker, this);//bucause socket pair is asyn ,if will send untill success , so need 2 pthread in case of dead while
       cout <<"==========================throttle serv start==========================="<<endl;
-      
-   //   pthread_join(m_adVastPthread, (void **)&ret);
-    //  pthread_join(m_adExpPthread, (void **)&ret);
-    //  pthread_join(m_servPullPthread, (void **)&ret);
-    //  pthread_join(worker, (void **)&ret);
 	  return true;
 }
 
-void* throttleServ::bindOrConnect(unsigned int configure, bool client,const char * transType,int zmqType,const char * addr,unsigned short port,int * fd)
+
+
+void* throttleServ::bindOrConnect( bool client,const char * transType,int zmqType,const char * addr,unsigned short port,int * fd)
 {
     int connectTimes = 0;
     const int connectMax=3;
-
     void *zmqHandler = NULL;
-    if(m_throConfChange&configure==configure)
+    do
     {
-        do
-        {
-            zmqHandler = establishConnect(client, transType, zmqType, addr, port, fd);
-            if(zmqHandler == nullptr)
-            {
-                readConfigFile();
-                sleep(1);
-            }
-         }while(zmqHandler == nullptr);
-         if(connectTimes++ >= connectMax)
-         {
-              cout <<"try to connect to MAX"<<endl;
-              system("killall throttle");
-              
-              exit(1);
-         }
-     }
+       zmqHandler = establishConnect(client, transType, zmqType, addr, port, fd);
+       if(zmqHandler == nullptr)
+       {
+           if(connectTimes++ >= connectMax)
+           {
+                cout <<"try to connect to MAX"<<endl;
+                system("killall throttle");     
+                exit(1);
+           }
+           cout <<"<"<<addr<<","<<port<<">"<<((client)? "connect":"bind")<<"failure"<<endl;
+           sleep(1);
+       }
+    }while(zmqHandler == nullptr);
+
     cout << "<" << addr << "," << port << ">" << ((client)? "connect":"bind")<< " to this port:"<<endl;
     return zmqHandler;
 }
 
+
+
 void throttleServ::startNetworkResource()
 { 
+    int hwm=3000;
     m_zmqContext = zmq_ctx_new();
-    void *handler;
-    int connectTimes = 0;
-    const int connectMax=3;
-    cout <<"m_throConfChange="<<m_throConfChange<<endl;
-
-    if(m_throConfChange&c_master_adPort==c_master_adPort)
-    {
-        connectTimes = 0;
-        do
-        {
-            m_adRspHandler = establishConnect(false, "tcp", ZMQ_ROUTER, m_throttleIP.c_str(), m_throttleAdPort, &m_adFd);
-            if(m_adRspHandler == nullptr)
-            {
-                readConfigFile();
-                sleep(1);
-            }
-
-            if(connectTimes++ >= connectMax)
-            {
-                cout <<"try to connect to MAX"<<endl;
-                system("killall throttle");
-                exit(1);
-            }
-         }while(m_adRspHandler == nullptr);
-     }
+    m_adRspHandler = bindOrConnect(false, "tcp", ZMQ_ROUTER, m_throttleIP.c_str(), m_throttleAdPort, &m_adFd);
     cout <<"adVast bind success:" << endl;
-
-        //PUBLISH KEY
-     if(m_throConfChange&c_master_publishVast==c_master_publishVast)
-     {
-         connectTimes = 0;
-         do
-         {
-             m_publishHandler = establishConnect(false, "tcp", ZMQ_PUB, "*", m_publishPort, nullptr);
-             if(m_publishHandler == nullptr) 
-             {
-                 readConfigFile();
-                sleep(1);
-             }        
-             if(connectTimes++ >= 2*connectMax)
-             {
-                 cout <<"try to connect to MAX"<<endl;
-                 system("killall throttle");
-                 exit(1);
-             }
-
-         }while(m_publishHandler == nullptr);
-     }
-     cout <<"bind publish service success:" << endl;
-
-        //recv expire msg
-     if(m_throConfChange&c_master_expPort == c_master_expPort)
-     {
-         connectTimes = 0;
-         do
-         {
-             m_zmqExpireRspHandler = establishConnect(false, "tcp", ZMQ_DEALER, m_throttleIP.c_str(), m_throttleExpirePort,&m_expFd );
-             if(m_zmqExpireRspHandler == nullptr)
-             {
-                 readConfigFile();
-                sleep(1);
-             }
-             
-             if(connectTimes++ >= connectMax)
-             {
-                 cout <<"try to connect to MAX"<<endl;
-                 system("killall throttle");
-                 exit(1);
-             }
-
-         }while(m_zmqExpireRspHandler == nullptr);
-     }
-     cout <<"expire bind success:" << endl;
-
-//PUBLISH KEY
-     if(m_throConfChange&c_master_publishExp== c_master_publishExp) 
-     {
-         connectTimes = 0;
-         do
-         {
-      
-            m_publishExpireHandler= establishConnect(false, "tcp", ZMQ_PUB, "*", m_publishExpirePort, nullptr);
-            if(m_publishExpireHandler == nullptr)
-            {
-               readConfigFile();
-               sleep(1);   
-            }
-
-            if(connectTimes++ >= connectMax)
-            {
-                cout <<"try to connect to MAX"<<endl;
-                system("killall throttle");
-                exit(1);
-            }
-
-         }while(m_publishExpireHandler == nullptr);
-     }
-     cout <<"bind publish expire service success:" << endl;
-     cout <<"all connection of the master  is success:" << endl;
+    
+    m_publishHandler= bindOrConnect(false, "tcp", ZMQ_PUB, "*", m_publishPort, nullptr);
+    int rc = zmq_setsockopt(m_publishHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    if(rc!=0)cerr<<"ZMQ_RCVHWM failure"<<endl;
+    cout <<"bind publish service success:" << endl;
 }
 
-void signal_handler(int signo)
+void throttleServ::signal_handler(int signo)
 {
     time_t timep;
     time(&timep);
@@ -1122,19 +738,26 @@ void signal_handler(int signo)
 }
 
 
-void throttleServ::workerLoop()
+void throttleServ::start_worker()
 {
-    try
-    {
-        while(1)
-        {
-            workerHandler();
-        }
-    }
-    catch(...)
-    {
-        cout <<"workerLoop exit:"<<getpid()<<endl;
-    }
+    eventCallBackParam *param= new eventCallBackParam;
+    
+    struct event_base* base = event_base_new();    
+    struct event * hup_event = evsignal_new(base, SIGHUP, hupSigHandler, param);
+    struct event * int_event = evsignal_new(base, SIGINT, intSigHandler, param);
+    struct event * term_event = evsignal_new(base, SIGTERM, termSigHandler, param);
+    struct event * usr1_event = evsignal_new(base, SIGUSR1, usr1SigHandler, param);
+    struct event *clientPullEvent = event_new(base, workChannel, EV_READ|EV_PERSIST, worker_recvFrom_master_cb, param);
+
+    param->serv = this;
+    param->ev_base = base;
+    param->ev_clientPullEvent = clientPullEvent;
+    event_add(clientPullEvent, NULL);
+    evsignal_add(hup_event, NULL);
+    evsignal_add(int_event, NULL);
+    evsignal_add(term_event, NULL);
+    evsignal_add(usr1_event, NULL);
+    event_base_dispatch(base);
 }
 
 void throttleServ::updataWorkerList(pid_t pid)
@@ -1149,12 +772,13 @@ void throttleServ::updataWorkerList(pid_t pid)
         {
             pro->pid = 0;
             pro->status = PRO_INIT;
-           
+         
             if(needRemoveWorker())
             {
                 cout <<"reduce worker"<<endl;
                 delete pro;
                 m_workerList.erase(it);
+                write(m_listenWorkerNumFd[1],"delworker", 9);
                 break;
             }
         }
@@ -1163,14 +787,14 @@ void throttleServ::updataWorkerList(pid_t pid)
 
 }
 
+
 void throttleServ::run()
 {
-    int num_children = 0;
-    int restart_finished = 1;
-    int usr1_finished = 1;
-    int is_child = 0;
-    int i;
-    static int proIdx = 0;
+    bool worker_exit = false;
+    int  num_children = 0;
+    int  restart_finished = 1;
+    int  is_child = 0;
+    bool master_started = false;  
    // register signal handler
     struct sigaction act;
    
@@ -1211,6 +835,8 @@ void throttleServ::run()
             {
                 num_children--;
                 cout <<pid << "---exit" << endl;
+              //  system("killall throttle");
+                worker_exit = true;   
                 updataWorkerList(pid);
             }
 
@@ -1228,7 +854,6 @@ void throttleServ::run()
                     BC_process_t *pro = *it;
                     if(pro&&pro->pid != 0)
                     {
-                        cout <<"kill:"<< pro->pid<<endl;
                         kill(pro->pid, srv_graceful_end ? SIGINT : SIGTERM);
                     }
                 }
@@ -1254,8 +879,7 @@ void throttleServ::run()
             }
 
             if (!restart_finished) //not finish
-            {
-                int ndx;
+            {
                 BC_process_t *pro=NULL;
 
                 auto it = m_workerList.begin();
@@ -1277,9 +901,9 @@ void throttleServ::run()
                 } 
                 else
                 {
+                //    close(pro->channel[0]);
                     kill(pro->pid, SIGHUP);
-                    //child_info[ndx].state = 3;  重启中
-                 
+                    //child_info[ndx].state = 3;  重启中                 
                     //还是为了尽量避免连续的SIGHUP的不良操作带来的颠簸
                     //,所以决定取消(3重启中)这个状态
                     //并不是说连续SIGHUP会让程序出错,只是不断的挂掉新进程很愚蠢
@@ -1288,28 +912,10 @@ void throttleServ::run()
 
             if(is_child==0 &&sigusr1_recved)
             {    
-                cout <<"sigusr1_recved"<<endl;
+                cout <<"master progress recv sigusr1"<<endl;              
+                readConfigFile();//read configur file
                 auto count = 0;
-                
-                workerListLock();
-                reloadConfig();
-                int workerSize = m_workerList.size();
-                for (count=0; count < m_workerNum; count++)
-                {
-                    if(count >= workerSize)
-                    {
-				        BC_process_t *pro = new BC_process_t;
-		
-				        if(pro == NULL) return;
-				        pro->pid = 0;
-				        pro->status = PRO_INIT;
-				        m_workerList.push_back(pro);   
-                    }
-                 }    
-                
-
                 auto it = m_workerList.begin();
-                count = 0;
                 for (it = m_workerList.begin(); it != m_workerList.end(); it++, count++)
                 {
                       BC_process_t *pro = *it;
@@ -1319,29 +925,41 @@ void throttleServ::run()
                           continue;
                       }
                
-                      cout <<"pro->pid:" << pro->pid<<"::"<< getpid()<<endl;
-                      kill(pro->pid, SIGINT);  // zmq_close() has no effect after fork()
-                        //  close(pro->channel[0]);
-                      pro->status = PRO_KILLING;
-                
+                      //cout <<"pro->pid:" << pro->pid<<"::"<< getpid()<<endl;
+                      if(count >= m_workerNum)
+                      {
+                           kill(pro->pid, SIGKILL); 
+                      }
+                      else
+                      {
+                           kill(pro->pid, SIGUSR1); 
+                      }
                  }
-                 workerListUnlock();
+
+                int workerSize = m_workerList.size();
+                for (count=0; count < m_workerNum; count++)
+                {
+                    if(count >= workerSize)//worker pro increase
+                    {
+				        BC_process_t *pro = new BC_process_t;
+				        if(pro == NULL) return;
+				        pro->pid = 0;
+				        pro->status = PRO_INIT;
+                        pro->channel[0]=pro->channel[1]=-1;
+                        workerListLock();;
+				        m_workerList.push_back(pro); 
+                        workerListUnlock();
+                    }
+                }    
             }
  
         }
-
-        if(is_child==0 &&sigusr1_recved)
-        {
-            sigusr1_recved = 0;
-            cout <<"master restart"<<endl;
-            masterRestart();
-        }
+        int workIndex = 1;
 
         bool proInit = false;
-        auto it = m_workerList.begin();
-        for (it = m_workerList.begin(); it != m_workerList.end(); it++)
+        for (auto it = m_workerList.begin(); it != m_workerList.end(); it++)
         {
-         
+            workIndex++;
             BC_process_t *pro = *it;
             if(pro == NULL) continue;
             if (pro->status == PRO_INIT)
@@ -1351,6 +969,7 @@ void throttleServ::run()
                 {
                     return;
                 }
+
                 pid = fork();
 
                 switch (pid)
@@ -1361,8 +980,11 @@ void throttleServ::run()
                     }
                     break;
                     case 0:
-                    {       
-                        closeZmqHandlerResource();
+                    {     
+                        close(m_eventFd[0]);
+                        close(m_eventFd[1]);
+                        close(m_listenWorkerNumFd[0]);
+                        close(m_listenWorkerNumFd[1]);
                         close(pro->channel[0]);
                         workChannel = pro->channel[1];
                         int flags = fcntl(workChannel, F_GETFL);
@@ -1374,10 +996,15 @@ void throttleServ::run()
                     break;
                     default:
                     {
-                       
+                        cout<<"new channel[0]:"<<pro->channel[0]<<endl;
                         close(pro->channel[1]);
                         int flags = fcntl(pro->channel[0], F_GETFL);
                         fcntl(pro->channel[0], F_SETFL, flags | O_NONBLOCK); 
+
+                        flags = fcntl(m_eventFd[0], F_GETFL);
+                        fcntl(m_eventFd[0], F_SETFL, flags | O_NONBLOCK); 
+                        flags = fcntl(m_listenWorkerNumFd[0], F_GETFL);
+                        fcntl(m_listenWorkerNumFd[0], F_SETFL, flags | O_NONBLOCK); 
                         pro->pid = pid;
                         ++num_children;
                     }
@@ -1389,17 +1016,21 @@ void throttleServ::run()
         }
 
         
-        if(is_child==0 && m_masterStart==false)
-        {
+        if(is_child==0 && master_started==false)
+        {    
              //master serv start    
-             m_masterStart = true;  
-             pthread_t worker;
+             master_started = true;  
              masterRun();   
         }
-        else if(is_child == 0&& proInit == true)
-        {   
-            setWorkerChannelChanged(true);
-        }
+
+        if(((is_child==0)&&worker_exit)||(is_child==0 &&sigusr1_recved))
+        {
+            cout<<"write event to m_eventFd[1]"<<endl;
+            write(m_eventFd[1],"event", 5);
+            worker_exit = false;
+            sigusr1_recved = 0;
+        } 
+
 
         if (!pid) break; 
     }
@@ -1410,6 +1041,6 @@ void throttleServ::run()
         exit(0);    
     }
 
-    workerLoop();
+    start_worker();
 }
 

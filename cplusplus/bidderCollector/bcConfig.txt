@@ -1,0 +1,16 @@
+#bcServConfig 
+bcServIP=192.168.20.129;
+bcListenBidPort=6010;
+
+throttleIP=192.168.20.129;
+throttlePubVastPort=5010;
+
+subKey{
+5.1;
+} 
+
+redisSaveServIP=192.168.20.119;
+redisSaveServPort=6379;
+redisSaveServTime=30;
+redisConnectNum=100;
+workerNumber=1;

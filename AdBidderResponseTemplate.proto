@@ -1,0 +1,313 @@
+package com.rj.protos.msg;
+
+
+message BidderResponse {
+  //corresponding transaction id
+	optional string id = 1;
+	optional string bidderId = 2;
+	message Ad {
+		optional string price = 1;
+		optional string campaignId = 2;
+		optional string advertiserName = 3;
+		optional string category = 4;
+		optional bool hasVpaidCreative = 16;
+
+
+		/* VAST-SPECIFIC FIELDS */
+		optional string adId = 5;
+
+
+		//VAST3.0 'sequence' attribute, used for AdPod
+		optional string sequence = 20;
+
+
+		//VAST Wrapper or Inline
+		//if not specified:
+		//   1.First 'adTag' will be used to identify the ad type
+		//   2.If 'adTag' is not specified, assume the ad type is Inline
+		optional string type = 6;
+
+
+		message AdSystem{
+			optional string sys = 1;
+			optional string version = 2;
+		}
+		optional AdSystem adSystem = 7;
+
+
+		//VASTAdtag for wrapper ad
+		optional string adTag = 8;
+		//Ad description and survey, used for inline ad
+		optional string adDesc = 9;
+		repeated string adSurvey = 10;
+		optional string adTitle = 17;
+
+
+    message Impression{
+    	optional string url = 1;
+    	optional string id = 2;
+    }
+    repeated Impression impTrack = 19;
+
+
+		repeated string errTrack = 12;
+
+
+		message LinearCreative {
+
+
+		//equivalent to VAST <MediaFile> element
+		//videos with different format types can be specified to support different players
+			message Video {
+				//<MediaFile> attributes
+			  /*supported MIMETYPE:
+			  		"video/x-flv",
+			  		"video/mp4",
+			  		"application/x-shockwave-flash"(support VPAID),
+			  		"application/javascript"(support VPAID)*/
+				optional string mime = 1;
+				optional string assetUrl = 2;   //element value
+				optional string width = 3;
+				optional string height = 4;
+				optional string delivery = 5; //PROGRESSIVE or STREAMING
+				optional string bitrate = 6;
+				optional string maintainAspectRatio = 7;
+				optional string id = 8;
+				optional string scalable = 9;
+
+
+				//identify VPAID creative
+				optional string apiFramework = 10;
+
+
+				//VAST3.O attributes
+				optional string codec = 11;
+				optional string minBitrate = 12;
+				optional string maxBitrate = 13;
+			}
+
+
+			repeated Video videos = 1;
+
+
+			message LinearTrack {
+			//Tracking events for linear ads
+				repeated string creativeView = 1;
+				repeated string start = 2;
+				repeated string firstQuartile = 3;
+				repeated string midpoint = 4;
+				repeated string thirdQuartile = 5;
+				repeated string complete = 6;
+				repeated string mute = 7;
+				repeated string unmute = 8;
+				repeated string pause = 9;
+				repeated string rewind = 10;
+				repeated string resume = 11;
+				repeated string fullscreen = 12;
+				repeated string expand = 13;
+				repeated string collapse = 14;
+				//VAST2.0 'acceptInvitation' attribute
+				repeated string acceptInvitation = 15;
+				//VAST2.0 'close' attribute
+				repeated string close = 16;
+
+
+				//VAST3.0 attributes
+				repeated string closeLinear = 22;
+				repeated string exitFullscreen = 17;
+				repeated string acceptInvitationLinear = 18;
+				repeated string skip = 19;
+				message Progress {
+					optional string offset = 1;
+					optional string url = 2;
+				}
+				repeated Progress progress = 23;
+			}
+			optional LinearTrack linearTrack = 2;
+
+
+			/* <VideoClicks> element */
+			message VideoClicks {
+				message ClickTracking {
+					optional string url = 1;
+					optional string id = 2;
+				}
+				repeated ClickTracking clickTracking = 1;
+
+
+				message ClickThrough {
+					optional string url = 1;
+					optional string id = 2;
+				}
+
+
+				optional ClickThrough clickThrough = 2;
+
+
+				message CustomClick {
+					optional string url = 1;
+					optional string id = 2;
+				}
+				repeated CustomClick customClick = 3;
+			}
+			optional VideoClicks videoClicks = 3;
+
+
+			message AdParameters{
+				optional string para = 1;
+				//VAST3.0 'xmlencoded' attribute
+				optional bool xmlEncoded = 2;
+			}
+			optional AdParameters adParameters = 4;
+
+
+			/* VAST3.0 <Icon> element */
+      message Icon{
+      	//icon attributes
+      	optional string program = 1;
+      	optional string width = 2;
+      	optional string height = 3;
+      	optional string xPosition = 4;
+      	optional string yPosition = 5;
+      	optional string duration = 6;
+      	optional string offset = 7;
+      	optional string apiFramework = 8;
+
+
+      	/* one of the resource type can be selected */
+				//URI to a static file, such as an image or SWF file
+				optional string staticUrl = 9;
+				//identify the resource type of the static resource(e.g. img/png)
+				optional string creativeType = 10;
+				//URI source for an IFrame to display the companion element
+				optional string iframeUrl = 11;
+				//CDATA for HTML page
+				optional string html = 12;
+
+
+				//<IconClicks> element
+				optional string iconClickThrough = 13;
+				message IconClickTracking{
+					optional string url = 1;
+					optional string id = 2;
+				}
+			  repeated IconClickTracking iconClickTracking = 14;
+				repeated string iconViewTracking = 15;
+      }
+      repeated Icon icons = 5;
+
+
+      //<Duration> element,Format: e.g 00:00:30
+			optional string duration = 6;
+
+
+			//<CreativeExtension> element
+			repeated string creativeExtension = 16;
+
+
+			//<Creative> attributes
+			optional string id = 7;
+			optional string sequence = 8;
+			optional string adId = 9;
+			//VAST3.0 <Creative> 'apiFramework' attribute
+			optional string apiFramework = 17;
+
+
+			//VAST3.0 <Linear> 'skipoffset' attribute, used for identifying whether the linear creative is skippable
+			optional string skipoffset = 15;
+		}
+		repeated LinearCreative linearCreative = 13;
+
+
+		message CompanionCreative {
+			optional string id = 1;
+			optional string sequence = 2;
+			optional string adId = 3;
+
+
+			//<CompanionAds> 'required' attribute
+			optional string required = 7;
+
+
+			//VAST3.0 <Creative> 'apiFramework'
+			optional string apiFramework = 5;
+
+
+			//<CreativeExtension> element
+			optional string creativeExtension = 6;
+
+
+			message Companion {
+				//<Companion> attributes
+				optional string width = 1;
+				optional string height = 2;
+				optional string id = 3;
+				optional string expandedWidth = 4;
+				optional string expandedHeight = 5;
+				optional string apiFramework = 6; //VPAID creative
+
+
+				//VAST3.0 <Companion> attributes
+				optional string assetWidth = 17;
+				optional string assetHeight = 18;
+				optional string adSlotID = 19;
+
+
+				//<CompanionClickThrough> element
+				optional string clickThroughUrl = 10;
+				//<AltText> element
+				optional string altText = 13;
+
+
+				//VAST3.0 <CompanionClickTracking>
+				message CompanionClickTracking{
+					optional string url = 1;
+					optional string id = 2;
+				}
+				repeated CompanionClickTracking companionClickTracking = 11;
+
+
+				message AdParameters{
+				optional string para = 1;
+				//VAST3.0 'xmlencoded' attribute
+				optional bool xmlEncoded = 2;
+				}
+				optional AdParameters adParameters = 16;
+
+
+				/* one of the resource type can be selected */
+				//URI to a static file, such as an image or SWF file
+				optional string staticUrl = 7;
+				//identify the resource type of the static resource(e.g. img/png)
+				optional string creativeType = 15;
+				//URI source for an IFrame to display the companion element
+				optional string iframeUrl = 8;
+				//CDATA for HTML page
+				optional string html = 9;
+
+
+				//<Tracking> 'creatvieView' attribute
+				repeated string creativeView = 12;
+			}
+
+
+			repeated Companion companion = 4;
+		}
+
+
+		optional CompanionCreative companionCreative = 14;
+
+
+		//Usually used for VPAID creative parameters
+		repeated string extension = 18;
+
+
+		//VAST3.0 <Wrapper> attribute
+		optional string followAdditionalWrappers = 21;
+		optional string allowMultipleAds = 22;
+		optional string fallbackOnNoAd = 23;
+	}
+
+
+	repeated Ad ads = 3;
+}

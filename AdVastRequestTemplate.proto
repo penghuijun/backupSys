@@ -1,0 +1,126 @@
+package com.rj.protos.msg;
+
+option java_package = "com.rj.protos.msg";
+//option java_outer_classname = "VastRequest";
+
+message VastRequest{
+  //transaction id;
+  optional string id=1;
+
+  //VIDEOFLASH or VIDEOHTML5
+  optional string player=2;
+  message Video{
+	optional string videoId=1;
+  	optional string videoTitle=2;
+  	optional string videoDesc=3;
+  	optional string pageUrl=4;
+
+
+	//content video source url
+  	optional string videoAssetUrl=5;
+  	optional string videoWidth=6;
+  	optional string videoHeight=7;
+
+
+	//0:pre-roll -1:post-roll
+	optional string startdelay=8;
+
+
+	// The maximum duration in milliseconds of the ad that you should return.
+	// If this is not set or has value <= 0, any duration is allowed.
+	optional string maxAdDuration=9;
+
+
+	// The minimum duration in milliseconds of the ad that you should return.
+	// If this is not set or has value <= 0, there is no minimum duration.
+	optional string minAdDuration=10;
+
+
+	//the maximum number of ads allowed in one transaction(one vast)
+	optional string maxAdNum=11;
+  }
+  optional Video video=3;
+
+
+  message Site{
+	optional string sid=1;
+	optional string name=2;
+	optional string domain=3;
+	optional string publisherId=4;
+
+
+	//site category
+	optional string sitecat=5;
+
+
+	//site web page
+	optional string page=6;
+	optional string ref=7;
+
+
+	//supported video protocol
+	optional bool vast20 = 8;
+	optional bool vast30 = 9;
+	optional bool vpaid10 = 10;
+	optional bool failover = 11;
+
+
+  }
+  optional Site site=4;
+
+
+  message Device{
+    optional string dnt=1;
+    optional string ua=2;
+    optional string ip=3;
+    optional string lang=4;
+    optional string os=5;
+    optional string browser=6;
+  }
+  optional Device device=5;
+
+  message User{
+  	//user identifier
+  	optional string uid = 1;
+    optional string countryCode = 2;
+    optional string regionName = 3;
+    optional string cityName = 4;
+    optional string latitude = 5;
+    optional string longitude = 6;
+    optional string isp = 7;
+    optional string domain = 8;
+    optional string mcc = 9;
+    optional string mnc = 10;
+    optional string mobile_brand = 11;
+    optional string usageType = 12;
+
+  }
+  optional User user = 6;
+  optional string ssl = 7;
+  /*
+  message Mobile{
+  	// The platform of the mobile device.  Examples: android, iphone, palm
+    optional string platform = 1;
+
+
+    // The brand of the mobile device, e.g. Nokia, Samsung.
+    optional string brand = 2;
+
+
+    // The model of the mobile device, e.g. N70, Galaxy.
+    optional string model = 3;
+
+    optional bool isapp = 4;
+    optional string appname = 5;
+    optional string os = 6;
+    //Tablet, Phone or UNKNOWN
+    optional string deviceType = 7 [default = "UNKNOWN"];
+    //Orientation: PORTRAIT or LANDSCAPE
+    optional string orientation = 8;
+
+    optional string screenWidth = 9;
+    optional string screenHeight = 10;
+  }
+  optional Mobile mobile = 7;
+  */
+}

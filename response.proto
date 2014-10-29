@@ -1,0 +1,77 @@
+package com.pubjunction.vast_response;
+
+message res{
+  //corresponding transaction id
+  optional string id = 1;
+  optional string bidid = 2;	
+  //equivalent to seatbid
+  optional string vendor_id = 4;
+  message Ad{
+  	optional string adid = 1;
+  	//VAST Wrapper or Inline
+  	optional string creative_type = 2;
+  	optional string price = 3;
+  	optional string campaign_id = 4;
+  	optional string advertiser_name = 5;
+  	optional string category = 6;
+  	//VASTAdtag for wrapper ad
+  	optional string ad_tag = 7;
+  	optional string click_through_url = 8;
+  	//VAST2.0 VAST3.0 VAST2.0nVPAID1.0 VAST2.0nFAILOVER
+  	optional string protocol  = 9;
+  	//ad parameters for VPAID creative
+  	optional string ad_parameter = 10;
+  	//videos with different format types can be specified to support different player
+  	message Video{	
+  		optional string linearity = 10; //LINEAR or NONLINEAR
+  		optional string bitrate = 11;
+		optional string duration=1;
+		//supported MIME_TYPE:
+		//"video/x-flv",
+		//"video/mp4",
+		//"application/x-shockwave-flash"(support VPAID),
+		//"application/javascript"(support VPIAD)
+		optional string mime=2;
+		optional string asset_url=3;
+		optional string width=5;
+		optional string height=6;
+		optional string delivery=7; //PROGRESSIVE or STREAMING
+		optional string bitrate = 8;
+		optional string maintianAspectRatio = 9;
+  	}
+  	repeated Video video = 12;
+  	message Companion{
+		optional string w = 1;
+		optional string h = 2;
+		optional string id = 3;
+  	}
+  	repeated Companion companion = 14;
+  	message Track{
+  		//tracking for impression
+  		repeated string imp_track = 1;
+  		repeated string creativeView_track = 2;
+  		repeated string start_track = 3;
+  		repeated string view25_track = 4;
+  		repeated string view50_track = 5;
+  		repeated string view75_track = 6;
+  		repeated string complete_track = 7;
+  		repeated string mute_track = 8;
+  		repeated string unmute_track = 9;
+  		repeated string pause_track = 10;
+  		repeated string rewind_track = 11;
+  		repeated string resume_track = 12;
+  		repeated string fullscreen_track = 13;
+  		repeated string expand_track = 14;
+  		repeated string collapse_track = 15;
+  		repeated string acceptInvitation_track = 16;
+  		repeated string close_track = 17;	
+  		repeated string click_track = 18;
+  		repeated string err_track = 19;
+  	}
+  	optional Track track = 13;
+  }
+  repeated Ad ads = 3;
+}
+
+
+

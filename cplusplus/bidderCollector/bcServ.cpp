@@ -1284,9 +1284,19 @@ void bcServ::delete_invalid_recond()
              if(bcData->subTime==0)
              {
                 static int lost_vast_num = 0;
-            //    printf("del:%s  bid:%lld  sub:%lld  status:%d  lost:%d\n", bcDataIt->first.c_str(), bcData->bidTime, bcData->subTime, bcData->status, ++lost_vast_num);
+		lost_vast_num++;
+		cout<<"s:"<<lost_vast_num<<endl;
              }
-            cout <<"del "<<bcDataIt->first<<" bid:"<<bcData->bidTime<< " sub: " << bcData->subTime<< " status:"<<(int)bcData->status<<endl;
+	     else if(bcData->bidTime==0)
+	     {
+		static int lost_bid_num=0;
+		lost_bid_num++;
+		cout<<"b:"<<lost_bid_num<<endl;
+	     }
+	     else
+	     {
+            	cout <<"del "<<bcDataIt->first<<" bid:"<<bcData->bidTime<< " sub: " << bcData->subTime<< " status:"<<(int)bcData->status<<endl;
+	     }
             if(bcData->buf) delete[] bcData->buf;
             delete bcData;    
             bcDataRecList.erase(bcDataIt++);

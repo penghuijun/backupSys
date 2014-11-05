@@ -567,7 +567,7 @@ void bcServ::worker_net_init()
 { 
     const int tastPoolSize = 10000;
     m_redisPool.connectorPool_init(m_redisIP.c_str(), m_redisPort,  m_redisConnectNum);
-    m_threadPoolManger.Init(tastPoolSize, m_redisPort, m_redisPort);
+    m_threadPoolManger.Init(tastPoolSize, m_redisConnectNum, m_redisConnectNum);
     cout <<"worker net init success:" <<endl;
 }
 

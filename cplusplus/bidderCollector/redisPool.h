@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include "hiredis.h"
+#include "lock.h"
 using namespace std;
 
 
@@ -33,27 +34,38 @@ typedef unsigned char byte;
 class redisClient
 {
 public:
-	redisClient(){}
-	redisClient(string &ip, unsigned short port)
+	redisClient()
+	{
+		m_redisClient_lock.init();
+	}
+	redisClient(const string &ip, unsigned short port)
 	{
 		set_redis_ipAddr(ip, port);
+		m_redisClient_lock.init();
 	}
+	
+	void set_redis_ipAddr(const string &ip, unsigned short port)
+	{
+		m_redis_ip = ip;
+		m_redis_port = port;
+	}
+
 	bool redis_connect()
 	{
 		m_context = redisConnect(m_redis_ip.c_str(), m_redis_port);
 		if(m_context == NULL) 
 		{
-			cout <<"connectaRedis failure:: context is null" << endl;
-			return NULL;
+			cerr <<"connectaRedis failure:: context is null" << endl;
+			return false;
 		}
 		if(m_context->err)
 		{
 			redis_free();
-			cout <<"connectaRedis failure" << endl;
+			cerr <<"connectaRedis failure" << endl;
 			return false;
 		}
 
-		cout << "connectaRedis success:" <<m_redis_ip<<":"<< m_redis_port<< endl;
+		cerr << "connectaRedis success:" <<m_redis_ip<<":"<< m_redis_port<< endl;
 		return true;	
 	}
 
@@ -67,58 +79,73 @@ public:
 	{
 		if(m_context == NULL)
 		{
-			cout<<"m_context is null"<<endl;
-			return false;
-		}	
-
+			bool ret = redis_connect();
+			if(ret==false)
+			{
+				return false;
+			}
+		}
 		redisReply *ply= (redisReply *)redisCommand(m_context, "hset %s %s %b", key, field, value, len);
 		if(ply == NULL)
 		{
-				return false;
+			redis_free();
+			bool ret = redis_connect();
+			if(ret)
+			{
+				ply= (redisReply *)redisCommand(m_context, "hset %s %s %b", key, field, value, len);
+				if(ply == NULL)
+				{
+					cerr<<"redis_hset_request redisCommand error"<<endl;
+					return false;
+				}
+				freeReplyObject(ply);	
+				return true;
+			}
+			cerr<<"redis_hset_request redisCommand error"<<endl;
+			return false;
 		}
 		freeReplyObject(ply);	
 		return true;		
 	}
 
-	bool get_redis_context(redisContext* &content)// get redis content, if content is using ,then return false
+	bool get_redis()
 	{
-		if(m_context_using == true) return false;
+		m_redisClient_lock.lock();
+		if(m_context_using==true)
+		{
+			m_redisClient_lock.unlock();
+			return false;
+		}
 		m_context_using = true;
-		content = m_context;
+		m_redisClient_lock.unlock();
 		return true;
 	}
-	redisContext* get_redis(bool &content_is_null)// get redis content, if content is using ,then return false
+	
+	bool set_redis_status(bool use)
 	{
-		content_is_null = false;
-		if(m_context==NULL)
+		m_redisClient_lock.lock();
+		m_context_using=use;
+		if((m_context_using==false)&&(m_stop))
 		{
-			content_is_null = true;
-			return NULL;
+			redis_free();
+			delete this;
 		}
-		if(m_context_using == true) return NULL;
-		m_context_using = true;
-		return m_context;
+		m_redisClient_lock.unlock();
 	}
-
-	redisContext *get_redis_content() const
+	bool erase_redis_client()
 	{
-		return m_context;
-	}
-	bool set_redis_context_status(redisContext* context, bool use_con)
-	{
-		if(context == m_context)
+		m_redisClient_lock.lock();
+		if(m_context_using==false)
 		{
-			m_context_using = use_con;
+			redis_free();
+			m_stop = false;
+			m_redisClient_lock.unlock();
 			return true;
 		}
+		m_redisClient_lock.unlock();		
 		return false;
 	}
 
-	void set_redis_ipAddr(const string &ip, unsigned short port)
-	{
-		m_redis_ip = ip;
-		m_redis_port = port;
-	}
 	void redis_free()
 	{
          if(m_context)
@@ -128,161 +155,27 @@ public:
          }
 	}
 
-	~redisClient(){redis_free();}
+	void set_stop()
+	{
+		m_redisClient_lock.lock();
+		m_stop = true;
+		m_redisClient_lock.unlock();
+
+	}
+
+	~redisClient()
+	{
+		redis_free();
+		m_redisClient_lock.destroy();
+	}
 private:
-	bool   m_context_using = false;
-	string m_redis_ip;
+	bool           m_stop = false;
+	bool           m_context_using = false;
+	string         m_redis_ip;
 	unsigned short m_redis_port;
-	redisContext* m_context=NULL;
+	redisContext*  m_context=NULL;
+	mutex_lock     m_redisClient_lock;
 };
 
 //
-class redisPool
-{
-public:
-	redisPool()
-	{
-
-	}
-
-	
-	redisPool(string &ip, unsigned short port, unsigned short connNum)
-	{
-	    pthread_rwlock_init(&redis_lock, NULL);
-		connectorPool_set(ip, port, connNum);
-	}
-
-	void connectorPool_init(void)
-	{
-		pthread_rwlock_init(&redis_lock, NULL);
-		for(int i = 0; i < m_conncoter_number; i++)
-		{
-			redisClient * client = new redisClient(m_ip, m_port);
-			client->redis_connect();
-			m_redis_client.push_back(client);
-		}
-	}
-	
-	void connectorPool_init(const string &ip, unsigned short port, unsigned short connNum)
-	{
-		connectorPool_set(ip, port, connNum);	
-		connectorPool_init();
-	}
-
-
-	void connectorPool_set(const string &ip, unsigned short port, unsigned short connNum)
-	{
-		m_ip = ip;
-		m_port = port;
-		m_conncoter_number = connNum;	
-	}
-
-	void connectorPool_earse()
-	{
-		redis_wr_lock();
-		cout<<"connectorPool_earse"<<endl;
-		for(auto it = m_redis_client.begin(); it != m_redis_client.end();)
-		{
-			redisClient *client =  *it;
-			if(client)
-			{
-				client->redis_free();
-			}
-			it = m_redis_client.erase(it);
-		}
-		redis_rw_unlock();
-	}
-
-	void check_redis_pool(redisContext *context)
-	{
-		redis_wr_lock();
-		for(auto it = m_redis_client.begin(); it != m_redis_client.end();it++)
-		{
-			redisClient *client =  *it;
-			if(client==NULL) continue;
-			redisContext *redisC = client->get_redis_content();
-			if(redisC==NULL|| redisC == context)
-			{
-				client->redis_free();
-				client->redis_connect();
-			}
-		}
-		redis_rw_unlock();
-	}
-
-	bool redis_hset_request(char *key, char *field, char* value, int len)
-	{
-		redisContext *r_context=NULL;
-		bool redis_disconnenct = false;
-		bool content_is_null=false;
-		
-		redis_wr_lock();
-		for(auto it = m_redis_client.begin(); it != m_redis_client.end();it++)
-		{
-			redisClient *client =  *it;
-			if(client==NULL) continue;
-			r_context = client->get_redis(content_is_null);
-			if(content_is_null)
-			{
-				redis_disconnenct = true;
-			}
-			if(r_context)
-			{
-				redis_rw_unlock();
-				if(client->redis_hset_request(key, field, value, len)==false)
-				{
-					cout<<"getall false!!!"<<endl;
-					redis_disconnenct = true;
-					return false;
-				}	
-				break;
-			}	
-		}
-		
-		//redis_client set to can use
-		if(r_context)
-		{
-			redis_wr_lock();
-			for(auto it = m_redis_client.begin(); it != m_redis_client.end();it++)
-			{
-				redisClient *client =  *it; 		
-				if(client&&(client->set_redis_context_status(r_context, false)==true))
-				{
-					break;
-				}
-			}		
-			redis_rw_unlock();
-		}
-		else
-		{
-			redis_rw_unlock();
-		}
-
-		//if connenct error, then reconnect
-		if(redis_disconnenct)
-		{
-			cout<<"redis_disconnenct"<<endl;
-			check_redis_pool(r_context);
-		}
-		return true;		
-	}
-
-
-	void redis_rd_lock(){ pthread_rwlock_rdlock(&redis_lock);}
-	void redis_wr_lock(){ pthread_rwlock_wrlock(&redis_lock);}
-	void redis_rw_unlock(){ pthread_rwlock_unlock(&redis_lock);}
-	
-	~redisPool()
-	{
-		pthread_rwlock_destroy(&redis_lock);
-		connectorPool_earse();
-	}
-private:
-	pthread_rwlock_t redis_lock;
-	string m_ip;
-	unsigned short m_port;
-	unsigned short m_conncoter_number;
-	vector<redisClient*> m_redis_client;
-};
-
 #endif

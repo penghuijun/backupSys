@@ -1,3 +1,20 @@
+/*
+  *Copyright (c) 2014, fxxc
+  *All right reserved.
+  *
+  *filename: bcserv.h
+  *document mark :
+  *summary:
+  *	
+  *current version:1.1
+  *author:xyj
+  *date:2014-11-21
+  *
+  *history version:1.0
+  *author:xyj
+  *date:2014-10-11
+  */
+
 #ifndef __BC_SERV_H__
 #define __BC_SERV_H__
 #include <string>
@@ -6,6 +23,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <event.h>
+#include <string.h>
 #include <map>
 #include <set>
 #include <list>
@@ -14,11 +32,11 @@
 #include "zmq.h"
 #include "threadpoolmanager.h"
 #include "redisPool.h"
+#include "redisPoolManager.h"
 
+#include "lock.h"
 using namespace std;
 using std::string;
-#define BUFSIZE 4096
-
 
 const int	c_master_throttleIP=0x01;
 const int	c_master_throttlePubVastPort=0x02;
@@ -30,6 +48,12 @@ const int   c_master_redisSaveTime=0x80;
 const int	c_workerNum=0x100;
 const int	c_master_subKey=0x200;
 
+const int	c_update_throttleAddr=0x01;
+const int	c_update_bcAddr=0x02;
+const int	c_update_workerNum=0x04;
+const int	c_update_zmqSub=0x08;
+const int   c_update_forbid=0x10;
+const int   c_update_redisAddr=0x20;
 
 
 enum proStatus
@@ -61,10 +85,23 @@ typedef struct
 } sendBufUnit; 
 
 
-struct redisDataRec
+class redisDataRec
 {
-	string bidIDAndTime;
-	int    time;
+public:
+	redisDataRec(time_t time)
+	{
+		m_time = time;
+	}
+	void add_field(string &field)
+	{
+		m_field.push_back(field);
+	}
+	vector<string> &get_field_list(){return m_field;}
+	time_t get_time(){return m_time;}
+	~redisDataRec(){}
+private:
+	vector<string> m_field;
+	time_t    m_time;
 };
 
 class threadPoolFuncArg
@@ -160,31 +197,114 @@ struct eventParam
 	struct event_base* base;
 	bcServ *serv;
 };
-enum class BCStatus
+class bufferStructure
 {
-	BC_recvBid,
-	BC_recvSub,
-	BC_recvExpire,
-	BC_recvBidAndSub,
-	BC_recvBidAndExp,
-	BC_recvSubAndExp
+public:
+	bufferStructure(char *buf, int bufSize, string &hash_field)
+	{
+		gen_buffer(buf, bufSize, hash_field);
+	}
+	void gen_buffer(char *buf, int bufSize, string &hash_field)
+	{
+		if(bufSize > 0)
+		{
+			m_bufSize = bufSize;
+			m_buf = new char[bufSize];
+			memcpy(m_buf, buf, bufSize);
+			m_hash_filed = hash_field;
+		}
+	}
+	char *get_buf() {return m_buf;}
+	int   get_bufSize() {return m_bufSize;}
+	string &get_hash_field() {return m_hash_filed;}
+
+	void release_buffer(){ delete[] m_buf;}
+	~bufferStructure()
+	{
+		release_buffer();
+	}
+	
+private:
+	char *m_buf=NULL;
+	int   m_bufSize=0;
+	string m_hash_filed;
 };
 
-struct bcDataRec
+typedef unsigned long long mircotime_t;
+
+class bcDataRec
 {
-	string bidIDAndTime;
-	time_t time;
-	BCStatus status;
-	char *buf;
-	int bufSize;
-//#ifdef DEBUG
-	unsigned long long subTime;
-	unsigned long long bidTime;
-	unsigned long long expTime;
-//#endif
+public:
+	bcDataRec()
+	{
+	}
+	bcDataRec(mircotime_t timep, bool recv_throttle)
+	{
+		m_mircoTime = timep;
+		m_recv_throttle = recv_throttle;
+	}
+	
+	bcDataRec(mircotime_t timep, uint32_t overTime, bool recv_throttle)
+	{
+		m_mircoTime = timep;
+		m_recv_throttle = recv_throttle;
+		m_overtime = overTime;
+	}
+
+	void add_bidder_buf(char *buf, int bufSize, string &hash_field)
+	{
+		if(!m_bufStru_vec) m_bufStru_vec = new vector<bufferStructure*>;
+		if(m_bufStru_vec)
+		{
+			bufferStructure *buf_item = new bufferStructure(buf, bufSize, hash_field);
+			if(m_bufStru_vec) m_bufStru_vec->push_back(buf_item);
+		}
+	}
+
+
+	mircotime_t get_microtime(){return m_mircoTime;}
+	int get_overtime(){return m_overtime;}
+	vector<bufferStructure*>* get_buf_list()
+	{
+		auto it = m_bufStru_vec;
+		m_bufStru_vec = NULL;
+		return it;
+	}
+
+	void recv_throttle_complete(){m_recv_throttle = true;}
+	bool recv_throttle_info(){return m_recv_throttle;}
+////////test
+	void set_sub(){m_sub++;}
+	void set_bid(){m_bid++;}
+	int  get_sub(){return m_sub;}
+	int get_bid(){return m_bid;}
+
+///////test
+	
+	~bcDataRec()
+	{
+		if(m_bufStru_vec)
+		{
+			for(auto it = m_bufStru_vec->begin(); it != m_bufStru_vec->end(); it++)
+			{
+				bufferStructure *buf =  *it;
+				if(buf) delete buf;
+			}
+			delete m_bufStru_vec;
+		}
+	}
+private:
+	///////test
+
+	int m_sub=0;
+	int m_bid=0;
+	///////test
+	mircotime_t m_mircoTime=0;
+	uint32_t    m_overtime=1000;//1000ms default;
+	bool   m_recv_throttle=false;
+	vector<bufferStructure*> *m_bufStru_vec=NULL;
 };
 #define UUID_SIZE_MAX 100
-
 
 //bidder server
 class bcServ
@@ -192,12 +312,15 @@ class bcServ
 public:
 	bcServ(configureObject& config);
 	void run();
+	mircotime_t get_microtime();
+	void check_data_record();
+	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
 
 	void update_microtime()
 	{
-		tmLock();
+		tmMutex.lock();
         gettimeofday(&m_microSecTime, NULL);
-        tmUnlock();
+		tmMutex.unlock();
 	}
 	bool needRemoveWorker() const 
 	{
@@ -206,28 +329,6 @@ public:
 	void updataWorkerList(pid_t pid);
 	void start_worker();
 	static void worker_thread_func(void *arg);
-
-
-	void bcDataLock(){pthread_mutex_lock(&bcDataMutex);}
-	void bcDataUnlock(){pthread_mutex_unlock(&bcDataMutex);}
-	void redisContextLock(){pthread_mutex_lock(&m_redisContextMutex);}
-	void redisContextUnlock(){pthread_mutex_unlock(&m_redisContextMutex);}
-	void delDataLock(){pthread_mutex_lock(&m_delDataMutex);}
-	void delDataUnlock(){pthread_mutex_unlock(&m_delDataMutex);}
-
-	
-	void fd_rd_lock(){ pthread_rwlock_rdlock(&handler_fd_lock);}
-	void fd_wr_lock(){ pthread_rwlock_wrlock(&handler_fd_lock);}
-	void fd_rw_unlock(){ pthread_rwlock_unlock(&handler_fd_lock);}
-
-	void workerList_rd_lock(){ pthread_rwlock_rdlock(&m_workerList_lock);}
-	void workerList_wr_lock(){ pthread_rwlock_wrlock(&m_workerList_lock);}
-	void workerList_rw_unlock(){ pthread_rwlock_unlock(&m_workerList_lock);}
-
-	void tmLock(){pthread_mutex_lock(&tmMutex);}
-	void tmUnlock(){pthread_mutex_unlock(&tmMutex);}
-	void lock(){pthread_mutex_lock(&m_uuidListMutex);}
-	void unlock(){pthread_mutex_unlock(&m_uuidListMutex);}
 	bool masterRun();
 	void master_net_init();
 	
@@ -240,8 +341,7 @@ public:
 //subKey incre , decre, change, lead to subscribe or unsubsribe
 	void releaseConnectResource(string subKey) 
 	{
-		auto it = m_handler_fd_map.begin();
-		for(it = m_handler_fd_map.begin(); it != m_handler_fd_map.end();)
+		for(auto it = m_handler_fd_map.begin(); it != m_handler_fd_map.end();)
 		{
 			handler_fd_map *hfMap = *it;
 			if(hfMap==NULL)
@@ -252,16 +352,14 @@ public:
 			
 			if(hfMap->subKey == subKey)
 			{
-			     cout <<"del subkey:"<<subKey<<endl;
+			     cerr <<"del subkey:"<<subKey<<endl;
 			     zmq_setsockopt(hfMap->handler, ZMQ_UNSUBSCRIBE, subKey.c_str(), subKey.size()); 
                  zmq_close(hfMap->handler);
                  event_del(hfMap->evEvent);
-                 delete hfMap->evEvent;
                  delete hfMap;
 				 it = m_handler_fd_map.erase(it);
 				 
-                 auto itor = m_subKeying.begin();
-                 for(itor = m_subKeying.begin(); itor != m_subKeying.end();)
+                 for(auto itor = m_subKeying.begin(); itor != m_subKeying.end();)
                  {
                     if(subKey ==  *itor)
                     {
@@ -281,10 +379,19 @@ public:
 		}
 	}
 
-	void reloadWorker()
+	void updateWorker()
 	{
-	    readConfigFile();
+		readConfigFile();
+		cout<<"worker:m_configureChange:"<<m_configureChange<<endl;
+		if((m_configureChange &c_update_forbid) == c_update_forbid)
+		{
+			m_configureChange=(m_configureChange&(~c_update_forbid));
+			exit(0);
+		}
+		m_redisPoolManager.redisPool_update(m_config.get_redisIP(), m_config.get_redisPort(), m_config.get_threadPoolSize()+1);
+		
 	}
+
 	static void workerBusiness_callback(int fd, short event, void *pair);
 
 	static void usr1SigHandler(int fd, short event, void *arg);
@@ -295,7 +402,7 @@ public:
 	void *get_request_handler(bcServ *serv, int fd) const
 	{	
 		void *handler;
-		serv->fd_rd_lock();
+		serv->handler_fd_lock.read_lock();
 		auto it = m_handler_fd_map.begin();
 		for(it = m_handler_fd_map.begin(); it != m_handler_fd_map.end(); it++)
 		{
@@ -304,11 +411,11 @@ public:
 			if(hfMap->fd == fd)
 			{
 				handler = hfMap->handler;
-				serv->fd_rw_unlock();
+				serv->handler_fd_lock.read_write_unlock();
 				return handler;
 			}
 		}
-		serv->fd_rw_unlock();
+		serv->handler_fd_lock.read_write_unlock();
 		return NULL;
 	}
 	handler_fd_map *get_request_handler(string subKey) const
@@ -326,12 +433,9 @@ public:
 		}
 		return NULL;
 	}
-	void addSendUnitToList(void *data, unsigned int dataLen, int workIdx);
 	void sendToWorker(char *buf, int size);
 	void calSpeed();
-	void subHandler(char * pbuf,int size);
 	void subVastHandler(char * pbuf,int size);
-	void subExpHandler(char * pbuf,int size);
 	void bidderHandler(char * pbuf,int size);
 	static void recvBidder_callback(int fd, short __, void *pair);
 	static void recvRequest_callback(int _, short __, void *pair);
@@ -350,14 +454,10 @@ public:
 	static void *work_event_new(void *arg);
 	unsigned long long getLonglongTime();
 	static void *getTime(void *arg);
+	void handler_recv_buffer(char * buf,int size, string &uuid, string &hash_field);
 private:
-	#define BUSI_VAST "5.1"
-	#define BUSI_EXP  "5.1.2"
-
-
-	void get_overtime_recond(map<string, string>& delMap);
-	void delete_redis_data(map<string, string>& delMap);
-	void delete_invalid_recond();
+	void get_overtime_recond(map<string, vector<string>*>& delMap);
+	void delete_redis_data(map<string, vector<string>*>& delMap);
 	void * establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
 	configureObject& m_config;
 	
@@ -367,10 +467,6 @@ private:
 	vector<string> m_subKey;//subKey configure , need establish message filter or remove message filter
 	
 	unsigned int m_configureChange=0;
-	
-	pthread_mutex_t m_uuidListMutex;
-	pthread_rwlock_t handler_fd_lock;
-	pthread_rwlock_t m_workerList_lock;
 	
 	int m_vastEventFd[2];
 	pid_t m_master_pid;
@@ -389,7 +485,7 @@ private:
 	string m_redisIP;
 	unsigned short m_redisPort;
 	unsigned short m_redisSaveTime;
-	unsigned short m_redisConnectNum;
+	unsigned short m_thread_pool_size=0;
 	
 	unsigned short m_workerNum=1;
 	int m_workerChannel;
@@ -398,17 +494,24 @@ private:
 	redisContext *m_redisContex;
 	redisContext* m_delContext;
 	map<string, redisDataRec*> redisRecList;
-	pthread_mutex_t bcDataMutex;
-	pthread_mutex_t m_delDataMutex;
-	pthread_mutex_t m_redisContextMutex;
-	pthread_mutex_t tmMutex;
+
+	mutex_lock bcDataMutex;
+	mutex_lock m_delDataMutex;
+	mutex_lock tmMutex;
+	mutex_lock m_getTimeofDayMutex;
+	read_write_lock handler_fd_lock;
+	read_write_lock m_workerList_lock;
 
 	int m_redisHsetNum = 0;
 
-	redisPool m_redisPool;
+	redisPoolManager m_redisPoolManager;
 	ThreadPoolManager m_threadPoolManger;
 
 	struct timeval m_microSecTime;
+
+
+	string m_vastBusiCode;
+	string m_mobileBusiCode;
 };
 
 

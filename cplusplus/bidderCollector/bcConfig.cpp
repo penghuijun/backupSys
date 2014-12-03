@@ -33,6 +33,53 @@ bool configureObject::get_subString(string &src, char first, char end, string &d
     return true;
 }
 
+bool configureObject::parseSubInfo(string& subStr, string& oriStr, vector<string>& m_subList)
+{
+    ostringstream os;
+    int first_index=0;
+    int second_index=0;
+    cout<<oriStr<<endl;
+    if((subStr.empty()==false)&&(oriStr.empty()==false))
+    {
+        for(auto it = oriStr.begin(); it != oriStr.end(); it++, second_index++)
+        {
+            if(*it == ',')
+            {
+                if(second_index>first_index)
+                {
+                    string sub_value = oriStr.substr(first_index, second_index-first_index);
+                    first_index=(second_index+1);
+                    if(sub_value.empty()==false)
+                    {
+                        os.str("");
+                        os<<subStr;
+                        os<<"_";
+                        os<<sub_value;
+                        os<<"SUB";
+                        string sub_str = os.str();
+                        m_subKey.push_back(sub_str);                  
+                    }
+                }
+            }
+        }
+
+        if(first_index<second_index)
+        {
+            string sub_value = oriStr.substr(first_index, second_index-first_index);
+            if(sub_value.empty()==false)
+            {
+                os.str("");
+                os<<subStr;
+                os<<"_";
+                os<<sub_value;
+                os<<"SUB";
+                string sub_str = os.str();
+                m_subKey.push_back(sub_str);                  
+            }
+        }
+    }
+    return true;
+}
 void configureObject::readConfig()
 {
     try
@@ -40,6 +87,7 @@ void configureObject::readConfig()
         string buf;
         int symIdx =0;
         string value;
+        ostringstream os;
         if(m_infile.is_open()==true)//if file is open ,close the file first
         {
             m_infile.close();
@@ -51,34 +99,33 @@ void configureObject::readConfig()
             cerr << "sorry, open "<< m_configName << " failure"  << endl;
             exit(1);
         }
-        cout << "open "<< m_configName << " success"  << endl;
+        cerr << "open "<< m_configName << " success"  << endl;
 
-        m_subKey.clear();//clear subKey ,reload subscribe key
-
+        string subStr;
         bool block_started = false;//block start sym;
         while(getline(m_infile, buf))
         {
             if(buf.empty() || buf.at(0)== '#' || buf.at(0)==' ') continue;// Comments or blank lines
-
             if(block_started)
             {
                 symIdx = buf.find('}');
-                if(symIdx != string::npos)
+                if(symIdx != string::npos)//find "}"
                 {
                     block_started = false;
                 }
                 else
-                {
-                    symIdx = buf.find(';');
-                    if(symIdx==string::npos) 
+                {   
+                    if(buf.compare(0, 6, "subKey")==0)
                     {
-                        cerr <<"lack ;"<<endl;
+                        if(get_subString(buf, '=', ';', value) == false) throw 0;    
+                        subStr = value;
+                            
                     }
-                    else
+                    else if(buf.compare(0, 7, "subPipe")==0)
                     {
-                        string sub_key;
-                        sub_key=buf.substr(0,symIdx);
-                        m_subKey.push_back(sub_key);
+                        if(get_subString(buf, '=', ';', value) == false) throw 0;
+                        m_subKey.clear();
+                        parseSubInfo(subStr, value, m_subKey);
                     }
                 }
                 continue;
@@ -117,21 +164,29 @@ void configureObject::readConfig()
                 if(get_subString(buf, '=', ';', value) == false) throw 0; 
                 m_redisSaveTime = atoi(value.c_str());
             }
-            else if(buf.compare(0, 15, "redisConnectNum")==0)
+            else if(buf.compare(0, 14, "threadPoolSize")==0)
             {
                 if(get_subString(buf, '=', ';', value) == false) throw 0; 
-                m_redisConnectNum = atoi(value.c_str());
+                m_threadPoolSize = atoi(value.c_str());
             }
             else if(buf.compare(0, 12, "workerNumber")==0)
             {
                 if(get_subString(buf, '=', ';', value) == false) throw 0; 
                 m_workNum= atoi(value.c_str());
             }
-            else if(buf.compare(0, 6, "subKey")==0 && ((symIdx = buf.find('{')) != string::npos) )
+            else if(buf.compare(0, 13, "subscribeInfo")==0 && ((symIdx = buf.find('{')) != string::npos) )
             {
                 block_started = true;
             }
-        }//while
+            else if(buf.compare(0, 16, "vastBusinessCode")==0)
+            {
+                if(get_subString(buf, '=', ';', m_vastBusiCode) == false) throw 0;
+            }
+            else if(buf.compare(0, 18, "mobileBusinessCode")==0)
+            {
+                if(get_subString(buf, '=', ';', m_mobileBusiCode) == false) throw 0;
+            }
+        }//while       
 
         m_infile.close();
         if(block_started==true)
@@ -145,7 +200,7 @@ void configureObject::readConfig()
     }
     catch(...)
     {
-        cout << get_configFlieName() <<":config error" << endl;
+        cerr << get_configFlieName() <<":config error" << endl;
         m_infile.close();
         exit(1);
     }    
@@ -155,24 +210,26 @@ void configureObject::readConfig()
 void configureObject::display() const
 {
 
-    cout << "-----------------------------------" << endl;
-    cout << "config file name: "<< get_configFlieName() << endl;
-    cout << "config bc worker num: " << get_workerNum()<< endl;
-    cout << "config bidder collector ip: " << get_bcIP()<< endl;
-    cout << "config bc listen bidder port: " << get_bcListenBidderPort()<< endl;
+    cerr << "-----------------------------------" << endl;
+    cerr << "config file name: "<< get_configFlieName() << endl;
+    cerr << "config bc worker num: " << get_workerNum()<< endl;
+    cerr << "config bidder collector ip: " << get_bcIP()<< endl;
+    cerr << "config bc listen bidder port: " << get_bcListenBidderPort()<< endl;
 
-    cout << "config redis ip: " << get_redisIP()<< endl; 
-    cout << "config redis port: " << get_redisPort()<< endl; 
-    cout << "config redis save time: " << get_redisSaveTime()<< endl; 
-    cout << "config redis connect num: " <<get_redisConnectNum()<<endl;
-    cout << "config throttle ip: " << get_throttleIP()<< endl;
-    cout << "config throttle port: " << get_throttlePubVastPort()<< endl; 
-    cout <<"bidder sub key:"<<endl;
+    cerr << "config redis ip: " << get_redisIP()<< endl; 
+    cerr << "config redis port: " << get_redisPort()<< endl; 
+    cerr << "config redis save time: " << get_redisSaveTime()<< endl; 
+    cerr << "config redis connect num: " <<get_threadPoolSize()<<endl;
+    cerr << "config throttle ip: " << get_throttleIP()<< endl;
+    cerr << "config throttle port: " << get_throttlePubVastPort()<< endl; 
+    cerr << "config vast business code: " << get_vastBusiCode()<< endl;
+    cerr << "config mobile business code: " << get_mobileBusiCode()<< endl;    
+    cerr <<"bidder sub key:"<<endl;
     auto it = m_subKey.begin();
     for(it; it != m_subKey.end(); it++)
     {
-        cout <<*it<<endl;
+        cerr <<*it<<endl;
     }
-    cout << "-----------------------------------" << endl;
+    cerr << "-----------------------------------" << endl;
  
 }

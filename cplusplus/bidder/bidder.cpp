@@ -23,16 +23,13 @@
 #include "CommonMessage.pb.h"
 #include "AdVastRequestTemplate.pb.h"
 #include "AdBidderResponseTemplate.pb.h"
-#include "AdMobileRequest.pb.h"
-
-
+#include "MobileAdRequest.pb.h"
+#include "MobileAdResponse.pb.h"
+#include "campaign.h"
 using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
 using namespace std;
-
-const char *businessCode_VAST="5.1.1";
-const char *businessCode_MOBILE="7.1.1";
 
 sig_atomic_t srv_graceful_end = 0;
 sig_atomic_t srv_ungraceful_end = 0;
@@ -70,73 +67,80 @@ void bidderServ::readConfigFile()
     unsigned short value;
     
     m_configureChange = 0;
+
+    
     ip = m_config.get_throttleIP();
-    if(ip != m_throttleIP) 
+    port  = m_config.get_throttlePort(); 
+    if((ip != m_throttleIP)||(m_throttlePort!= port)) 
     {
-        m_configureChange |= c_master_throttleIP;
+        m_configureChange |= c_update_throttleAddr;
         m_throttleIP = ip;
-    }
-   
-    port  = m_config.get_throttlePort();
-    if(m_throttlePort!= port)
-    {
-        m_configureChange |= c_master_throttlePort;
         m_throttlePort = port;
     }
+   
 
     ip = m_config.get_bidderCollectorIP();
-    if(ip != m_bidderCollectorIP) 
-    {
-        m_configureChange |= c_master_bcIP;
-        m_bidderCollectorIP = ip;
-    }
-   
     port  = m_config.get_bidderCollectorPort();
-    if(m_bidderCollectorPort != port)
+    if((ip != m_bidderCollectorIP)||(m_bidderCollectorPort != port)) 
     {
-        m_configureChange |= c_master_bcPort;
+        m_configureChange |= c_update_bcAddr;
         m_bidderCollectorPort = port;
+        m_bidderCollectorIP = ip;
     }
 
     m_subKey.clear();
     m_subKey = m_config.get_subKey(); 
     if(m_subKey != m_subKeying)
     {
-        m_configureChange |= c_master_subKey;
+        m_configureChange |= c_update_zmqSub;
     }
 
     value = m_config.get_bidderworkerNum();
     if(m_workerNum != value)
     {
-            m_configureChange |= c_workerNum;
-            m_worker_info_lock.write_lock();
-            m_workerNum = value;
-            m_worker_info_lock.read_write_unlock();
+        m_configureChange |= c_update_workerNum;
+        m_worker_info_lock.write_lock();
+        m_workerNum = value;
+        m_worker_info_lock.read_write_unlock();
     } 
-    
+
+    value = m_config.get_threadPoolSize();
+    if(m_thread_pool_size!=value)
+    {
+         m_configureChange |= c_update_forbid;
+         m_thread_pool_size = value;
+    }
+
+    m_vastBusinessCode = m_config.get_vastBusiCode();
+    m_mobileBusinessCode = m_config.get_mobileBusiCode();
+    m_bidder_id = m_config.get_bidderID();
+    m_target_converce_num = m_config.get_converceNum();
 }
 
 void bidderServ::calSpeed()
 {
+     const int printNum = 10000;
      static long long test_begTime;
      static long long test_endTime;
      static int test_count = 0;
+     int couuut = 0;
      m_test_lock.lock();
      test_count++;
-     if(test_count%10000==1)
+     couuut = test_count;
+     if(test_count%printNum==1)
      {
         struct timeval btime;
         gettimeofday(&btime, NULL);
         test_begTime = btime.tv_sec*1000+btime.tv_usec/1000;
         m_test_lock.unlock();
      }
-     else if(test_count%10000==0)
+     else if(test_count%printNum==0)
      {
         struct timeval etime;
         gettimeofday(&etime, NULL);
         test_endTime = etime.tv_sec*1000+etime.tv_usec/1000;
         long long diff = test_endTime-test_begTime;
-        long speed = 10000*1000/diff;
+        long speed = printNum*1000/diff;
         m_test_lock.unlock();
         //cout<<"b-e:"<<test_begTime<<":"<<test_endTime<<endl;
         cout <<"send request num: "<<test_count<<endl;
@@ -147,21 +151,28 @@ void bidderServ::calSpeed()
      {
         m_test_lock.unlock();
      }
+     cout<<couuut<<endl;
 }
-void bidderServ::reloadWorker()
+void bidderServ::updateWorker()
 {
     readConfigFile();
-    if(((m_configureChange &c_master_bcIP) == c_master_bcIP)||((m_configureChange&c_master_bcPort)==c_master_bcPort))
+    if((m_configureChange &c_update_forbid) == c_update_forbid)
+    {
+        exit(0);
+    }
+    if((m_configureChange &c_update_bcAddr) == c_update_bcAddr)
     {
         zmq_close(m_response_handler);
         m_response_handler = bindOrConnect(true, "tcp", ZMQ_DEALER, m_bidderCollectorIP.c_str(), m_bidderCollectorPort, NULL);
     }
+
+    m_redis_pool_manager.redisPool_update(m_config.get_redisIP(), m_config.get_redisPort(), m_config.get_threadPoolSize()+1);
+    
 }
 
 void bidderServ::releaseConnectResource(string subKey) 
 {
-    auto it = m_handler_fd_map.begin();
-    for(it = m_handler_fd_map.begin(); it != m_handler_fd_map.end();)
+    for(auto it = m_handler_fd_map.begin(); it != m_handler_fd_map.end();)
     {
         handler_fd_map *hfMap = *it;
         if(hfMap==NULL)
@@ -180,8 +191,7 @@ void bidderServ::releaseConnectResource(string subKey)
              delete hfMap;
              it = m_handler_fd_map.erase(it);
              
-             auto itor = m_subKeying.begin();
-             for(itor = m_subKeying.begin(); itor != m_subKeying.end();)
+             for(auto itor = m_subKeying.begin(); itor != m_subKeying.end();)
              {
                 if(subKey ==  *itor)
                 {
@@ -205,13 +215,17 @@ bidderServ::bidderServ(configureObject &config):m_config(config)
 {
     try
     {
+        m_bidder_id = config.get_bidderID();
         m_throttleIP = config.get_throttleIP();
         m_throttlePort = config.get_throttlePort();
         m_bidderCollectorIP = config.get_bidderCollectorIP();
         m_bidderCollectorPort = config.get_bidderCollectorPort();
         m_workerNum = config.get_bidderworkerNum();
         m_subKey = config.get_subKey();
-        m_thread_num = config.get_threadNum();
+        m_thread_pool_size = config.get_threadPoolSize();
+        m_vastBusinessCode = config.get_vastBusiCode();
+        m_mobileBusinessCode = config.get_mobileBusiCode();
+        m_target_converce_num = config.get_converceNum();
         m_zeromq_sub_lock.init();
         m_worker_info_lock.init();
         m_test_lock.init();
@@ -335,7 +349,7 @@ void bidderServ::usr1SigHandler(int fd, short event, void *arg)
     bidderServ *serv = (bidderServ*) arg;
     if(serv != NULL)
     {
-        serv->reloadWorker();
+        serv->updateWorker();
     }
 }
 
@@ -366,52 +380,273 @@ void display(vector<string> &listC)
 /*accord to AdMobileResponse, generate mobile response protobuf
   *accord to geo, os, dev, connection, timestamp, enqiure compainID interaction, then reqire campingn according to campaignID set
   */
-bool bidderServ::gen_mobile_response_protobuf(string &business_code, string &data_code, string &data_str, CommonMessage &comm_msg)
+bool bidderServ::gen_mobile_response_protobuf(string &business_code, string &data_code, string& ttl_time,string &data_str)
 {
     ostringstream os;
     MobileAdRequest mobile_request;
     mobile_request.ParseFromString(data_str);
 
-    MobileAdRequest_Device dev = mobile_request.device();
-    MobileAdRequest_User user = mobile_request.user();
-    MobileAdRequest_Platform plat = mobile_request.platform();
+    MobileAdRequest_Device    dev = mobile_request.device();
+    MobileAdRequest_User      user = mobile_request.user();
+    MobileAdRequest_GeoInfo   geo_info = mobile_request.geoinfo();
+    
     string uuid = mobile_request.id();
-    string country = user.countrycode();
-    string region = user.region();
-    string city = user.city();  
+    //geo
+    string country = geo_info.country();
+    string region = geo_info.region();
+    string city = geo_info.city();  
+    //os
+    string family = dev.platform();
+    string version = dev.platformversion();
+    //dev
     string vendor = dev.vender();
-    string connectionType = mobile_request.connectiontype();
+    string model = dev.modelname();
+    //signal target
+    string lang  = dev.language();
+    string carrier = geo_info.carrier();
+
+    //get connecttype
+    string connectType = dev.connectiontype();
     string timeStamp = mobile_request.timestamp();
-  
-    string idex="1";
+    string seimps = mobile_request.session();
+    string traffic = mobile_request.trafficquality();
+    string app_web = mobile_request.apptype();
+    string phone_tablet = dev.devicetype();
+
+    //covert timestamp to daypart array
+    time_t time_stamp = (atoll(timeStamp.c_str())/1000);
+    struct tm *utc_time = gmtime(&time_stamp);
+    int daypart_index = (utc_time->tm_wday-1)*24+utc_time->tm_hour;
+    cerr<<"timeStamp:"<<timeStamp<<endl;
+    cerr<<"tm_wday:"<<utc_time->tm_wday<<"  tm_hour:"<<utc_time->tm_hour<<endl;
+    string daypart;
+    intToString(daypart_index, daypart);
+
+    string app;
+    string web;
+
+    if(app_web=="app")//"app" "web" "all" "none"
+    {
+        app="1";
+        web="0";
+    }
+    else if(app_web=="web")
+    {
+        app="0";
+        web="1";
+    }
+    else if(app_web=="all")
+    {
+        app=web="1";
+    }
+    else if(app_web=="none")
+    {
+        app=web="0";
+    }
+    else
+    {
+        app=web="1";;
+    }
+
+    string phone;
+    string tablet;
+    if(phone_tablet=="phone")//"phone" "tablet" "all" "none"
+    {
+        phone="1";
+        tablet="0";
+    }
+    else if(phone_tablet=="tablet")
+    {
+        phone="0";
+        tablet="1";
+    }
+    else if(phone_tablet=="all")
+    {
+        phone=tablet="1";
+    }
+    else if(phone_tablet=="none")
+    {
+        phone=tablet="0";
+    }
+    else
+    {
+        phone=tablet="1";
+    }      
+
+   string ventory = mobile_request.inventoryquality();
+   int freqency_size = mobile_request.frequency_size();
+   auto frequency = mobile_request.frequency();
+   string ad_width = mobile_request.adspacewidth();
+   string ad_height = mobile_request.adspaceheight();  
+   
+   os.str("");
+   os<<ad_width<<"_"<<ad_height;
+   string cretive_size_str = os.str();
+#ifdef DEBUG
+    cerr<<"ad_width_ad_height"<<cretive_size_str<<endl;;
+#endif   
+  // MobileAdRequest_Frequency frequency = mobile_request.  
     target_set target_obj;
     target_obj.add_target_geo("country", country);
     target_obj.add_target_geo("region", region);
     target_obj.add_target_geo("city", city);
-    os.str("");
-    os<<plat;
-    string family = os.str();
+
     target_obj.add_target_os("family", family);
-    target_obj.add_target_os("version", idex);
+    target_obj.add_target_os("version", version);
     target_obj.add_target_dev("vendor", vendor);
-    target_obj.add_target_dev("model", idex);
+    target_obj.add_target_dev("model", model);
 
-    target_obj.add_target_signal("lang", idex);
-    target_obj.add_target_signal("carrier", idex);
-    target_obj.add_target_signal("conn.type", connectionType);
-    target_obj.add_target_signal("day.part", timeStamp);
-    target_obj.add_target_signal("se.imps",idex);
-    target_obj.add_target_signal("sup.m.app", idex);
-    target_obj.add_target_signal("sup.m.web", idex);
-    target_obj.add_target_signal("dev.phone", idex);
-    target_obj.add_target_signal("dev.tablet", idex);
-    target_obj.add_target_signal("tra.quality", idex);
+    target_obj.add_target_signal("lang", lang);
+    target_obj.add_target_signal("carrier", carrier);
+    target_obj.add_target_signal("conn.type", connectType);
+    target_obj.add_target_signal("day.part", daypart);
+  //  target_obj.add_target_signal("se.imps",seimps);
+    target_obj.add_target_signal("sup.m.app", app);
+    target_obj.add_target_signal("sup.m.web", web);
+    target_obj.add_target_signal("dev.phone", phone);
+    target_obj.add_target_signal("dev.tablet", tablet);
+    target_obj.add_target_signal("tra.quality", traffic);
+#ifdef DEBUG
+    target_obj.display();
+    for(auto it = frequency.begin(); it != frequency.end();it++)
+    {
+       auto fre = *it;
+       cerr<<"property:" <<fre.property()<<endl;
+       cerr<<"id:" <<fre.id()<<endl; 
+       auto value = fre.frequencyvalue();
+       for(auto iter = value.begin(); iter != value.end(); iter++)
+       {
+           auto fre_value = *iter;
+           cerr<<"frequencyType:"<<fre_value.frequencytype()<< "       times:"<<fre_value.times()<<endl;
+       }
+    }
+#endif
+
     vector<string> camp_string_vec;
-    if(m_redis_pool.redis_get_camp_pipe(target_obj,camp_string_vec)==false) return false;
+    if(m_redis_pool_manager.redis_get_camp_pipe(target_obj,camp_string_vec, m_target_converce_num)==false)
+    {
+        cerr<<"redis_get_camp_pipe error"<<endl;
+        return false;
+    }
+#ifdef DEBUG
+    //target_obj.display();
+   // display(camp_string_vec);
+#endif
+    if(camp_string_vec.empty()) return false;
 
-//    if(jsonToProtobuf_compaign(camp_string_vec, business_code, data_code, uuid,comm_msg)==false) return false;
- //   display(camp_string_vec);
-  //  cout<<camp_string_vec.size()<<endl;
+    int bidID=1;  
+    bool gen_response = false;
+    MobileAdResponse mobile_response;
+    CommonMessage response_commMsg;
+    for(auto it = camp_string_vec.begin(); it != camp_string_vec.end(); it++)
+    {
+        string &camp_str = *it;
+        campaign_structure campaign_obj;
+        if(campaign_obj.parse_campaign(camp_str)==false)
+        {
+            cout<<"can not parse campaign json"<<endl;
+            continue;
+        }
+#ifdef DEBUG
+//        campaign_obj.display();
+#endif
+        MobileAdResponse_mobileBid *mobile_bidder = NULL;
+        bool  gen_mobile_bidder = false;
+        campaign_creative* creatives = campaign_obj.find_creative_by_size(cretive_size_str);
+        if(creatives)
+        {
+            auto cre_data = creatives->get_creative_data();
+            for(auto cre_data_it = cre_data.begin(); cre_data_it != cre_data.end(); cre_data_it++)
+            {
+                creative_structure *data = *cre_data_it;
+                if(data  &&(campaign_obj.campaign_valid(target_obj, ventory, frequency) == true))
+                {
+                    string creative_id_str;
+                    intToString(data->get_id(), creative_id_str);
+                    if(gen_mobile_bidder==false)
+                    {
+                        mobile_bidder = mobile_response.add_bidcontent();
+                        gen_mobile_bidder = true;
+                        gen_response = true;
+                    }
+                    MobileAdResponse_Creative *mobile_creative =  mobile_bidder->add_creative();
+                    mobile_creative->set_creativeid(creative_id_str);
+                    mobile_creative->set_admarkup(data->get_content());
+                    mobile_creative->set_macro(data->get_macro());
+                    mobile_creative->set_width(ad_width);
+                    mobile_creative->set_height(ad_height);
+               }
+               else
+               {              
+               }
+            }
+        }
+        
+        if(mobile_bidder)
+        {
+            string campaign_id_str;
+            string bidding_value_str;
+            intToString(campaign_obj.get_id(), campaign_id_str);
+            doubleToString(campaign_obj.get_biddingValue(), bidding_value_str);
+            
+            mobile_bidder->set_campaignid(campaign_id_str);
+            mobile_bidder->set_biddingtype(campaign_obj.get_biddingType());
+            mobile_bidder->set_biddingvalue(bidding_value_str);
+            mobile_bidder->set_currency(campaign_obj.get_curency());
+
+            string str_inApp;
+            campaign_action cam_action = campaign_obj.get_campaign_action();
+            intToString((int)(cam_action.get_inApp()), str_inApp);
+            
+            MobileAdResponse_Action   *mobile_action = mobile_bidder->mutable_action();
+            mobile_action->set_name(cam_action.get_name()); 
+            mobile_action->set_content(cam_action.get_content());
+            mobile_action->set_actiontype(cam_action.get_actionTypeName());
+            mobile_action->set_in_app(str_inApp);
+        }
+    }
+
+    if(gen_response)
+    {
+    
+        string bid_id_str;
+        intToString(bidID, bid_id_str);
+        bidID++;
+        mobile_response.set_id(mobile_request.id());
+        mobile_response.set_bidid(bid_id_str);
+        MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+        bidder_info->set_bidderid(m_bidder_id);
+        int dataSize = mobile_response.ByteSize();
+        char *dataBuf = new char[dataSize];
+        mobile_response.SerializeToArray(dataBuf, dataSize);  
+        response_commMsg.set_businesscode(business_code);
+        response_commMsg.set_datacodingtype(data_code);
+        response_commMsg.set_ttl(ttl_time);
+        response_commMsg.set_data(dataBuf, dataSize);
+
+        dataSize = response_commMsg.ByteSize();
+        char* comMessBuf = new char[dataSize];
+        response_commMsg.SerializeToArray(comMessBuf, dataSize);
+        m_worker_zeromq_lock.lock();
+        int ssize = zmq_send(m_response_handler, comMessBuf, dataSize,ZMQ_NOBLOCK);
+        m_worker_zeromq_lock.unlock();
+        delete[] dataBuf;
+        delete[] comMessBuf;
+#ifdef DEBUG
+        cout<<"recv valid campaign, send to BC"<<endl;
+#endif
+        if(ssize)
+        {
+            calSpeed();
+        }
+    }
+    else
+    {
+#ifdef DEBUG         
+       cout<<"can not find valid campaign for request"<<endl;
+#endif
+
+    }
     return true;
 }
 
@@ -464,6 +699,7 @@ void bidderServ::handle_ad_request(void* arg)
     if(!msg) return;
     
     char *buf = msg->buf;
+    int dataLen = msg->bufSize;
     bidderServ *serv = (bidderServ*) msg->serv;
     if(!buf||!serv)
     {
@@ -472,40 +708,31 @@ void bidderServ::handle_ad_request(void* arg)
         return;
     }
 
-    int dataLen = msg->bufSize;
     CommonMessage request_commMsg;
     request_commMsg.ParseFromArray(buf, dataLen);     
     string tbusinessCode = request_commMsg.businesscode();
     string tdataCoding = request_commMsg.datacodingtype();
+    string ttl_time = request_commMsg.ttl();
     string request_data=request_commMsg.data();// data
         
-    CommonMessage response_commMsg;
-    bool result = false;
-    if(tbusinessCode == businessCode_VAST)//vast
+    if(tbusinessCode == serv->m_vastBusinessCode)//vast
     {
-        result = serv->gen_vast_response_protobuf(tbusinessCode, tdataCoding, request_data, response_commMsg);
+        cout<<"vast"<<endl;
+      //  result = serv->gen_vast_response_protobuf(tbusinessCode, tdataCoding, request_data, response_commMsg);
     }
-    else if(tbusinessCode == businessCode_MOBILE)
+    else if(tbusinessCode == serv->m_mobileBusinessCode)
     {
-        result = serv->gen_mobile_response_protobuf(tbusinessCode, tdataCoding, request_data, response_commMsg);
+        serv->gen_mobile_response_protobuf(tbusinessCode, tdataCoding, ttl_time, request_data);
     }
     else 
     {
         cout << "this businessCode can not analysis:" << tbusinessCode << endl;
     } 
-
-    if(result)
-    {
-        char comBuf[BUF_SIZE];
-      //  response_commMsg.SerializeToArray(comBuf, sizeof(comBuf));
-       // serv->m_worker_zeromq_lock.lock();
-     //   int ssize = zmq_send(serv->m_response_handler, comBuf, response_commMsg.ByteSize(),ZMQ_NOBLOCK);
-      //  serv->m_worker_zeromq_lock.unlock();
-    }
-   
-    serv->calSpeed();
     delete[] msg->buf;
     delete msg;
+#ifdef DEBUG
+    cerr<<"===========handle_ad_request end==================="<<endl;
+#endif
 }
 
 /*
@@ -521,7 +748,7 @@ void bidderServ::workerBusiness_callback(int fd, short event, void *pair)
         return;
     }
     
-    char buf[4096];
+    char buf[4];
     int len;
     int dataLen;
     while(1)
@@ -535,94 +762,40 @@ void bidderServ::workerBusiness_callback(int fd, short event, void *pair)
        
        char *request_data = new char[dataLen];
        len = read(fd, request_data, dataLen);
-       if(len != dataLen) 
+       if(len <= 0)
        {
-           cout<<"recv data exception:"<<dataLen <<"len:"<<len<<endl;
-           delete[] request_data;
-           break;
-       }  
+            delete[] request_data;
+            return;
+       }
+       int idx = len;
+       while(idx < dataLen) 
+       {
+           cout<<"recv data exception:"<<dataLen <<"  idx:"<<idx<<endl;
+           len = read(fd, request_data+idx, dataLen-idx);
+           if(len <= 0)
+           {
+                delete[] request_data;
+                return;
+           }
+           idx += len;
+       }
+
        messageBuf *msg= new messageBuf;
        msg->buf = request_data;
        msg->bufSize = len;
        msg->serv = serv;
        if(serv->m_thread_manager.Run(handle_ad_request,(void *)msg)!=0)//not return 0, failure
        {
+            cout<<"thread run error"<<endl;
             delete[] request_data;
             delete msg;
        }
    }            
 }
 
+
 bool bidderServ::jsonToProtobuf_compaign(vector<string> &camp_vec, string &tbusinessCode, string &data_coding_type, string &uuid, CommonMessage &commMsg)
 {
-    char buf[BUFSIZE];
-    ostringstream os;
-    MobileAdResponse mobile_response;
-    BidderResponse vast_response;
-    int response_size=0;
-    
-    if(tbusinessCode == businessCode_MOBILE)
-    {
-        mobile_response.set_id(uuid);
-        mobile_response.set_bidderid("1");
-    }
-    else if(tbusinessCode == businessCode_VAST)
-    {
-        vast_response.set_id(uuid);
-        vast_response.set_bidderid("1");
-    }
-    else
-    {
-        return false;
-    }   
-    
-    for(auto it = camp_vec.begin(); it != camp_vec.end(); it++)
-    {
-        string camp = *it;
-        rapidjson::Document document;   
-        document.Parse<0>(camp.c_str());
-        
-        if(tbusinessCode == businessCode_MOBILE)
-        {
-            MobileAdResponse_Native *native= mobile_response.mutable_native();
-            if((document["id"].IsNull()==false) && document["id"].IsInt())
-            {
-                int value = document["id"].GetInt();
-                os.str("");
-                os<<value;
-                native->set_id(os.str());
-            }
-            mobile_response.SerializeToArray(buf, sizeof(buf));
-            response_size = mobile_response.ByteSize();
-        }
-        else if(tbusinessCode == businessCode_VAST)
-        {
-            BidderResponse_Ad *ad = vast_response.add_ads();
-            if((document["id"].IsNull()==false) && document["id"].IsInt())
-            {
-                int value = document["id"].GetInt();
-                os.str("");
-                os<<value;
-                ad->set_campaignid(os.str());
-            }           
-            if((document["name"].IsNull()==false) && document["name"].IsString())
-            {
-                string value = document["name"].GetString();
-                ad->set_advertisername(value);
-            } 
-            vast_response.SerializeToArray(buf, sizeof(buf));
-            response_size = mobile_response.ByteSize();
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    commMsg.set_businesscode(tbusinessCode);
-    commMsg.set_datacodingtype(data_coding_type);
-    commMsg.set_data(buf, response_size);
-    return true;
 }
 
 void bidderServ::start_worker()
@@ -642,8 +815,8 @@ void bidderServ::start_worker()
     evsignal_add(term_event, NULL);
     evsignal_add(usr1_event, NULL);
     
-    m_thread_manager.Init(10000, m_thread_num, m_thread_num);
-    m_redis_pool.connectorPool_init(m_config.get_redisIP(), m_config.get_redisPort(), m_config.get_redisConnNum());
+    m_thread_manager.Init(10000, m_thread_pool_size, m_thread_pool_size);
+    m_redis_pool_manager.connectorPool_init(m_config.get_redisIP(), m_config.get_redisPort(), m_thread_pool_size+1);
     event_base_dispatch(m_base);
 }
 
@@ -707,8 +880,7 @@ void* bidderServ::bindOrConnect( bool client,const char * transType,int zmqType,
        {
            if(connectTimes++ >= connectMax)
            {
-                cout <<"try to connect to MAX"<<endl;
-                system("killall throttle");     
+                cout <<"try to connect to MAX"<<endl; 
                 exit(1);
            }
            cout <<"<"<<addr<<","<<port<<">"<<((client)? "connect":"bind")<<"failure"<<endl;
@@ -727,7 +899,7 @@ void* bidderServ::bindOrConnect( bool client,const char * transType,int zmqType,
   *function: establish subscribe connection
   *all right reserved
   */
-handler_fd_map*  bidderServ::zmq_connect_subscribe(string subkey)
+handler_fd_map*  bidderServ::zmq_connect_subscribe(string &subkey)
 {
     int fd;
     int rc;
@@ -773,44 +945,31 @@ void bidderServ::masterRestart(struct event_base* base)
 {
  
     cout <<"masterRestart::m_throConfChange:"<<m_configureChange<<endl;
-    if(((m_configureChange&c_master_throttleIP)==c_master_throttleIP)|| ((m_configureChange&c_master_throttlePort)==c_master_throttlePort))
+    if((m_configureChange&c_update_throttleAddr)==c_update_throttleAddr)
     {
         cout <<"c_master_throttleIP or c_master_throttlePort change"<<endl;
-        auto it = m_subKeying.begin();
-        for(it = m_subKeying.begin(); it != m_subKeying.end();)
+        for(auto itor = m_handler_fd_map.begin(); itor != m_handler_fd_map.end();)
         {
-            string subKey = *it;
-            auto itor = m_handler_fd_map.begin();
-            for(itor = m_handler_fd_map.begin(); itor != m_handler_fd_map.end();)
+            handler_fd_map *hfMap = *itor;
+            if(hfMap)
             {
-                handler_fd_map *hfMap = *itor;
-                if(hfMap==NULL)
-                {
-                    itor = m_handler_fd_map.erase(itor);
-                    continue;
-                }
-                if(hfMap->subKey == subKey)
-                {
-                     zmq_setsockopt(hfMap->handler, ZMQ_UNSUBSCRIBE, subKey.c_str(), subKey.size()); 
-                     zmq_close(hfMap->handler);
-                     event_del(hfMap->evEvent);
-                     delete hfMap;
-                     itor = m_handler_fd_map.erase(itor);
-                }
-                else
-                {
-                    itor++;
-                }
-            }
+                string subKey = hfMap->subKey;
+                zmq_setsockopt(hfMap->handler, ZMQ_UNSUBSCRIBE, subKey.c_str(), subKey.size()); 
+                zmq_close(hfMap->handler);
+                event_del(hfMap->evEvent);
+                delete hfMap;
+                itor = m_handler_fd_map.erase(itor);
 
-            it = m_subKeying.erase(it);
+            }
+            else
+            {
+                itor=m_handler_fd_map.erase(itor);
+            }
          }
          m_subKeying.clear();
-         m_handler_fd_map.clear();
-
-         for(it =  m_subKey.begin(); it !=  m_subKey.end(); it++)
+         for(auto it = m_subKey.begin(); it !=  m_subKey.end(); it++)
          {
-            string subKey = *it;
+            string &subKey = *it;
             if(zmq_connect_subscribe(subKey))
             {
                 m_zeromq_sub_lock.read_lock();
@@ -823,14 +982,13 @@ void bidderServ::masterRestart(struct event_base* base)
          }
     }
 
-    if((m_configureChange&c_master_subKey)==c_master_subKey)//change subsrcibe
+    if((m_configureChange&c_update_zmqSub)==c_update_zmqSub)//change subsrcibe
     {
         vector<string> delVec;
         vector<string> addVec;
-        auto it = m_subKeying.begin();
-        for(it = m_subKeying.begin(); it != m_subKeying.end(); it++)
+        for(auto it = m_subKeying.begin(); it != m_subKeying.end(); it++)
         {
-            string subKey = *it;
+            string &subKey = *it;
             auto et = find(m_subKey.begin(),m_subKey.end(), subKey);
             if(et == m_subKey.end())//not find ,unsubsribe
             {
@@ -838,9 +996,9 @@ void bidderServ::masterRestart(struct event_base* base)
             }
         }
 
-        for(it = m_subKey.begin(); it != m_subKey.end(); it++)
+        for(auto it = m_subKey.begin(); it != m_subKey.end(); it++)
         {
-            string subKey = *it;
+            string &subKey = *it;
             auto et = find(m_subKeying.begin(), m_subKeying.end(), subKey);
             if(et == m_subKeying.end())
             {
@@ -849,17 +1007,17 @@ void bidderServ::masterRestart(struct event_base* base)
         }
 
         //m_subkeying exit, m_subkey not exit , this means must the subkey must unsubscribe
-        for(it = delVec.begin(); it != delVec.end(); it++)
+        for(auto it = delVec.begin(); it != delVec.end(); it++)
         {
-            string subKey = *it;
+            string &subKey = *it;
             m_zeromq_sub_lock.write_lock();
             releaseConnectResource(subKey);
             m_zeromq_sub_lock.read_write_unlock();
         }
 
-        for(it = addVec.begin(); it != addVec.end(); it++)
+        for(auto it = addVec.begin(); it != addVec.end(); it++)
         {
-            string subKey = *it;
+            string &subKey = *it;
             cout <<"add subkey:"<<subKey<<endl; 
             m_zeromq_sub_lock.write_lock();
             handler_fd_map *hfMap = zmq_connect_subscribe(subKey);
@@ -871,9 +1029,6 @@ void bidderServ::masterRestart(struct event_base* base)
             }
             m_zeromq_sub_lock.read_write_unlock();
         }
-
-        delVec.clear();
-        addVec.clear();
     } 
 }
 
@@ -992,12 +1147,26 @@ handler_fd_map *bidderServ::get_master_subscribe_zmqHandler(string subKey)
     m_zeromq_sub_lock.read_write_unlock();
     return NULL;
 }
+int bidderServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
+{
+     int rc = zmq_msg_init (&part);
+     if(rc != 0) 
+     {
+        return -1;
+     }
+
+     rc = zmq_recvmsg (socket, &part, flags);
+     if(rc == -1)
+     {
+        return -1;       
+     }
+     return rc;
+}
 
 void bidderServ::recvRequest_callback(int fd, short __, void *pair)
 {
     uint32_t events;
     size_t len=sizeof(events);
-    char buf[BUFSIZE];
     int recvLen = 0;
 
     bidderServ *serv = (bidderServ*)pair;
@@ -1019,20 +1188,29 @@ void bidderServ::recvRequest_callback(int fd, short __, void *pair)
     {
         while (1)
         {
-            recvLen = zmq_recv(handler, buf, sizeof(buf), ZMQ_NOBLOCK);
-            if ( recvLen == -1 )
+           zmq_msg_t first_part;
+           int recvLen = serv->zmq_get_message(handler, first_part, ZMQ_NOBLOCK);
+           if ( recvLen == -1 )
+           {
+               zmq_msg_close (&first_part);
+               break;
+           }
+           zmq_msg_close(&first_part);
+
+           zmq_msg_t part;
+           recvLen = serv->zmq_get_message(handler, part, ZMQ_NOBLOCK);
+           if ( recvLen == -1 )
+           {
+               zmq_msg_close (&part);
+               break;
+           }
+           char *msg_data=(char *)zmq_msg_data(&part);
+   
+            if(recvLen)
             {
-                break;
+                serv->sendToWorker(msg_data, recvLen);
             }
-      
-            recvLen = zmq_recv(handler, buf, sizeof(buf), ZMQ_NOBLOCK);
-            if ( recvLen == -1 )
-            {
-                break;
-            }  
-            serv->sendToWorker(buf, recvLen);
-            //serv->calSpeed();
-           // cout<<recvLen<<endl;
+            zmq_msg_close(&part);
         }
     }
 }
@@ -1225,9 +1403,7 @@ void bidderServ::run()
 
             if(is_child==0 &&sigusr1_recved)//update confiure dynamic
             {    
-                cout <<"master progress recv sigusr1"<<endl;
-    
-                
+                cout <<"master progress recv sigusr1"<<endl;      
                 readConfigFile();//read configur file
                 auto count = 0;
                 auto it = m_workerList.begin();
@@ -1265,8 +1441,6 @@ void bidderServ::run()
                         m_worker_info_lock.read_write_unlock();
                     }
                 }    
-                
-
             }
  
         }

@@ -71,8 +71,18 @@ void throttleConfig::readConfig()
                 if(get_subString(buf, '=', ';', value) == false) throw 0;     
                 m_workNum= atoi(value.c_str()); 
             }
-            else
+            else if(buf.compare(0, 14, "publishPipeNum")==0)
             {
+                if(get_subString(buf, '=', ';', value) == false) throw 0;     
+                m_publishPipeNum = atoi(value.c_str()); 
+            }
+            else if(buf.compare(0, 16, "vastBusinessCode")==0)
+            {
+                if(get_subString(buf, '=', ';', m_vastBusiCode) == false) throw 0;
+            }
+            else if(buf.compare(0, 18, "mobileBusinessCode")==0)
+            {
+                if(get_subString(buf, '=', ';', m_mobileBusiCode) == false) throw 0;
             }
         }//while
         m_infile.close();
@@ -98,6 +108,9 @@ void throttleConfig::display() const
     cout << "config throttle Ad port: " << get_throttleAdPort()<< endl;
     cout << "config throttle pub port: " << get_throttlePubPort()<< endl;
     cout << "config throttle worker num: " << get_throttleworkerNum()<< endl;
+    cout << "vast business code: " << get_vastBusiCode()<< endl;
+    cout << "mobile business code: " << get_mobileBusiCode()<< endl;
+    cout << "config publish pipe num: " << get_pubPipeNum()<< endl;    
     cout << "-----------------------------------" << endl;
  
 }

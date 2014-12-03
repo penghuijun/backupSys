@@ -1,4 +1,4 @@
-/* purpose @ çº¿ç¨‹æ± ç±»ï¼Œè´Ÿè´£çº¿ç¨‹çš„åˆ›å»ºä¸é”€æ¯ï¼Œå®ç°çº¿ç¨‹è¶…æ—¶è‡ªåŠ¨é€€å‡ºåŠŸèƒ½(åŠé©»ç•™)
+/* purpose @ Ïß³Ì³ØÀà£¬¸ºÔğÏß³ÌµÄ´´½¨ÓëÏú»Ù£¬ÊµÏÖÏß³Ì³¬Ê±×Ô¶¯ÍË³ö¹¦ÄÜ(°ë×¤Áô)
  * date    @ 2014.01.03
  * author  @ haibin.wang
  */
@@ -18,15 +18,15 @@ Thread::Thread(bool detach, ThreadPool * pool)
     pthread_attr_init(&m_attr);
     if(detach)
     {
-        pthread_attr_setdetachstate(&m_attr, PTHREAD_CREATE_DETACHED ); // è®©çº¿ç¨‹ç‹¬ç«‹è¿è¡Œ
+        pthread_attr_setdetachstate(&m_attr, PTHREAD_CREATE_DETACHED ); // ÈÃÏß³Ì¶ÀÁ¢ÔËĞĞ
     }
     else
     {
          pthread_attr_setdetachstate(&m_attr, PTHREAD_CREATE_JOINABLE );
     }
 
-    pthread_mutex_init(&m_mutex, NULL); //åˆå§‹åŒ–äº’æ–¥é‡
-    pthread_cond_init(&m_cond, NULL); //åˆå§‹åŒ–æ¡ä»¶å˜é‡
+    pthread_mutex_init(&m_mutex, NULL); //³õÊ¼»¯»¥³âÁ¿
+    pthread_cond_init(&m_cond, NULL); //³õÊ¼»¯Ìõ¼ş±äÁ¿
     task.fun = 0;
     task.data = NULL;
 }
@@ -114,11 +114,11 @@ int ThreadPool::InitPool(const int & poolMax, const int & poolPre)
 
 void ThreadPool::GetThreadRun(task_fun fun, void* arg)
 {
-    //ä»çº¿ç¨‹æ± ä¸­è·å–ä¸€ä¸ªçº¿ç¨‹
+    //´ÓÏß³Ì³ØÖĞ»ñÈ¡Ò»¸öÏß³Ì
     pthread_mutex_lock( &m_mutex);
     if(m_threads.empty())
     {
-        pthread_cond_wait(&m_emptyCond,&m_mutex); //é˜»å¡ç­‰å¾…æœ‰ç©ºé—²çº¿ç¨‹
+        pthread_cond_wait(&m_emptyCond,&m_mutex); //×èÈûµÈ´ıÓĞ¿ÕÏĞÏß³Ì
     }
 
     Thread * thread = m_threads.front();
@@ -128,13 +128,13 @@ void ThreadPool::GetThreadRun(task_fun fun, void* arg)
     pthread_mutex_lock( &thread->m_mutex );
     thread->task.fun = fun;
     thread->task.data = arg;        
-    pthread_cond_signal(&thread->m_cond); //è§¦å‘çº¿ç¨‹WapperFunå¾ªç¯æ‰§è¡Œ
+    pthread_cond_signal(&thread->m_cond); //´¥·¢Ïß³ÌWapperFunÑ­»·Ö´ĞĞ
     pthread_mutex_unlock( &thread->m_mutex );
 }
 
 int ThreadPool::Run(task_fun fun, void * arg) 
 {
-    pthread_mutex_lock(&m_runMutex); //ä¿è¯æ¯æ¬¡åªèƒ½ç”±ä¸€ä¸ªçº¿ç¨‹æ‰§è¡Œ
+    pthread_mutex_lock(&m_runMutex); //±£Ö¤Ã¿´ÎÖ»ÄÜÓÉÒ»¸öÏß³ÌÖ´ĞĞ
     int iRet = 0;
     if(m_totalNum <m_poolMax) //
     {
@@ -160,19 +160,19 @@ void ThreadPool::StopPool(bool bStop)
     m_bStop = bStop;
     if(bStop)
     {
-        //å¯åŠ¨ç›‘æ§æ‰€æœ‰ç©ºé—²çº¿ç¨‹æ˜¯å¦é€€å‡ºçš„çº¿ç¨‹
+        //Æô¶¯¼à¿ØËùÓĞ¿ÕÏĞÏß³ÌÊÇ·ñÍË³öµÄÏß³Ì
         Thread thread(false, this);
-        pthread_create(&thread.m_threadId,&thread.m_attr, ThreadPool::TerminalCheck , &thread); //å¯åŠ¨ç›‘æ§æ‰€æœ‰çº¿ç¨‹é€€å‡ºçº¿ç¨‹
-        //é˜»å¡ç­‰å¾…æ‰€æœ‰ç©ºé—²çº¿ç¨‹é€€å‡º
+        pthread_create(&thread.m_threadId,&thread.m_attr, ThreadPool::TerminalCheck , &thread); //Æô¶¯¼à¿ØËùÓĞÏß³ÌÍË³öÏß³Ì
+        //×èÈûµÈ´ıËùÓĞ¿ÕÏĞÏß³ÌÍË³ö
         pthread_join(thread.m_threadId, NULL);
     }
     /*if(bStop)
     {
         pthread_mutex_lock(&m_terminalMutex);
-        //å¯åŠ¨ç›‘æ§æ‰€æœ‰ç©ºé—²çº¿ç¨‹æ˜¯å¦é€€å‡ºçš„çº¿ç¨‹
+        //Æô¶¯¼à¿ØËùÓĞ¿ÕÏĞÏß³ÌÊÇ·ñÍË³öµÄÏß³Ì
         Thread thread(true, this);
-        pthread_create(&thread.m_threadId,&thread.m_attr, ThreadPool::TerminalCheck , &thread); //å¯åŠ¨ç›‘æ§æ‰€æœ‰çº¿ç¨‹é€€å‡ºçº¿ç¨‹
-        //é˜»å¡ç­‰å¾…æ‰€æœ‰ç©ºé—²çº¿ç¨‹é€€å‡º
+        pthread_create(&thread.m_threadId,&thread.m_attr, ThreadPool::TerminalCheck , &thread); //Æô¶¯¼à¿ØËùÓĞÏß³ÌÍË³öÏß³Ì
+        //×èÈûµÈ´ıËùÓĞ¿ÕÏĞÏß³ÌÍË³ö
         pthread_cond_wait(&m_terminalCond, & m_terminalMutex);
         pthread_mutex_unlock(&m_terminalMutex);
     }*/
@@ -189,7 +189,7 @@ Thread * ThreadPool::CreateThread()
     thread = new Thread(true, this);
     if(NULL != thread)
     {
-        int iret = pthread_create(&thread->m_threadId,&thread->m_attr, ThreadPool::WapperFun , thread); //é€šè¿‡WapperFunå°†çº¿ç¨‹åŠ å…¥åˆ°ç©ºé—²é˜Ÿåˆ—ä¸­
+        int iret = pthread_create(&thread->m_threadId,&thread->m_attr, ThreadPool::WapperFun , thread); //Í¨¹ıWapperFun½«Ïß³Ì¼ÓÈëµ½¿ÕÏĞ¶ÓÁĞÖĞ
         if(0 != iret)
         {
             delete thread;
@@ -219,13 +219,13 @@ void * ThreadPool::WapperFun(void*arg)
 
         if( true == pool->GetStop() )  
         {
-            break; //ç¡®å®šå½“å‰ä»»åŠ¡æ‰§è¡Œå®Œæ¯•åå†åˆ¤å®šæ˜¯å¦é€€å‡ºçº¿ç¨‹
+            break; //È·¶¨µ±Ç°ÈÎÎñÖ´ĞĞÍê±ÏºóÔÙÅĞ¶¨ÊÇ·ñÍË³öÏß³Ì
         }
         pthread_mutex_lock( &thread->m_mutex );
-        pool->SaveIdleThread(thread); //å°†çº¿ç¨‹åŠ å…¥åˆ°ç©ºé—²é˜Ÿåˆ—ä¸­
+        pool->SaveIdleThread(thread); //½«Ïß³Ì¼ÓÈëµ½¿ÕÏĞ¶ÓÁĞÖĞ
         abstime.tv_sec = time(0) + THREAD_WAIT_TIME_OUT;
         abstime.tv_nsec = 0;
-        if(ETIMEDOUT  == pthread_cond_timedwait( &thread->m_cond, &thread->m_mutex, &abstime )) //ç­‰å¾…çº¿ç¨‹è¢«å”¤é†’ æˆ–è¶…æ—¶è‡ªåŠ¨é€€å‡º
+        if(ETIMEDOUT  == pthread_cond_timedwait( &thread->m_cond, &thread->m_mutex, &abstime )) //µÈ´ıÏß³Ì±»»½ĞÑ »ò³¬Ê±×Ô¶¯ÍË³ö
         {
             pthread_mutex_unlock( &thread->m_mutex );
             break;
@@ -254,7 +254,7 @@ void ThreadPool::SaveIdleThread(Thread * thread )
         LockMutex();
         if(m_threads.empty())
         {
-            pthread_cond_broadcast(&m_emptyCond); //å‘é€ä¸ç©ºçš„ä¿¡å·,å‘Šè¯‰runå‡½æ•°çº¿ç¨‹é˜Ÿåˆ—å·²ç»ä¸ç©ºäº†
+            pthread_cond_broadcast(&m_emptyCond); //·¢ËÍ²»¿ÕµÄĞÅºÅ,¸æËßrunº¯ÊıÏß³Ì¶ÓÁĞÒÑ¾­²»¿ÕÁË
         }
         m_threads.push_front(thread);
         UnlockMutex();

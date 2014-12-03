@@ -6,8 +6,9 @@
   */
 #ifndef __BCCONFIG_H__
 #define __BCCONFIG_H__
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include<string>
 #include<vector>
 using namespace std;
@@ -35,8 +36,11 @@ public:
 	unsigned short get_redisSaveTime() const {return m_redisSaveTime;}
 	
 	unsigned short get_workerNum() const{return m_workNum;}
-	unsigned short get_redisConnectNum() const {return m_redisConnectNum;}
+	unsigned short get_threadPoolSize() const {return m_threadPoolSize;}
 	const vector<string>& get_subKey() const {return m_subKey;}
+
+	const string& get_vastBusiCode() const {return m_vastBusiCode;}
+	const string& get_mobileBusiCode() const {return m_mobileBusiCode;}
 
 	~configureObject()
 	{
@@ -45,6 +49,8 @@ public:
 	}
 private:
 	bool get_subString(string &src, char first, char end, string &dst);
+	bool parseSubInfo(string& subStr, string& oriStr, vector<string>& m_subList);
+
 	ifstream m_infile;
 	string m_configName;
 	
@@ -57,10 +63,15 @@ private:
 	string m_redisIP;
 	unsigned short m_redisPort;
 	unsigned short m_redisSaveTime;
-	unsigned short m_redisConnectNum;
+	
+	unsigned short m_threadPoolSize;
 	
 	unsigned short m_workNum=1;
 	vector<string> m_subKey;
+
+	string m_vastBusiCode;
+	string m_mobileBusiCode;
+	
 };
 
 #endif

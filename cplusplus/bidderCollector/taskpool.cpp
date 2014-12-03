@@ -16,8 +16,8 @@
 
     pthread_attr_t attr;
     pthread_attr_init( &attr );
-    pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE ); // è®©çº¿ç¨‹ç‹¬ç«‹è¿è¡Œ
-    pthread_create(&m_idleId, &attr, CheckIdleTask, this); //åˆ›å»ºç›‘æµ‹ç©ºé—²ä»»åŠ¡è¿›ç¨‹ 
+    pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE ); // ÈÃÏß³Ì¶ÀÁ¢ÔËĞĞ
+    pthread_create(&m_idleId, &attr, CheckIdleTask, this); //´´½¨¼à²â¿ÕÏĞÈÎÎñ½ø³Ì 
     pthread_attr_destroy(&attr);
 }
 
@@ -82,7 +82,7 @@ void TaskPool::StopPool()
 {
     m_bStop = true;
     LockIdle();
-    pthread_cond_signal(&m_idleCond); //é˜²æ­¢ç›‘æ§çº¿ç¨‹æ­£åœ¨ç­‰å¾…ï¼Œè€Œå¼•èµ·æ— æ³•é€€å‡ºçš„é—®é¢˜
+    pthread_cond_signal(&m_idleCond); //·ÀÖ¹¼à¿ØÏß³ÌÕıÔÚµÈ´ı£¬¶øÒıÆğÎŞ·¨ÍË³öµÄÎÊÌâ
     UnlockIdle();
     pthread_join(m_idleId, NULL);
 }

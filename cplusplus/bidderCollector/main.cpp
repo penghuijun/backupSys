@@ -16,13 +16,12 @@ cout << "-------------------------------------------RELEASE MODE----------------
 #endif
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
-    cout <<"Current 0MQ version is "<<major<<"."<<minor<<"."<< patch<<endl;
+    cerr <<"Current 0MQ version is "<<major<<"."<<minor<<"."<< patch<<endl;
 
     configureObject configure("bcConfig.txt");
     configure.display();
     bcServ bc(configure);
     bc.run();
-  //  pthread_mutex_destroy(&tmMutex);
     return 0;
 }
 

@@ -65,13 +65,13 @@ int ThreadPoolManager::Init(
     {
         return -3;
     }
-    //å¯åŠ¨çº¿ç¨‹æ± 
-    //å¯åŠ¨ä»»åŠ¡æ± 
-    //å¯åŠ¨ä»»åŠ¡èŽ·å–çº¿ç¨‹ï¼Œä»Žä»»åŠ¡æ± ä¸­ä¸æ–­æ‹¿ä»»åŠ¡åˆ°çº¿ç¨‹æ± ä¸­
+    //Æô¶¯Ïß³Ì³Ø
+    //Æô¶¯ÈÎÎñ³Ø
+    //Æô¶¯ÈÎÎñ»ñÈ¡Ïß³Ì£¬´ÓÈÎÎñ³ØÖÐ²»¶ÏÄÃÈÎÎñµ½Ïß³Ì³ØÖÐ
     pthread_attr_t attr;
     pthread_attr_init( &attr );
     pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE );
-    pthread_create(&m_taskThreadId, &attr, TaskThread, this); //åˆ›å»ºèŽ·å–ä»»åŠ¡è¿›ç¨‹
+    pthread_create(&m_taskThreadId, &attr, TaskThread, this); //´´½¨»ñÈ¡ÈÎÎñ½ø³Ì
     pthread_attr_destroy(&attr);
     return 0;
 }
@@ -83,9 +83,9 @@ void ThreadPoolManager::StopAll()
     pthread_cond_signal(&m_cond_task);
     UnlockTask();
     pthread_join(m_taskThreadId, NULL);
-    //ç­‰å¾…å½“å‰æ‰€æœ‰ä»»åŠ¡æ‰§è¡Œå®Œæ¯•
+    //µÈ´ýµ±Ç°ËùÓÐÈÎÎñÖ´ÐÐÍê±Ï
     m_taskPool->StopPool();
-    m_threadPool->StopPool(true); // åœæ­¢çº¿ç¨‹æ± å·¥ä½œ
+    m_threadPool->StopPool(true); // Í£Ö¹Ïß³Ì³Ø¹¤×÷
 }
 
 void ThreadPoolManager::LockTask()
@@ -103,8 +103,8 @@ void* ThreadPoolManager::TaskThread(void* arg)
     ThreadPoolManager * manager = (ThreadPoolManager*)arg;
     while(1)
     {
-        manager->LockTask(); //é˜²æ­¢ä»»åŠ¡æ²¡æœ‰æ‰§è¡Œå®Œæ¯•å‘é€äº†åœæ­¢ä¿¡å·
-        while(1) //å°†ä»»åŠ¡é˜Ÿåˆ—ä¸­çš„ä»»åŠ¡æ‰§è¡Œå®Œå†é€€å‡º
+        manager->LockTask(); //·ÀÖ¹ÈÎÎñÃ»ÓÐÖ´ÐÐÍê±Ï·¢ËÍÁËÍ£Ö¹ÐÅºÅ
+        while(1) //½«ÈÎÎñ¶ÓÁÐÖÐµÄÈÎÎñÖ´ÐÐÍêÔÙÍË³ö
         {
             Task * task = manager->GetTaskPool()->GetTask();
             if(NULL == task)
@@ -123,7 +123,7 @@ void* ThreadPoolManager::TaskThread(void* arg)
             manager->UnlockTask();
             break;
         }
-        manager->TaskCondWait(); //ç­‰å¾…æœ‰ä»»åŠ¡çš„æ—¶å€™æ‰§è¡Œ
+        manager->TaskCondWait(); //µÈ´ýÓÐÈÎÎñµÄÊ±ºòÖ´ÐÐ
         manager->UnlockTask();
     }
     return 0;
@@ -174,5 +174,5 @@ void ThreadPoolManager::TaskCondWait()
     to.tv_sec = time(0) + 60;
     to.tv_nsec = 0;
 
-    pthread_cond_timedwait( &m_cond_task, &m_mutex_task, &to); //60ç§’è¶…æ—¶
+    pthread_cond_timedwait( &m_cond_task, &m_mutex_task, &to); //60Ãë³¬Ê±
 }

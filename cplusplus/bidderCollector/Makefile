@@ -1,8 +1,12 @@
 PKG=`pkg-config --cflags --libs protobuf`
 #G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
-G11=g++ -g --std=c++11 `pkg-config --cflags --libs protobuf` 
-bcServ : main.o taskpool.o threadpool.o threadpoolmanager.o bcServ.o  bcConfig.o CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o
-	$(G11) -o bcServ bcServ.o taskpool.o threadpool.o threadpoolmanager.o main.o bcConfig.o  CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o $(PKG) -lhiredis -lzmq -lpthread -levent
+G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` 
+EXE_FILE=bc_mobile
+PRO_FILE=main.o taskpool.o threadpool.o threadpoolmanager.o bcServ.o  bcConfig.o CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o MobileAdResponse.pb.o MobileAdRequest.pb.o
+$(EXE_FILE): *.pb.c $(PRO_FILE)
+	$(G11) -o $(EXE_FILE) $(PRO_FILE)  $(PKG) -lhiredis -lzmq -lpthread -levent
+*.pb.c: *.proto
+	protoc --cpp_out=. *.proto
 main.o: main.cpp
 	$(G11) -c main.cpp
 bcServ.o: bcServ.cpp bcServ.h
@@ -13,6 +17,10 @@ AdBidderResponseTemplate.pb.o: AdBidderResponseTemplate.pb.cc AdBidderResponseTe
 	$(G11) -c AdBidderResponseTemplate.pb.cc 
 AdVastRequestTemplate.pb.o: AdVastRequestTemplate.pb.cc AdVastRequestTemplate.pb.h
 	$(G11) -c AdVastRequestTemplate.pb.cc 
+MobileAdRequest.pb.o: MobileAdRequest.pb.h MobileAdRequest.pb.cc
+	$(G11) -c MobileAdRequest.pb.cc
+MobileAdResponse.pb.o: MobileAdResponse.pb.h MobileAdResponse.pb.cc
+	$(G11) -c MobileAdResponse.pb.cc
 expireddata.pb.o: expireddata.pb.cc expireddata.pb.h
 	$(G11) -c expireddata.pb.cc
 bcConfig.o: bcConfig.cpp bcConfig.h
@@ -24,4 +32,4 @@ threadpool.o: threadpool.cpp
 threadpoolmanager.o: threadpoolmanager.cpp
 	$(G11) -c threadpoolmanager.cpp
 clean:
-	rm  *.o bcServ
+	rm  *.o ${EXE_FILE}

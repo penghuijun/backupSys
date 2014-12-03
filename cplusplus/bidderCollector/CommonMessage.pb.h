@@ -29,7 +29,6 @@
 namespace com {
 namespace rj {
 namespace protos {
-namespace msg {
 
 // Internal implementation detail -- do not call these.
 void  protobuf_AddDesc_CommonMessage_2eproto();
@@ -130,7 +129,19 @@ class CommonMessage : public ::google::protobuf::Message {
   inline ::std::string* release_data();
   inline void set_allocated_data(::std::string* data);
 
-  // @@protoc_insertion_point(class_scope:com.rj.protos.msg.CommonMessage)
+  // optional string ttl = 4;
+  inline bool has_ttl() const;
+  inline void clear_ttl();
+  static const int kTtlFieldNumber = 4;
+  inline const ::std::string& ttl() const;
+  inline void set_ttl(const ::std::string& value);
+  inline void set_ttl(const char* value);
+  inline void set_ttl(const char* value, size_t size);
+  inline ::std::string* mutable_ttl();
+  inline ::std::string* release_ttl();
+  inline void set_allocated_ttl(::std::string* ttl);
+
+  // @@protoc_insertion_point(class_scope:com.rj.protos.CommonMessage)
  private:
   inline void set_has_businesscode();
   inline void clear_has_businesscode();
@@ -138,15 +149,18 @@ class CommonMessage : public ::google::protobuf::Message {
   inline void clear_has_datacodingtype();
   inline void set_has_data();
   inline void clear_has_data();
+  inline void set_has_ttl();
+  inline void clear_has_ttl();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* businesscode_;
   ::std::string* datacodingtype_;
   ::std::string* data_;
+  ::std::string* ttl_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(4 + 31) / 32];
 
   friend void  protobuf_AddDesc_CommonMessage_2eproto();
   friend void protobuf_AssignDesc_CommonMessage_2eproto();
@@ -372,10 +386,79 @@ inline void CommonMessage::set_allocated_data(::std::string* data) {
   }
 }
 
+// optional string ttl = 4;
+inline bool CommonMessage::has_ttl() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void CommonMessage::set_has_ttl() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void CommonMessage::clear_has_ttl() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void CommonMessage::clear_ttl() {
+  if (ttl_ != &::google::protobuf::internal::kEmptyString) {
+    ttl_->clear();
+  }
+  clear_has_ttl();
+}
+inline const ::std::string& CommonMessage::ttl() const {
+  return *ttl_;
+}
+inline void CommonMessage::set_ttl(const ::std::string& value) {
+  set_has_ttl();
+  if (ttl_ == &::google::protobuf::internal::kEmptyString) {
+    ttl_ = new ::std::string;
+  }
+  ttl_->assign(value);
+}
+inline void CommonMessage::set_ttl(const char* value) {
+  set_has_ttl();
+  if (ttl_ == &::google::protobuf::internal::kEmptyString) {
+    ttl_ = new ::std::string;
+  }
+  ttl_->assign(value);
+}
+inline void CommonMessage::set_ttl(const char* value, size_t size) {
+  set_has_ttl();
+  if (ttl_ == &::google::protobuf::internal::kEmptyString) {
+    ttl_ = new ::std::string;
+  }
+  ttl_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* CommonMessage::mutable_ttl() {
+  set_has_ttl();
+  if (ttl_ == &::google::protobuf::internal::kEmptyString) {
+    ttl_ = new ::std::string;
+  }
+  return ttl_;
+}
+inline ::std::string* CommonMessage::release_ttl() {
+  clear_has_ttl();
+  if (ttl_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = ttl_;
+    ttl_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void CommonMessage::set_allocated_ttl(::std::string* ttl) {
+  if (ttl_ != &::google::protobuf::internal::kEmptyString) {
+    delete ttl_;
+  }
+  if (ttl) {
+    set_has_ttl();
+    ttl_ = ttl;
+  } else {
+    clear_has_ttl();
+    ttl_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace msg
 }  // namespace protos
 }  // namespace rj
 }  // namespace com

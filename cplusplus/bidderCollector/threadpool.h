@@ -1,7 +1,7 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
-/* purpose @ çº¿ç¨‹æ± ç±»ï¼Œè´Ÿè´£çº¿ç¨‹çš„åˆ›å»ºä¸é”€æ¯ï¼Œå®ç°çº¿ç¨‹è¶…æ—¶è‡ªåŠ¨é€€å‡ºåŠŸèƒ½(åŠé©»ç•™)a
- *          å½“çº¿ç¨‹æ± é€€å‡ºæ—¶åˆ›å»ºTerminalCheckçº¿ç¨‹ï¼Œè´Ÿè´£ç›‘æµ‹çº¿ç¨‹æ± æ‰€æœ‰çº¿ç¨‹é€€å‡º
+/* purpose @ Ïß³Ì³ØÀà£¬¸ºÔğÏß³ÌµÄ´´½¨ÓëÏú»Ù£¬ÊµÏÖÏß³Ì³¬Ê±×Ô¶¯ÍË³ö¹¦ÄÜ(°ë×¤Áô)a
+ *          µ±Ïß³Ì³ØÍË³öÊ±´´½¨TerminalCheckÏß³Ì£¬¸ºÔğ¼à²âÏß³Ì³ØËùÓĞÏß³ÌÍË³ö
  * date    @ 2013.12.23
  * author  @ haibin.wang
  */
@@ -9,8 +9,8 @@
 #include <list>
 #include <string>
 #include "taskpool.h"
-//é€šè¿‡threadmanageræ¥æ§åˆ¶ä»»åŠ¡è°ƒåº¦è¿›ç¨‹
-//threadpoolçš„TerminalCheckçº¿ç¨‹è´Ÿè´£ç›‘æµ‹çº¿ç¨‹æ± æ‰€æœ‰çº¿ç¨‹é€€å‡º
+//Í¨¹ıthreadmanagerÀ´¿ØÖÆÈÎÎñµ÷¶È½ø³Ì
+//threadpoolµÄTerminalCheckÏß³Ì¸ºÔğ¼à²âÏß³Ì³ØËùÓĞÏß³ÌÍË³ö
 
 
 class ThreadPool;
@@ -19,43 +19,43 @@ class Thread
 public:
     Thread(bool detach, ThreadPool * pool);
     ~Thread();
-    pthread_t  m_threadId; //çº¿ç¨‹id
-    pthread_mutex_t m_mutex; //äº’æ–¥é”
-    pthread_cond_t m_cond; //æ¡ä»¶å˜é‡
-    pthread_attr_t m_attr; //çº¿ç¨‹å±æ€§
+    pthread_t  m_threadId; //Ïß³Ìid
+    pthread_mutex_t m_mutex; //»¥³âËø
+    pthread_cond_t m_cond; //Ìõ¼ş±äÁ¿
+    pthread_attr_t m_attr; //Ïß³ÌÊôĞÔ
 	Task  task; // 
-    ThreadPool * m_pool; //æ‰€å±çº¿ç¨‹æ± 
+    ThreadPool * m_pool; //ËùÊôÏß³Ì³Ø
 };
 
-//çº¿ç¨‹æ± ï¼Œè´Ÿè´£åˆ›å»ºçº¿ç¨‹å¤„ç†ä»»åŠ¡ï¼Œå¤„ç†å®Œæ¯•åä¼šå°†çº¿ç¨‹åŠ å…¥åˆ°ç©ºé—²é˜Ÿåˆ—ä¸­,ä»ä»»åŠ¡æ± ä¸­
+//Ïß³Ì³Ø£¬¸ºÔğ´´½¨Ïß³Ì´¦ÀíÈÎÎñ£¬´¦ÀíÍê±Ïºó»á½«Ïß³Ì¼ÓÈëµ½¿ÕÏĞ¶ÓÁĞÖĞ,´ÓÈÎÎñ³ØÖĞ
 class ThreadPool
 {
 public:
     ThreadPool();
     ~ThreadPool();
 
-    /* pur @ åˆå§‹åŒ–çº¿ç¨‹æ± 
-     * para @ poolMax çº¿ç¨‹æ± æœ€å¤§çº¿ç¨‹æ•°
-     * para @ poolPre é¢„åˆ›å»ºçº¿ç¨‹æ•°
-     * return @ 0:æˆåŠŸ
+    /* pur @ ³õÊ¼»¯Ïß³Ì³Ø
+     * para @ poolMax Ïß³Ì³Ø×î´óÏß³ÌÊı
+     * para @ poolPre Ô¤´´½¨Ïß³ÌÊı
+     * return @ 0:³É¹¦
      *          -1: parameter error, must poolMax > poolPre >=0
-     *          -2: åˆ›å»ºçº¿ç¨‹å¤±è´¥
+     *          -2: ´´½¨Ïß³ÌÊ§°Ü
     */
     int InitPool(const int & poolMax, const int & poolPre);
 
-    /* pur @ æ‰§è¡Œä¸€ä¸ªä»»åŠ¡
-     * para @ task ä»»åŠ¡æŒ‡é’ˆ
-     * return @ 0ä»»åŠ¡åˆ†é…æˆåŠŸï¼Œè´Ÿå€¼ ä»»åŠ¡åˆ†é…å¤±è´¥ï¼Œ-1ï¼Œåˆ›å»ºæ–°çº¿ç¨‹å¤±è´¥
+    /* pur @ Ö´ĞĞÒ»¸öÈÎÎñ
+     * para @ task ÈÎÎñÖ¸Õë
+     * return @ 0ÈÎÎñ·ÖÅä³É¹¦£¬¸ºÖµ ÈÎÎñ·ÖÅäÊ§°Ü£¬-1£¬´´½¨ĞÂÏß³ÌÊ§°Ü
     */
     int Run(task_fun fun, void* arg);
 	
-	/* pur @ è®¾ç½®æ˜¯å¦åœæ­¢çº¿ç¨‹æ± å·¥ä½œ
-     * para @ bStop trueåœæ­¢ï¼Œfalseä¸åœæ­¢
+	/* pur @ ÉèÖÃÊÇ·ñÍ£Ö¹Ïß³Ì³Ø¹¤×÷
+     * para @ bStop trueÍ£Ö¹£¬false²»Í£Ö¹
     */
 	void StopPool(bool bStop);
     
-public: //æ­¤å…¬æœ‰å‡½æ•°ä¸»è¦ç”¨äºé™æ€å‡½æ•°è°ƒç”¨
-    /* pur @ è·å–è¿›ç¨‹æ± çš„å¯åœçŠ¶æ€
+public: //´Ë¹«ÓĞº¯ÊıÖ÷ÒªÓÃÓÚ¾²Ì¬º¯Êıµ÷ÓÃ
+    /* pur @ »ñÈ¡½ø³Ì³ØµÄÆôÍ£×´Ì¬
      * return @ 
     */
     bool GetStop();    
@@ -69,33 +69,33 @@ public: //æ­¤å…¬æœ‰å‡½æ•°ä¸»è¦ç”¨äºé™æ€å‡½æ•°è°ƒç”¨
     int TotalThreads();
     void SendSignal();
 private:
-	/* pur @ åˆ›å»ºçº¿ç¨‹
-     * return @ éç©º æˆåŠŸï¼ŒNULLå¤±è´¥ï¼Œ
+	/* pur @ ´´½¨Ïß³Ì
+     * return @ ·Ç¿Õ ³É¹¦£¬NULLÊ§°Ü£¬
     */
 	Thread * CreateThread();
 
-    /* pur @ ä»çº¿ç¨‹æ± ä¸­è·å–ä¸€ä¸ªä¸€ä¸ªçº¿ç¨‹è¿è¡Œä»»åŠ¡
-     * para @ fun å‡½æ•°æŒ‡é’ˆ
-     * para @ arg å‡½æ•°å‚æ•°
+    /* pur @ ´ÓÏß³Ì³ØÖĞ»ñÈ¡Ò»¸öÒ»¸öÏß³ÌÔËĞĞÈÎÎñ
+     * para @ fun º¯ÊıÖ¸Õë
+     * para @ arg º¯Êı²ÎÊı
      * return @ 
     */
     void GetThreadRun(task_fun fun, void* arg);
 
 	static void * WapperFun(void*);
-	static void * TerminalCheck(void*);//å¾ªç¯ç›‘æµ‹æ˜¯å¦æ‰€æœ‰çº¿ç¨‹ç»ˆæ­¢çº¿ç¨‹
+	static void * TerminalCheck(void*);//Ñ­»·¼à²âÊÇ·ñËùÓĞÏß³ÌÖÕÖ¹Ïß³Ì
 
 private:
-    int m_poolMax;//çº¿ç¨‹æ± æœ€å¤§çº¿ç¨‹æ•°
-    int m_idleNum; //ç©ºé—²çº¿ç¨‹æ•°
-    int m_totalNum; //å½“å‰çº¿ç¨‹æ€»æ•° å°äºæœ€å¤§çº¿ç¨‹æ•°	
-	bool m_bStop; //æ˜¯å¦åœæ­¢çº¿ç¨‹æ± 
-	pthread_mutex_t m_mutex; //çº¿ç¨‹åˆ—è¡¨é”
-	pthread_mutex_t m_runMutex; //runå‡½æ•°é”
+    int m_poolMax;//Ïß³Ì³Ø×î´óÏß³ÌÊı
+    int m_idleNum; //¿ÕÏĞÏß³ÌÊı
+    int m_totalNum; //µ±Ç°Ïß³Ì×ÜÊı Ğ¡ÓÚ×î´óÏß³ÌÊı	
+	bool m_bStop; //ÊÇ·ñÍ£Ö¹Ïß³Ì³Ø
+	pthread_mutex_t m_mutex; //Ïß³ÌÁĞ±íËø
+	pthread_mutex_t m_runMutex; //runº¯ÊıËø
 
-    pthread_mutex_t m_terminalMutex; //ç»ˆæ­¢æ‰€æœ‰çº¿ç¨‹äº’æ–¥é‡
-    pthread_cond_t  m_terminalCond; //ç»ˆæ­¢æ‰€æœ‰çº¿ç¨‹æ¡ä»¶å˜é‡
-    pthread_cond_t  m_emptyCond; //ç©ºé—²çº¿ç¨‹ä¸ç©ºæ¡ä»¶å˜é‡
+    pthread_mutex_t m_terminalMutex; //ÖÕÖ¹ËùÓĞÏß³Ì»¥³âÁ¿
+    pthread_cond_t  m_terminalCond; //ÖÕÖ¹ËùÓĞÏß³ÌÌõ¼ş±äÁ¿
+    pthread_cond_t  m_emptyCond; //¿ÕÏĞÏß³Ì²»¿ÕÌõ¼ş±äÁ¿
 	
-    std::list<Thread*> m_threads; // çº¿ç¨‹åˆ—è¡¨
+    std::list<Thread*> m_threads; // Ïß³ÌÁĞ±í
 };
 #endif

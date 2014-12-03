@@ -1,0 +1,43 @@
+package com.rj.protos.mobile;
+
+message MobileAdResponse {
+  required string id = 1;
+  optional string bidderId = 2;
+  optional string adType = 3; // banner, interstitial, native
+  optional string iconUrl = 4;
+  optional string title = 5;
+  optional string subTitle = 6;
+  optional string relatedInfo = 7;
+  optional string imageUrl = 8;
+  optional string htmlMarkup = 9;
+  optional string adLink = 10;
+  optional string videoUrl = 11;
+  optional string youtubeUrl = 12;
+  optional string telNum = 13;
+  optional string shareUrl = 14;
+  optional string packageName = 15; //for open the app
+  optional string schemeUrl = 16; //for open the app
+  optional string webUrl = 17; //for mobile web or appMarketPlace
+  optional string fallbackUrl = 18; // for the purpose of fail verify or targeting requirement
+  optional string clickOpenType = 19;
+  optional string clickUrl = 20;
+  optional string animation = 21; //
+  optional string refresh = 22;
+  optional string width = 23;
+  optional string height = 24;
+  optional string autoClose = 25;
+  repeated string impressionUrl = 26;
+  optional Orientation orientation = 27;
+  repeated TrackingEvents trackingEvents = 28;
+
+  enum Orientation {
+    LANDSCAPE = 0;
+    PORTRAIT = 1;
+  }
+
+  message TrackingEvents {
+    optional string event = 1; // 1. image, telephone, video, 2. start, complet, midpoint, firstquartile, thirdquartile, pause, unpause, mute, unmute, replay, skip, sec
+    optional string trackUrl = 2;
+  }
+
+}

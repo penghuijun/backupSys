@@ -22,24 +22,22 @@
 #include "CommonMessage.pb.h"
 #include "AdVastRequestTemplate.pb.h"
 #include "AdBidderResponseTemplate.pb.h"
-#include "AdMobileResponse.pb.h"
-#include "AdMobileRequest.pb.h"
-#include "redisPool.h"
+#include "MobileAdResponse.pb.h"
+#include "MobileAdRequest.pb.h"
+#include "redisPoolManager.h"
+#include "lock.h"
 
 using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
 using namespace std;
-#define BUFSIZE 4096
 
 
-const int	c_master_throttleIP=0x01;
-const int	c_master_throttlePort=0x02;
-const int	c_master_bcIP=0x04;
-const int	c_master_bcPort=0x08;
-const int	c_workerNum=0x10;
-const int	c_master_subKey=0x20;
-
+const int	c_update_throttleAddr=0x01;
+const int	c_update_bcAddr=0x02;
+const int	c_update_workerNum=0x04;
+const int	c_update_zmqSub=0x08;
+const int   c_update_forbid=0x10;
 
 
 enum proStatus
@@ -50,7 +48,6 @@ enum proStatus
 	PRO_KILLING
 };
 
-
 typedef struct BCProessInfo
 {
     pid_t               pid;
@@ -58,17 +55,6 @@ typedef struct BCProessInfo
     proStatus         status;
 } BC_process_t; 
 
-typedef struct 
-{
-    pid_t              pid;
-	int                chanel;
-	bool 			   sended;
-    char      *buf;
-	int                bufSize;
-	unsigned int       id;
-	unsigned long long sendTime;
-	int                sendCnts;
-} sendBufUnit; 
 
 enum requestState
 {
@@ -77,19 +63,6 @@ enum requestState
 	request_sended,
 	request_over
 };
-
-struct uuid_subsribe_info
-{
-	string business_code;
-	string data_coding_type;
-	string publishKey;
-	queue<int> compaignID_vec;
-	requestState state;
-	string vastStr;
-	exchangeConnector* connector;
-	string jsonStr;
-};
-
 
 struct redisDataRec
 {
@@ -140,128 +113,6 @@ struct eventParam
 	bidderServ *serv;
 };
 
-class read_write_lock
-{
-public:
-	read_write_lock(){}
-	int init()
-	{
-		return pthread_rwlock_init(&m_rw_lock, NULL);
-	}
-	int read_lock()
-	{
-		return pthread_rwlock_rdlock(&m_rw_lock);
-	}
-	int write_lock()
-	{
-		return pthread_rwlock_wrlock(&m_rw_lock);
-	}
-	int read_trylock()
-	{
-		return pthread_rwlock_tryrdlock(&m_rw_lock);
-	}
-	int write_trylock()
-	{
-		return pthread_rwlock_trywrlock(&m_rw_lock);
-	}
-
-	
-	int read_write_unlock()
-	{
-		return pthread_rwlock_unlock(&m_rw_lock);
-	}
-	int destroy()
-	{
-		return pthread_rwlock_destroy(&m_rw_lock);
-	}
-	~read_write_lock(){destroy();}
-private:
-	pthread_rwlock_t m_rw_lock;	
-};
-
-class mutex_lock
-{
-public:
-	mutex_lock(){}
-	int init()
-	{
-		return pthread_mutex_init(&m_mutex_lock, NULL);
-	}
-	int lock()
-	{
-		return pthread_mutex_lock(&m_mutex_lock);
-	}
-	int trylock()
-	{
-		return pthread_mutex_trylock(&m_mutex_lock);
-	}
-
-	int unlock()
-	{
-		return pthread_mutex_unlock(&m_mutex_lock);	
-	}
-	int destroy()
-	{
-		return pthread_mutex_destroy(&m_mutex_lock);
-	}
-
-	void operator=(pthread_mutex_t &mutex_init)
-	{
-		m_mutex_lock = mutex_init;
-	}
-	~mutex_lock()
-	{
-		destroy();
-	}
-private:
-	pthread_mutex_t m_mutex_lock;	
-};
-
-
-/*
-class proess_info
-{
-public:
-	process_info(){}
-	process_info(pid_t pid, int chanel[], proStatus status)
-	{
-		set(pid, chanel, status);	
-	}
-	void set(pid_t pid, int chanel[], proStatus status)
-	{
-		m_pid = pid;
-		m_channel[0] = chanel[0];
-		m_channel[1] = chanel[1];
-		m_status = status;
-	}
-	~process_info(){}
-private:
-    pid_t             m_pid;
-	int 			  m_channel[2];
-    proStatus         m_status;
-} process_info_t; 
-
-
-class masterWorkerModel
-{
-public:
-	masterWorkerModel(){}
-	masterWorkerModel(int worker_cnt)
-	{
-		m_worker_number = worker_cnt;
-	}
-	void add_process(pid_t pid, int chanel[], proStatus status)
-	{
-		proess_info *process = new proess_info(pid, chanel, status);
-		m_workerList.push_back(process);
-	}
-	~masterWorkerModel(){}
-private:
-	int m_worker_number;
-	vector<proess_info*>  m_workerList;		
-};*/
-
-
 //bidder server
 class bidderServ
 {
@@ -272,6 +123,23 @@ public:
 	bool needRemoveWorker() const 
 	{
 		return (m_workerList.size()>m_workerNum)?true:false;
+	}
+
+
+	void intToString(int num, string& str)
+	{
+    	ostringstream os;
+   	 	os<<num;
+    	str = os.str();
+	}
+
+	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
+
+	void doubleToString(double num, string& str)
+	{
+    	ostringstream os;
+   	 	os<<num;
+    	str = os.str();
 	}
 	void updataWorkerList(pid_t pid);
 	void start_worker();
@@ -287,14 +155,14 @@ public:
 	void addSendUnitToList(void *data, unsigned int dataLen, int channel);
 	void sendToWorker(char *buf, int size);
 	void calSpeed();
-	void reloadWorker();
+	void updateWorker();
 	static void usr1SigHandler(int fd, short event, void *arg);
 	static void *throttle_request_handler(void *arg);
 	static void recvRequest_callback(int _, short __, void *pair);
 	static void workerBusiness_callback(int fd, short event, void *pair);
 	static void func(int fd, short __, void *pair);
 	void *bindOrConnect(bool client,const char * transType,int zmqType,const char * addr,unsigned short port,int * fd);
-	handler_fd_map* zmq_connect_subscribe(string subkey);
+	handler_fd_map* zmq_connect_subscribe(string &subkey);
 	static void hupSigHandler(int fd, short event, void *arg);
 	static void	intSigHandler(int fd, short event, void *arg);
 	static void termSigHandler(int fd, short event, void *arg);
@@ -302,7 +170,7 @@ public:
 	
 	bool jsonToProtobuf_compaign(vector<string> &camp_vec, string &tbusinessCode, string &data_coding_type, string &uuid, CommonMessage &commMsg);
 	static void handle_ad_request(void* arg);
-	bool gen_mobile_response_protobuf(string &business_code, string &data_code, string &data_str, CommonMessage &comm_msg);
+	bool gen_mobile_response_protobuf(string &business_code, string &data_code,  string& ttl_time, string &data_str);
 	bool gen_vast_response_protobuf(string &business_code, string &data_code, string &data_str, CommonMessage &comm_msg);
 
 	~bidderServ()
@@ -340,11 +208,14 @@ private:
 	int m_eventFd[2];
 	pid_t m_master_pid;
 
-	redisPool m_redis_pool;
-	redisPool m_buySideRedis_pool;
+	redisPoolManager m_redis_pool_manager;
 	ThreadPoolManager m_thread_manager;
 	struct event_base* m_base;
-	unsigned short m_thread_num;
+	unsigned short m_thread_pool_size;
+	unsigned short m_target_converce_num = 0;
+	string m_vastBusinessCode;
+	string m_mobileBusinessCode;
+	string m_bidder_id;
 };
 #endif
 

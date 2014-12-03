@@ -21,7 +21,7 @@
 #include "AdVastRequestTemplate.pb.h"
 #include "AdBidderResponseTemplate.pb.h"
 #include "expireddata.pb.h"
-#include "AdMobileRequest.pb.h"
+#include "MobileAdRequest.pb.h"
 #include "throttle.h"
 #include "hiredis.h"
 #include "threadpoolmanager.h"
@@ -30,8 +30,6 @@ using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
 using namespace std;
-const char *businessCode_VAST="5.1";
-const char *businessCode_MOBILE="7.1.1";
 
 sig_atomic_t srv_graceful_end = 0;
 sig_atomic_t srv_ungraceful_end = 0;
@@ -88,6 +86,7 @@ void throttleServ::readConfigFile()
             m_throConfChange |= c_workerNum;
             m_workerNum = value;
     } 
+
     cout <<m_throConfChange<<endl;
 }
 
@@ -100,6 +99,9 @@ throttleServ::throttleServ(throttleConfig &config):m_config(config)
     m_throttleAdPort  = config.get_throttleAdPort();
     m_publishPort = config.get_throttlePubPort();  
     m_workerNum = config.get_throttleworkerNum();
+    m_vastBusiCode = config.get_vastBusiCode();
+    m_mobileBusiCode = config.get_mobileBusiCode();
+    m_publishPipeNum = config.get_pubPipeNum();
 
 	auto i = 0;
 	for(i = 0; i < m_workerNum; i++)
@@ -184,12 +186,27 @@ void throttleServ::addSendUnitToList(void * data,unsigned int dataLen,int workId
     }
 }
 
+int throttleServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
+{
+     int rc = zmq_msg_init (&part);
+     if(rc != 0) 
+     {
+        return -1;
+     }
+
+     rc = zmq_recvmsg (socket, &part, flags);
+     if(rc == -1)
+     {
+        return -1;       
+     }
+     return rc;
+}
+
 void throttleServ::recvAD_callback(int _, short __, void *pair)
 {
     zmq_msg_t msg;
     uint32_t events;
     size_t len;
-    char buf[BUFSIZE];
 
     throttleServ *serv = (throttleServ*) pair;
     if(serv==NULL) 
@@ -212,23 +229,29 @@ void throttleServ::recvAD_callback(int _, short __, void *pair)
     {
         while (1)
         {
-            int recvLen = zmq_recv(adrsp, buf, sizeof(buf), ZMQ_NOBLOCK);
-            if(recvLen == -1)
-            {
-           
-                break;
-            }
-            recvLen = zmq_recv(adrsp, buf, sizeof(buf), ZMQ_NOBLOCK);
+            zmq_msg_t first_part;
+            int recvLen = serv->zmq_get_message(adrsp, first_part, ZMQ_NOBLOCK);
             if ( recvLen == -1 )
             {
-         
+                zmq_msg_close (&first_part);
                 break;
             }
-          
-            if(recvLen)
+            zmq_msg_close(&first_part);
+            
+            zmq_msg_t part;
+            recvLen = serv->zmq_get_message(adrsp, part, ZMQ_NOBLOCK);
+            if ( recvLen == -1 )
             {
-                serv->sendToWorker(buf, recvLen);
+                zmq_msg_close (&part);
+                break;
             }
+            char *msg_data=(char *)zmq_msg_data(&part);
+            
+             if(recvLen)
+             {
+                 serv->sendToWorker(msg_data, recvLen);
+             }
+             zmq_msg_close(&part);
         }
     }
 }
@@ -240,7 +263,8 @@ void throttleServ::recvFromWorker_cb(int fd, short event, void *pair)
     zmq_msg_t msg;
     uint32_t events;
     int len;
-    char buf[BUFSIZE];
+    const int datalenSize=4;
+    char buf[datalenSize];
     char publish[PUBLISHKEYLEN_MAX];
     char uuid[PUBLISHKEYLEN_MAX];
     string adUUID;
@@ -256,8 +280,8 @@ void throttleServ::recvFromWorker_cb(int fd, short event, void *pair)
     int dataLen = 0;
     while(1)
     {
-        len = read(fd, buf, 4);
-        if(len != 4)
+        len = read(fd, buf, sizeof(buf));
+        if(len != datalenSize)
         {
          //   cout <<"err len:" << len<<endl;
             return;
@@ -350,6 +374,38 @@ void *throttleServ::listenVastEvent(void *throttle)
       return NULL;  
 }
 
+
+static uint64_t FNV_64_INIT = UINT64_C(0xcbf29ce484222325);
+static uint64_t FNV_64_PRIME = UINT64_C(0x100000001b3);
+
+uint32_t
+hash_fnv1a_64(const char *key, size_t key_length)
+{
+    uint32_t hash = (uint32_t) FNV_64_INIT;
+    size_t x;
+
+    for (x = 0; x < key_length; x++) {
+      uint32_t val = (uint32_t)key[x];
+      hash ^= val;
+      hash *= (uint32_t) FNV_64_PRIME;
+    }
+
+    return hash;
+}
+
+uint32_t get_publish_pipe_index(const char* uuid)
+{
+    const int keyLen=32;
+    char key[keyLen];
+    for(int i= 0; i < keyLen; i++)
+    {
+        char ch = *(uuid+i);
+        if(ch != '-') key[i]=ch;
+    }
+    uint32_t secret = hash_fnv1a_64(key, keyLen);
+    return secret;
+}
+
 void throttleServ::worker_recvFrom_master_cb(int fd, short event, void *pair)
 {
     ostringstream os;
@@ -411,9 +467,9 @@ void throttleServ::worker_recvFrom_master_cb(int fd, short event, void *pair)
       string uuid;
       string publishKey;
              
-    //  cout<<"buisCode:"<< tbusinessCode<<endl;
-      if(tbusinessCode == businessCode_VAST)
-      {
+     // cout<<"buisCode:"<< tbusinessCode<<"--"<<tbusinessCode.size()<<endl;
+      if(tbusinessCode == serv->m_vastBusiCode)  
+     {
          VastRequest vast;
          vast.ParseFromString(vastStr);
          uuid = vast.id();
@@ -424,32 +480,39 @@ void throttleServ::worker_recvFrom_master_cb(int fd, short event, void *pair)
          tos = dev.os();
          tbrowser = dev.browser();
       }
-      else if(tbusinessCode == businessCode_MOBILE)
+      else if(tbusinessCode == serv->m_mobileBusiCode)
       {
         MobileAdRequest mobile;
         mobile.ParseFromString(vastStr);
         uuid = mobile.id();
         MobileAdRequest_User user = mobile.user();
-        tcountry = user.countrycode();
+       // tcountry = user.country();
       }
       else
       {
+         cout<<"businescode can  not anasis"<<endl;
          delete[] data_buf;
          return;
       }                       
-
-      //printf("uuid:%s\n", uuid.c_str());
+    //  cout<<uuid<<endl;
+     // printf("uuid:%s\n", uuid.c_str());
+      uint32_t pipe_index = (get_publish_pipe_index(uuid.c_str())%serv->m_publishPipeNum);
+     // cout <<"index:"<< pipe_index<<endl;
       os.str("");
       os <<tbusinessCode;//<<"-"<<tcountry;
+      os <<"_";
+      os << pipe_index;
+      os <<"SUB";
       publishKey = os.str();
-  
+    
+  //    cout<<publishKey<<endl;
       int tmpBufLen = PUBLISHKEYLEN_MAX+dataLen+sizeof(int);
       char *tmpBuf = new char[tmpBufLen];
       memset(tmpBuf, 0x00, tmpBufLen);
       PUT_LONG(tmpBuf, tmpBufLen-sizeof(int));
       memcpy(tmpBuf+sizeof(int), publishKey.c_str(), publishKey.size());
       memcpy(tmpBuf+PUBLISHKEYLEN_MAX+sizeof(int), data_buf, dataLen);  
-      delete[] data_buf; 
+ 
       int rc = 0;
       do
       {
@@ -457,6 +520,7 @@ void throttleServ::worker_recvFrom_master_cb(int fd, short event, void *pair)
            if(rc > 0 ) break;
                         
       }while(1);
+      delete[] data_buf; 
       delete[] tmpBuf; 
   }            
 }
@@ -485,13 +549,13 @@ void throttleServ::termSigHandler(int fd, short event, void *arg)
 void throttleServ::usr1SigHandler(int fd, short event, void *arg)
 {
     cout <<"signal SIGUSR1"<<endl;
-/*
     eventCallBackParam *param = (eventCallBackParam *) arg;
+    if(!param) return;
     throttleServ *serv = (throttleServ*) param->serv;
     if(serv)
     {
         serv->workerRestart(param);
-    }*/
+    }
 }
 
 void* throttleServ::establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd)
@@ -541,10 +605,9 @@ void* throttleServ::establishConnect(bool client, const char * transType,int zmq
 
 void throttleServ::workerRestart(eventCallBackParam *param)
 {
-    if(param == NULL) return;
-    readConfigFile();
-    
-    cout <<"workerRestart::m_throConfChange:"<<m_throConfChange<<endl;
+    m_config.readConfig();
+    m_vastBusiCode = m_config.get_vastBusiCode();
+    m_mobileBusiCode = m_config.get_mobileBusiCode();
 }
 
 #ifdef DEBUG
@@ -680,7 +743,7 @@ void* throttleServ::bindOrConnect( bool client,const char * transType,int zmqTyp
            if(connectTimes++ >= connectMax)
            {
                 cout <<"try to connect to MAX"<<endl;
-                system("killall throttle");     
+ //               system("killall throttle");     
                 exit(1);
            }
            cout <<"<"<<addr<<","<<port<<">"<<((client)? "connect":"bind")<<"failure"<<endl;
@@ -835,7 +898,6 @@ void throttleServ::run()
             {
                 num_children--;
                 cout <<pid << "---exit" << endl;
-              //  system("killall throttle");
                 worker_exit = true;   
                 updataWorkerList(pid);
             }

@@ -1,9 +1,9 @@
 #ifndef TASKPOOL_H
 #define TASKPOOL_H
-/* purpose @ ä»»åŠ¡æ± ï¼Œä¸»è¦æ˜¯ç¼“å†²å¤–éƒ¨é«˜å¹¶å‘ä»»åŠ¡æ•°ï¼Œæœ‰managerè´Ÿè´£è°ƒåº¦ä»»åŠ¡
- *          ä»»åŠ¡æ± å¯è‡ªåŠ¨é”€æ¯é•¿æ—¶é—´ç©ºé—²çš„Taskå¯¹è±¡
- *          å¯é€šè¿‡CHECK_IDLE_TASK_INTERVALè®¾ç½®æ£€æŸ¥idleç©ºé—²è¿›ç¨‹è½®è®­ç­‰å¾…æ—¶é—´
- *          TASK_DESTROY_INTERVAL è®¾ç½®Taskç©ºé—²æ—¶é—´ï¼Œè¶…è¿‡è¿™ä¸ªæ—¶é—´å€¼å°†ä¼šè¢«CheckIdleTaskçº¿ç¨‹é”€æ¯
+/* purpose @ ÈÎÎñ³Ø£¬Ö÷ÒªÊÇ»º³åÍâ²¿¸ß²¢·¢ÈÎÎñÊı£¬ÓĞmanager¸ºÔğµ÷¶ÈÈÎÎñ
+ *          ÈÎÎñ³Ø¿É×Ô¶¯Ïú»Ù³¤Ê±¼ä¿ÕÏĞµÄTask¶ÔÏó
+ *          ¿ÉÍ¨¹ıCHECK_IDLE_TASK_INTERVALÉèÖÃ¼ì²éidle¿ÕÏĞ½ø³ÌÂÖÑµµÈ´ıÊ±¼ä
+ *          TASK_DESTROY_INTERVAL ÉèÖÃTask¿ÕÏĞÊ±¼ä£¬³¬¹ıÕâ¸öÊ±¼äÖµ½«»á±»CheckIdleTaskÏß³ÌÏú»Ù
  * date    @ 2013.12.23
  * author  @ haibin.wang
  */
@@ -12,38 +12,38 @@
 #include <pthread.h>
 #include "commondef.h"
 
-//æ‰€æœ‰çš„ç”¨æˆ·æ“ä½œä¸ºä¸€ä¸ªtaskï¼Œ
+//ËùÓĞµÄÓÃ»§²Ù×÷ÎªÒ»¸ötask£¬
 typedef void (*task_fun)(void *);
 struct Task
 {
-    task_fun fun; //ä»»åŠ¡å¤„ç†å‡½æ•°
-    void* data; //ä»»åŠ¡å¤„ç†æ•°æ®
-    time_t last_time; //åŠ å…¥ç©ºé—²é˜Ÿåˆ—çš„æ—¶é—´ï¼Œç”¨äºè‡ªåŠ¨é”€æ¯
+    task_fun fun; //ÈÎÎñ´¦Àíº¯Êı
+    void* data; //ÈÎÎñ´¦ÀíÊı¾İ
+    time_t last_time; //¼ÓÈë¿ÕÏĞ¶ÓÁĞµÄÊ±¼ä£¬ÓÃÓÚ×Ô¶¯Ïú»Ù
 };
 
-//ä»»åŠ¡æ± ï¼Œæ‰€æœ‰ä»»åŠ¡ä¼šæŠ•é€’åˆ°ä»»åŠ¡æ± ä¸­ï¼Œç®¡ç†çº¿ç¨‹è´Ÿè´£å°†ä»»åŠ¡æŠ•é€’ç»™çº¿ç¨‹æ± 
+//ÈÎÎñ³Ø£¬ËùÓĞÈÎÎñ»áÍ¶µİµ½ÈÎÎñ³ØÖĞ£¬¹ÜÀíÏß³Ì¸ºÔğ½«ÈÎÎñÍ¶µİ¸øÏß³Ì³Ø
 class TaskPool
 {
 public:
-	/* pur @ åˆå§‹åŒ–ä»»åŠ¡æ± ï¼Œå¯åŠ¨ä»»åŠ¡æ± ç©ºé—²é˜Ÿåˆ—è‡ªåŠ¨é”€æ¯çº¿ç¨‹
-     * para @ maxSize æœ€å¤§ä»»åŠ¡æ•°ï¼Œå¤§äº0
+	/* pur @ ³õÊ¼»¯ÈÎÎñ³Ø£¬Æô¶¯ÈÎÎñ³Ø¿ÕÏĞ¶ÓÁĞ×Ô¶¯Ïú»ÙÏß³Ì
+     * para @ maxSize ×î´óÈÎÎñÊı£¬´óÓÚ0
     */ 
     TaskPool(const int & poolMaxSize);
     ~TaskPool();
 
-    /* pur @ æ·»åŠ ä»»åŠ¡åˆ°ä»»åŠ¡é˜Ÿåˆ—çš„å°¾éƒ¨
-     * para @ taskï¼Œ å…·ä½“ä»»åŠ¡
-     * return @ 0 æ·»åŠ æˆåŠŸï¼Œè´Ÿæ•° æ·»åŠ å¤±è´¥
+    /* pur @ Ìí¼ÓÈÎÎñµ½ÈÎÎñ¶ÓÁĞµÄÎ²²¿
+     * para @ task£¬ ¾ßÌåÈÎÎñ
+     * return @ 0 Ìí¼Ó³É¹¦£¬¸ºÊı Ìí¼ÓÊ§°Ü
     */    
     int AddTask(task_fun fun, void* arg);
 	
-    /* pur @ ä»ä»»åŠ¡åˆ—è¡¨çš„å¤´è·å–ä¸€ä¸ªä»»åŠ¡
-     * return @  å¦‚æœåˆ—è¡¨ä¸­æœ‰ä»»åŠ¡åˆ™è¿”å›ä¸€ä¸ªTaskæŒ‡é’ˆï¼Œå¦åˆ™è¿”å›ä¸€ä¸ªNULL
+    /* pur @ ´ÓÈÎÎñÁĞ±íµÄÍ·»ñÈ¡Ò»¸öÈÎÎñ
+     * return @  Èç¹ûÁĞ±íÖĞÓĞÈÎÎñÔò·µ»ØÒ»¸öTaskÖ¸Õë£¬·ñÔò·µ»ØÒ»¸öNULL
     */    
     Task* GetTask();
 
-    /* pur @ ä¿å­˜ç©ºé—²ä»»åŠ¡åˆ°ç©ºé—²é˜Ÿåˆ—ä¸­
-     * para @ task å·²è¢«è°ƒç”¨æ‰§è¡Œçš„ä»»åŠ¡
+    /* pur @ ±£´æ¿ÕÏĞÈÎÎñµ½¿ÕÏĞ¶ÓÁĞÖĞ
+     * para @ task ÒÑ±»µ÷ÓÃÖ´ĞĞµÄÈÎÎñ
      * return @ 
     */
     void SaveIdleTask(Task*task);
@@ -57,22 +57,22 @@ public:
     bool GetStop();
 private:
     static void * CheckIdleTask(void *);
-    /* pur @ è·å–ç©ºé—²çš„task
+    /* pur @ »ñÈ¡¿ÕÏĞµÄtask
      * para @ 
      * para @ 
-     * return @ NULLè¯´æ˜æ²¡æœ‰ç©ºé—²çš„ï¼Œå¦åˆ™ä»m_idleListä¸­è·å–ä¸€ä¸ª
+     * return @ NULLËµÃ÷Ã»ÓĞ¿ÕÏĞµÄ£¬·ñÔò´Óm_idleListÖĞ»ñÈ¡Ò»¸ö
     */
     Task* GetIdleTask();
     int GetTaskSize();
 private:
-    int m_poolSize; //ä»»åŠ¡æ± å¤§å°
-    int m_taskListSize; // ç»Ÿè®¡taskListçš„å¤§å°ï¼Œå› ä¸ºå½“Listçš„å¤§å°ä¼šéšç€æ•°é‡çš„å¢å¤šè€Œè€—æ—¶å¢åŠ 
-    bool m_bStop; //æ˜¯å¦åœæ­¢
-    std::list<Task*> m_taskList;//æ‰€æœ‰å¾…å¤„ç†ä»»åŠ¡åˆ—è¡¨
-    std::list<Task*> m_idleList;//æ‰€æœ‰ç©ºé—²ä»»åŠ¡åˆ—è¡¨
-    pthread_mutex_t m_lock; //å¯¹ä»»åŠ¡åˆ—è¡¨è¿›è¡ŒåŠ é”ï¼Œä¿è¯æ¯æ¬¡åªèƒ½å–ä¸€ä¸ªä»»åŠ¡
-    pthread_mutex_t m_idleMutex; //ç©ºé—²ä»»åŠ¡é˜Ÿåˆ—é”
-    pthread_cond_t m_idleCond; //ç©ºé—²é˜Ÿåˆ—ç­‰å¾…æ¡ä»¶
+    int m_poolSize; //ÈÎÎñ³Ø´óĞ¡
+    int m_taskListSize; // Í³¼ÆtaskListµÄ´óĞ¡£¬ÒòÎªµ±ListµÄ´óĞ¡»áËæ×ÅÊıÁ¿µÄÔö¶à¶øºÄÊ±Ôö¼Ó
+    bool m_bStop; //ÊÇ·ñÍ£Ö¹
+    std::list<Task*> m_taskList;//ËùÓĞ´ı´¦ÀíÈÎÎñÁĞ±í
+    std::list<Task*> m_idleList;//ËùÓĞ¿ÕÏĞÈÎÎñÁĞ±í
+    pthread_mutex_t m_lock; //¶ÔÈÎÎñÁĞ±í½øĞĞ¼ÓËø£¬±£Ö¤Ã¿´ÎÖ»ÄÜÈ¡Ò»¸öÈÎÎñ
+    pthread_mutex_t m_idleMutex; //¿ÕÏĞÈÎÎñ¶ÓÁĞËø
+    pthread_cond_t m_idleCond; //¿ÕÏĞ¶ÓÁĞµÈ´ıÌõ¼ş
     pthread_t m_idleId;;
 };
 #endif

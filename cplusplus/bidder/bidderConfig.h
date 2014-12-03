@@ -6,12 +6,12 @@
   */
 #ifndef __BIDDERCONFIG_H__
 #define __BIDDERCONFIG_H__
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include<string>
 #include<vector>
 
-#include "httpPool.h"
 using namespace std;
 
 /*
@@ -22,10 +22,11 @@ class configureObject
 {
 public:
 	configureObject(const char* configTxt);
+	bool readFileToString(const char* file_name, string& fileData);
 	void readConfig();
 	void display() const;
 	const string& get_configFlieName() const{return m_configName;}
-
+	const string& get_bidderID() const{return m_bidderID;}	
 	const string& get_throttleIP() const {return m_throttleIP;}
 	unsigned short get_throttlePort() const{return m_throttlePort;}
 
@@ -34,14 +35,14 @@ public:
 
 	const string& get_redisIP() const{return m_redis_ip;}
 	unsigned short get_redisPort() const {return m_redis_port;}
-	unsigned short get_redisConnNum() const{return m_redis_connNum;}
-	unsigned short get_threadNum() const{return m_thread_num;}
-
+	unsigned short get_threadPoolSize() const{return m_threadPoolSize;}
 	unsigned short get_bidderworkerNum() const{return m_workNum;}
-	vector<string> get_subKey() const {return m_subKey;}
-	
-	const vector<exBidderInfo*>& get_exBidderList() const{return m_exBidderList;} 
+	unsigned short get_converceNum() const{return m_converce_num;}	
+	const string& get_vastBusiCode() const{return m_vastBusiCode;}
+	const string& get_mobileBusiCode() const{return m_mobileBusiCode;}
 
+	vector<string> get_subKey() const {return m_subKey;}
+	bool parseSubInfo(string& subStr, string& oriStr, vector<string>& m_subList);
 	~configureObject()
 	{
 		m_infile.close();
@@ -50,6 +51,7 @@ public:
 private:
 	bool get_subString(string &src, char first, char end, string &dst);
 	ifstream m_infile;
+	string m_bidderID;
 	unsigned short m_workNum=1;
 	string m_configName;
 	string m_throttleIP;
@@ -59,10 +61,12 @@ private:
 	vector<string> m_subKey;
 	string m_redis_ip;
 	unsigned short m_redis_port=0;
-	unsigned short m_redis_connNum=0;
-	unsigned short m_thread_num=0;
+	unsigned short m_threadPoolSize=0;
+	string m_vastBusiCode;
+	string m_mobileBusiCode;
+	unsigned short m_converce_num=0;
 
-	vector<exBidderInfo*> m_exBidderList;
+//	configureSubInfo m_configSubInfo;
 };
 
 #endif

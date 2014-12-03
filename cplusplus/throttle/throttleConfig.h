@@ -17,6 +17,9 @@ public:
 	unsigned short get_throttleAdPort() const{return m_throttleAdPort;}
 	unsigned short get_throttlePubPort() const {return m_pubPort;}
 	unsigned short get_throttleworkerNum() const{return m_workNum;}
+	unsigned short get_pubPipeNum() const {return m_publishPipeNum;}
+	const string& get_vastBusiCode() const{return m_vastBusiCode;}
+	const string& get_mobileBusiCode() const{return m_mobileBusiCode;}
 
 	~throttleConfig()
 	{
@@ -30,6 +33,9 @@ private:
 	string m_throttleIP;
 	unsigned short m_throttleAdPort=0;
 	unsigned short m_pubPort=0;
+	unsigned short m_publishPipeNum=1;
+	string m_vastBusiCode;
+	string m_mobileBusiCode;
 };
 
 #endif

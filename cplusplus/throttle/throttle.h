@@ -17,8 +17,6 @@
 
 using namespace std;
 using std::string;
-#define BUFSIZE 8192
-
 
 const int	c_master_throttleIP=0x01;
 const int	c_master_adPort=0x02;
@@ -126,6 +124,7 @@ public:
 	
 	const char *get_throttleIP() const {return m_throttleIP.c_str();}
 	unsigned short get_throttlePort() const {return m_throttleAdPort;}
+	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
 
 	void lock(){pthread_mutex_lock(&uuidListMutex);}
 	void unlock(){pthread_mutex_unlock(&uuidListMutex);}
@@ -252,6 +251,10 @@ private:
 	int m_eventFd[2];
 	int m_listenWorkerNumFd[2];
 	vector<fdEvent*> m_fdEvent;
+
+	string m_vastBusiCode;
+	string m_mobileBusiCode;
+	unsigned short m_publishPipeNum;
 };
 
 

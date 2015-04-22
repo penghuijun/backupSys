@@ -1,0 +1,21 @@
+#bidderConfig
+bidderID=1;
+throttleIP=192.168.20.158;
+throttlePort=5010;
+bidderCollectorIP=192.168.20.158;
+bidderCollectorPort=6010;
+bidderWorkNum=1;
+
+#subKey KEY 
+subscribeInfo{
+subKey=5.1; 
+subPipe=1,3,5,7,9;
+} 
+convergenceNum=0;
+redisIP=192.168.20.118;
+redisPort=22122;
+#threadPoolSize can not changed when progress run, only if children progress exit
+threadPoolSize=10;
+vastBusinessCode=5.1;
+mobileBusinessCode=7.1;
+

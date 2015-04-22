@@ -27,34 +27,33 @@
 #include <map>
 #include <set>
 #include <list>
-#include "bcConfig.h"
+
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <netinet/in.h> 
+#include <string.h> 
+#include <arpa/inet.h>
+
+#include "adConfig.h"
 #include "hiredis.h"
 #include "zmq.h"
 #include "threadpoolmanager.h"
 #include "redisPool.h"
 #include "redisPoolManager.h"
-
+#include "zeromqConnect.h"
+#include "login.h"
 #include "lock.h"
+#include "bcManager.h"
+#include "MobileAdRequest.pb.h"
+#include "MobileAdResponse.pb.h"
+#include "CommonMessage.pb.h"
+#include "bufferManager.h"
+#include "managerProto.pb.h"
+
+using namespace com::rj::protos::manager;
 using namespace std;
-using std::string;
-
-const int	c_master_throttleIP=0x01;
-const int	c_master_throttlePubVastPort=0x02;
-const int	c_master_bcIP=0x08;
-const int	c_master_bcListenBidPort=0x10;
-const int   c_master_redisIP = 0x20;
-const int   c_master_redisPort = 0x40;
-const int   c_master_redisSaveTime=0x80;
-const int	c_workerNum=0x100;
-const int	c_master_subKey=0x200;
-
-const int	c_update_throttleAddr=0x01;
-const int	c_update_bcAddr=0x02;
-const int	c_update_workerNum=0x04;
-const int	c_update_zmqSub=0x08;
-const int   c_update_forbid=0x10;
-const int   c_update_redisAddr=0x20;
-
+using namespace com::rj::protos::mobile;
+using namespace com::rj::protos;
 
 enum proStatus
 {
@@ -72,17 +71,157 @@ typedef struct BCProessInfo
     proStatus         status;
 } BC_process_t; 
 
-typedef struct 
+class adInsight
 {
-    pid_t              pid;
-	int                chanel;
-	bool 			   sended;
-    char      *buf;
-	int                bufSize;
-	unsigned int       id;
-	unsigned long long sendTime;
-	int                sendCnts;
-} sendBufUnit; 
+public:
+	adInsight(){}
+	void set_data(string& property, vector<string>& idList)
+	{
+		m_property = property;
+		for(auto it = idList.begin(); it != idList.end(); it++)
+		{
+			string& str = *it;
+			m_idsList.push_back(str);
+		}
+	}
+
+	string& get_property(){return m_property;}
+	vector<string>& get_idsList(){return m_idsList;}
+	~adInsight()
+	{
+		for(auto it = m_idsList.begin(); it != m_idsList.end();)
+		{
+			it = m_idsList.erase(it);
+		}
+	}
+private:
+	string m_property;
+	vector<string> m_idsList;
+};
+
+class adInsightManager
+{
+public:
+	adInsightManager(){}
+	void add_insight(string& property, vector<string>& idList)
+	{
+		for(auto it = m_adInsightList.begin(); it != m_adInsightList.end(); it++)
+		{
+			adInsight *insight = *it;
+			if(insight == NULL) continue;
+			if(insight->get_property() == property) return;
+		}
+		adInsight *insight = new adInsight;
+		insight->set_data(property, idList);
+		m_adInsightList.push_back(insight);
+	}
+
+	void eraseDislikeChannel(MobileAdResponse &mobile_response, vector<string>& dislikeIDList)
+	{
+	}	
+
+	void eraseDislikeCreative(MobileAdResponse &mobile_response, vector<string>& dislikeIDList)
+	{
+		for(auto campIt = dislikeIDList.begin(); campIt != dislikeIDList.end(); campIt++)
+		{
+			string& disLikeID = *campIt;
+			
+			if(disLikeID.empty()) continue;
+		    int bidContentSize = mobile_response.bidcontent_size();
+			auto bidderContentList = mobile_response.bidcontent();
+			for(auto bidIndex = 0; bidIndex < bidContentSize; bidIndex++)
+			{
+				 MobileAdResponse_mobileBid mobile_bidder = mobile_response.bidcontent(bidIndex);
+				 int creativeSize = mobile_bidder.creative_size();
+				 auto creativeList = mobile_bidder.creative();
+				 for(auto creativeIndex = 0; creativeIndex < creativeSize; creativeIndex++)
+				 {
+				 	MobileAdResponse_Creative creative = mobile_bidder.creative(creativeIndex);
+					string creativeID = creative.creativeid();
+					if(disLikeID == creativeID)
+					{
+						creativeList.SwapElements(creativeIndex, creativeSize-1);
+						creativeList.RemoveLast();
+						break;
+					}
+				 }
+			 }						   
+		 }	
+	}
+
+	void eraseDislikeCampaign(MobileAdResponse &mobile_response, vector<string>& dislikeIDList)
+	{
+		for(auto it = dislikeIDList.begin(); it != dislikeIDList.end(); it++)
+		{
+			string& disLikeID = *it;
+			
+			if(disLikeID.empty()) continue;
+		    int bidContentSize = mobile_response.bidcontent_size();
+			auto bidderContentList = mobile_response.mutable_bidcontent();
+			for(auto bidIndex = 0; bidIndex < bidContentSize; )
+			{
+				 MobileAdResponse_mobileBid mobile_bidder = mobile_response.bidcontent(bidIndex);
+				 string cam_id = mobile_bidder.campaignid();
+				// cout<<"****:"<<cam_id<<endl;
+				 if(disLikeID == cam_id)
+				 {
+				 //	 cout<<"dislike campid:"<<disLikeID<<endl;
+					 if(bidIndex != bidContentSize-1)
+					 {
+			     	 	bidderContentList->SwapElements(bidIndex, bidContentSize-1);
+					 }
+				     bidderContentList->RemoveLast();
+					 bidContentSize = mobile_response.bidcontent_size();
+					// cout<<"====:"<<mobile_response.ByteSize()<<endl;
+					// break;
+				 }
+				 else
+				 {
+				 	bidIndex++;	
+				 }
+			 }						   
+		 }	
+	}
+
+	void eraseDislikeAd(MobileAdResponse &mobile_response)
+	{
+		 for(auto it = m_adInsightList.begin(); it != m_adInsightList.end(); it++)
+		 {
+			 adInsight *insight = *it;
+			 if(insight == NULL) continue;
+			 string property = insight->get_property();
+			 vector<string> dislikeIDList = insight->get_idsList();
+			 if(property == "dln")
+			 {
+			// 	cout<<"dln"<<endl;
+				 eraseDislikeCampaign(mobile_response, dislikeIDList);		
+			 }
+			 else if(property == "dlr")
+		     {
+		    // 	cout<<"dlr"<<endl;
+		     	eraseDislikeCreative(mobile_response, dislikeIDList);
+			 }
+			 else if(property == "dll")
+			 {
+		   //  	eraseDislikeChannel(mobile_response, dislikeIDList);			 	
+			 }
+		 }
+	}
+	
+
+	vector<adInsight*>& get_adInsightList(){return m_adInsightList;}
+	~adInsightManager()
+	{
+		for(auto it = m_adInsightList.begin(); it != m_adInsightList.end();)
+		{
+			adInsight *insight = *it;
+			delete insight;
+			it = m_adInsightList.erase(it);
+		}
+	}
+private:
+	vector<adInsight*> m_adInsightList;
+};
 
 
 class redisDataRec
@@ -138,12 +277,75 @@ private:
 	int    m_dataLen;
 };
 
-struct throttleBuf
+class adResponseValue
 {
-	char *buf;
-	unsigned int bufSize;
-	void *serv;
-	int channel;
+public:
+	adResponseValue(){}
+	adResponseValue(adInsightManager *manager, string& uuid, string& field, void *serv, stringBuffer *string_buf)
+	{
+		set_uuid(uuid);
+		set_field(field);
+		set_serv(serv);
+		set_data(string_buf);
+		if(manager)
+		{
+			auto insigtList = manager->get_adInsightList();
+			for(auto it  = insigtList.begin(); it != insigtList.end(); it++)
+			{
+				adInsight* insight = *it;
+				if(insight == NULL) continue;
+				m_adInsightManager.add_insight(insight->get_property(), insight->get_idsList());
+			}
+		}
+	}
+	void set_uuid(string& uuid)
+	{
+		m_uuid = uuid;
+	}
+	void set_field(string& field)
+	{
+		m_field = field;
+	}
+	void set_serv(void *serv)
+	{
+		m_serv = serv;
+	}
+	void set_data(stringBuffer *string_buf)
+	{
+		m_stringBuf = string_buf;		
+	}	
+	char* get_data()
+	{
+		return m_stringBuf->get_data();
+	}
+	unsigned int get_dataSize()
+	{
+		return m_stringBuf->get_dataLen();
+	}
+	string& get_uuid()
+	{
+		return m_uuid;
+	}
+	string& get_field()
+	{
+		return m_field;
+	}
+	void *get_serv()
+	{
+		return m_serv;
+	}
+
+	adInsightManager &get_insightManager(){return m_adInsightManager;}
+	~adResponseValue()
+	{
+		delete m_stringBuf;
+	}
+private:
+	stringBuffer *m_stringBuf = NULL;
+	void *m_serv=NULL;
+	string m_uuid;
+	string m_field;
+	adInsightManager m_adInsightManager;
 };
 
 struct servReadWorkerEvent
@@ -197,6 +399,28 @@ struct eventParam
 	struct event_base* base;
 	bcServ *serv;
 };
+
+class eventArgment
+{
+public:
+	eventArgment(){}
+	eventArgment(struct event_base* base, void *serv)
+	{
+		set(base, serv);
+	}	
+	void set(struct event_base* base, void *serv)
+	{
+		m_base = base;
+		m_serv = serv;
+	}
+	struct event_base* get_base(){return m_base;}
+	void *get_serv(){return m_serv;}
+private:
+	struct event_base* m_base;
+	void *m_serv;
+};
+
+
 class bufferStructure
 {
 public:
@@ -208,27 +432,33 @@ public:
 	{
 		if(bufSize > 0)
 		{
-			m_bufSize = bufSize;
-			m_buf = new char[bufSize];
-			memcpy(m_buf, buf, bufSize);
+			m_stringBuffer = new stringBuffer(buf, bufSize);
 			m_hash_filed = hash_field;
 		}
 	}
-	char *get_buf() {return m_buf;}
-	int   get_bufSize() {return m_bufSize;}
+
+	stringBuffer *stringBuf_pop()
+	{
+		stringBuffer* bufPtr = m_stringBuffer;
+		m_stringBuffer = NULL;
+		return bufPtr;
+	}
 	string &get_hash_field() {return m_hash_filed;}
 
-	void release_buffer(){ delete[] m_buf;}
+	void release_buffer()
+	{
+		delete m_stringBuffer;
+	}
 	~bufferStructure()
 	{
 		release_buffer();
 	}
 	
 private:
-	char *m_buf=NULL;
-	int   m_bufSize=0;
+	stringBuffer *m_stringBuffer = NULL;
 	string m_hash_filed;
 };
+
 
 typedef unsigned long long mircotime_t;
 
@@ -260,27 +490,20 @@ public:
 			if(m_bufStru_vec) m_bufStru_vec->push_back(buf_item);
 		}
 	}
-
-
+	
 	mircotime_t get_microtime(){return m_mircoTime;}
 	int get_overtime(){return m_overtime;}
 	vector<bufferStructure*>* get_buf_list()
 	{
-		auto it = m_bufStru_vec;
+		vector<bufferStructure*>* bufPtr = m_bufStru_vec;
 		m_bufStru_vec = NULL;
-		return it;
+		return bufPtr;
 	}
 
 	void recv_throttle_complete(){m_recv_throttle = true;}
 	bool recv_throttle_info(){return m_recv_throttle;}
-////////test
-	void set_sub(){m_sub++;}
-	void set_bid(){m_bid++;}
-	int  get_sub(){return m_sub;}
-	int get_bid(){return m_bid;}
-
-///////test
-	
+	void add_insightManager(adInsightManager* manager){m_insightManager = manager;}
+	adInsightManager* get_adInsightManager(){return m_insightManager;}
 	~bcDataRec()
 	{
 		if(m_bufStru_vec)
@@ -292,16 +515,13 @@ public:
 			}
 			delete m_bufStru_vec;
 		}
+		delete m_insightManager;
 	}
 private:
-	///////test
-
-	int m_sub=0;
-	int m_bid=0;
-	///////test
-	mircotime_t m_mircoTime=0;
-	uint32_t    m_overtime=1000;//1000ms default;
-	bool   m_recv_throttle=false;
+	mircotime_t     m_mircoTime=0;
+	uint32_t        m_overtime=1000;//1000ms default;
+	bool            m_recv_throttle=false;
+	adInsightManager *m_insightManager = NULL;
 	vector<bufferStructure*> *m_bufStru_vec=NULL;
 };
 #define UUID_SIZE_MAX 100
@@ -315,203 +535,82 @@ public:
 	mircotime_t get_microtime();
 	void check_data_record();
 	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
+	bool logLevelChange();
 
 	void update_microtime()
 	{
-		tmMutex.lock();
+		m_tmMutex.lock();
         gettimeofday(&m_microSecTime, NULL);
-		tmMutex.unlock();
+		m_tmMutex.unlock();
 	}
-	bool needRemoveWorker() const 
-	{
-		return (m_workerList.size()>m_workerNum)?true:false;
-	}
-	void updataWorkerList(pid_t pid);
-	void start_worker();
 	static void worker_thread_func(void *arg);
 	bool masterRun();
-	void master_net_init();
-	
-	void worker_net_init();
-
-	void masterRestart(struct event_base* base);
-
-	void *get_zmqContext() const {return m_zmqContext;}
-	
-//subKey incre , decre, change, lead to subscribe or unsubsribe
-	void releaseConnectResource(string subKey) 
-	{
-		for(auto it = m_handler_fd_map.begin(); it != m_handler_fd_map.end();)
-		{
-			handler_fd_map *hfMap = *it;
-			if(hfMap==NULL)
-			{
-				it = m_handler_fd_map.erase(it);	
-				continue;
-			}
-			
-			if(hfMap->subKey == subKey)
-			{
-			     cerr <<"del subkey:"<<subKey<<endl;
-			     zmq_setsockopt(hfMap->handler, ZMQ_UNSUBSCRIBE, subKey.c_str(), subKey.size()); 
-                 zmq_close(hfMap->handler);
-                 event_del(hfMap->evEvent);
-                 delete hfMap;
-				 it = m_handler_fd_map.erase(it);
-				 
-                 for(auto itor = m_subKeying.begin(); itor != m_subKeying.end();)
-                 {
-                    if(subKey ==  *itor)
-                    {
-                        itor = m_subKeying.erase(itor);
-                    }
-                    else
-                    {
-                        itor++;
-                    }
-                 }  
-				
-			}
-			else
-			{
-				it++;
-			}
-		}
-	}
-
-	void updateWorker()
-	{
-		readConfigFile();
-		cout<<"worker:m_configureChange:"<<m_configureChange<<endl;
-		if((m_configureChange &c_update_forbid) == c_update_forbid)
-		{
-			m_configureChange=(m_configureChange&(~c_update_forbid));
-			exit(0);
-		}
-		m_redisPoolManager.redisPool_update(m_config.get_redisIP(), m_config.get_redisPort(), m_config.get_threadPoolSize()+1);
 		
-	}
-
-	static void workerBusiness_callback(int fd, short event, void *pair);
-
+	static void* bc_manager_handler(void *arg);
+	
+	static void recvRegisterRsp_callback(int fd, short __, void *pair);
+	static void managerEventHandler(int fd, short __, void *pair);
+	static void recvBidder_callback(int fd, short __, void *pair);
+	static void recvRequest_callback(int _, short __, void *pair);
+	
 	static void usr1SigHandler(int fd, short event, void *arg);
 	static void hupSigHandler(int fd, short event, void *arg);
 	static void	intSigHandler(int fd, short event, void *arg);
 	static void termSigHandler(int fd, short event, void *arg);	
+	
+	static void *brocastLogin(void *arg);
 
-	void *get_request_handler(bcServ *serv, int fd) const
-	{	
-		void *handler;
-		serv->handler_fd_lock.read_lock();
-		auto it = m_handler_fd_map.begin();
-		for(it = m_handler_fd_map.begin(); it != m_handler_fd_map.end(); it++)
-		{
-			handler_fd_map *hfMap = *it;
-			if(hfMap==NULL) continue;
-			if(hfMap->fd == fd)
-			{
-				handler = hfMap->handler;
-				serv->handler_fd_lock.read_write_unlock();
-				return handler;
-			}
-		}
-		serv->handler_fd_lock.read_write_unlock();
-		return NULL;
-	}
-	handler_fd_map *get_request_handler(string subKey) const
-	{	
-		void *handler;
-		auto it = m_handler_fd_map.begin();
-		for(it = m_handler_fd_map.begin(); it != m_handler_fd_map.end(); it++)
-		{
-			handler_fd_map *hfMap = *it;
-			if(hfMap==NULL) continue;
-			if(hfMap->subKey == subKey)
-			{
-				return hfMap;
-			}
-		}
-		return NULL;
-	}
-	void sendToWorker(char *buf, int size);
 	void calSpeed();
 	void subVastHandler(char * pbuf,int size);
 	void bidderHandler(char * pbuf,int size);
-	static void recvBidder_callback(int fd, short __, void *pair);
-	static void recvRequest_callback(int _, short __, void *pair);
-	void *bindOrConnect(bool client,const char * transType,int zmqType,const char * addr,unsigned short port,int * fd);
-	static void configureUpdate(int fd, short __, void *pair);
-	handler_fd_map* zmq_connect_subscribe(string subkey);
 	static void *throttle_request_handler(void *arg);
-	static void *bidder_response_handler(void *arg);
-	static void  *deleteRedisDataHandle(void *arg);
-	static void signal_handler(int signo);
-	void readConfigFile();
-	redisContext* connectToRedis();
-	int get_hsetNum() const{return m_redisHsetNum;}
-	int init_hsetNum() {m_redisHsetNum=0;}
-	redisContext *get_redisContext(){return m_redisContex;}
-	static void *work_event_new(void *arg);
-	unsigned long long getLonglongTime();
-	static void *getTime(void *arg);
-	void handler_recv_buffer(char * buf,int size, string &uuid, string &hash_field);
+
+	void *register_update_config_event();
+	static void *getTime(void *arg);
+	void manager_handler(void *handler, string& identify, const managerProtocol_messageTrans &from
+	, const managerProtocol_messageType &type , const managerProtocol_messageValue &value
+	, struct event_base * base = NULL, void * arg = NULL);
+	
+	bool manager_handler(const managerProtocol_messageTrans &from, const managerProtocol_messageType &type
+			 , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType,struct event_base * base, void * arg);
+
+	bool managerProto_from_throttle_handler(const managerProtocol_messageType &type
+	, const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base = NULL, void * arg = NULL);
+	
+	bool managerProto_from_connector_handler(const managerProtocol_messageType &type
+	, const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base = NULL, void * arg = NULL);
+	
+	bool managerProto_from_bidder_handler(const managerProtocol_messageType &type
+	, const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base = NULL, void * arg = NULL);
+
+	void handler_recv_buffer(adInsightManager* insightManager, stringBuffer *string_buf, string &uuid, string &hash_field);
 private:
-	void get_overtime_recond(map<string, vector<string>*>& delMap);
-	void delete_redis_data(map<string, vector<string>*>& delMap);
-	void * establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
 	configureObject& m_config;
 	
+	map<string, bcDataRec*>    m_bcDataRecList;
 
-	vector<BC_process_t*>  m_workerList;//children progress list
-	vector<string> m_subKeying;//message filtering, if establis or move success, remove or add to m_subKeying
-	vector<string> m_subKey;//subKey configure , need establish message filter or remove message filter
+	mutex_lock          m_bcDataMutex;
+	mutex_lock          m_tmMutex;
+	mutex_lock          m_getTimeofDayMutex;
+	read_write_lock     handler_fd_lock;
+	read_write_lock     m_workerList_lock;
+
+	struct timeval      m_microSecTime;
+	string              m_vastBusiCode;
+	string              m_mobileBusiCode;
+	zeromqConnect       m_zmq_connect;
+
+	unsigned short      m_heart_interval;
+	redisPoolManager    m_redisPoolManager;
+	redisPoolManager    m_redisLogManager;
+	ThreadPoolManager   m_threadPoolManger;
+	bcManager           m_bc_manager;
+
+	bool                m_logRedisOn=false;
+	string              m_logRedisIP;
+	unsigned short      m_logRedisPort;
 	
-	unsigned int m_configureChange=0;
-	
-	int m_vastEventFd[2];
-	pid_t m_master_pid;
-
-	void *m_zmqContext = nullptr;	
-	string m_throttleIP;
-	unsigned short m_throttlePubVastPort=0;
-	vector<handler_fd_map*> m_handler_fd_map;
-
-	string m_bcIP;
-	unsigned short m_bcListenBidderPort;
-	void *m_bidderRspHandler;
-	int m_bidderFd;
-	struct event * m_bidderEvent;
-
-	string m_redisIP;
-	unsigned short m_redisPort;
-	unsigned short m_redisSaveTime;
-	unsigned short m_thread_pool_size=0;
-	
-	unsigned short m_workerNum=1;
-	int m_workerChannel;
-
-	map<string, bcDataRec*> bcDataRecList;
-	redisContext *m_redisContex;
-	redisContext* m_delContext;
-	map<string, redisDataRec*> redisRecList;
-
-	mutex_lock bcDataMutex;
-	mutex_lock m_delDataMutex;
-	mutex_lock tmMutex;
-	mutex_lock m_getTimeofDayMutex;
-	read_write_lock handler_fd_lock;
-	read_write_lock m_workerList_lock;
-
-	int m_redisHsetNum = 0;
-
-	redisPoolManager m_redisPoolManager;
-	ThreadPoolManager m_threadPoolManger;
-
-	struct timeval m_microSecTime;
-
-
-	string m_vastBusiCode;
-	string m_mobileBusiCode;
+	spdlog::level::level_enum m_logLevel;	
 };
 
 

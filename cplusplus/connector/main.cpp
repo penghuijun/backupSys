@@ -4,28 +4,45 @@
   *date:2014-7-22
   *All rights reserved
   */
-#include "bidderConfig.h"
-#include "bidder.h"
+#include "adConfig.h"
+#include "connector.h"
+#include "spdlog/spdlog.h"
+shared_ptr<spdlog::logger> g_file_logger;
+shared_ptr<spdlog::logger> g_manager_logger;
+shared_ptr<spdlog::logger> g_worker_logger;
 
 pthread_mutex_t tmMutex;
 int main(int argc, char *argv[])
 {
+
+    g_file_logger = spdlog::rotating_logger_mt("debug", "logs/cdebugfile", 1048576*500, 3, true); 
+    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/cmanagerfile", 1048576*500, 3, true); 
 #ifdef DEBUG
-cout << "-------------------------------------------DEBUG   MODE----------------------------------------" << endl;
+    g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
 #else
-cout << "-------------------------------------------RELEASE MODE----------------------------------------" << endl;
+    g_manager_logger->info("-------------------------------------RELEASE MODE-------------------------------------");
 #endif
+
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
-    cout <<"Current 0MQ version is "<<major<<"."<<minor<<"."<< patch<<endl;
+    g_manager_logger->info("Current 0MQ version is {0:d}.{1:d}.{2:d}", major, minor, patch);
 
     pthread_mutex_init(&tmMutex, NULL);
-    configureObject configure("bidderConfig.txt");
+
+    string configFileName("../adManagerConfig.txt");
+    if(argc==2)
+    {
+        configFileName = argv[1];
+    }
+    
+    configureObject configure(configFileName);
     configure.display();
-    bidderServ bidder(configure);
-    bidder.run();
+    connectorServ connector(configure);
+    connector.run();
     pthread_mutex_destroy(&tmMutex);
     return 0;
 }
+
+
 
 

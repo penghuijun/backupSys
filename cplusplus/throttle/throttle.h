@@ -9,10 +9,18 @@
 #include <map>
 #include <set>
 #include <list>
-#include "throttleConfig.h"
+#include <queue>
+#include "adConfig.h"
 #include "hiredis.h"
 #include "zmq.h"
 #include "threadpoolmanager.h"
+#include "throttleManager.h"
+#include "lock.h"
+#include "spdlog/spdlog.h"
+#include "managerProto.pb.h"
+#include "redisPoolManager.h"
+#include "bufferManager.h"
+using namespace com::rj::protos::manager;
 
 
 using namespace std;
@@ -72,16 +80,29 @@ struct servReadWorkerEvent
 	int fd;
 };
 
-struct eventCallBackParam
+
+
+class eventArgment
 {
-	void *serv;
-	int ev_handlerMsgCount;
-	struct event_base *ev_base;
-	struct event *ev_adEvent;
-	struct event *ev_expEvent;
-	struct event *ev_clientPullEvent;
-	vector<servReadWorkerEvent *>ev_servPullEventList;
+public:
+	eventArgment(){}
+	eventArgment(struct event_base* base, void *serv)
+	{
+		set(base, serv);
+	}	
+	void set(struct event_base* base, void *serv)
+	{
+		m_base = base;
+		m_serv = serv;
+	}
+	struct event_base* get_base(){return m_base;}
+	void *get_serv(){return m_serv;}
+	~eventArgment(){}
+private:
+	struct event_base* m_base;
+	void *m_serv;
 };
+
 
 typedef unsigned char byte;
 
@@ -100,7 +121,7 @@ typedef unsigned char byte;
 
 
 
-#define PUBLISHKEYLEN_MAX 50
+#define PUBLISHKEYLEN_MAX 100
 
 class throttleServ;
 
@@ -110,151 +131,124 @@ struct eventParam
 	throttleServ *serv;
 };
 
-struct fdEvent
-{
-	int fd;
-	struct event *evEvent;
-};
 
+
+class fdEventMap
+{
+public:
+	fdEventMap(){}
+	fdEventMap(int fd, struct event* event)
+	{
+		set(fd, event);
+	}
+	void set(int fd, struct event* event)
+	{
+		m_fd = fd;
+		m_evEvent = event;
+	}
+
+	int get_fd(){ return m_fd;}
+	struct event* get_event(){return m_evEvent;}
+	
+	~fdEventMap()
+	{
+		close(m_fd);
+		event_free(m_evEvent);
+	}
+private:
+	int m_fd;
+	struct event *m_evEvent=NULL;
+};
 
 class throttleServ
 {
 public:
-	throttleServ(throttleConfig& config);
-	
-	const char *get_throttleIP() const {return m_throttleIP.c_str();}
-	unsigned short get_throttlePort() const {return m_throttleAdPort;}
-	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
-
-	void lock(){pthread_mutex_lock(&uuidListMutex);}
-	void unlock(){pthread_mutex_unlock(&uuidListMutex);}
-
-	void workerListLock(){pthread_mutex_lock(&workerListMutex);}
-	void workerListUnlock(){pthread_mutex_unlock(&workerListMutex);}
-
-	void speed()
-	{
-	
-	static long long m_begTime=0;
-	static long long m_endTime=0;
-	static int m_count = 0;
-		 lock();
-		 m_count++;
-		 if(m_count%10000==1)
-		 {
-		 	struct timeval btime;
-		 	gettimeofday(&btime, NULL);
-			m_begTime = btime.tv_sec*1000+btime.tv_usec/1000;
-			 	 unlock();
-		 }
-		 else if(m_count%10000==0)
-		 {
-		 	struct timeval etime;
-		 	gettimeofday(&etime, NULL);
-			m_endTime = etime.tv_sec*1000+etime.tv_usec/1000;
-			 	 unlock();
-			cout <<"send request num: "<<m_count<<endl;
-			cout <<"cost time: " << m_endTime-m_begTime<<endl;
-			cout<<"sspeed: "<<10000*1000/(m_endTime-m_begTime)<<endl;
-		 }
-		 else
-		 	{
-	 	 unlock();
-		 	}
-	}
-	bool masterRun();
-	void masterRestart(struct event_base* base);
-	void workerRestart(eventCallBackParam *param);
-
-	void *getAdRspHandler()const{return m_adRspHandler;}
-	int  getAdfd() const{return m_adFd;}
-	void *getPublishVastHandler() const {return m_publishHandler;}
-
-	int getWorkerNum() const{return m_config.get_throttleworkerNum();}
-	
-	void closeZmqHandlerResource()
-	{
-		zmq_close(m_adRspHandler);           
-        zmq_close(m_publishHandler);      
-		zmq_ctx_destroy(m_zmqContext);	
-	}
-
+	throttleServ(configureObject& config);
 	vector<BC_process_t*>& getWorkerProList() { return m_workerList;}
-	bool needRemoveWorker() const
-	{
-		return (m_workerList.size()>m_workerNum)?true:false;
-	}
-	void run();
-	void start_worker();
+	int          zmq_get_message(void* socket, zmq_msg_t &part, int flags);
+	static void *broadcastLoginOrHeartReq(void *throttle);
+	static void *getTime(void *arg);
+	unsigned long long getLonglongTime();
+	bool logLevelChange();
 
-	void addSendUnitToList(void *data, unsigned int dataLen, int workIdx, unsigned int sendID);
+	void         displayRecord();
+	bool         masterRun();
+	void         workerRestart(void *arg);
+	bool         needRemoveWorker() const;
+	void         run();
+	void         start_worker();
+	static void  signal_handler(int signo);
+	//pthread
+	static void *throttleManager_handler(void *throttle);
 
-	void sendToWorker(char *buf, int size);
-	int getWorkChannel() {return workChannel;}
-	void listenWorkerEvent(struct event_base* base);
+	//libevent
+	static void  recvBidderLogin_callback(int fd, short event, void *pair);
+	static void  recvManangerInfo_callback(int fd, short event, void *pair);
+	static void  recvAD_callback(int _, short __, void *pair);
+	static void  masterPullMsg(int _, short __, void *pair);
+	static void  workerPullMsg(int fd, short event, void *pair);
+	void publishData(char *msgData, int msgLen);
+	void parseAdRequest(char *msgData, int msgLen);
 
-	static void listenEventState(int fd, short __, void *pair);
-	static void *listenVastEvent(void *throttle);
-    static void *recvFromWorker(void *throttle);
-	static void recvFromWorker_cb(int fd, short event, void *pair);
-	static void recvAD_callback(int _, short __, void *pair);
-	static void signal_handler(int signo);
-	static void worker_recvFrom_master_cb(int fd, short event, void *pair);
-	static void hupSigHandler(int fd, short event, void *arg);
-	static void intSigHandler(int fd, short event, void *arg);
-	static void termSigHandler(int fd, short event, void *arg);
-	static void usr1SigHandler(int fd, short event, void *arg);
+	//sig event
+	static void  hupSigHandler(int fd, short event, void *arg);
+	static void  intSigHandler(int fd, short event, void *arg);
+	static void  termSigHandler(int fd, short event, void *arg);
+	static void  usr1SigHandler(int fd, short event, void *arg);
 
+	bool manager_handler(const managerProtocol_messageTrans &from
+			   ,const managerProtocol_messageType &type, const managerProtocol_messageValue &value
+			   ,managerProtocol_messageType &rspType,struct event_base * base = NULL, void * arg = NULL);
+	bool manager_handler(void *handler, string& identify, const managerProtocol_messageTrans &from
+				,const managerProtocol_messageType &type, const managerProtocol_messageValue &value
+				,struct event_base * base=NULL, void * arg = NULL);
+	bool manager_from_connector_handler(const managerProtocol_messageType &type
+	  , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg);
+	bool manager_from_bidder_handler(const managerProtocol_messageType &type
+	  , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg);
+	bool manager_from_BC_handler(const managerProtocol_messageType &type
+	  , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg);
+	static void *logWrite(void *arg);
 
 	~throttleServ()
-	{
-		closeZmqHandlerResource(); 
-		pthread_mutex_destroy(&uuidListMutex);
-		pthread_mutex_destroy(&workerListMutex);
+	{	
+		m_displayMutex.destroy();
+		m_timeMutex.destroy();
 	}
 	
 	
 private:
-	void * establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
-	void * bindOrConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
-	void readConfigFile();
-	void startNetworkResource();
+	void updateConfigure();
 	void updataWorkerList(pid_t pid);
+	struct timeval m_localTm;	
+	configureObject&       m_config;
+	mutex_lock             m_displayMutex;
+	mutex_lock             m_timeMutex;
+	int                    m_workerNum=0;
+	vector<BC_process_t*>  m_workerList;	
+
+	string                 m_vastBusiCode;
+	string                 m_mobileBusiCode;
+	int                    m_heart_interval;
+	zeromqConnect          m_zmq_connect;
 	
-	throttleConfig& m_config;
-	void *m_zmqContext = nullptr;	
+	throttleManager        m_throttleManager;
+	redisPoolManager       m_logRedisPoolManger;
 
-	string m_throttleIP;
-	unsigned short m_throttleAdPort;
-	void *m_adRspHandler = nullptr;
-	int   m_adFd = 0;
-	struct event *m_adEvent=NULL;
+	spdlog::level::level_enum  m_logLevel;
 
-	unsigned short m_publishPort=5010;
-	void *m_publishHandler=nullptr;
-
-	pthread_mutex_t uuidListMutex;
-	pthread_mutex_t workerListMutex;
+	bool            m_logRedisOn;
+	string          m_logRedisIP;
+	unsigned short  m_logRedisPort;
+	logManager      m_logManager;
 	
-	ThreadPoolManager m_manager;
+	void           *m_masterPushHandler = NULL;
+	void		   *m_masterPullHandler = NULL;
+	int             m_masterPullFd;
 
-
-	unsigned int m_throConfChange = 0;
-
-	int m_workerNum=1;
-	vector<BC_process_t*>  m_workerList;
-	pid_t m_masterPid;
-
-	unsigned int m_sendToWorkerID=0;
-
-	int workChannel;
-	int m_eventFd[2];
-	int m_listenWorkerNumFd[2];
-	vector<fdEvent*> m_fdEvent;
-
-	string m_vastBusiCode;
-	string m_mobileBusiCode;
-	unsigned short m_publishPipeNum;
+	void           *m_workerPullHandler = NULL;
+	void           *m_workerPushHandler = NULL;
+	int             m_workerPullFd;
 };
 
 

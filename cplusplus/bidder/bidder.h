@@ -10,7 +10,15 @@
 #include <queue>
 #include <set>
 #include <list>
-#include "bidderConfig.h"
+
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <netinet/in.h> 
+#include <string.h> 
+#include <arpa/inet.h>
+
+
+#include "adConfig.h"
 #include "hiredis.h"
 #include "zmq.h"
 #include "threadpoolmanager.h"
@@ -26,12 +34,19 @@
 #include "MobileAdRequest.pb.h"
 #include "redisPoolManager.h"
 #include "lock.h"
+#include "zeromqConnect.h"
+#include "login.h"
+#include "bidderManager.h"
+#include "campaign.h"
+#include "managerProto.pb.h"
+using namespace com::rj::protos::manager;
 
 using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
 using namespace std;
 
+#define PUBLISHKEYLEN_MAX 100
 
 const int	c_update_throttleAddr=0x01;
 const int	c_update_bcAddr=0x02;
@@ -39,6 +54,25 @@ const int	c_update_workerNum=0x04;
 const int	c_update_zmqSub=0x08;
 const int   c_update_forbid=0x10;
 
+class eventArgment
+{
+public:
+	eventArgment(){}
+	eventArgment(struct event_base* base, void *serv)
+	{
+		set(base, serv);
+	}	
+	void set(struct event_base* base, void *serv)
+	{
+		m_base = base;
+		m_serv = serv;
+	}
+	struct event_base* get_base(){return m_base;}
+	void *get_serv(){return m_serv;}
+private:
+	struct event_base* m_base;
+	void *m_serv;
+};
 
 enum proStatus
 {
@@ -72,9 +106,29 @@ struct redisDataRec
 
 struct messageBuf
 {
-	char *buf;
-	unsigned int bufSize;
-	void *serv;
+public:
+	messageBuf(){}
+	messageBuf(char* data, int dataLen, void *serv)
+	{
+		message_new(data, dataLen, serv);
+	}
+	void message_set(char* data, int dataLen, void *serv)
+	{
+		m_stringBuf.string_set(data, dataLen);
+		m_serv = serv;
+	}
+
+	void message_new(char* data, int dataLen, void *serv)
+	{
+		m_stringBuf.string_new(data, dataLen);
+		m_serv = serv;	
+	}
+	stringBuffer& get_stringBuf(){return m_stringBuf;}
+	void *        get_serv(){return m_serv;}
+	~messageBuf(){}
+private:
+	stringBuffer m_stringBuf;
+	void *m_serv;
 };
 
 struct servReadWorkerEvent
@@ -94,9 +148,6 @@ struct eventCallBackParam
 	vector<servReadWorkerEvent *>ev_servPullEventList;
 };
 
-
-#define PUBLISHKEYLEN_MAX 50
-
 struct handler_fd_map
 {
 	string subKey;
@@ -113,17 +164,31 @@ struct eventParam
 	bidderServ *serv;
 };
 
+
+
 //bidder server
 class bidderServ
 {
 public:
 	bidderServ(configureObject& config);
 	void readConfigFile();//read configure file
-	void master_subscribe_async_event_register(struct event_base* base, event_callback_fn func, void *arg);
 	bool needRemoveWorker() const 
 	{
 		return (m_workerList.size()>m_workerNum)?true:false;
 	}
+	bool parse_publishKey(string& origin, string& bcIP, unsigned short &bcManagerPort, unsigned short &bcDataPort,
+										string& bidderIP, unsigned short& bidderPort, int recvLen);
+	bool logLevelChange();
+
+	bool get_bidder_target(const MobileAdRequest& mobile_request, operationTarget &target_operation_set, verifyTarget &target_verify_set);
+    void frequency_display(shared_ptr<spdlog::logger>& file_logger, const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >&frequency);
+	void appsession_display(shared_ptr<spdlog::logger>& file_logger,
+		const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession>& appsession);
+
+	static void *getTime(void *arg);
+	static void* childProcessGetTime(void *arg);
+	unsigned long long getchildMicroTime();
+	unsigned long long getMasterMicroTime();
 
 
 	void intToString(int num, string& str)
@@ -133,52 +198,72 @@ public:
     	str = os.str();
 	}
 
+	void updateConfigure();
 	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
-
-	void doubleToString(double num, string& str)
-	{
-    	ostringstream os;
-   	 	os<<num;
-    	str = os.str();
-	}
 	void updataWorkerList(pid_t pid);
 	void start_worker();
 	void run();
 	bool masterRun();
-	void masterRestart(struct event_base* base);
-	void master_net_init();
 	void worker_net_init();
-	void *get_zmqContext() const {return m_zmqContext;}
-	void *get_master_subscribe_zmqHandler(int fd);
-	handler_fd_map *get_master_subscribe_zmqHandler(string subKey);
-	void releaseConnectResource(string subKey) ;
-	void addSendUnitToList(void *data, unsigned int dataLen, int channel);
-	void sendToWorker(char *buf, int size);
+	void sendToWorker(char* subKey, int keyLen, char * buf,int bufLen);
 	void calSpeed();
 	void updateWorker();
 	static void usr1SigHandler(int fd, short event, void *arg);
 	static void *throttle_request_handler(void *arg);
 	static void recvRequest_callback(int _, short __, void *pair);
 	static void workerBusiness_callback(int fd, short event, void *pair);
-	static void func(int fd, short __, void *pair);
-	void *bindOrConnect(bool client,const char * transType,int zmqType,const char * addr,unsigned short port,int * fd);
-	handler_fd_map* zmq_connect_subscribe(string &subkey);
 	static void hupSigHandler(int fd, short event, void *arg);
 	static void	intSigHandler(int fd, short event, void *arg);
 	static void termSigHandler(int fd, short event, void *arg);
 	static void signal_handler(int signo);
-	
-	bool jsonToProtobuf_compaign(vector<string> &camp_vec, string &tbusinessCode, string &data_coding_type, string &uuid, CommonMessage &commMsg);
+	static void bidderManagerMsg_handler(int fd, short __, void *pair);
+	static void* sendHeartToBC(void *bidder);
+	static void *bidderManagerHandler(void *arg);
 	static void handle_ad_request(void* arg);
-	bool gen_mobile_response_protobuf(string &business_code, string &data_code,  string& ttl_time, string &data_str);
-	bool gen_vast_response_protobuf(string &business_code, string &data_code, string &data_str, CommonMessage &comm_msg);
+	bool mobile_request_handler(const char* pubKey, const CommonMessage& request_commMsg);
+	char* gen_mobile_response_protobuf(const char* pubKey, campaignInfoManager &ad_campaignInfoManager, 
+		const CommonMessage& commMsg, MobileAdRequest& mobile_request, int &dataLen);
+	void get_local_ipaddr(vector<string> &ipAddrList)
+	{
+		struct ifaddrs * ifAddrStruct=NULL;
+	    void * tmpAddrPtr=NULL;
+
+	    getifaddrs(&ifAddrStruct);
+	    while (ifAddrStruct!=NULL) {
+	        if (ifAddrStruct->ifa_addr->sa_family==AF_INET) { // check it is IP4
+	            // is a valid IP4 Address
+	            tmpAddrPtr=&((struct sockaddr_in *)ifAddrStruct->ifa_addr)->sin_addr;
+	            char addressBuffer[INET_ADDRSTRLEN];
+	            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+				ipAddrList.push_back(string(addressBuffer));
+	        } else if (ifAddrStruct->ifa_addr->sa_family==AF_INET6) { // check it is IP6
+	            // is a valid IP6 Address
+	            tmpAddrPtr=&((struct sockaddr_in *)ifAddrStruct->ifa_addr)->sin_addr;
+	            char addressBuffer[INET6_ADDRSTRLEN];
+	            inet_ntop(AF_INET6, tmpAddrPtr, addressBuffer, INET6_ADDRSTRLEN);
+				ipAddrList.push_back(string(addressBuffer));
+	        } 
+	        ifAddrStruct=ifAddrStruct->ifa_next;
+	    }
+	}
+	static void recvRsponse_callback(int fd, short __, void *pair);
+	bool manager_handler(void *handler, string& identify, const managerProtocol_messageTrans &from
+					,const managerProtocol_messageType &type, const managerProtocol_messageValue &value
+					,struct event_base * base=NULL, void * arg = NULL);
+	bool manager_handler(const managerProtocol_messageTrans &from
+				   ,const managerProtocol_messageType &type, const managerProtocol_messageValue &value
+				   ,managerProtocol_messageType &rspType, struct event_base * base = NULL, void * arg = NULL);
+	bool manager_from_BC_handler(const managerProtocol_messageType &type
+		  , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg);
+	bool manager_from_throttle_handler(const managerProtocol_messageType &type
+		  , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg);
 
 	~bidderServ()
 	{
+		m_childtime_lock.destroy();
+		m_mastertime_lock.destroy();
 	}
 private:
-
-	void * establishConnect(bool client, const char * transType,int zmqType,const char * addr,unsigned short port, int *fd);
 	configureObject& m_config;
 
 	string m_throttleIP;
@@ -188,34 +273,56 @@ private:
 	unsigned short m_bidderCollectorPort;
 
 	int m_workerNum;
-	int m_workerChannel;
 	
 	vector<handler_fd_map*> m_handler_fd_map;
 	vector<BC_process_t*>  m_workerList;//children progress list
 	vector<string> m_subKeying;//message filtering, if establis or move success, remove or add to m_subKeying
 	vector<string> m_subKey;//subKey configure , need establish message filter or remove message filter
-	
-	unsigned int m_configureChange=0;
-	
-	void *m_zmqContext = nullptr;	
+		
 	void *m_response_handler = nullptr;
 
-	mutex_lock      m_worker_zeromq_lock;
-	mutex_lock      m_test_lock;
-	read_write_lock m_zeromq_sub_lock;
-	read_write_lock m_worker_info_lock;
-	
-	int m_eventFd[2];
-	pid_t m_master_pid;
+	mutex_lock      m_diplayLock;
+	mutex_lock      m_childtime_lock;
+	struct timeval  m_childlocalTm;;
 
+	mutex_lock      m_mastertime_lock;
+	struct timeval  m_masterlocalTm;;
 	redisPoolManager m_redis_pool_manager;
+	redisPoolManager m_log_redis_manager;
 	ThreadPoolManager m_thread_manager;
+	
 	struct event_base* m_base;
 	unsigned short m_thread_pool_size;
 	unsigned short m_target_converce_num = 0;
 	string m_vastBusinessCode;
 	string m_mobileBusinessCode;
 	string m_bidder_id;
+
+	bidderInformation   m_bidder_infomation;
+	bcInformation       m_bc_infomation;
+	void *m_zmq_login_handler=NULL;
+	zeromqConnect m_zmq_connect;
+	int m_login_fd;
+	bidderConfig m_bidder_config;
+	string m_zmq_login_identify;
+	struct event *m_login_event=NULL;
+
+	bidderManager m_bidder_manager;
+	unsigned short m_heartInterval;
+
+	spdlog::level::level_enum m_logLevel;	
+
+	bool           m_logRedisOn=false;
+	string         m_logRedisIP;
+	unsigned short m_logRedisPort;
+
+	void		   *m_masterPushHandler = NULL;
+	void		   *m_masterPullHandler = NULL;
+	int 			m_masterPullFd;
+
+	void           *m_workerPullHandler = NULL;
+	void           *m_workerPushHandler = NULL;
+	int             m_workerPullFd;	
 };
 #endif
 

@@ -1,0 +1,32 @@
+package com.rj.protos.manager;  
+
+message managerProtocol {  
+     	required messageType   messagetype = 1; 
+     	required messageTrans  messagefrom = 2;
+     	//required messageTrans  messageto   = 4;
+     	required messageValue  messagevalue = 3; 
+	 
+     	enum messageType {
+       		LOGIN_REQ = 1;
+        	LOGIN_RSP = 2;
+        	HEART_REQ = 3;
+        	HEART_RSP = 4;
+        	REGISTER_REQ = 5;
+        	REGISTER_RSP = 6;
+     	}
+	
+	enum messageTrans {
+        	THROTTLE = 1;
+        	BIDDER = 2;
+        	CONNECTOR = 3;
+        	BC = 4;
+     	}
+	message messageValue {   
+	 	optional string ip = 1;   
+	 	repeated uint32 port = 2; 
+	 	optional string key = 5;
+	 }        
+ }  
+ 
+
+ 

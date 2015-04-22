@@ -44,6 +44,7 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* MobileAdResponse_UUID_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MobileAdResponse_UUID_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* MobileAdResponse_UuidType_descriptor_ = NULL;
 
 }  // namespace
 
@@ -88,7 +89,7 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdResponse_Bidder));
   MobileAdResponse_mobileBid_descriptor_ = MobileAdResponse_descriptor_->nested_type(1);
-  static const int MobileAdResponse_mobileBid_offsets_[7] = {
+  static const int MobileAdResponse_mobileBid_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, campaignid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, biddingtype_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, biddingvalue_),
@@ -96,6 +97,7 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, creative_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, action_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, uuid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_mobileBid, expectcpm_),
   };
   MobileAdResponse_mobileBid_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -109,13 +111,16 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdResponse_mobileBid));
   MobileAdResponse_Creative_descriptor_ = MobileAdResponse_descriptor_->nested_type(2);
-  static const int MobileAdResponse_Creative_offsets_[6] = {
+  static const int MobileAdResponse_Creative_offsets_[9] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, creativeid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, admarkup_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, width_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, height_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, macro_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, events_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, mediatypeid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, mediasubtypeid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Creative, uuid_),
   };
   MobileAdResponse_Creative_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -131,7 +136,7 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
   MobileAdResponse_Action_descriptor_ = MobileAdResponse_descriptor_->nested_type(3);
   static const int MobileAdResponse_Action_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Action, name_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Action, in_app_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Action, inapp_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Action, content_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_Action, actiontype_),
   };
@@ -164,6 +169,7 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
       sizeof(MobileAdResponse_TrackingEvents));
   MobileAdResponse_UUID_descriptor_ = MobileAdResponse_descriptor_->nested_type(5);
   static const int MobileAdResponse_UUID_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdResponse_UUID, uuidtype_),
   };
   MobileAdResponse_UUID_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -176,6 +182,7 @@ void protobuf_AssignDesc_MobileAdResponse_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdResponse_UUID));
+  MobileAdResponse_UuidType_descriptor_ = MobileAdResponse_descriptor_->enum_type(0);
 }
 
 namespace {
@@ -231,27 +238,32 @@ void protobuf_AddDesc_MobileAdResponse_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\026MobileAdResponse.proto\022\024com.rj.protos."
-    "mobile\"\232\006\n\020MobileAdResponse\022\n\n\002id\030\001 \002(\t\022"
+    "mobile\"\371\007\n\020MobileAdResponse\022\n\n\002id\030\001 \002(\t\022"
     "=\n\006bidder\030\002 \002(\0132-.com.rj.protos.mobile.M"
     "obileAdResponse.Bidder\022\r\n\005bidId\030\003 \002(\t\022D\n"
     "\nbidContent\030\004 \003(\01320.com.rj.protos.mobile"
     ".MobileAdResponse.mobileBid\032\032\n\006Bidder\022\020\n"
-    "\010bidderId\030\001 \002(\t\032\231\002\n\tmobileBid\022\022\n\ncampaig"
+    "\010bidderId\030\001 \002(\t\032\254\002\n\tmobileBid\022\022\n\ncampaig"
     "nId\030\001 \002(\t\022\023\n\013biddingType\030\002 \001(\t\022\024\n\014biddin"
     "gValue\030\003 \001(\t\022\020\n\010currency\030\004 \001(\t\022A\n\010creati"
     "ve\030\005 \003(\0132/.com.rj.protos.mobile.MobileAd"
     "Response.Creative\022=\n\006action\030\006 \001(\0132-.com."
     "rj.protos.mobile.MobileAdResponse.Action"
     "\0229\n\004uuid\030\007 \001(\0132+.com.rj.protos.mobile.Mo"
-    "bileAdResponse.UUID\032\245\001\n\010Creative\022\022\n\ncrea"
-    "tiveId\030\001 \001(\t\022\020\n\010admarkup\030\002 \001(\t\022\r\n\005width\030"
-    "\003 \001(\t\022\016\n\006height\030\004 \001(\t\022\r\n\005macro\030\005 \001(\t\022E\n\006"
-    "events\030\006 \003(\01325.com.rj.protos.mobile.Mobi"
-    "leAdResponse.TrackingEvents\032K\n\006Action\022\014\n"
-    "\004name\030\001 \001(\t\022\016\n\006in_app\030\002 \001(\t\022\017\n\007content\030\003"
-    " \001(\t\022\022\n\nactionType\030\004 \001(\t\0321\n\016TrackingEven"
-    "ts\022\r\n\005event\030\001 \001(\t\022\020\n\010trackUrl\030\002 \001(\t\032\006\n\004U"
-    "UID", 843);
+    "bileAdResponse.UUID\022\021\n\texpectCpm\030\010 \001(\t\032\215"
+    "\002\n\010Creative\022\022\n\ncreativeId\030\001 \001(\t\022\020\n\010admar"
+    "kup\030\002 \001(\t\022\r\n\005width\030\003 \001(\t\022\016\n\006height\030\004 \001(\t"
+    "\022\r\n\005macro\030\005 \001(\t\022E\n\006events\030\006 \003(\01325.com.rj"
+    ".protos.mobile.MobileAdResponse.Tracking"
+    "Events\022\023\n\013mediaTypeId\030\007 \001(\t\022\026\n\016mediaSubT"
+    "ypeId\030\010 \001(\t\0229\n\004uuid\030\t \001(\0132+.com.rj.proto"
+    "s.mobile.MobileAdResponse.UUID\032J\n\006Action"
+    "\022\014\n\004name\030\001 \001(\t\022\r\n\005inApp\030\002 \001(\t\022\017\n\007content"
+    "\030\003 \001(\t\022\022\n\nactionType\030\004 \001(\t\0321\n\016TrackingEv"
+    "ents\022\r\n\005event\030\001 \001(\t\022\020\n\010trackUrl\030\002 \001(\t\032I\n"
+    "\004UUID\022A\n\010uuidType\030\001 \003(\0162/.com.rj.protos."
+    "mobile.MobileAdResponse.UuidType\" \n\010Uuid"
+    "Type\022\007\n\003FRE\020\000\022\013\n\007SESSION\020\001", 1066);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "MobileAdResponse.proto", &protobuf_RegisterTypes);
   MobileAdResponse::default_instance_ = new MobileAdResponse();
@@ -280,6 +292,27 @@ struct StaticDescriptorInitializer_MobileAdResponse_2eproto {
 
 // ===================================================================
 
+const ::google::protobuf::EnumDescriptor* MobileAdResponse_UuidType_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return MobileAdResponse_UuidType_descriptor_;
+}
+bool MobileAdResponse_UuidType_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const MobileAdResponse_UuidType MobileAdResponse::FRE;
+const MobileAdResponse_UuidType MobileAdResponse::SESSION;
+const MobileAdResponse_UuidType MobileAdResponse::UuidType_MIN;
+const MobileAdResponse_UuidType MobileAdResponse::UuidType_MAX;
+const int MobileAdResponse::UuidType_ARRAYSIZE;
+#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int MobileAdResponse_Bidder::kBidderIdFieldNumber;
 #endif  // !_MSC_VER
@@ -514,6 +547,7 @@ const int MobileAdResponse_mobileBid::kCurrencyFieldNumber;
 const int MobileAdResponse_mobileBid::kCreativeFieldNumber;
 const int MobileAdResponse_mobileBid::kActionFieldNumber;
 const int MobileAdResponse_mobileBid::kUuidFieldNumber;
+const int MobileAdResponse_mobileBid::kExpectCpmFieldNumber;
 #endif  // !_MSC_VER
 
 MobileAdResponse_mobileBid::MobileAdResponse_mobileBid()
@@ -540,6 +574,7 @@ void MobileAdResponse_mobileBid::SharedCtor() {
   currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   action_ = NULL;
   uuid_ = NULL;
+  expectcpm_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -559,6 +594,9 @@ void MobileAdResponse_mobileBid::SharedDtor() {
   }
   if (currency_ != &::google::protobuf::internal::kEmptyString) {
     delete currency_;
+  }
+  if (expectcpm_ != &::google::protobuf::internal::kEmptyString) {
+    delete expectcpm_;
   }
   if (this != default_instance_) {
     delete action_;
@@ -614,6 +652,11 @@ void MobileAdResponse_mobileBid::Clear() {
     }
     if (has_uuid()) {
       if (uuid_ != NULL) uuid_->::com::rj::protos::mobile::MobileAdResponse_UUID::Clear();
+    }
+    if (has_expectcpm()) {
+      if (expectcpm_ != &::google::protobuf::internal::kEmptyString) {
+        expectcpm_->clear();
+      }
     }
   }
   creative_.Clear();
@@ -733,6 +776,23 @@ bool MobileAdResponse_mobileBid::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(66)) goto parse_expectCpm;
+        break;
+      }
+
+      // optional string expectCpm = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_expectCpm:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_expectcpm()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->expectcpm().data(), this->expectcpm().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -809,6 +869,15 @@ void MobileAdResponse_mobileBid::SerializeWithCachedSizes(
       7, this->uuid(), output);
   }
 
+  // optional string expectCpm = 8;
+  if (has_expectcpm()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->expectcpm().data(), this->expectcpm().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      8, this->expectcpm(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -878,6 +947,16 @@ void MobileAdResponse_mobileBid::SerializeWithCachedSizes(
         7, this->uuid(), target);
   }
 
+  // optional string expectCpm = 8;
+  if (has_expectcpm()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->expectcpm().data(), this->expectcpm().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        8, this->expectcpm(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -929,6 +1008,13 @@ int MobileAdResponse_mobileBid::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->uuid());
+    }
+
+    // optional string expectCpm = 8;
+    if (has_expectcpm()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->expectcpm());
     }
 
   }
@@ -985,6 +1071,9 @@ void MobileAdResponse_mobileBid::MergeFrom(const MobileAdResponse_mobileBid& fro
     if (from.has_uuid()) {
       mutable_uuid()->::com::rj::protos::mobile::MobileAdResponse_UUID::MergeFrom(from.uuid());
     }
+    if (from.has_expectcpm()) {
+      set_expectcpm(from.expectcpm());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1016,6 +1105,7 @@ void MobileAdResponse_mobileBid::Swap(MobileAdResponse_mobileBid* other) {
     creative_.Swap(&other->creative_);
     std::swap(action_, other->action_);
     std::swap(uuid_, other->uuid_);
+    std::swap(expectcpm_, other->expectcpm_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1040,6 +1130,9 @@ const int MobileAdResponse_Creative::kWidthFieldNumber;
 const int MobileAdResponse_Creative::kHeightFieldNumber;
 const int MobileAdResponse_Creative::kMacroFieldNumber;
 const int MobileAdResponse_Creative::kEventsFieldNumber;
+const int MobileAdResponse_Creative::kMediaTypeIdFieldNumber;
+const int MobileAdResponse_Creative::kMediaSubTypeIdFieldNumber;
+const int MobileAdResponse_Creative::kUuidFieldNumber;
 #endif  // !_MSC_VER
 
 MobileAdResponse_Creative::MobileAdResponse_Creative()
@@ -1048,6 +1141,7 @@ MobileAdResponse_Creative::MobileAdResponse_Creative()
 }
 
 void MobileAdResponse_Creative::InitAsDefaultInstance() {
+  uuid_ = const_cast< ::com::rj::protos::mobile::MobileAdResponse_UUID*>(&::com::rj::protos::mobile::MobileAdResponse_UUID::default_instance());
 }
 
 MobileAdResponse_Creative::MobileAdResponse_Creative(const MobileAdResponse_Creative& from)
@@ -1063,6 +1157,9 @@ void MobileAdResponse_Creative::SharedCtor() {
   width_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   height_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   macro_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  mediatypeid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  mediasubtypeid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  uuid_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1086,7 +1183,14 @@ void MobileAdResponse_Creative::SharedDtor() {
   if (macro_ != &::google::protobuf::internal::kEmptyString) {
     delete macro_;
   }
+  if (mediatypeid_ != &::google::protobuf::internal::kEmptyString) {
+    delete mediatypeid_;
+  }
+  if (mediasubtypeid_ != &::google::protobuf::internal::kEmptyString) {
+    delete mediasubtypeid_;
+  }
   if (this != default_instance_) {
+    delete uuid_;
   }
 }
 
@@ -1137,6 +1241,21 @@ void MobileAdResponse_Creative::Clear() {
       if (macro_ != &::google::protobuf::internal::kEmptyString) {
         macro_->clear();
       }
+    }
+    if (has_mediatypeid()) {
+      if (mediatypeid_ != &::google::protobuf::internal::kEmptyString) {
+        mediatypeid_->clear();
+      }
+    }
+    if (has_mediasubtypeid()) {
+      if (mediasubtypeid_ != &::google::protobuf::internal::kEmptyString) {
+        mediasubtypeid_->clear();
+      }
+    }
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (has_uuid()) {
+      if (uuid_ != NULL) uuid_->::com::rj::protos::mobile::MobileAdResponse_UUID::Clear();
     }
   }
   events_.Clear();
@@ -1245,6 +1364,54 @@ bool MobileAdResponse_Creative::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(50)) goto parse_events;
+        if (input->ExpectTag(58)) goto parse_mediaTypeId;
+        break;
+      }
+
+      // optional string mediaTypeId = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_mediaTypeId:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_mediatypeid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->mediatypeid().data(), this->mediatypeid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(66)) goto parse_mediaSubTypeId;
+        break;
+      }
+
+      // optional string mediaSubTypeId = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_mediaSubTypeId:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_mediasubtypeid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->mediasubtypeid().data(), this->mediasubtypeid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(74)) goto parse_uuid;
+        break;
+      }
+
+      // optional .com.rj.protos.mobile.MobileAdResponse.UUID uuid = 9;
+      case 9: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_uuid:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_uuid()));
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -1318,6 +1485,30 @@ void MobileAdResponse_Creative::SerializeWithCachedSizes(
       6, this->events(i), output);
   }
 
+  // optional string mediaTypeId = 7;
+  if (has_mediatypeid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mediatypeid().data(), this->mediatypeid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      7, this->mediatypeid(), output);
+  }
+
+  // optional string mediaSubTypeId = 8;
+  if (has_mediasubtypeid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mediasubtypeid().data(), this->mediasubtypeid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      8, this->mediasubtypeid(), output);
+  }
+
+  // optional .com.rj.protos.mobile.MobileAdResponse.UUID uuid = 9;
+  if (has_uuid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, this->uuid(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1383,6 +1574,33 @@ void MobileAdResponse_Creative::SerializeWithCachedSizes(
         6, this->events(i), target);
   }
 
+  // optional string mediaTypeId = 7;
+  if (has_mediatypeid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mediatypeid().data(), this->mediatypeid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        7, this->mediatypeid(), target);
+  }
+
+  // optional string mediaSubTypeId = 8;
+  if (has_mediasubtypeid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->mediasubtypeid().data(), this->mediasubtypeid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        8, this->mediasubtypeid(), target);
+  }
+
+  // optional .com.rj.protos.mobile.MobileAdResponse.UUID uuid = 9;
+  if (has_uuid()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        9, this->uuid(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1427,6 +1645,29 @@ int MobileAdResponse_Creative::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->macro());
+    }
+
+    // optional string mediaTypeId = 7;
+    if (has_mediatypeid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->mediatypeid());
+    }
+
+    // optional string mediaSubTypeId = 8;
+    if (has_mediasubtypeid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->mediasubtypeid());
+    }
+
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional .com.rj.protos.mobile.MobileAdResponse.UUID uuid = 9;
+    if (has_uuid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->uuid());
     }
 
   }
@@ -1480,6 +1721,17 @@ void MobileAdResponse_Creative::MergeFrom(const MobileAdResponse_Creative& from)
     if (from.has_macro()) {
       set_macro(from.macro());
     }
+    if (from.has_mediatypeid()) {
+      set_mediatypeid(from.mediatypeid());
+    }
+    if (from.has_mediasubtypeid()) {
+      set_mediasubtypeid(from.mediasubtypeid());
+    }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_uuid()) {
+      mutable_uuid()->::com::rj::protos::mobile::MobileAdResponse_UUID::MergeFrom(from.uuid());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1509,6 +1761,9 @@ void MobileAdResponse_Creative::Swap(MobileAdResponse_Creative* other) {
     std::swap(height_, other->height_);
     std::swap(macro_, other->macro_);
     events_.Swap(&other->events_);
+    std::swap(mediatypeid_, other->mediatypeid_);
+    std::swap(mediasubtypeid_, other->mediasubtypeid_);
+    std::swap(uuid_, other->uuid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1550,7 +1805,7 @@ MobileAdResponse_Action::MobileAdResponse_Action(const MobileAdResponse_Action& 
 void MobileAdResponse_Action::SharedCtor() {
   _cached_size_ = 0;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  in_app_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  inapp_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   content_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   actiontype_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1564,8 +1819,8 @@ void MobileAdResponse_Action::SharedDtor() {
   if (name_ != &::google::protobuf::internal::kEmptyString) {
     delete name_;
   }
-  if (in_app_ != &::google::protobuf::internal::kEmptyString) {
-    delete in_app_;
+  if (inapp_ != &::google::protobuf::internal::kEmptyString) {
+    delete inapp_;
   }
   if (content_ != &::google::protobuf::internal::kEmptyString) {
     delete content_;
@@ -1605,9 +1860,9 @@ void MobileAdResponse_Action::Clear() {
         name_->clear();
       }
     }
-    if (has_in_app()) {
-      if (in_app_ != &::google::protobuf::internal::kEmptyString) {
-        in_app_->clear();
+    if (has_inapp()) {
+      if (inapp_ != &::google::protobuf::internal::kEmptyString) {
+        inapp_->clear();
       }
     }
     if (has_content()) {
@@ -1643,19 +1898,19 @@ bool MobileAdResponse_Action::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_in_app;
+        if (input->ExpectTag(18)) goto parse_inApp;
         break;
       }
 
-      // optional string in_app = 2;
+      // optional string inApp = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_in_app:
+         parse_inApp:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_in_app()));
+                input, this->mutable_inapp()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->in_app().data(), this->in_app().length(),
+            this->inapp().data(), this->inapp().length(),
             ::google::protobuf::internal::WireFormat::PARSE);
         } else {
           goto handle_uninterpreted;
@@ -1725,13 +1980,13 @@ void MobileAdResponse_Action::SerializeWithCachedSizes(
       1, this->name(), output);
   }
 
-  // optional string in_app = 2;
-  if (has_in_app()) {
+  // optional string inApp = 2;
+  if (has_inapp()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->in_app().data(), this->in_app().length(),
+      this->inapp().data(), this->inapp().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      2, this->in_app(), output);
+      2, this->inapp(), output);
   }
 
   // optional string content = 3;
@@ -1770,14 +2025,14 @@ void MobileAdResponse_Action::SerializeWithCachedSizes(
         1, this->name(), target);
   }
 
-  // optional string in_app = 2;
-  if (has_in_app()) {
+  // optional string inApp = 2;
+  if (has_inapp()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->in_app().data(), this->in_app().length(),
+      this->inapp().data(), this->inapp().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->in_app(), target);
+        2, this->inapp(), target);
   }
 
   // optional string content = 3;
@@ -1818,11 +2073,11 @@ int MobileAdResponse_Action::ByteSize() const {
           this->name());
     }
 
-    // optional string in_app = 2;
-    if (has_in_app()) {
+    // optional string inApp = 2;
+    if (has_inapp()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->in_app());
+          this->inapp());
     }
 
     // optional string content = 3;
@@ -1869,8 +2124,8 @@ void MobileAdResponse_Action::MergeFrom(const MobileAdResponse_Action& from) {
     if (from.has_name()) {
       set_name(from.name());
     }
-    if (from.has_in_app()) {
-      set_in_app(from.in_app());
+    if (from.has_inapp()) {
+      set_inapp(from.inapp());
     }
     if (from.has_content()) {
       set_content(from.content());
@@ -1902,7 +2157,7 @@ bool MobileAdResponse_Action::IsInitialized() const {
 void MobileAdResponse_Action::Swap(MobileAdResponse_Action* other) {
   if (other != this) {
     std::swap(name_, other->name_);
-    std::swap(in_app_, other->in_app_);
+    std::swap(inapp_, other->inapp_);
     std::swap(content_, other->content_);
     std::swap(actiontype_, other->actiontype_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -2205,6 +2460,7 @@ void MobileAdResponse_TrackingEvents::Swap(MobileAdResponse_TrackingEvents* othe
 // -------------------------------------------------------------------
 
 #ifndef _MSC_VER
+const int MobileAdResponse_UUID::kUuidTypeFieldNumber;
 #endif  // !_MSC_VER
 
 MobileAdResponse_UUID::MobileAdResponse_UUID()
@@ -2257,6 +2513,7 @@ MobileAdResponse_UUID* MobileAdResponse_UUID::New() const {
 }
 
 void MobileAdResponse_UUID::Clear() {
+  uuidtype_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -2266,12 +2523,47 @@ bool MobileAdResponse_UUID::MergePartialFromCodedStream(
 #define DO_(EXPRESSION) if (!(EXPRESSION)) return false
   ::google::protobuf::uint32 tag;
   while ((tag = input->ReadTag()) != 0) {
-    if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-        ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-      return true;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .com.rj.protos.mobile.MobileAdResponse.UuidType uuidType = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_uuidType:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::com::rj::protos::mobile::MobileAdResponse_UuidType_IsValid(value)) {
+            add_uuidtype(static_cast< ::com::rj::protos::mobile::MobileAdResponse_UuidType >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(1, value);
+          }
+        } else if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag)
+                   == ::google::protobuf::internal::WireFormatLite::
+                      WIRETYPE_LENGTH_DELIMITED) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedEnumNoInline(
+                 input,
+                 &::com::rj::protos::mobile::MobileAdResponse_UuidType_IsValid,
+                 this->mutable_uuidtype())));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(8)) goto parse_uuidType;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
     }
-    DO_(::google::protobuf::internal::WireFormat::SkipField(
-          input, tag, mutable_unknown_fields()));
   }
   return true;
 #undef DO_
@@ -2279,6 +2571,12 @@ bool MobileAdResponse_UUID::MergePartialFromCodedStream(
 
 void MobileAdResponse_UUID::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
+  // repeated .com.rj.protos.mobile.MobileAdResponse.UuidType uuidType = 1;
+  for (int i = 0; i < this->uuidtype_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->uuidtype(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2287,6 +2585,12 @@ void MobileAdResponse_UUID::SerializeWithCachedSizes(
 
 ::google::protobuf::uint8* MobileAdResponse_UUID::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
+  // repeated .com.rj.protos.mobile.MobileAdResponse.UuidType uuidType = 1;
+  for (int i = 0; i < this->uuidtype_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->uuidtype(i), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -2296,6 +2600,16 @@ void MobileAdResponse_UUID::SerializeWithCachedSizes(
 
 int MobileAdResponse_UUID::ByteSize() const {
   int total_size = 0;
+
+  // repeated .com.rj.protos.mobile.MobileAdResponse.UuidType uuidType = 1;
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->uuidtype_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::EnumSize(
+        this->uuidtype(i));
+    }
+    total_size += 1 * this->uuidtype_size() + data_size;
+  }
 
   if (!unknown_fields().empty()) {
     total_size +=
@@ -2322,6 +2636,7 @@ void MobileAdResponse_UUID::MergeFrom(const ::google::protobuf::Message& from) {
 
 void MobileAdResponse_UUID::MergeFrom(const MobileAdResponse_UUID& from) {
   GOOGLE_CHECK_NE(&from, this);
+  uuidtype_.MergeFrom(from.uuidtype_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -2344,6 +2659,8 @@ bool MobileAdResponse_UUID::IsInitialized() const {
 
 void MobileAdResponse_UUID::Swap(MobileAdResponse_UUID* other) {
   if (other != this) {
+    uuidtype_.Swap(&other->uuidtype_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
   }

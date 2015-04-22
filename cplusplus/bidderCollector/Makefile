@@ -1,35 +1,115 @@
-PKG=`pkg-config --cflags --libs protobuf`
-#G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` -g -DDEBUG
-G11=g++ --std=c++11 `pkg-config --cflags --libs protobuf` 
-EXE_FILE=bc_mobile
-PRO_FILE=main.o taskpool.o threadpool.o threadpoolmanager.o bcServ.o  bcConfig.o CommonMessage.pb.o AdBidderResponseTemplate.pb.o AdVastRequestTemplate.pb.o expireddata.pb.o MobileAdResponse.pb.o MobileAdRequest.pb.o
-$(EXE_FILE): *.pb.c $(PRO_FILE)
-	$(G11) -o $(EXE_FILE) $(PRO_FILE)  $(PKG) -lhiredis -lzmq -lpthread -levent
-*.pb.c: *.proto
+#Makefile for C/C++ Program
+# Author: internet
+# Date:   2010-05-29
+# Usage:
+#   $ make           compile and link the program.
+#   $ make objs      compile only (no linking. Rarely used).
+#   $ make clean     clean the objectives and dependencies.
+#   $ make cleanall  clean the objectives, dependencies and executable.
+#   $ make rebuild   rebuild the program. The same as make clean && make all.
+#==============================================================================
+# The executable file name.
+# It must be specified.
+# PROGRAM   := a.out    # the executable name
+PROGRAM   :=bc_mobile
+# The directories in which source files reside.
+# At least one path should be specified.
+# SRCDIRS   := .        # current directory
+SRCDIRS   :=.
+# The source file types (headers excluded).
+# At least one type should be specified.
+# The valid suffixes are among of .c, .C, .cc, .cpp, .CPP, .c++, .cp, or .cxx.
+# SRCEXTS   := .c      # C program
+# SRCEXTS   := .cpp    # C++ program
+# SRCEXTS   := .c .cpp # C/C++ program
+SRCEXTS   := .c .cpp .cc
+# The flags used by the cpp (man cpp for more).
+# CPPFLAGS  := -Wall -Werror # show all warnings and take them as errors
+#CPPFLAGS  :=  -Wall -Werror
+CPPFLAGS  :=
+# The compiling flags used only for C.
+# If it is a C++ program, no need to set these flags.
+# If it is a C and C++ merging program, set these flags for the C parts.
+CFLAGS    := -g
+CFLAGS    += `pkg-config --cflags --libs protobuf`
+# The compiling flags used only for C++.
+# If it is a C program, no need to set these flags.
+# If it is a C and C++ merging program, set these flags for the C++ parts.
+CXXFLAGS  := -g -DTIMELOG
+CXXFLAGS  += `pkg-config --cflags --libs protobuf`
+# The library and the link options ( C and C++ common).
+LDFLAGS   := -lzmq -levent -lpthread -lhiredis
+LDFLAGS   +=
+##=============================================================================
+# The C program compiler. Uncomment it to specify yours explicitly.
+CC      = gcc --std=c++11
+# The C++ program compiler. Uncomment it to specify yours explicitly.
+CXX     = g++ --std=c++11 
+#`pkg-config --cflags --libs protobuf`
+# Uncomment the 2 lines to compile C programs as C++ ones.
+CC      = $(CXX)
+CFLAGS  = $(CXXFLAGS)
+# The command used to delete file.
+RM        = rm -f
+## Stable Section: usually no need to be changed. But you can add more.
+SHELL   = /bin/sh
+SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
+OBJS    = $(foreach x,$(SRCEXTS),$(patsubst %$(x),%.o,$(filter %$(x),$(SOURCES))))
+DEPS    = $(patsubst %.o,%.d,$(OBJS))
+
+.PHONY : all objs clean cleanall rebuild
+
+all : $(PROGRAM) 
+# Rules for creating the dependency files (.d).
+%.d : %.c
+	$(CC) -MM -MD $(CFLAGS) $<
+%.d : %.C
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.cc
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.cpp
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.CPP
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.c++
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.cp
+	$(CC) -MM -MD $(CXXFLAGS) $<
+%.d : %.cxx
+	$(CC) -MM -MD $(CXXFLAGS) $<
+# Rules for producing the objects.
+objs : $(OBJS)
+%.o : %.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+%.o : %.C
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.cc
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.CPP
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.c++
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.cp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+%.o : %.cxx
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+# Rules for producing the executable.
+$(PROGRAM) : $(OBJS)
+ifeq ($(strip $(SRCEXTS)), .c) 
+	 # C file
+	$(CC) -o $(PROGRAM) $(CFLAGS) $(OBJS) $(LDFLAGS)
+else     
+	# C++ file
+	$(CXX)  -o $(PROGRAM)  $(OBJS) $(CXXFLAGS) $(LDFLAGS)
+endif
+-include $(DEPS)
+rebuild: clean all
+clean :
+	$(RM) *.o *.d
+protobuf:
 	protoc --cpp_out=. *.proto
-main.o: main.cpp
-	$(G11) -c main.cpp
-bcServ.o: bcServ.cpp bcServ.h
-	$(G11) -c bcServ.cpp
-CommonMessage.pb.o: CommonMessage.pb.cc CommonMessage.pb.h
-	$(G11) -c CommonMessage.pb.cc
-AdBidderResponseTemplate.pb.o: AdBidderResponseTemplate.pb.cc AdBidderResponseTemplate.pb.h
-	$(G11) -c AdBidderResponseTemplate.pb.cc 
-AdVastRequestTemplate.pb.o: AdVastRequestTemplate.pb.cc AdVastRequestTemplate.pb.h
-	$(G11) -c AdVastRequestTemplate.pb.cc 
-MobileAdRequest.pb.o: MobileAdRequest.pb.h MobileAdRequest.pb.cc
-	$(G11) -c MobileAdRequest.pb.cc
-MobileAdResponse.pb.o: MobileAdResponse.pb.h MobileAdResponse.pb.cc
-	$(G11) -c MobileAdResponse.pb.cc
-expireddata.pb.o: expireddata.pb.cc expireddata.pb.h
-	$(G11) -c expireddata.pb.cc
-bcConfig.o: bcConfig.cpp bcConfig.h
-	$(G11) -c bcConfig.cpp
-taskpool.o: taskpool.cpp
-	$(G11) -c taskpool.cpp
-threadpool.o: threadpool.cpp
-	$(G11) -c threadpool.cpp
-threadpoolmanager.o: threadpoolmanager.cpp
-	$(G11) -c threadpoolmanager.cpp
-clean:
-	rm  *.o ${EXE_FILE}
+cleanall: clean
+	$(RM) $(PROGRAM) $(PROGRAM).exe
+

@@ -5,49 +5,38 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
-#include "throttleConfig.h"
+#include "adConfig.h"
 #include "throttle.h"
 #include "threadpoolmanager.h"
+#include "spdlog/spdlog.h"
 
-#define rdtsc(low,high) __asm__ \
- __volatile__("rdtsc" : "=a" (low), "=d" (high))
-
-pthread_mutex_t mtx=PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond=PTHREAD_COND_INITIALIZER;
-
-
-pthread_mutex_t tmMutex;
-
-unsigned long long get_cycles()
-{
-	unsigned low, high;
-	unsigned long long val;
-	rdtsc(low,high);
-	val = high;
-    val = (val << 32) | low; //将 low 和 high 合成一个 64 位值
-	return val;
-}
+shared_ptr<spdlog::logger> g_file_logger;
+shared_ptr<spdlog::logger> g_manager_logger;
 
 int main(int argc, char *argv[])
 {
+    g_file_logger = spdlog::rotating_logger_mt("debug", "logs/debugfile", 1048576*500, 3, true); 
+    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
 #ifdef DEBUG
-cout << "-------------------------------------------DEBUG   MODE----------------------------------------" << endl;
+    g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
 #else
-cout << "-------------------------------------------RELEASE MODE----------------------------------------" << endl;
+    g_manager_logger->info("-------------------------------------RELEASE MODE-------------------------------------");
 #endif
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
-    cout <<"Current 0MQ version is "<<major<<"."<<minor<<"."<< patch<<endl;
+    g_manager_logger->info("Current 0MQ version is {0:d}.{1:d}.{2:d}", major, minor, patch);
 
-    pthread_mutex_init(&tmMutex, NULL);
-    throttleConfig throttle("throttleConfig.txt");
+
+    string configFileName("../adManagerConfig.txt");
+    if(argc==2)
+    {
+        configFileName = argv[1];
+    }
+
+    configureObject throttle(configFileName);
     throttle.display();
     throttleServ thServ(throttle);
     thServ.run();
-  //  masterWorkerServer throServ(throttle.get_throttleworkerNum());
-   // throServ.run(thServ);
-   pthread_mutex_destroy(&tmMutex);
-    cout << "end point" << endl;
     return 0;
 }
 

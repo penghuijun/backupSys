@@ -26,12 +26,21 @@ namespace {
 const ::google::protobuf::Descriptor* MobileAdRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MobileAdRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MobileAdRequest_Aid_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  MobileAdRequest_Aid_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MobileAdRequest_AppSession_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  MobileAdRequest_AppSession_reflection_ = NULL;
 const ::google::protobuf::Descriptor* MobileAdRequest_Frequency_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MobileAdRequest_Frequency_reflection_ = NULL;
 const ::google::protobuf::Descriptor* MobileAdRequest_Frequency_FrequencyValue_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MobileAdRequest_Frequency_FrequencyValue_reflection_ = NULL;
+const ::google::protobuf::Descriptor* MobileAdRequest_AdInsight_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  MobileAdRequest_AdInsight_reflection_ = NULL;
 const ::google::protobuf::Descriptor* MobileAdRequest_User_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MobileAdRequest_User_reflection_ = NULL;
@@ -56,9 +65,9 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       "MobileAdRequest.proto");
   GOOGLE_CHECK(file != NULL);
   MobileAdRequest_descriptor_ = file->message_type(0);
-  static const int MobileAdRequest_offsets_[21] = {
+  static const int MobileAdRequest_offsets_[26] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, aid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, publishid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, timestamp_),
@@ -74,10 +83,15 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, user_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, geoinfo_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, frequency_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, appsession_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, adinsight_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, apptype_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, trafficquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, inventoryquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, test_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, appid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, appcategory_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, aid_),
   };
   MobileAdRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -90,7 +104,61 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdRequest));
-  MobileAdRequest_Frequency_descriptor_ = MobileAdRequest_descriptor_->nested_type(0);
+  MobileAdRequest_Aid_descriptor_ = MobileAdRequest_descriptor_->nested_type(0);
+  static const int MobileAdRequest_Aid_offsets_[23] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, status_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, networkid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, network_reselling_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, network_reselling_share_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, publisher_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_currency_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_resell_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_direct_payment_model_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_direct_payment_value_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_indrect_payment_model_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_indrect_payment_value_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_keywords_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_support_language_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_category_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_package_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_store_url_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_reviewed_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_exclude_network_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_exclude_advertiser_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_exclude_campaign_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, app_exclude_creative_),
+  };
+  MobileAdRequest_Aid_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      MobileAdRequest_Aid_descriptor_,
+      MobileAdRequest_Aid::default_instance_,
+      MobileAdRequest_Aid_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Aid, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(MobileAdRequest_Aid));
+  MobileAdRequest_AppSession_descriptor_ = MobileAdRequest_descriptor_->nested_type(1);
+  static const int MobileAdRequest_AppSession_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AppSession, property_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AppSession, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AppSession, times_),
+  };
+  MobileAdRequest_AppSession_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      MobileAdRequest_AppSession_descriptor_,
+      MobileAdRequest_AppSession::default_instance_,
+      MobileAdRequest_AppSession_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AppSession, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AppSession, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(MobileAdRequest_AppSession));
+  MobileAdRequest_Frequency_descriptor_ = MobileAdRequest_descriptor_->nested_type(2);
   static const int MobileAdRequest_Frequency_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Frequency, property_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Frequency, id_),
@@ -124,7 +192,23 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdRequest_Frequency_FrequencyValue));
-  MobileAdRequest_User_descriptor_ = MobileAdRequest_descriptor_->nested_type(1);
+  MobileAdRequest_AdInsight_descriptor_ = MobileAdRequest_descriptor_->nested_type(3);
+  static const int MobileAdRequest_AdInsight_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AdInsight, property_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AdInsight, ids_),
+  };
+  MobileAdRequest_AdInsight_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      MobileAdRequest_AdInsight_descriptor_,
+      MobileAdRequest_AdInsight::default_instance_,
+      MobileAdRequest_AdInsight_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AdInsight, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_AdInsight, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(MobileAdRequest_AdInsight));
+  MobileAdRequest_User_descriptor_ = MobileAdRequest_descriptor_->nested_type(4);
   static const int MobileAdRequest_User_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_User, uid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_User, gender_),
@@ -141,7 +225,7 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdRequest_User));
-  MobileAdRequest_Device_descriptor_ = MobileAdRequest_descriptor_->nested_type(2);
+  MobileAdRequest_Device_descriptor_ = MobileAdRequest_descriptor_->nested_type(5);
   static const int MobileAdRequest_Device_offsets_[16] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Device, ipaddress_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_Device, connectiontype_),
@@ -171,7 +255,7 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MobileAdRequest_Device));
-  MobileAdRequest_GeoInfo_descriptor_ = MobileAdRequest_descriptor_->nested_type(3);
+  MobileAdRequest_GeoInfo_descriptor_ = MobileAdRequest_descriptor_->nested_type(6);
   static const int MobileAdRequest_GeoInfo_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_GeoInfo, country_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest_GeoInfo, region_),
@@ -215,9 +299,15 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MobileAdRequest_descriptor_, &MobileAdRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    MobileAdRequest_Aid_descriptor_, &MobileAdRequest_Aid::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    MobileAdRequest_AppSession_descriptor_, &MobileAdRequest_AppSession::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MobileAdRequest_Frequency_descriptor_, &MobileAdRequest_Frequency::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MobileAdRequest_Frequency_FrequencyValue_descriptor_, &MobileAdRequest_Frequency_FrequencyValue::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    MobileAdRequest_AdInsight_descriptor_, &MobileAdRequest_AdInsight::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MobileAdRequest_User_descriptor_, &MobileAdRequest_User::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -231,10 +321,16 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_MobileAdRequest_2eproto() {
   delete MobileAdRequest::default_instance_;
   delete MobileAdRequest_reflection_;
+  delete MobileAdRequest_Aid::default_instance_;
+  delete MobileAdRequest_Aid_reflection_;
+  delete MobileAdRequest_AppSession::default_instance_;
+  delete MobileAdRequest_AppSession_reflection_;
   delete MobileAdRequest_Frequency::default_instance_;
   delete MobileAdRequest_Frequency_reflection_;
   delete MobileAdRequest_Frequency_FrequencyValue::default_instance_;
   delete MobileAdRequest_Frequency_FrequencyValue_reflection_;
+  delete MobileAdRequest_AdInsight::default_instance_;
+  delete MobileAdRequest_AdInsight_reflection_;
   delete MobileAdRequest_User::default_instance_;
   delete MobileAdRequest_User_reflection_;
   delete MobileAdRequest_Device::default_instance_;
@@ -251,60 +347,90 @@ void protobuf_AddDesc_MobileAdRequest_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025MobileAdRequest.proto\022\024com.rj.protos.m"
-    "obile\"\250\r\n\017MobileAdRequest\022\n\n\002id\030\001 \001(\t\022\013\n"
-    "\003aid\030\002 \002(\t\022\017\n\007version\030\003 \001(\t\022:\n\004type\030\004 \001("
-    "\0162,.com.rj.protos.mobile.MobileAdRequest"
-    ".AdType\022\021\n\ttimestamp\030\005 \001(\t\022\024\n\014adspaceWid"
-    "th\030\006 \001(\t\022\025\n\radspaceHeight\030\007 \001(\t\022F\n\013orien"
-    "tation\030\010 \001(\01621.com.rj.protos.mobile.Mobi"
-    "leAdRequest.Orientation\022\023\n\013packageName\030\t"
-    " \001(\t\022\016\n\006schema\030\n \001(\t\022\017\n\007section\030\013 \001(\t\022\017\n"
-    "\007session\030\014 \001(\t\022\r\n\005dnsIp\030\r \001(\t\022<\n\006device\030"
-    "\016 \001(\0132,.com.rj.protos.mobile.MobileAdReq"
-    "uest.Device\0228\n\004user\030\017 \001(\0132*.com.rj.proto"
-    "s.mobile.MobileAdRequest.User\022>\n\007geoInfo"
-    "\030\020 \001(\0132-.com.rj.protos.mobile.MobileAdRe"
-    "quest.GeoInfo\022B\n\tfrequency\030\021 \003(\0132/.com.r"
-    "j.protos.mobile.MobileAdRequest.Frequenc"
-    "y\022\017\n\007appType\030\022 \001(\t\022\026\n\016trafficQuality\030\023 \001"
-    "(\t\022\030\n\020inventoryQuality\030\024 \001(\t\022<\n\004test\030\025 \001"
-    "(\0162..com.rj.protos.mobile.MobileAdReques"
-    "t.TestFlag\032\312\001\n\tFrequency\022\020\n\010property\030\001 \001"
-    "(\t\022\n\n\002id\030\002 \001(\t\022V\n\016frequencyValue\030\003 \003(\0132>"
+    "obile\"\324\024\n\017MobileAdRequest\022\n\n\002id\030\001 \001(\t\022\021\n"
+    "\tpublishId\030\002 \001(\t\022\017\n\007version\030\003 \001(\t\022:\n\004typ"
+    "e\030\004 \001(\0162,.com.rj.protos.mobile.MobileAdR"
+    "equest.AdType\022\021\n\ttimestamp\030\005 \001(\t\022\024\n\014adsp"
+    "aceWidth\030\006 \001(\t\022\025\n\radspaceHeight\030\007 \001(\t\022F\n"
+    "\013orientation\030\010 \001(\01621.com.rj.protos.mobil"
+    "e.MobileAdRequest.Orientation\022\023\n\013package"
+    "Name\030\t \001(\t\022\016\n\006schema\030\n \001(\t\022\017\n\007section\030\013 "
+    "\001(\t\022\017\n\007session\030\014 \001(\t\022\r\n\005dnsIp\030\r \001(\t\022<\n\006d"
+    "evice\030\016 \001(\0132,.com.rj.protos.mobile.Mobil"
+    "eAdRequest.Device\0228\n\004user\030\017 \001(\0132*.com.rj"
+    ".protos.mobile.MobileAdRequest.User\022>\n\007g"
+    "eoInfo\030\020 \001(\0132-.com.rj.protos.mobile.Mobi"
+    "leAdRequest.GeoInfo\022B\n\tfrequency\030\021 \003(\0132/"
     ".com.rj.protos.mobile.MobileAdRequest.Fr"
-    "equency.FrequencyValue\032G\n\016FrequencyValue"
-    "\022\025\n\rfrequencyType\030\001 \001(\t\022\r\n\005times\030\002 \001(\t\022\017"
-    "\n\007dueDate\030\003 \001(\t\032^\n\004User\022\013\n\003uid\030\001 \001(\t\022<\n\006"
-    "gender\030\002 \001(\0162,.com.rj.protos.mobile.Mobi"
-    "leAdRequest.Gender\022\013\n\003Age\030\003 \001(\t\032\265\002\n\006Devi"
-    "ce\022\021\n\tipAddress\030\001 \001(\t\022\026\n\016connectionType\030"
-    "\002 \001(\t\022\n\n\002ua\030\003 \001(\t\022\014\n\004udid\030\004 \001(\t\022\016\n\006hidMd"
-    "5\030\005 \001(\t\022\017\n\007hidSha1\030\006 \001(\t\022\022\n\ndeviceType\030\007"
-    " \001(\t\022\020\n\010platform\030\010 \001(\t\022\027\n\017platformVersio"
-    "n\030\t \001(\t\022\020\n\010language\030\n \001(\t\022\016\n\006vender\030\013 \001("
-    "\t\022\021\n\tmodelName\030\014 \001(\t\022\025\n\rmarketingName\030\r "
-    "\001(\t\022\023\n\013screenWidth\030\016 \001(\t\022\024\n\014screenHeight"
-    "\030\017 \001(\t\022\017\n\007density\030\020 \001(\t\032\271\001\n\007GeoInfo\022\017\n\007c"
-    "ountry\030\001 \001(\t\022\016\n\006region\030\002 \001(\t\022\014\n\004city\030\003 \001"
-    "(\t\022\020\n\010latitude\030\004 \001(\t\022\021\n\tlongitude\030\005 \001(\t\022"
-    "\013\n\003isp\030\006 \001(\t\022\016\n\006domain\030\007 \001(\t\022\013\n\003mcc\030\010 \001("
-    "\t\022\013\n\003mnc\030\t \001(\t\022\022\n\nusage_type\030\n \001(\t\022\017\n\007ca"
-    "rrier\030\013 \001(\t\"\037\n\010TestFlag\022\010\n\004TRUE\020\000\022\t\n\005FAL"
-    "SE\020\001\"2\n\006Gender\022\022\n\016UNKNOWN_GENDER\020\000\022\010\n\004MA"
-    "LE\020\001\022\n\n\006FEMALE\020\002\"*\n\013Orientation\022\r\n\tLANDS"
-    "CAPE\020\000\022\014\n\010PORTRAIT\020\001\"2\n\006AdType\022\n\n\006BANNER"
-    "\020\000\022\020\n\014INTERSTITIAL\020\001\022\n\n\006NATIVE\020\002", 1752);
+    "equency\022D\n\nappSession\030\022 \003(\01320.com.rj.pro"
+    "tos.mobile.MobileAdRequest.AppSession\022B\n"
+    "\tadInsight\030\023 \003(\0132/.com.rj.protos.mobile."
+    "MobileAdRequest.AdInsight\022\017\n\007appType\030\024 \001"
+    "(\t\022\026\n\016trafficQuality\030\025 \001(\t\022\030\n\020inventoryQ"
+    "uality\030\026 \001(\t\022<\n\004test\030\027 \001(\0162..com.rj.prot"
+    "os.mobile.MobileAdRequest.TestFlag\022\r\n\005ap"
+    "pID\030\030 \001(\t\022\023\n\013appCategory\030\031 \001(\t\0226\n\003aid\030\032 "
+    "\001(\0132).com.rj.protos.mobile.MobileAdReque"
+    "st.Aid\032\326\004\n\003Aid\022\n\n\002id\030\001 \001(\t\022\016\n\006status\030\002 \001"
+    "(\t\022\021\n\tnetworkId\030\003 \001(\t\022\031\n\021network_reselli"
+    "ng\030\004 \001(\t\022\037\n\027network_reselling_share\030\005 \001("
+    "\t\022\024\n\014publisher_id\030\006 \001(\t\022\024\n\014app_currency\030"
+    "\007 \001(\t\022\022\n\napp_resell\030\010 \001(\t\022 \n\030app_direct_"
+    "payment_model\030\t \001(\t\022 \n\030app_direct_paymen"
+    "t_value\030\n \001(\t\022!\n\031app_indrect_payment_mod"
+    "el\030\013 \001(\t\022!\n\031app_indrect_payment_value\030\014 "
+    "\001(\t\022\024\n\014app_keywords\030\r \003(\t\022\034\n\024app_support"
+    "_language\030\016 \003(\t\022\024\n\014app_category\030\017 \001(\t\022\030\n"
+    "\020app_package_name\030\020 \001(\t\022\020\n\010app_name\030\021 \001("
+    "\t\022\025\n\rapp_store_url\030\022 \003(\t\022\024\n\014app_reviewed"
+    "\030\023 \001(\t\022\033\n\023app_exclude_network\030\024 \003(\t\022\036\n\026a"
+    "pp_exclude_advertiser\030\025 \003(\t\022\034\n\024app_exclu"
+    "de_campaign\030\026 \003(\t\022\034\n\024app_exclude_creativ"
+    "e\030\027 \003(\t\0329\n\nAppSession\022\020\n\010property\030\001 \001(\t\022"
+    "\n\n\002id\030\002 \001(\t\022\r\n\005times\030\003 \001(\t\032\312\001\n\tFrequency"
+    "\022\020\n\010property\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022V\n\016freque"
+    "ncyValue\030\003 \003(\0132>.com.rj.protos.mobile.Mo"
+    "bileAdRequest.Frequency.FrequencyValue\032G"
+    "\n\016FrequencyValue\022\025\n\rfrequencyType\030\001 \001(\t\022"
+    "\r\n\005times\030\002 \001(\t\022\017\n\007dueDate\030\003 \001(\t\032*\n\tAdIns"
+    "ight\022\020\n\010property\030\001 \001(\t\022\013\n\003ids\030\002 \003(\t\032^\n\004U"
+    "ser\022\013\n\003uid\030\001 \001(\t\022<\n\006gender\030\002 \001(\0162,.com.r"
+    "j.protos.mobile.MobileAdRequest.Gender\022\013"
+    "\n\003Age\030\003 \001(\t\032\265\002\n\006Device\022\021\n\tipAddress\030\001 \001("
+    "\t\022\026\n\016connectionType\030\002 \001(\t\022\n\n\002ua\030\003 \001(\t\022\014\n"
+    "\004udid\030\004 \001(\t\022\016\n\006hidMd5\030\005 \001(\t\022\017\n\007hidSha1\030\006"
+    " \001(\t\022\022\n\ndeviceType\030\007 \001(\t\022\020\n\010platform\030\010 \001"
+    "(\t\022\027\n\017platformVersion\030\t \001(\t\022\020\n\010language\030"
+    "\n \001(\t\022\016\n\006vender\030\013 \001(\t\022\021\n\tmodelName\030\014 \001(\t"
+    "\022\025\n\rmarketingName\030\r \001(\t\022\023\n\013screenWidth\030\016"
+    " \001(\t\022\024\n\014screenHeight\030\017 \001(\t\022\017\n\007density\030\020 "
+    "\001(\t\032\271\001\n\007GeoInfo\022\017\n\007country\030\001 \001(\t\022\016\n\006regi"
+    "on\030\002 \001(\t\022\014\n\004city\030\003 \001(\t\022\020\n\010latitude\030\004 \001(\t"
+    "\022\021\n\tlongitude\030\005 \001(\t\022\013\n\003isp\030\006 \001(\t\022\016\n\006doma"
+    "in\030\007 \001(\t\022\013\n\003mcc\030\010 \001(\t\022\013\n\003mnc\030\t \001(\t\022\022\n\nus"
+    "age_type\030\n \001(\t\022\017\n\007carrier\030\013 \001(\t\"\037\n\010TestF"
+    "lag\022\010\n\004TRUE\020\000\022\t\n\005FALSE\020\001\"2\n\006Gender\022\022\n\016UN"
+    "KNOWN_GENDER\020\000\022\010\n\004MALE\020\001\022\n\n\006FEMALE\020\002\"*\n\013"
+    "Orientation\022\r\n\tLANDSCAPE\020\000\022\014\n\010PORTRAIT\020\001"
+    "\"2\n\006AdType\022\n\n\006BANNER\020\000\022\020\n\014INTERSTITIAL\020\001"
+    "\022\n\n\006NATIVE\020\002", 2692);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "MobileAdRequest.proto", &protobuf_RegisterTypes);
   MobileAdRequest::default_instance_ = new MobileAdRequest();
+  MobileAdRequest_Aid::default_instance_ = new MobileAdRequest_Aid();
+  MobileAdRequest_AppSession::default_instance_ = new MobileAdRequest_AppSession();
   MobileAdRequest_Frequency::default_instance_ = new MobileAdRequest_Frequency();
   MobileAdRequest_Frequency_FrequencyValue::default_instance_ = new MobileAdRequest_Frequency_FrequencyValue();
+  MobileAdRequest_AdInsight::default_instance_ = new MobileAdRequest_AdInsight();
   MobileAdRequest_User::default_instance_ = new MobileAdRequest_User();
   MobileAdRequest_Device::default_instance_ = new MobileAdRequest_Device();
   MobileAdRequest_GeoInfo::default_instance_ = new MobileAdRequest_GeoInfo();
   MobileAdRequest::default_instance_->InitAsDefaultInstance();
+  MobileAdRequest_Aid::default_instance_->InitAsDefaultInstance();
+  MobileAdRequest_AppSession::default_instance_->InitAsDefaultInstance();
   MobileAdRequest_Frequency::default_instance_->InitAsDefaultInstance();
   MobileAdRequest_Frequency_FrequencyValue::default_instance_->InitAsDefaultInstance();
+  MobileAdRequest_AdInsight::default_instance_->InitAsDefaultInstance();
   MobileAdRequest_User::default_instance_->InitAsDefaultInstance();
   MobileAdRequest_Device::default_instance_->InitAsDefaultInstance();
   MobileAdRequest_GeoInfo::default_instance_->InitAsDefaultInstance();
@@ -408,6 +534,1773 @@ const MobileAdRequest_AdType MobileAdRequest::AdType_MIN;
 const MobileAdRequest_AdType MobileAdRequest::AdType_MAX;
 const int MobileAdRequest::AdType_ARRAYSIZE;
 #endif  // _MSC_VER
+#ifndef _MSC_VER
+const int MobileAdRequest_Aid::kIdFieldNumber;
+const int MobileAdRequest_Aid::kStatusFieldNumber;
+const int MobileAdRequest_Aid::kNetworkIdFieldNumber;
+const int MobileAdRequest_Aid::kNetworkResellingFieldNumber;
+const int MobileAdRequest_Aid::kNetworkResellingShareFieldNumber;
+const int MobileAdRequest_Aid::kPublisherIdFieldNumber;
+const int MobileAdRequest_Aid::kAppCurrencyFieldNumber;
+const int MobileAdRequest_Aid::kAppResellFieldNumber;
+const int MobileAdRequest_Aid::kAppDirectPaymentModelFieldNumber;
+const int MobileAdRequest_Aid::kAppDirectPaymentValueFieldNumber;
+const int MobileAdRequest_Aid::kAppIndrectPaymentModelFieldNumber;
+const int MobileAdRequest_Aid::kAppIndrectPaymentValueFieldNumber;
+const int MobileAdRequest_Aid::kAppKeywordsFieldNumber;
+const int MobileAdRequest_Aid::kAppSupportLanguageFieldNumber;
+const int MobileAdRequest_Aid::kAppCategoryFieldNumber;
+const int MobileAdRequest_Aid::kAppPackageNameFieldNumber;
+const int MobileAdRequest_Aid::kAppNameFieldNumber;
+const int MobileAdRequest_Aid::kAppStoreUrlFieldNumber;
+const int MobileAdRequest_Aid::kAppReviewedFieldNumber;
+const int MobileAdRequest_Aid::kAppExcludeNetworkFieldNumber;
+const int MobileAdRequest_Aid::kAppExcludeAdvertiserFieldNumber;
+const int MobileAdRequest_Aid::kAppExcludeCampaignFieldNumber;
+const int MobileAdRequest_Aid::kAppExcludeCreativeFieldNumber;
+#endif  // !_MSC_VER
+
+MobileAdRequest_Aid::MobileAdRequest_Aid()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void MobileAdRequest_Aid::InitAsDefaultInstance() {
+}
+
+MobileAdRequest_Aid::MobileAdRequest_Aid(const MobileAdRequest_Aid& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_Aid::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  status_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  networkid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  network_reselling_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  network_reselling_share_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  publisher_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_resell_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_direct_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_direct_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_indrect_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_indrect_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_category_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_package_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  app_reviewed_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+MobileAdRequest_Aid::~MobileAdRequest_Aid() {
+  SharedDtor();
+}
+
+void MobileAdRequest_Aid::SharedDtor() {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (status_ != &::google::protobuf::internal::kEmptyString) {
+    delete status_;
+  }
+  if (networkid_ != &::google::protobuf::internal::kEmptyString) {
+    delete networkid_;
+  }
+  if (network_reselling_ != &::google::protobuf::internal::kEmptyString) {
+    delete network_reselling_;
+  }
+  if (network_reselling_share_ != &::google::protobuf::internal::kEmptyString) {
+    delete network_reselling_share_;
+  }
+  if (publisher_id_ != &::google::protobuf::internal::kEmptyString) {
+    delete publisher_id_;
+  }
+  if (app_currency_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_currency_;
+  }
+  if (app_resell_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_resell_;
+  }
+  if (app_direct_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_direct_payment_model_;
+  }
+  if (app_direct_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_direct_payment_value_;
+  }
+  if (app_indrect_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_indrect_payment_model_;
+  }
+  if (app_indrect_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_indrect_payment_value_;
+  }
+  if (app_category_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_category_;
+  }
+  if (app_package_name_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_package_name_;
+  }
+  if (app_name_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_name_;
+  }
+  if (app_reviewed_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_reviewed_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void MobileAdRequest_Aid::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* MobileAdRequest_Aid::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return MobileAdRequest_Aid_descriptor_;
+}
+
+const MobileAdRequest_Aid& MobileAdRequest_Aid::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_MobileAdRequest_2eproto();
+  return *default_instance_;
+}
+
+MobileAdRequest_Aid* MobileAdRequest_Aid::default_instance_ = NULL;
+
+MobileAdRequest_Aid* MobileAdRequest_Aid::New() const {
+  return new MobileAdRequest_Aid;
+}
+
+void MobileAdRequest_Aid::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_id()) {
+      if (id_ != &::google::protobuf::internal::kEmptyString) {
+        id_->clear();
+      }
+    }
+    if (has_status()) {
+      if (status_ != &::google::protobuf::internal::kEmptyString) {
+        status_->clear();
+      }
+    }
+    if (has_networkid()) {
+      if (networkid_ != &::google::protobuf::internal::kEmptyString) {
+        networkid_->clear();
+      }
+    }
+    if (has_network_reselling()) {
+      if (network_reselling_ != &::google::protobuf::internal::kEmptyString) {
+        network_reselling_->clear();
+      }
+    }
+    if (has_network_reselling_share()) {
+      if (network_reselling_share_ != &::google::protobuf::internal::kEmptyString) {
+        network_reselling_share_->clear();
+      }
+    }
+    if (has_publisher_id()) {
+      if (publisher_id_ != &::google::protobuf::internal::kEmptyString) {
+        publisher_id_->clear();
+      }
+    }
+    if (has_app_currency()) {
+      if (app_currency_ != &::google::protobuf::internal::kEmptyString) {
+        app_currency_->clear();
+      }
+    }
+    if (has_app_resell()) {
+      if (app_resell_ != &::google::protobuf::internal::kEmptyString) {
+        app_resell_->clear();
+      }
+    }
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (has_app_direct_payment_model()) {
+      if (app_direct_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+        app_direct_payment_model_->clear();
+      }
+    }
+    if (has_app_direct_payment_value()) {
+      if (app_direct_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+        app_direct_payment_value_->clear();
+      }
+    }
+    if (has_app_indrect_payment_model()) {
+      if (app_indrect_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+        app_indrect_payment_model_->clear();
+      }
+    }
+    if (has_app_indrect_payment_value()) {
+      if (app_indrect_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+        app_indrect_payment_value_->clear();
+      }
+    }
+    if (has_app_category()) {
+      if (app_category_ != &::google::protobuf::internal::kEmptyString) {
+        app_category_->clear();
+      }
+    }
+    if (has_app_package_name()) {
+      if (app_package_name_ != &::google::protobuf::internal::kEmptyString) {
+        app_package_name_->clear();
+      }
+    }
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    if (has_app_name()) {
+      if (app_name_ != &::google::protobuf::internal::kEmptyString) {
+        app_name_->clear();
+      }
+    }
+    if (has_app_reviewed()) {
+      if (app_reviewed_ != &::google::protobuf::internal::kEmptyString) {
+        app_reviewed_->clear();
+      }
+    }
+  }
+  app_keywords_.Clear();
+  app_support_language_.Clear();
+  app_store_url_.Clear();
+  app_exclude_network_.Clear();
+  app_exclude_advertiser_.Clear();
+  app_exclude_campaign_.Clear();
+  app_exclude_creative_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool MobileAdRequest_Aid::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string id = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->id().data(), this->id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_status;
+        break;
+      }
+
+      // optional string status = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_status:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_status()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->status().data(), this->status().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_networkId;
+        break;
+      }
+
+      // optional string networkId = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_networkId:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_networkid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->networkid().data(), this->networkid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(34)) goto parse_network_reselling;
+        break;
+      }
+
+      // optional string network_reselling = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_network_reselling:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_network_reselling()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->network_reselling().data(), this->network_reselling().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(42)) goto parse_network_reselling_share;
+        break;
+      }
+
+      // optional string network_reselling_share = 5;
+      case 5: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_network_reselling_share:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_network_reselling_share()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->network_reselling_share().data(), this->network_reselling_share().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(50)) goto parse_publisher_id;
+        break;
+      }
+
+      // optional string publisher_id = 6;
+      case 6: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_publisher_id:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_publisher_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->publisher_id().data(), this->publisher_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(58)) goto parse_app_currency;
+        break;
+      }
+
+      // optional string app_currency = 7;
+      case 7: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_currency:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_currency()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_currency().data(), this->app_currency().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(66)) goto parse_app_resell;
+        break;
+      }
+
+      // optional string app_resell = 8;
+      case 8: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_resell:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_resell()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_resell().data(), this->app_resell().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(74)) goto parse_app_direct_payment_model;
+        break;
+      }
+
+      // optional string app_direct_payment_model = 9;
+      case 9: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_direct_payment_model:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_direct_payment_model()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_direct_payment_model().data(), this->app_direct_payment_model().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(82)) goto parse_app_direct_payment_value;
+        break;
+      }
+
+      // optional string app_direct_payment_value = 10;
+      case 10: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_direct_payment_value:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_direct_payment_value()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_direct_payment_value().data(), this->app_direct_payment_value().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(90)) goto parse_app_indrect_payment_model;
+        break;
+      }
+
+      // optional string app_indrect_payment_model = 11;
+      case 11: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_indrect_payment_model:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_indrect_payment_model()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_indrect_payment_model().data(), this->app_indrect_payment_model().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(98)) goto parse_app_indrect_payment_value;
+        break;
+      }
+
+      // optional string app_indrect_payment_value = 12;
+      case 12: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_indrect_payment_value:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_indrect_payment_value()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_indrect_payment_value().data(), this->app_indrect_payment_value().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_app_keywords;
+        break;
+      }
+
+      // repeated string app_keywords = 13;
+      case 13: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_keywords:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_keywords()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_keywords(this->app_keywords_size() - 1).data(),
+            this->app_keywords(this->app_keywords_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(106)) goto parse_app_keywords;
+        if (input->ExpectTag(114)) goto parse_app_support_language;
+        break;
+      }
+
+      // repeated string app_support_language = 14;
+      case 14: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_support_language:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_support_language()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_support_language(this->app_support_language_size() - 1).data(),
+            this->app_support_language(this->app_support_language_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(114)) goto parse_app_support_language;
+        if (input->ExpectTag(122)) goto parse_app_category;
+        break;
+      }
+
+      // optional string app_category = 15;
+      case 15: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_category:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_category()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_category().data(), this->app_category().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(130)) goto parse_app_package_name;
+        break;
+      }
+
+      // optional string app_package_name = 16;
+      case 16: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_package_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_package_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_package_name().data(), this->app_package_name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(138)) goto parse_app_name;
+        break;
+      }
+
+      // optional string app_name = 17;
+      case 17: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_name().data(), this->app_name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(146)) goto parse_app_store_url;
+        break;
+      }
+
+      // repeated string app_store_url = 18;
+      case 18: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_store_url:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_store_url()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_store_url(this->app_store_url_size() - 1).data(),
+            this->app_store_url(this->app_store_url_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(146)) goto parse_app_store_url;
+        if (input->ExpectTag(154)) goto parse_app_reviewed;
+        break;
+      }
+
+      // optional string app_reviewed = 19;
+      case 19: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_reviewed:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_app_reviewed()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_reviewed().data(), this->app_reviewed().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(162)) goto parse_app_exclude_network;
+        break;
+      }
+
+      // repeated string app_exclude_network = 20;
+      case 20: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_exclude_network:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_exclude_network()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_exclude_network(this->app_exclude_network_size() - 1).data(),
+            this->app_exclude_network(this->app_exclude_network_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(162)) goto parse_app_exclude_network;
+        if (input->ExpectTag(170)) goto parse_app_exclude_advertiser;
+        break;
+      }
+
+      // repeated string app_exclude_advertiser = 21;
+      case 21: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_exclude_advertiser:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_exclude_advertiser()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_exclude_advertiser(this->app_exclude_advertiser_size() - 1).data(),
+            this->app_exclude_advertiser(this->app_exclude_advertiser_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(170)) goto parse_app_exclude_advertiser;
+        if (input->ExpectTag(178)) goto parse_app_exclude_campaign;
+        break;
+      }
+
+      // repeated string app_exclude_campaign = 22;
+      case 22: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_exclude_campaign:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_exclude_campaign()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_exclude_campaign(this->app_exclude_campaign_size() - 1).data(),
+            this->app_exclude_campaign(this->app_exclude_campaign_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(178)) goto parse_app_exclude_campaign;
+        if (input->ExpectTag(186)) goto parse_app_exclude_creative;
+        break;
+      }
+
+      // repeated string app_exclude_creative = 23;
+      case 23: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_app_exclude_creative:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_app_exclude_creative()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->app_exclude_creative(this->app_exclude_creative_size() - 1).data(),
+            this->app_exclude_creative(this->app_exclude_creative_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(186)) goto parse_app_exclude_creative;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void MobileAdRequest_Aid::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string id = 1;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->id().data(), this->id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->id(), output);
+  }
+
+  // optional string status = 2;
+  if (has_status()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->status().data(), this->status().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->status(), output);
+  }
+
+  // optional string networkId = 3;
+  if (has_networkid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->networkid().data(), this->networkid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      3, this->networkid(), output);
+  }
+
+  // optional string network_reselling = 4;
+  if (has_network_reselling()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->network_reselling().data(), this->network_reselling().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      4, this->network_reselling(), output);
+  }
+
+  // optional string network_reselling_share = 5;
+  if (has_network_reselling_share()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->network_reselling_share().data(), this->network_reselling_share().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      5, this->network_reselling_share(), output);
+  }
+
+  // optional string publisher_id = 6;
+  if (has_publisher_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->publisher_id().data(), this->publisher_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      6, this->publisher_id(), output);
+  }
+
+  // optional string app_currency = 7;
+  if (has_app_currency()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_currency().data(), this->app_currency().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      7, this->app_currency(), output);
+  }
+
+  // optional string app_resell = 8;
+  if (has_app_resell()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_resell().data(), this->app_resell().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      8, this->app_resell(), output);
+  }
+
+  // optional string app_direct_payment_model = 9;
+  if (has_app_direct_payment_model()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_direct_payment_model().data(), this->app_direct_payment_model().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      9, this->app_direct_payment_model(), output);
+  }
+
+  // optional string app_direct_payment_value = 10;
+  if (has_app_direct_payment_value()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_direct_payment_value().data(), this->app_direct_payment_value().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      10, this->app_direct_payment_value(), output);
+  }
+
+  // optional string app_indrect_payment_model = 11;
+  if (has_app_indrect_payment_model()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_indrect_payment_model().data(), this->app_indrect_payment_model().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      11, this->app_indrect_payment_model(), output);
+  }
+
+  // optional string app_indrect_payment_value = 12;
+  if (has_app_indrect_payment_value()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_indrect_payment_value().data(), this->app_indrect_payment_value().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      12, this->app_indrect_payment_value(), output);
+  }
+
+  // repeated string app_keywords = 13;
+  for (int i = 0; i < this->app_keywords_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_keywords(i).data(), this->app_keywords(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      13, this->app_keywords(i), output);
+  }
+
+  // repeated string app_support_language = 14;
+  for (int i = 0; i < this->app_support_language_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_support_language(i).data(), this->app_support_language(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      14, this->app_support_language(i), output);
+  }
+
+  // optional string app_category = 15;
+  if (has_app_category()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_category().data(), this->app_category().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      15, this->app_category(), output);
+  }
+
+  // optional string app_package_name = 16;
+  if (has_app_package_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_package_name().data(), this->app_package_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      16, this->app_package_name(), output);
+  }
+
+  // optional string app_name = 17;
+  if (has_app_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_name().data(), this->app_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      17, this->app_name(), output);
+  }
+
+  // repeated string app_store_url = 18;
+  for (int i = 0; i < this->app_store_url_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_store_url(i).data(), this->app_store_url(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      18, this->app_store_url(i), output);
+  }
+
+  // optional string app_reviewed = 19;
+  if (has_app_reviewed()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_reviewed().data(), this->app_reviewed().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      19, this->app_reviewed(), output);
+  }
+
+  // repeated string app_exclude_network = 20;
+  for (int i = 0; i < this->app_exclude_network_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_exclude_network(i).data(), this->app_exclude_network(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      20, this->app_exclude_network(i), output);
+  }
+
+  // repeated string app_exclude_advertiser = 21;
+  for (int i = 0; i < this->app_exclude_advertiser_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_exclude_advertiser(i).data(), this->app_exclude_advertiser(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      21, this->app_exclude_advertiser(i), output);
+  }
+
+  // repeated string app_exclude_campaign = 22;
+  for (int i = 0; i < this->app_exclude_campaign_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_exclude_campaign(i).data(), this->app_exclude_campaign(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      22, this->app_exclude_campaign(i), output);
+  }
+
+  // repeated string app_exclude_creative = 23;
+  for (int i = 0; i < this->app_exclude_creative_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->app_exclude_creative(i).data(), this->app_exclude_creative(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      23, this->app_exclude_creative(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* MobileAdRequest_Aid::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string id = 1;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->id().data(), this->id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->id(), target);
+  }
+
+  // optional string status = 2;
+  if (has_status()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->status().data(), this->status().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->status(), target);
+  }
+
+  // optional string networkId = 3;
+  if (has_networkid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->networkid().data(), this->networkid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->networkid(), target);
+  }
+
+  // optional string network_reselling = 4;
+  if (has_network_reselling()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->network_reselling().data(), this->network_reselling().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        4, this->network_reselling(), target);
+  }
+
+  // optional string network_reselling_share = 5;
+  if (has_network_reselling_share()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->network_reselling_share().data(), this->network_reselling_share().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->network_reselling_share(), target);
+  }
+
+  // optional string publisher_id = 6;
+  if (has_publisher_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->publisher_id().data(), this->publisher_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        6, this->publisher_id(), target);
+  }
+
+  // optional string app_currency = 7;
+  if (has_app_currency()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_currency().data(), this->app_currency().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        7, this->app_currency(), target);
+  }
+
+  // optional string app_resell = 8;
+  if (has_app_resell()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_resell().data(), this->app_resell().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        8, this->app_resell(), target);
+  }
+
+  // optional string app_direct_payment_model = 9;
+  if (has_app_direct_payment_model()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_direct_payment_model().data(), this->app_direct_payment_model().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        9, this->app_direct_payment_model(), target);
+  }
+
+  // optional string app_direct_payment_value = 10;
+  if (has_app_direct_payment_value()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_direct_payment_value().data(), this->app_direct_payment_value().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        10, this->app_direct_payment_value(), target);
+  }
+
+  // optional string app_indrect_payment_model = 11;
+  if (has_app_indrect_payment_model()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_indrect_payment_model().data(), this->app_indrect_payment_model().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        11, this->app_indrect_payment_model(), target);
+  }
+
+  // optional string app_indrect_payment_value = 12;
+  if (has_app_indrect_payment_value()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_indrect_payment_value().data(), this->app_indrect_payment_value().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        12, this->app_indrect_payment_value(), target);
+  }
+
+  // repeated string app_keywords = 13;
+  for (int i = 0; i < this->app_keywords_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_keywords(i).data(), this->app_keywords(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(13, this->app_keywords(i), target);
+  }
+
+  // repeated string app_support_language = 14;
+  for (int i = 0; i < this->app_support_language_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_support_language(i).data(), this->app_support_language(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(14, this->app_support_language(i), target);
+  }
+
+  // optional string app_category = 15;
+  if (has_app_category()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_category().data(), this->app_category().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        15, this->app_category(), target);
+  }
+
+  // optional string app_package_name = 16;
+  if (has_app_package_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_package_name().data(), this->app_package_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        16, this->app_package_name(), target);
+  }
+
+  // optional string app_name = 17;
+  if (has_app_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_name().data(), this->app_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        17, this->app_name(), target);
+  }
+
+  // repeated string app_store_url = 18;
+  for (int i = 0; i < this->app_store_url_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_store_url(i).data(), this->app_store_url(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(18, this->app_store_url(i), target);
+  }
+
+  // optional string app_reviewed = 19;
+  if (has_app_reviewed()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_reviewed().data(), this->app_reviewed().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        19, this->app_reviewed(), target);
+  }
+
+  // repeated string app_exclude_network = 20;
+  for (int i = 0; i < this->app_exclude_network_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_exclude_network(i).data(), this->app_exclude_network(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(20, this->app_exclude_network(i), target);
+  }
+
+  // repeated string app_exclude_advertiser = 21;
+  for (int i = 0; i < this->app_exclude_advertiser_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_exclude_advertiser(i).data(), this->app_exclude_advertiser(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(21, this->app_exclude_advertiser(i), target);
+  }
+
+  // repeated string app_exclude_campaign = 22;
+  for (int i = 0; i < this->app_exclude_campaign_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_exclude_campaign(i).data(), this->app_exclude_campaign(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(22, this->app_exclude_campaign(i), target);
+  }
+
+  // repeated string app_exclude_creative = 23;
+  for (int i = 0; i < this->app_exclude_creative_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->app_exclude_creative(i).data(), this->app_exclude_creative(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(23, this->app_exclude_creative(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int MobileAdRequest_Aid::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string id = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->id());
+    }
+
+    // optional string status = 2;
+    if (has_status()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->status());
+    }
+
+    // optional string networkId = 3;
+    if (has_networkid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->networkid());
+    }
+
+    // optional string network_reselling = 4;
+    if (has_network_reselling()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->network_reselling());
+    }
+
+    // optional string network_reselling_share = 5;
+    if (has_network_reselling_share()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->network_reselling_share());
+    }
+
+    // optional string publisher_id = 6;
+    if (has_publisher_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->publisher_id());
+    }
+
+    // optional string app_currency = 7;
+    if (has_app_currency()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_currency());
+    }
+
+    // optional string app_resell = 8;
+    if (has_app_resell()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_resell());
+    }
+
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional string app_direct_payment_model = 9;
+    if (has_app_direct_payment_model()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_direct_payment_model());
+    }
+
+    // optional string app_direct_payment_value = 10;
+    if (has_app_direct_payment_value()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_direct_payment_value());
+    }
+
+    // optional string app_indrect_payment_model = 11;
+    if (has_app_indrect_payment_model()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_indrect_payment_model());
+    }
+
+    // optional string app_indrect_payment_value = 12;
+    if (has_app_indrect_payment_value()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_indrect_payment_value());
+    }
+
+    // optional string app_category = 15;
+    if (has_app_category()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_category());
+    }
+
+    // optional string app_package_name = 16;
+    if (has_app_package_name()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_package_name());
+    }
+
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    // optional string app_name = 17;
+    if (has_app_name()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_name());
+    }
+
+    // optional string app_reviewed = 19;
+    if (has_app_reviewed()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->app_reviewed());
+    }
+
+  }
+  // repeated string app_keywords = 13;
+  total_size += 1 * this->app_keywords_size();
+  for (int i = 0; i < this->app_keywords_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_keywords(i));
+  }
+
+  // repeated string app_support_language = 14;
+  total_size += 1 * this->app_support_language_size();
+  for (int i = 0; i < this->app_support_language_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_support_language(i));
+  }
+
+  // repeated string app_store_url = 18;
+  total_size += 2 * this->app_store_url_size();
+  for (int i = 0; i < this->app_store_url_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_store_url(i));
+  }
+
+  // repeated string app_exclude_network = 20;
+  total_size += 2 * this->app_exclude_network_size();
+  for (int i = 0; i < this->app_exclude_network_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_exclude_network(i));
+  }
+
+  // repeated string app_exclude_advertiser = 21;
+  total_size += 2 * this->app_exclude_advertiser_size();
+  for (int i = 0; i < this->app_exclude_advertiser_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_exclude_advertiser(i));
+  }
+
+  // repeated string app_exclude_campaign = 22;
+  total_size += 2 * this->app_exclude_campaign_size();
+  for (int i = 0; i < this->app_exclude_campaign_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_exclude_campaign(i));
+  }
+
+  // repeated string app_exclude_creative = 23;
+  total_size += 2 * this->app_exclude_creative_size();
+  for (int i = 0; i < this->app_exclude_creative_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->app_exclude_creative(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void MobileAdRequest_Aid::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const MobileAdRequest_Aid* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MobileAdRequest_Aid*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void MobileAdRequest_Aid::MergeFrom(const MobileAdRequest_Aid& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  app_keywords_.MergeFrom(from.app_keywords_);
+  app_support_language_.MergeFrom(from.app_support_language_);
+  app_store_url_.MergeFrom(from.app_store_url_);
+  app_exclude_network_.MergeFrom(from.app_exclude_network_);
+  app_exclude_advertiser_.MergeFrom(from.app_exclude_advertiser_);
+  app_exclude_campaign_.MergeFrom(from.app_exclude_campaign_);
+  app_exclude_creative_.MergeFrom(from.app_exclude_creative_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_id()) {
+      set_id(from.id());
+    }
+    if (from.has_status()) {
+      set_status(from.status());
+    }
+    if (from.has_networkid()) {
+      set_networkid(from.networkid());
+    }
+    if (from.has_network_reselling()) {
+      set_network_reselling(from.network_reselling());
+    }
+    if (from.has_network_reselling_share()) {
+      set_network_reselling_share(from.network_reselling_share());
+    }
+    if (from.has_publisher_id()) {
+      set_publisher_id(from.publisher_id());
+    }
+    if (from.has_app_currency()) {
+      set_app_currency(from.app_currency());
+    }
+    if (from.has_app_resell()) {
+      set_app_resell(from.app_resell());
+    }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_app_direct_payment_model()) {
+      set_app_direct_payment_model(from.app_direct_payment_model());
+    }
+    if (from.has_app_direct_payment_value()) {
+      set_app_direct_payment_value(from.app_direct_payment_value());
+    }
+    if (from.has_app_indrect_payment_model()) {
+      set_app_indrect_payment_model(from.app_indrect_payment_model());
+    }
+    if (from.has_app_indrect_payment_value()) {
+      set_app_indrect_payment_value(from.app_indrect_payment_value());
+    }
+    if (from.has_app_category()) {
+      set_app_category(from.app_category());
+    }
+    if (from.has_app_package_name()) {
+      set_app_package_name(from.app_package_name());
+    }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    if (from.has_app_name()) {
+      set_app_name(from.app_name());
+    }
+    if (from.has_app_reviewed()) {
+      set_app_reviewed(from.app_reviewed());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void MobileAdRequest_Aid::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_Aid::CopyFrom(const MobileAdRequest_Aid& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MobileAdRequest_Aid::IsInitialized() const {
+
+  return true;
+}
+
+void MobileAdRequest_Aid::Swap(MobileAdRequest_Aid* other) {
+  if (other != this) {
+    std::swap(id_, other->id_);
+    std::swap(status_, other->status_);
+    std::swap(networkid_, other->networkid_);
+    std::swap(network_reselling_, other->network_reselling_);
+    std::swap(network_reselling_share_, other->network_reselling_share_);
+    std::swap(publisher_id_, other->publisher_id_);
+    std::swap(app_currency_, other->app_currency_);
+    std::swap(app_resell_, other->app_resell_);
+    std::swap(app_direct_payment_model_, other->app_direct_payment_model_);
+    std::swap(app_direct_payment_value_, other->app_direct_payment_value_);
+    std::swap(app_indrect_payment_model_, other->app_indrect_payment_model_);
+    std::swap(app_indrect_payment_value_, other->app_indrect_payment_value_);
+    app_keywords_.Swap(&other->app_keywords_);
+    app_support_language_.Swap(&other->app_support_language_);
+    std::swap(app_category_, other->app_category_);
+    std::swap(app_package_name_, other->app_package_name_);
+    std::swap(app_name_, other->app_name_);
+    app_store_url_.Swap(&other->app_store_url_);
+    std::swap(app_reviewed_, other->app_reviewed_);
+    app_exclude_network_.Swap(&other->app_exclude_network_);
+    app_exclude_advertiser_.Swap(&other->app_exclude_advertiser_);
+    app_exclude_campaign_.Swap(&other->app_exclude_campaign_);
+    app_exclude_creative_.Swap(&other->app_exclude_creative_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata MobileAdRequest_Aid::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = MobileAdRequest_Aid_descriptor_;
+  metadata.reflection = MobileAdRequest_Aid_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+#ifndef _MSC_VER
+const int MobileAdRequest_AppSession::kPropertyFieldNumber;
+const int MobileAdRequest_AppSession::kIdFieldNumber;
+const int MobileAdRequest_AppSession::kTimesFieldNumber;
+#endif  // !_MSC_VER
+
+MobileAdRequest_AppSession::MobileAdRequest_AppSession()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void MobileAdRequest_AppSession::InitAsDefaultInstance() {
+}
+
+MobileAdRequest_AppSession::MobileAdRequest_AppSession(const MobileAdRequest_AppSession& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_AppSession::SharedCtor() {
+  _cached_size_ = 0;
+  property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  times_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+MobileAdRequest_AppSession::~MobileAdRequest_AppSession() {
+  SharedDtor();
+}
+
+void MobileAdRequest_AppSession::SharedDtor() {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    delete property_;
+  }
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (times_ != &::google::protobuf::internal::kEmptyString) {
+    delete times_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void MobileAdRequest_AppSession::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* MobileAdRequest_AppSession::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return MobileAdRequest_AppSession_descriptor_;
+}
+
+const MobileAdRequest_AppSession& MobileAdRequest_AppSession::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_MobileAdRequest_2eproto();
+  return *default_instance_;
+}
+
+MobileAdRequest_AppSession* MobileAdRequest_AppSession::default_instance_ = NULL;
+
+MobileAdRequest_AppSession* MobileAdRequest_AppSession::New() const {
+  return new MobileAdRequest_AppSession;
+}
+
+void MobileAdRequest_AppSession::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_property()) {
+      if (property_ != &::google::protobuf::internal::kEmptyString) {
+        property_->clear();
+      }
+    }
+    if (has_id()) {
+      if (id_ != &::google::protobuf::internal::kEmptyString) {
+        id_->clear();
+      }
+    }
+    if (has_times()) {
+      if (times_ != &::google::protobuf::internal::kEmptyString) {
+        times_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool MobileAdRequest_AppSession::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string property = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_property()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->property().data(), this->property().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_id;
+        break;
+      }
+
+      // optional string id = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_id:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->id().data(), this->id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(26)) goto parse_times;
+        break;
+      }
+
+      // optional string times = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_times:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_times()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->times().data(), this->times().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void MobileAdRequest_AppSession::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string property = 1;
+  if (has_property()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->property().data(), this->property().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->property(), output);
+  }
+
+  // optional string id = 2;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->id().data(), this->id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->id(), output);
+  }
+
+  // optional string times = 3;
+  if (has_times()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->times().data(), this->times().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      3, this->times(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* MobileAdRequest_AppSession::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string property = 1;
+  if (has_property()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->property().data(), this->property().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->property(), target);
+  }
+
+  // optional string id = 2;
+  if (has_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->id().data(), this->id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->id(), target);
+  }
+
+  // optional string times = 3;
+  if (has_times()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->times().data(), this->times().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->times(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int MobileAdRequest_AppSession::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string property = 1;
+    if (has_property()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->property());
+    }
+
+    // optional string id = 2;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->id());
+    }
+
+    // optional string times = 3;
+    if (has_times()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->times());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void MobileAdRequest_AppSession::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const MobileAdRequest_AppSession* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MobileAdRequest_AppSession*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void MobileAdRequest_AppSession::MergeFrom(const MobileAdRequest_AppSession& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_property()) {
+      set_property(from.property());
+    }
+    if (from.has_id()) {
+      set_id(from.id());
+    }
+    if (from.has_times()) {
+      set_times(from.times());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void MobileAdRequest_AppSession::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_AppSession::CopyFrom(const MobileAdRequest_AppSession& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MobileAdRequest_AppSession::IsInitialized() const {
+
+  return true;
+}
+
+void MobileAdRequest_AppSession::Swap(MobileAdRequest_AppSession* other) {
+  if (other != this) {
+    std::swap(property_, other->property_);
+    std::swap(id_, other->id_);
+    std::swap(times_, other->times_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata MobileAdRequest_AppSession::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = MobileAdRequest_AppSession_descriptor_;
+  metadata.reflection = MobileAdRequest_AppSession_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
 #ifndef _MSC_VER
 const int MobileAdRequest_Frequency_FrequencyValue::kFrequencyTypeFieldNumber;
 const int MobileAdRequest_Frequency_FrequencyValue::kTimesFieldNumber;
@@ -1063,6 +2956,279 @@ void MobileAdRequest_Frequency::Swap(MobileAdRequest_Frequency* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = MobileAdRequest_Frequency_descriptor_;
   metadata.reflection = MobileAdRequest_Frequency_reflection_;
+  return metadata;
+}
+
+
+// -------------------------------------------------------------------
+
+#ifndef _MSC_VER
+const int MobileAdRequest_AdInsight::kPropertyFieldNumber;
+const int MobileAdRequest_AdInsight::kIdsFieldNumber;
+#endif  // !_MSC_VER
+
+MobileAdRequest_AdInsight::MobileAdRequest_AdInsight()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+}
+
+void MobileAdRequest_AdInsight::InitAsDefaultInstance() {
+}
+
+MobileAdRequest_AdInsight::MobileAdRequest_AdInsight(const MobileAdRequest_AdInsight& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_AdInsight::SharedCtor() {
+  _cached_size_ = 0;
+  property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+MobileAdRequest_AdInsight::~MobileAdRequest_AdInsight() {
+  SharedDtor();
+}
+
+void MobileAdRequest_AdInsight::SharedDtor() {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    delete property_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void MobileAdRequest_AdInsight::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* MobileAdRequest_AdInsight::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return MobileAdRequest_AdInsight_descriptor_;
+}
+
+const MobileAdRequest_AdInsight& MobileAdRequest_AdInsight::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_MobileAdRequest_2eproto();
+  return *default_instance_;
+}
+
+MobileAdRequest_AdInsight* MobileAdRequest_AdInsight::default_instance_ = NULL;
+
+MobileAdRequest_AdInsight* MobileAdRequest_AdInsight::New() const {
+  return new MobileAdRequest_AdInsight;
+}
+
+void MobileAdRequest_AdInsight::Clear() {
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (has_property()) {
+      if (property_ != &::google::protobuf::internal::kEmptyString) {
+        property_->clear();
+      }
+    }
+  }
+  ids_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool MobileAdRequest_AdInsight::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) return false
+  ::google::protobuf::uint32 tag;
+  while ((tag = input->ReadTag()) != 0) {
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string property = 1;
+      case 1: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_property()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->property().data(), this->property().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_ids;
+        break;
+      }
+
+      // repeated string ids = 2;
+      case 2: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_ids:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_ids()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->ids(this->ids_size() - 1).data(),
+            this->ids(this->ids_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(18)) goto parse_ids;
+        if (input->ExpectAtEnd()) return true;
+        break;
+      }
+
+      default: {
+      handle_uninterpreted:
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          return true;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+  return true;
+#undef DO_
+}
+
+void MobileAdRequest_AdInsight::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // optional string property = 1;
+  if (has_property()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->property().data(), this->property().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      1, this->property(), output);
+  }
+
+  // repeated string ids = 2;
+  for (int i = 0; i < this->ids_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+    this->ids(i).data(), this->ids(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->ids(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+}
+
+::google::protobuf::uint8* MobileAdRequest_AdInsight::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // optional string property = 1;
+  if (has_property()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->property().data(), this->property().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->property(), target);
+  }
+
+  // repeated string ids = 2;
+  for (int i = 0; i < this->ids_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->ids(i).data(), this->ids(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(2, this->ids(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  return target;
+}
+
+int MobileAdRequest_AdInsight::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string property = 1;
+    if (has_property()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->property());
+    }
+
+  }
+  // repeated string ids = 2;
+  total_size += 1 * this->ids_size();
+  for (int i = 0; i < this->ids_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->ids(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void MobileAdRequest_AdInsight::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const MobileAdRequest_AdInsight* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const MobileAdRequest_AdInsight*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void MobileAdRequest_AdInsight::MergeFrom(const MobileAdRequest_AdInsight& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  ids_.MergeFrom(from.ids_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_property()) {
+      set_property(from.property());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void MobileAdRequest_AdInsight::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void MobileAdRequest_AdInsight::CopyFrom(const MobileAdRequest_AdInsight& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MobileAdRequest_AdInsight::IsInitialized() const {
+
+  return true;
+}
+
+void MobileAdRequest_AdInsight::Swap(MobileAdRequest_AdInsight* other) {
+  if (other != this) {
+    std::swap(property_, other->property_);
+    ids_.Swap(&other->ids_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata MobileAdRequest_AdInsight::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = MobileAdRequest_AdInsight_descriptor_;
+  metadata.reflection = MobileAdRequest_AdInsight_reflection_;
   return metadata;
 }
 
@@ -3286,7 +5452,7 @@ void MobileAdRequest_GeoInfo::Swap(MobileAdRequest_GeoInfo* other) {
 
 #ifndef _MSC_VER
 const int MobileAdRequest::kIdFieldNumber;
-const int MobileAdRequest::kAidFieldNumber;
+const int MobileAdRequest::kPublishIdFieldNumber;
 const int MobileAdRequest::kVersionFieldNumber;
 const int MobileAdRequest::kTypeFieldNumber;
 const int MobileAdRequest::kTimestampFieldNumber;
@@ -3302,10 +5468,15 @@ const int MobileAdRequest::kDeviceFieldNumber;
 const int MobileAdRequest::kUserFieldNumber;
 const int MobileAdRequest::kGeoInfoFieldNumber;
 const int MobileAdRequest::kFrequencyFieldNumber;
+const int MobileAdRequest::kAppSessionFieldNumber;
+const int MobileAdRequest::kAdInsightFieldNumber;
 const int MobileAdRequest::kAppTypeFieldNumber;
 const int MobileAdRequest::kTrafficQualityFieldNumber;
 const int MobileAdRequest::kInventoryQualityFieldNumber;
 const int MobileAdRequest::kTestFieldNumber;
+const int MobileAdRequest::kAppIDFieldNumber;
+const int MobileAdRequest::kAppCategoryFieldNumber;
+const int MobileAdRequest::kAidFieldNumber;
 #endif  // !_MSC_VER
 
 MobileAdRequest::MobileAdRequest()
@@ -3317,6 +5488,7 @@ void MobileAdRequest::InitAsDefaultInstance() {
   device_ = const_cast< ::com::rj::protos::mobile::MobileAdRequest_Device*>(&::com::rj::protos::mobile::MobileAdRequest_Device::default_instance());
   user_ = const_cast< ::com::rj::protos::mobile::MobileAdRequest_User*>(&::com::rj::protos::mobile::MobileAdRequest_User::default_instance());
   geoinfo_ = const_cast< ::com::rj::protos::mobile::MobileAdRequest_GeoInfo*>(&::com::rj::protos::mobile::MobileAdRequest_GeoInfo::default_instance());
+  aid_ = const_cast< ::com::rj::protos::mobile::MobileAdRequest_Aid*>(&::com::rj::protos::mobile::MobileAdRequest_Aid::default_instance());
 }
 
 MobileAdRequest::MobileAdRequest(const MobileAdRequest& from)
@@ -3328,7 +5500,7 @@ MobileAdRequest::MobileAdRequest(const MobileAdRequest& from)
 void MobileAdRequest::SharedCtor() {
   _cached_size_ = 0;
   id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  aid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  publishid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   version_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   type_ = 0;
   timestamp_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
@@ -3347,6 +5519,9 @@ void MobileAdRequest::SharedCtor() {
   trafficquality_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   inventoryquality_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   test_ = 0;
+  appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  aid_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3358,8 +5533,8 @@ void MobileAdRequest::SharedDtor() {
   if (id_ != &::google::protobuf::internal::kEmptyString) {
     delete id_;
   }
-  if (aid_ != &::google::protobuf::internal::kEmptyString) {
-    delete aid_;
+  if (publishid_ != &::google::protobuf::internal::kEmptyString) {
+    delete publishid_;
   }
   if (version_ != &::google::protobuf::internal::kEmptyString) {
     delete version_;
@@ -3397,10 +5572,17 @@ void MobileAdRequest::SharedDtor() {
   if (inventoryquality_ != &::google::protobuf::internal::kEmptyString) {
     delete inventoryquality_;
   }
+  if (appid_ != &::google::protobuf::internal::kEmptyString) {
+    delete appid_;
+  }
+  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
+    delete appcategory_;
+  }
   if (this != default_instance_) {
     delete device_;
     delete user_;
     delete geoinfo_;
+    delete aid_;
   }
 }
 
@@ -3432,9 +5614,9 @@ void MobileAdRequest::Clear() {
         id_->clear();
       }
     }
-    if (has_aid()) {
-      if (aid_ != &::google::protobuf::internal::kEmptyString) {
-        aid_->clear();
+    if (has_publishid()) {
+      if (publishid_ != &::google::protobuf::internal::kEmptyString) {
+        publishid_->clear();
       }
     }
     if (has_version()) {
@@ -3496,7 +5678,7 @@ void MobileAdRequest::Clear() {
       if (geoinfo_ != NULL) geoinfo_->::com::rj::protos::mobile::MobileAdRequest_GeoInfo::Clear();
     }
   }
-  if (_has_bits_[17 / 32] & (0xffu << (17 % 32))) {
+  if (_has_bits_[19 / 32] & (0xffu << (19 % 32))) {
     if (has_apptype()) {
       if (apptype_ != &::google::protobuf::internal::kEmptyString) {
         apptype_->clear();
@@ -3513,8 +5695,25 @@ void MobileAdRequest::Clear() {
       }
     }
     test_ = 0;
+    if (has_appid()) {
+      if (appid_ != &::google::protobuf::internal::kEmptyString) {
+        appid_->clear();
+      }
+    }
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
+    if (has_appcategory()) {
+      if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
+        appcategory_->clear();
+      }
+    }
+    if (has_aid()) {
+      if (aid_ != NULL) aid_->::com::rj::protos::mobile::MobileAdRequest_Aid::Clear();
+    }
   }
   frequency_.Clear();
+  appsession_.Clear();
+  adinsight_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -3537,19 +5736,19 @@ bool MobileAdRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(18)) goto parse_aid;
+        if (input->ExpectTag(18)) goto parse_publishId;
         break;
       }
 
-      // required string aid = 2;
+      // optional string publishId = 2;
       case 2: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_aid:
+         parse_publishId:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_aid()));
+                input, this->mutable_publishid()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->aid().data(), this->aid().length(),
+            this->publishid().data(), this->publishid().length(),
             ::google::protobuf::internal::WireFormat::PARSE);
         } else {
           goto handle_uninterpreted;
@@ -3806,12 +6005,42 @@ bool MobileAdRequest::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(138)) goto parse_frequency;
-        if (input->ExpectTag(146)) goto parse_appType;
+        if (input->ExpectTag(146)) goto parse_appSession;
         break;
       }
 
-      // optional string appType = 18;
+      // repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
       case 18: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_appSession:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_appsession()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(146)) goto parse_appSession;
+        if (input->ExpectTag(154)) goto parse_adInsight;
+        break;
+      }
+
+      // repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+      case 19: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_adInsight:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_adinsight()));
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(154)) goto parse_adInsight;
+        if (input->ExpectTag(162)) goto parse_appType;
+        break;
+      }
+
+      // optional string appType = 20;
+      case 20: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_appType:
@@ -3823,12 +6052,12 @@ bool MobileAdRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(154)) goto parse_trafficQuality;
+        if (input->ExpectTag(170)) goto parse_trafficQuality;
         break;
       }
 
-      // optional string trafficQuality = 19;
-      case 19: {
+      // optional string trafficQuality = 21;
+      case 21: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_trafficQuality:
@@ -3840,12 +6069,12 @@ bool MobileAdRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(162)) goto parse_inventoryQuality;
+        if (input->ExpectTag(178)) goto parse_inventoryQuality;
         break;
       }
 
-      // optional string inventoryQuality = 20;
-      case 20: {
+      // optional string inventoryQuality = 22;
+      case 22: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_inventoryQuality:
@@ -3857,12 +6086,12 @@ bool MobileAdRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(168)) goto parse_test;
+        if (input->ExpectTag(184)) goto parse_test;
         break;
       }
 
-      // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
-      case 21: {
+      // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
+      case 23: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
          parse_test:
@@ -3873,8 +6102,56 @@ bool MobileAdRequest::MergePartialFromCodedStream(
           if (::com::rj::protos::mobile::MobileAdRequest_TestFlag_IsValid(value)) {
             set_test(static_cast< ::com::rj::protos::mobile::MobileAdRequest_TestFlag >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(21, value);
+            mutable_unknown_fields()->AddVarint(23, value);
           }
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(194)) goto parse_appID;
+        break;
+      }
+
+      // optional string appID = 24;
+      case 24: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_appID:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_appid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->appid().data(), this->appid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(202)) goto parse_appCategory;
+        break;
+      }
+
+      // optional string appCategory = 25;
+      case 25: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_appCategory:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_appcategory()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->appcategory().data(), this->appcategory().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
+        if (input->ExpectTag(210)) goto parse_aid;
+        break;
+      }
+
+      // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+      case 26: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_aid:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_aid()));
         } else {
           goto handle_uninterpreted;
         }
@@ -3909,13 +6186,13 @@ void MobileAdRequest::SerializeWithCachedSizes(
       1, this->id(), output);
   }
 
-  // required string aid = 2;
-  if (has_aid()) {
+  // optional string publishId = 2;
+  if (has_publishid()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->aid().data(), this->aid().length(),
+      this->publishid().data(), this->publishid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      2, this->aid(), output);
+      2, this->publishid(), output);
   }
 
   // optional string version = 3;
@@ -4035,37 +6312,73 @@ void MobileAdRequest::SerializeWithCachedSizes(
       17, this->frequency(i), output);
   }
 
-  // optional string appType = 18;
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
+  for (int i = 0; i < this->appsession_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      18, this->appsession(i), output);
+  }
+
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+  for (int i = 0; i < this->adinsight_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      19, this->adinsight(i), output);
+  }
+
+  // optional string appType = 20;
   if (has_apptype()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->apptype().data(), this->apptype().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      18, this->apptype(), output);
+      20, this->apptype(), output);
   }
 
-  // optional string trafficQuality = 19;
+  // optional string trafficQuality = 21;
   if (has_trafficquality()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->trafficquality().data(), this->trafficquality().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      19, this->trafficquality(), output);
+      21, this->trafficquality(), output);
   }
 
-  // optional string inventoryQuality = 20;
+  // optional string inventoryQuality = 22;
   if (has_inventoryquality()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->inventoryquality().data(), this->inventoryquality().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      20, this->inventoryquality(), output);
+      22, this->inventoryquality(), output);
   }
 
-  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
+  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
   if (has_test()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      21, this->test(), output);
+      23, this->test(), output);
+  }
+
+  // optional string appID = 24;
+  if (has_appid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->appid().data(), this->appid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      24, this->appid(), output);
+  }
+
+  // optional string appCategory = 25;
+  if (has_appcategory()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->appcategory().data(), this->appcategory().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      25, this->appcategory(), output);
+  }
+
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  if (has_aid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      26, this->aid(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -4086,14 +6399,14 @@ void MobileAdRequest::SerializeWithCachedSizes(
         1, this->id(), target);
   }
 
-  // required string aid = 2;
-  if (has_aid()) {
+  // optional string publishId = 2;
+  if (has_publishid()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->aid().data(), this->aid().length(),
+      this->publishid().data(), this->publishid().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->aid(), target);
+        2, this->publishid(), target);
   }
 
   // optional string version = 3;
@@ -4226,40 +6539,81 @@ void MobileAdRequest::SerializeWithCachedSizes(
         17, this->frequency(i), target);
   }
 
-  // optional string appType = 18;
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
+  for (int i = 0; i < this->appsession_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        18, this->appsession(i), target);
+  }
+
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+  for (int i = 0; i < this->adinsight_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        19, this->adinsight(i), target);
+  }
+
+  // optional string appType = 20;
   if (has_apptype()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->apptype().data(), this->apptype().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        18, this->apptype(), target);
+        20, this->apptype(), target);
   }
 
-  // optional string trafficQuality = 19;
+  // optional string trafficQuality = 21;
   if (has_trafficquality()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->trafficquality().data(), this->trafficquality().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        19, this->trafficquality(), target);
+        21, this->trafficquality(), target);
   }
 
-  // optional string inventoryQuality = 20;
+  // optional string inventoryQuality = 22;
   if (has_inventoryquality()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->inventoryquality().data(), this->inventoryquality().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        20, this->inventoryquality(), target);
+        22, this->inventoryquality(), target);
   }
 
-  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
+  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
   if (has_test()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      21, this->test(), target);
+      23, this->test(), target);
+  }
+
+  // optional string appID = 24;
+  if (has_appid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->appid().data(), this->appid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        24, this->appid(), target);
+  }
+
+  // optional string appCategory = 25;
+  if (has_appcategory()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->appcategory().data(), this->appcategory().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        25, this->appcategory(), target);
+  }
+
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  if (has_aid()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        26, this->aid(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -4280,11 +6634,11 @@ int MobileAdRequest::ByteSize() const {
           this->id());
     }
 
-    // required string aid = 2;
-    if (has_aid()) {
+    // optional string publishId = 2;
+    if (has_publishid()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->aid());
+          this->publishid());
     }
 
     // optional string version = 3;
@@ -4386,32 +6740,55 @@ int MobileAdRequest::ByteSize() const {
     }
 
   }
-  if (_has_bits_[17 / 32] & (0xffu << (17 % 32))) {
-    // optional string appType = 18;
+  if (_has_bits_[19 / 32] & (0xffu << (19 % 32))) {
+    // optional string appType = 20;
     if (has_apptype()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->apptype());
     }
 
-    // optional string trafficQuality = 19;
+    // optional string trafficQuality = 21;
     if (has_trafficquality()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->trafficquality());
     }
 
-    // optional string inventoryQuality = 20;
+    // optional string inventoryQuality = 22;
     if (has_inventoryquality()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->inventoryquality());
     }
 
-    // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
+    // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
     if (has_test()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->test());
+    }
+
+    // optional string appID = 24;
+    if (has_appid()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->appid());
+    }
+
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
+    // optional string appCategory = 25;
+    if (has_appcategory()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->appcategory());
+    }
+
+    // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+    if (has_aid()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->aid());
     }
 
   }
@@ -4421,6 +6798,22 @@ int MobileAdRequest::ByteSize() const {
     total_size +=
       ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
         this->frequency(i));
+  }
+
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
+  total_size += 2 * this->appsession_size();
+  for (int i = 0; i < this->appsession_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->appsession(i));
+  }
+
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+  total_size += 2 * this->adinsight_size();
+  for (int i = 0; i < this->adinsight_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->adinsight(i));
   }
 
   if (!unknown_fields().empty()) {
@@ -4449,12 +6842,14 @@ void MobileAdRequest::MergeFrom(const ::google::protobuf::Message& from) {
 void MobileAdRequest::MergeFrom(const MobileAdRequest& from) {
   GOOGLE_CHECK_NE(&from, this);
   frequency_.MergeFrom(from.frequency_);
+  appsession_.MergeFrom(from.appsession_);
+  adinsight_.MergeFrom(from.adinsight_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_id()) {
       set_id(from.id());
     }
-    if (from.has_aid()) {
-      set_aid(from.aid());
+    if (from.has_publishid()) {
+      set_publishid(from.publishid());
     }
     if (from.has_version()) {
       set_version(from.version());
@@ -4501,7 +6896,7 @@ void MobileAdRequest::MergeFrom(const MobileAdRequest& from) {
       mutable_geoinfo()->::com::rj::protos::mobile::MobileAdRequest_GeoInfo::MergeFrom(from.geoinfo());
     }
   }
-  if (from._has_bits_[17 / 32] & (0xffu << (17 % 32))) {
+  if (from._has_bits_[19 / 32] & (0xffu << (19 % 32))) {
     if (from.has_apptype()) {
       set_apptype(from.apptype());
     }
@@ -4513,6 +6908,17 @@ void MobileAdRequest::MergeFrom(const MobileAdRequest& from) {
     }
     if (from.has_test()) {
       set_test(from.test());
+    }
+    if (from.has_appid()) {
+      set_appid(from.appid());
+    }
+  }
+  if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
+    if (from.has_appcategory()) {
+      set_appcategory(from.appcategory());
+    }
+    if (from.has_aid()) {
+      mutable_aid()->::com::rj::protos::mobile::MobileAdRequest_Aid::MergeFrom(from.aid());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -4531,7 +6937,6 @@ void MobileAdRequest::CopyFrom(const MobileAdRequest& from) {
 }
 
 bool MobileAdRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
 
   return true;
 }
@@ -4539,7 +6944,7 @@ bool MobileAdRequest::IsInitialized() const {
 void MobileAdRequest::Swap(MobileAdRequest* other) {
   if (other != this) {
     std::swap(id_, other->id_);
-    std::swap(aid_, other->aid_);
+    std::swap(publishid_, other->publishid_);
     std::swap(version_, other->version_);
     std::swap(type_, other->type_);
     std::swap(timestamp_, other->timestamp_);
@@ -4555,10 +6960,15 @@ void MobileAdRequest::Swap(MobileAdRequest* other) {
     std::swap(user_, other->user_);
     std::swap(geoinfo_, other->geoinfo_);
     frequency_.Swap(&other->frequency_);
+    appsession_.Swap(&other->appsession_);
+    adinsight_.Swap(&other->adinsight_);
     std::swap(apptype_, other->apptype_);
     std::swap(trafficquality_, other->trafficquality_);
     std::swap(inventoryquality_, other->inventoryquality_);
     std::swap(test_, other->test_);
+    std::swap(appid_, other->appid_);
+    std::swap(appcategory_, other->appcategory_);
+    std::swap(aid_, other->aid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

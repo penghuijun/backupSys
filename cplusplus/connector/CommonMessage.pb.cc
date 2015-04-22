@@ -19,7 +19,6 @@
 namespace com {
 namespace rj {
 namespace protos {
-namespace msg {
 
 namespace {
 
@@ -37,10 +36,11 @@ void protobuf_AssignDesc_CommonMessage_2eproto() {
       "CommonMessage.proto");
   GOOGLE_CHECK(file != NULL);
   CommonMessage_descriptor_ = file->message_type(0);
-  static const int CommonMessage_offsets_[3] = {
+  static const int CommonMessage_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommonMessage, businesscode_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommonMessage, datacodingtype_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommonMessage, data_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommonMessage, ttl_),
   };
   CommonMessage_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -83,9 +83,10 @@ void protobuf_AddDesc_CommonMessage_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\023CommonMessage.proto\022\021com.rj.protos.msg"
-    "\"K\n\rCommonMessage\022\024\n\014businessCode\030\001 \002(\t\022"
-    "\026\n\016dataCodingType\030\002 \001(\t\022\014\n\004data\030\003 \002(\014", 117);
+    "\n\023CommonMessage.proto\022\rcom.rj.protos\"X\n\r"
+    "CommonMessage\022\024\n\014businessCode\030\001 \002(\t\022\026\n\016d"
+    "ataCodingType\030\002 \001(\t\022\014\n\004data\030\003 \002(\014\022\013\n\003ttl"
+    "\030\004 \001(\t", 126);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "CommonMessage.proto", &protobuf_RegisterTypes);
   CommonMessage::default_instance_ = new CommonMessage();
@@ -106,6 +107,7 @@ struct StaticDescriptorInitializer_CommonMessage_2eproto {
 const int CommonMessage::kBusinessCodeFieldNumber;
 const int CommonMessage::kDataCodingTypeFieldNumber;
 const int CommonMessage::kDataFieldNumber;
+const int CommonMessage::kTtlFieldNumber;
 #endif  // !_MSC_VER
 
 CommonMessage::CommonMessage()
@@ -127,6 +129,7 @@ void CommonMessage::SharedCtor() {
   businesscode_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   datacodingtype_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   data_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  ttl_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -143,6 +146,9 @@ void CommonMessage::SharedDtor() {
   }
   if (data_ != &::google::protobuf::internal::kEmptyString) {
     delete data_;
+  }
+  if (ttl_ != &::google::protobuf::internal::kEmptyString) {
+    delete ttl_;
   }
   if (this != default_instance_) {
   }
@@ -184,6 +190,11 @@ void CommonMessage::Clear() {
     if (has_data()) {
       if (data_ != &::google::protobuf::internal::kEmptyString) {
         data_->clear();
+      }
+    }
+    if (has_ttl()) {
+      if (ttl_ != &::google::protobuf::internal::kEmptyString) {
+        ttl_->clear();
       }
     }
   }
@@ -240,6 +251,23 @@ bool CommonMessage::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(34)) goto parse_ttl;
+        break;
+      }
+
+      // optional string ttl = 4;
+      case 4: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
+         parse_ttl:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_ttl()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+            this->ttl().data(), this->ttl().length(),
+            ::google::protobuf::internal::WireFormat::PARSE);
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -286,6 +314,15 @@ void CommonMessage::SerializeWithCachedSizes(
       3, this->data(), output);
   }
 
+  // optional string ttl = 4;
+  if (has_ttl()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->ttl().data(), this->ttl().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      4, this->ttl(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -321,6 +358,16 @@ void CommonMessage::SerializeWithCachedSizes(
         3, this->data(), target);
   }
 
+  // optional string ttl = 4;
+  if (has_ttl()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
+      this->ttl().data(), this->ttl().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE);
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        4, this->ttl(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -351,6 +398,13 @@ int CommonMessage::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::BytesSize(
           this->data());
+    }
+
+    // optional string ttl = 4;
+    if (has_ttl()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->ttl());
     }
 
   }
@@ -389,6 +443,9 @@ void CommonMessage::MergeFrom(const CommonMessage& from) {
     if (from.has_data()) {
       set_data(from.data());
     }
+    if (from.has_ttl()) {
+      set_ttl(from.ttl());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -416,6 +473,7 @@ void CommonMessage::Swap(CommonMessage* other) {
     std::swap(businesscode_, other->businesscode_);
     std::swap(datacodingtype_, other->datacodingtype_);
     std::swap(data_, other->data_);
+    std::swap(ttl_, other->ttl_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -433,7 +491,6 @@ void CommonMessage::Swap(CommonMessage* other) {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace msg
 }  // namespace protos
 }  // namespace rj
 }  // namespace com

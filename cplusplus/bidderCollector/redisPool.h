@@ -12,6 +12,10 @@
 #include <sys/time.h>
 #include "hiredis.h"
 #include "lock.h"
+
+#include "spdlog/spdlog.h"
+
+extern shared_ptr<spdlog::logger> g_manager_logger;
 using namespace std;
 
 
@@ -55,17 +59,17 @@ public:
 		m_context = redisConnect(m_redis_ip.c_str(), m_redis_port);
 		if(m_context == NULL) 
 		{
-			cerr <<"connectaRedis failure:: context is null" << endl;
+			g_manager_logger->error("connect Redis failure:: context is null");
 			return false;
 		}
 		if(m_context->err)
 		{
+			g_manager_logger->error("connect Redis failure:{0}", m_context->errstr);			
 			redis_free();
-			cerr <<"connectaRedis failure" << endl;
 			return false;
 		}
 
-		cerr << "connectaRedis success:" <<m_redis_ip<<":"<< m_redis_port<< endl;
+		g_manager_logger->info("connect to redis success:{0}, {1:d}", m_redis_ip, m_redis_port);
 		return true;	
 	}
 
@@ -75,7 +79,7 @@ public:
 		return redis_connect();
 	}
 
-	bool redis_hset_request(char *key, char *field, char* value, int len )
+	bool redis_hset_request_expire(const char *key,const char *field,const char* value, int len, unsigned short expireTime)
 	{
 		if(m_context == NULL)
 		{
@@ -95,18 +99,73 @@ public:
 				ply= (redisReply *)redisCommand(m_context, "hset %s %s %b", key, field, value, len);
 				if(ply == NULL)
 				{
-					cerr<<"redis_hset_request redisCommand error"<<endl;
+					g_manager_logger->error("redis_hset_request redisCommand error");
 					return false;
 				}
 				freeReplyObject(ply);	
 				return true;
 			}
-			cerr<<"redis_hset_request redisCommand error"<<endl;
+			g_manager_logger->error("redis_hset_request redisCommand error");
+			return false;
+		}
+		freeReplyObject(ply);
+		
+		ply= (redisReply *)redisCommand(m_context, "expire %s %d", key, expireTime);
+		if(ply==NULL)
+		{
+			redis_free();
+			bool ret = redis_connect();
+			if(ret)
+			{
+				ply= (redisReply *)redisCommand(m_context, "expire %s %d", key, expireTime);
+				if(ply == NULL)
+				{
+					g_manager_logger->error("expire {0} failure", key);
+					return false;
+				}
+				freeReplyObject(ply);	
+				return true;
+			}
+			g_manager_logger->error("expire {0} failure", key);			
+			return false;
+		}
+		freeReplyObject(ply);
+		return true;		
+	}
+
+	bool redis_lpush(const char *key, const char* value, int len)
+	{
+		if(m_context == NULL)
+		{
+			bool ret = redis_connect();
+			if(ret == false)
+			{
+				return false;
+			}
+		}
+		redisReply *ply= (redisReply *)redisCommand(m_context, "lpush  %s %b", key, value, len);
+		if(ply == NULL)
+		{
+			redis_free();
+			bool ret = redis_connect();
+			if(ret)
+			{
+				ply= (redisReply *)redisCommand(m_context, "lpush  %s %b", key, value, len);
+				if(ply == NULL)
+				{
+					g_manager_logger->error("redis_lpush redisCommand error");
+					return false;
+				}
+				freeReplyObject(ply);	
+				return true;
+			}
+			g_manager_logger->error("redis_lpush redisCommand error");
 			return false;
 		}
 		freeReplyObject(ply);	
 		return true;		
 	}
+
 
 	bool get_redis()
 	{
@@ -167,6 +226,7 @@ public:
 	{
 		redis_free();
 		m_redisClient_lock.destroy();
+
 	}
 private:
 	bool           m_stop = false;

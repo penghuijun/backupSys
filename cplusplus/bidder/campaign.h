@@ -8,7 +8,7 @@
 #include <map>
 #include <set>
 #include <list>
-#include "bidderConfig.h"
+#include "adConfig.h"
 #include "hiredis.h"
 #include "zmq.h"
 #include "document.h"		// rapidjson's DOM-style API
@@ -20,52 +20,20 @@
 #include "AdBidderResponseTemplate.pb.h"
 #include "MobileAdResponse.pb.h"
 #include "MobileAdRequest.pb.h"
+#include "campaign_proto.pb.h"
 #include "redisPool.h"
 #include "lock.h"
+#include "spdlog/spdlog.h"
 
 using namespace com::rj::protos::mobile;
 using namespace com::rj::protos::msg;
 using namespace com::rj::protos;
+using namespace com::rj::targeting::protos;
 using namespace std;
 
-class campaign_target_json
-{
-public:
-	campaign_target_json(){}
-	void add_campaignID(int id){m_list.push_back(id);}
-	void add_action(string &action){m_action=action;}
-	string& get_action(){return m_action;}
-	vector<int>& get_list(){return m_list;}
-	int  get_list_size(){return m_list.size();}
-	bool has_valid_data(){return (m_list.size()!=0);}
-	void display()
-	{
-		cout<<"action:"<<m_action<<endl;
-		int idx = 0;
-		for(auto it=m_list.begin(); it != m_list.end(); it++, idx++)
-		{
-			cout <<*it<<"   ";
-			if((idx !=0)&&(idx%20)==0) cout<<endl;
-		}
-		cout<<endl;
-	}
-	bool include_in(int id)
-	{
-		for(auto it = m_list.begin(); it != m_list.end(); it++)
-		{
-			int res =  *it;
-			if(res==id)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-	~campaign_target_json(){}
-private:
-	string m_action;
-	vector<int> m_list;
-};
+extern shared_ptr<spdlog::logger> g_file_logger;
+extern shared_ptr<spdlog::logger> g_manager_logger;
+extern shared_ptr<spdlog::logger> g_worker_logger;
 
 class campaign_target_frequency
 {
@@ -94,8 +62,8 @@ public:
 
 	void display()
 	{
-		cout<<"frequency:"<<endl;
-		cout<<m_lifeTime<<"  "<<m_month<<"  "<<m_week<<"  "<<m_day<<"   "<<m_fiveMinute<<endl;
+		g_worker_logger->trace("frequency:");
+		g_worker_logger->trace("{0:d},{1:d},{2:d},{3:d},{4:d}", m_lifeTime, m_month, m_week, m_day, m_fiveMinute);
 	}
 	~campaign_target_frequency(){}
 private:
@@ -128,9 +96,9 @@ public:
 	string& get_macro(){return m_macro;}
 	void display()
 	{
-		cout<<"id:"<<m_id<<endl;
-		cout<<"m_content:"<<m_content<<endl;
-		cout<<"m_macro:"<<m_macro<<endl;
+		g_worker_logger->trace("creative id:{0:d}", m_id);
+		g_worker_logger->trace("creative content:{0}", m_content);
+		g_worker_logger->trace("creative macro:{0}", m_macro);
 	}
 private:
 	int m_id;
@@ -142,28 +110,22 @@ class campaign_action
 {
 public:
 	campaign_action(){}
-	campaign_action(string& actionTypeName, bool inApp, string& content, string &name)
+	campaign_action(string& actionTypeName, string& inApp, string& content)
 	{
-		set(actionTypeName, inApp, content, name);
+		set(actionTypeName, inApp, content);
 	}
-	void set(string& actionTypeName, bool inApp, string& content, string &name)
+	void set(const string& actionTypeName,const string& inApp,const string& content)
 	{
 		m_actionTypeName = actionTypeName;
 		m_inApp = inApp;
 		m_content = content;
-		m_name = name;
 	}
 	
-	void set_name(string &name)
-	{
-		m_name = name;
-	}
-
 	void set_actionTypeName(string &actionTypeName)
 	{
 		m_actionTypeName = actionTypeName;
 	}
-	void set_inApp(bool inApp)
+	void set_inApp(string& inApp)
 	{
 		m_inApp = inApp;
 	}
@@ -172,75 +134,21 @@ public:
 		m_content = content;
 	}
 
-	string &get_name(){return m_name;}
-	string &get_actionTypeName(){return m_actionTypeName;}
-	bool    get_inApp(){return m_inApp;}
-	string &get_content(){return m_content;}
+	const string &get_actionTypeName() const{return m_actionTypeName;}
+	const string &get_inApp() const{return m_inApp;}
+	const string &get_content() const{return m_content;}
 	~campaign_action(){}
 private:
-	string m_name;
 	string m_actionTypeName;
-	bool   m_inApp;
+	string m_inApp;
 	string m_content;
 };
 
-class campaign_creative
+class verifyTarget
 {
 public:
-	campaign_creative(){}
-	campaign_creative(string& size)
-	{
-		set_size(size);
-	}
-	void set_size(string& size){m_size=size;}
-	string& get_size(){return m_size;}
-	vector<creative_structure*>& get_creative_data(){return m_createData;}
-	void add_creative_data(int id, string& content, string& macro)
-	{
-		creative_structure* data=new creative_structure(id, content, macro);
-		m_createData.push_back(data);
-		
-	}
-	void add_creative_data(creative_structure* data)
-	{
-		m_createData.push_back(data);	
-	}
-	void display()
-	{
-		cout<<"size:"<<m_size<<endl;
-		for(auto it = m_createData.begin(); it != m_createData.end(); it++)
-		{
-			creative_structure* data=*it;
-			data->display();
-		}
-	}
-	~campaign_creative()
-	{
-		for(auto it=m_createData.begin(); it != m_createData.end();)
-		{
-			delete *it;
-			it=m_createData.erase(it);
-		}
-	}
-private:
-	string m_size;
-	vector<creative_structure*> m_createData;
-};
-
-
-
-class campaign_target
-{
-public:
-	campaign_target(){}
-	bool parseCampaignTarget(const rapidjson::Value &tmp_obj, campaign_target_json& target_obj);
-	bool parseCampaignTarget_array(const rapidjson::Value &tmp_obj, vector<int>& array);
-	bool parseCampaignTarget_int(const rapidjson::Value & tmp_obj, int &imps);
-	bool parseCampaignTarget_string(const rapidjson::Value & tmp_obj, string &imps);
-	bool parseCampaignTarget_bool(const rapidjson::Value & tmp_obj, bool &result);
-	bool parseCampaignTarget_frequency(const rapidjson::Value & tmp_obj,campaign_target_frequency& target_obj);
-	bool parse(const rapidjson::Value &targeting_obj);
-	bool is_number(string& str)
+	verifyTarget(){}
+	bool is_number(const string& str)
 	{
 		const char *id_str = str.c_str();
 		size_t id_size = str.size();
@@ -252,139 +160,180 @@ public:
 		}
 		return true;
 	}
-	
 
-	void display(vector<int>& array);
-    bool target_valid(target_set &target_obj, string &ventory, const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >& frequency,int camp_id);
-	void display();
-	~campaign_target(){}
+	bool appCriteria_valid(const CampaignProtoEntity_Targeting_AppCriteria& appcriteria, const string& request_appid);
+
+	void set_supmapp(const string &res)
+	{
+		m_target_supmapp = res;
+	}
+	void set_supmweb(const string& res)
+	{
+		m_target_supmweb = res;
+	}
+	void set_devphone(const string &res)
+	{
+		m_target_devphone = res;
+	}
+	void set_devtablet(const string &res)
+	{
+		m_target_devtablet = res;
+	}
+	void set_traffic(const string& res)         
+	{
+		m_target_traffic = res;
+	}
+	void set_inventory(const string &res) 
+	{
+		m_target_inventory = res;
+	}
+	void set_appid(const string &res)
+	{
+		if(is_number(res))m_target_appid = res;
+	}
+	void set_appcategory(const string &res)
+	{
+		if(is_number(res)) m_target_appcategory = res;
+	}
+
+	string& get_supmapp(){return m_target_supmapp;}
+	string& get_supmweb(){return m_target_supmweb;}
+	string& get_devphone(){return m_target_devphone;}
+	string& get_devTablet(){return m_target_devtablet;}
+	string& get_traffic(){return m_target_traffic;}
+	string& get_inventory(){return m_target_inventory;}
+	string& get_appid(){return m_target_appid;}
+	string& get_appcategory(){return m_target_appcategory;}
+
+	bool target_valid(const CampaignProtoEntity_Targeting &camp_target);
+	void display(shared_ptr<spdlog::logger>& file_logger);
+	~verifyTarget(){}
 private:
-	campaign_target_json m_target_country;
-	campaign_target_json m_target_region;
-	campaign_target_json m_target_city;
-	campaign_target_json m_target_family;
-	campaign_target_json m_target_version;
-	campaign_target_json m_target_vendor;
-	campaign_target_json m_target_model;
-	campaign_target_json m_target_lang;
-	campaign_target_json m_target_carrier;
-	campaign_target_json m_target_conntype;
-	vector<int> m_target_daypart;
-	campaign_target_frequency m_target_frequency;
-	int m_target_seimps=0;
-	bool m_target_supmapp;
-	bool m_target_supmweb;
-	bool m_target_devphone;
-	bool m_target_devtablet;
-	int  m_target_traffic;
+	string m_target_supmapp;
+	string m_target_supmweb;
+	string m_target_devphone;
+	string m_target_devtablet;
+	string m_target_traffic;
 	string m_target_inventory;
+	string m_target_appid;
+	string m_target_appcategory;
 };
 
 
-class campaign_structure
+class campaignInformation
 {
 public:
-	campaign_structure(){}
-	//void set_id(string &id){m_id=id;}
-	bool parse_target(const rapidjson::Value &targeting_obj)
+	campaignInformation()
 	{
-		return m_target.parse(targeting_obj);
 	}
 	bool parse_action(const rapidjson::Value &tmp_obj);
-	bool parse_campaign(string &campaign_json);
-	void display();
-    bool campaign_valid(target_set &target_obj, string &ventory, const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >& frequency)
-    {
-    	return m_target.target_valid(target_obj, ventory, frequency, m_id);
-    }
+	bool parse_campaign( char *data, int dataLen , verifyTarget& cam_target, string& creativeSize, MobileAdRequest &mobile_request);
 
-	int get_id(){return m_id;}
-	string &get_name(){return m_name;}
-	string &get_code(){return m_code;}
+	bool frequency_valid(	const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >& frequency
+        ,const CampaignProtoEntity_Targeting_Frequency& camp_frequency);
+    bool expectecpm(MobileAdRequest &mobile_request, CampaignProtoEntity &campaign_proto, string& invetory);
+    bool set_appSession(MobileAdRequest &mobile_request, const CampaignProtoEntity_Targeting& camp_targeting);
+
+
+	bool parseCreativeSize(const string &creativeSize, int &width, int &height);
+	string &get_id(){return m_id;}
 	string &get_state(){return m_state;}
-	string &get_deliveryChanel(){return m_deliveryChannel;}
 	string &get_biddingType(){return m_biddingType;}
-	double get_biddingValue(){return m_biddingValue;}
+	string &get_biddingValue(){return m_biddingValue;}
 	string &get_curency(){return m_curency;}
-	int    get_biddingAgent(){return m_biddingAgent;}
-	uint64_t get_startDate(){return m_starttDate;}
-	uint64_t get_endDate(){return m_endDate;}
-	string &get_budgetType(){return m_budgetType;}
-	int     get_impressionLifetimeBudget(){return m_impressionLifetimeBudget;}
-	int     get_impressionDailyBudget(){return m_impressionDailyBudget;}
-	string &get_impressionDailyPacing(){return m_impressionDailyPacing;}
-	int     get_mediacostLifetimeBudget(){return m_mediacostLifetimeBudget;}
-	int     get_mediacostDailyBudget(){return m_mediacostDailyBudget;}
-	string &get_mediacostDailyPacing(){return m_mediacostDailyPacing;}
-	int     get_advertiserID(){return m_advertiserID;}
-	int     get_dealID(){return m_dealID;}
-	uint64_t get_createAt(){return m_createAt;}
-	uint64_t get_updateAt(){return m_updateAt;}
-	int     get_frequencyLifetime(){return m_frequencyLifetime;}
-	int     get_frequencyDay(){return m_frequencyDay;}
-	int     get_frequencyMinute(){return m_frequencyMinute;}
-	int     get_frequencyMinuteType(){return m_frequencyMinuteType;}
-	int     get_daypartTimezone(){return m_daypartTimezone;}
-	
-	vector<campaign_creative*>& get_creatives(){return m_creatives;}
-	campaign_target& get_campaign_target(){return m_target;}	
-	campaign_action& get_campaign_action(){return m_action;}
+	string &get_advertiserID(){return m_advertiserID;}
+	string &get_creativeID(){return m_creativeID;}
+	string &get_categoryID(){return m_caterogyID;}
+	string &get_mediaTypeID(){return m_mediaTypeID;}
+	string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
+	string &get_expectEcmp(){return m_expectEcmp;}
+	const campaign_action& get_campaign_action() const {return m_action;}
 
-	campaign_creative* find_creative_by_size(string &size)
+	void set_camFrequecy(bool res){m_camFrequecy = res;}
+	bool get_camFrequecy(){return m_camFrequecy;}
+	bool get_camAppSession(){return m_camAppSession;}
+
+	void display();	
+	~campaignInformation()
 	{
-		for(auto it = m_creatives.begin(); it != m_creatives.end(); it++)
-		{
-			campaign_creative* cre = *it;
-			if(cre)
-			{
-				string creSize = cre->get_size();
-				if(size == creSize) return cre;
-			}
-		}
-		return NULL;
 	}
-	
-	~campaign_structure()
+private:
+	string   m_id;
+	string   m_curency;
+	string   m_state;
+	string   m_biddingType;
+	string   m_biddingValue;
+	string   m_advertiserID;
+	campaign_action m_action;
+	string   m_creativeID;
+	string   m_caterogyID;
+	string   m_mediaTypeID;
+	string   m_mediaSubTypeID;
+	bool     m_camAppSession = false;
+	bool     m_camFrequecy = false;
+	string   m_expectEcmp;
+};
+
+
+class campaignInfoManager
+{
+public:
+	campaignInfoManager()
 	{
-		for(auto it= m_creatives.begin(); it != m_creatives.end();)
+	}
+
+	void add_campaign(campaignInformation* campaign)
+	{
+		m_campaignInfoList.push_back(campaign);
+	}
+
+	campaignInformation* get_campaign(int idx)
+	{
+		return m_campaignInfoList.at(idx);
+	}
+
+	vector<campaignInformation*> &get_campaignInfoList(){return m_campaignInfoList;}
+
+	bool parse_campaingnStringList( vector<stringBuffer*>& campaignStringList, verifyTarget& target_verify_set
+		, string &creativeSize, MobileAdRequest &mobile_request)
+	{
+		for(auto it = campaignStringList.begin(); it != campaignStringList.end(); it++)
 		{
-			campaign_creative *data=*it;
-			delete data;
-			it=m_creatives.erase(it);
+			stringBuffer* campaignStr = *it;
+			if(campaignStr == NULL) continue; 
+			campaignInformation *campaignInfoPtr = new campaignInformation;
+			if(campaignInfoPtr->parse_campaign( campaignStr->get_data(), campaignStr->get_dataLen()
+				, target_verify_set, creativeSize, mobile_request)==false)
+			{
+				delete campaignInfoPtr;
+				continue;
+			}
+			m_campaignInfoList.push_back(campaignInfoPtr);;
+		}
+
+		return ((m_campaignInfoList.size() != 0)? true:false);
+	}
+
+	
+	void display()
+	{
+		for(auto it = m_campaignInfoList.begin(); it != m_campaignInfoList.end();)
+		{
+			campaignInformation *campaign = *it;
+			if(campaign) campaign->display();
+		}	
+	}
+	~campaignInfoManager()
+	{
+		for(auto it = m_campaignInfoList.begin(); it != m_campaignInfoList.end();)
+		{
+			delete *it;
+			it = m_campaignInfoList.erase(it);
 		}
 	}
 private:
-	int      m_id=0;
-	string   m_name;
-	string   m_code;
-	string   m_state;
-	string   m_deliveryChannel;
-	string   m_biddingType;
-	string   m_curency;
-	double   m_biddingValue=0;
-	int      m_biddingAgent=0;
-	uint64_t m_starttDate=0;
-	uint64_t m_endDate=0;
-	string   m_budgetType;
-	int m_impressionLifetimeBudget=0;
-	int m_impressionDailyBudget=0;
-	string   m_impressionDailyPacing;
-	int m_mediacostLifetimeBudget=0;
-	int m_mediacostDailyBudget=0;
-	string   m_mediacostDailyPacing;
-	int m_advertiserID=0;
-	int m_dealID=0;
-	uint64_t m_createAt=0;
-	uint64_t m_updateAt=0;
-	int m_frequencyLifetime=0;
-	int m_frequencyDay=0;
-	int m_frequencyMinute=0;
-	int m_sessionImps=0;
-	int m_frequencyMinuteType=0;
-	int m_daypartTimezone=0;
-	vector<campaign_creative*> m_creatives;
-	campaign_target m_target;
-	campaign_action m_action;
+	vector<campaignInformation*> m_campaignInfoList;
 };
+
 
 #endif

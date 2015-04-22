@@ -1,0 +1,14 @@
+#throttleServConfig
+throttleIP=192.168.20.129;
+throttleAdPort=5007;
+throttlePubPort=5010;
+throttleWorkNum=1;
+vastBusinessCode=5.1;
+mobileBusinessCode=7.1;
+publishPipeNum=10;
+publishInfo{
+pubKey=5.1;
+pubPipe=0,1,2,3,4,5,6,7,8,9,10;
+pubKey=1;
+pubPipe=19,11;
+} 

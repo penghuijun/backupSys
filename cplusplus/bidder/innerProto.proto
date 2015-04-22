@@ -1,0 +1,10 @@
+package com.rj.targeting.protos;
+message innerProtoEntity{
+	required msgType msgtype = 1;
+	optional string buf = 2;
+	enum msgType
+	{
+		msg_redisAddr = 0;
+	}
+} 
+

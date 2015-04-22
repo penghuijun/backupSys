@@ -38,8 +38,11 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto();
 void protobuf_ShutdownFile_MobileAdRequest_2eproto();
 
 class MobileAdRequest;
+class MobileAdRequest_Aid;
+class MobileAdRequest_AppSession;
 class MobileAdRequest_Frequency;
 class MobileAdRequest_Frequency_FrequencyValue;
+class MobileAdRequest_AdInsight;
 class MobileAdRequest_User;
 class MobileAdRequest_Device;
 class MobileAdRequest_GeoInfo;
@@ -122,29 +125,555 @@ inline bool MobileAdRequest_AdType_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<MobileAdRequest_AdType>(
     MobileAdRequest_AdType_descriptor(), name, value);
 }
-enum MobileAdRequest_ConnectionType {
-  MobileAdRequest_ConnectionType_UNKNOWN = 0,
-  MobileAdRequest_ConnectionType_WIFI = 1,
-  MobileAdRequest_ConnectionType_G2 = 2,
-  MobileAdRequest_ConnectionType_G3 = 3,
-  MobileAdRequest_ConnectionType_G4 = 4
-};
-bool MobileAdRequest_ConnectionType_IsValid(int value);
-const MobileAdRequest_ConnectionType MobileAdRequest_ConnectionType_ConnectionType_MIN = MobileAdRequest_ConnectionType_UNKNOWN;
-const MobileAdRequest_ConnectionType MobileAdRequest_ConnectionType_ConnectionType_MAX = MobileAdRequest_ConnectionType_G4;
-const int MobileAdRequest_ConnectionType_ConnectionType_ARRAYSIZE = MobileAdRequest_ConnectionType_ConnectionType_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* MobileAdRequest_ConnectionType_descriptor();
-inline const ::std::string& MobileAdRequest_ConnectionType_Name(MobileAdRequest_ConnectionType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    MobileAdRequest_ConnectionType_descriptor(), value);
-}
-inline bool MobileAdRequest_ConnectionType_Parse(
-    const ::std::string& name, MobileAdRequest_ConnectionType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<MobileAdRequest_ConnectionType>(
-    MobileAdRequest_ConnectionType_descriptor(), name, value);
-}
 // ===================================================================
+
+class MobileAdRequest_Aid : public ::google::protobuf::Message {
+ public:
+  MobileAdRequest_Aid();
+  virtual ~MobileAdRequest_Aid();
+
+  MobileAdRequest_Aid(const MobileAdRequest_Aid& from);
+
+  inline MobileAdRequest_Aid& operator=(const MobileAdRequest_Aid& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MobileAdRequest_Aid& default_instance();
+
+  void Swap(MobileAdRequest_Aid* other);
+
+  // implements Message ----------------------------------------------
+
+  MobileAdRequest_Aid* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MobileAdRequest_Aid& from);
+  void MergeFrom(const MobileAdRequest_Aid& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
+
+  // optional string status = 2;
+  inline bool has_status() const;
+  inline void clear_status();
+  static const int kStatusFieldNumber = 2;
+  inline const ::std::string& status() const;
+  inline void set_status(const ::std::string& value);
+  inline void set_status(const char* value);
+  inline void set_status(const char* value, size_t size);
+  inline ::std::string* mutable_status();
+  inline ::std::string* release_status();
+  inline void set_allocated_status(::std::string* status);
+
+  // optional string network_id = 3;
+  inline bool has_network_id() const;
+  inline void clear_network_id();
+  static const int kNetworkIdFieldNumber = 3;
+  inline const ::std::string& network_id() const;
+  inline void set_network_id(const ::std::string& value);
+  inline void set_network_id(const char* value);
+  inline void set_network_id(const char* value, size_t size);
+  inline ::std::string* mutable_network_id();
+  inline ::std::string* release_network_id();
+  inline void set_allocated_network_id(::std::string* network_id);
+
+  // optional string network_reselling = 4;
+  inline bool has_network_reselling() const;
+  inline void clear_network_reselling();
+  static const int kNetworkResellingFieldNumber = 4;
+  inline const ::std::string& network_reselling() const;
+  inline void set_network_reselling(const ::std::string& value);
+  inline void set_network_reselling(const char* value);
+  inline void set_network_reselling(const char* value, size_t size);
+  inline ::std::string* mutable_network_reselling();
+  inline ::std::string* release_network_reselling();
+  inline void set_allocated_network_reselling(::std::string* network_reselling);
+
+  // optional string network_reselling_share = 5;
+  inline bool has_network_reselling_share() const;
+  inline void clear_network_reselling_share();
+  static const int kNetworkResellingShareFieldNumber = 5;
+  inline const ::std::string& network_reselling_share() const;
+  inline void set_network_reselling_share(const ::std::string& value);
+  inline void set_network_reselling_share(const char* value);
+  inline void set_network_reselling_share(const char* value, size_t size);
+  inline ::std::string* mutable_network_reselling_share();
+  inline ::std::string* release_network_reselling_share();
+  inline void set_allocated_network_reselling_share(::std::string* network_reselling_share);
+
+  // optional string publisher_id = 6;
+  inline bool has_publisher_id() const;
+  inline void clear_publisher_id();
+  static const int kPublisherIdFieldNumber = 6;
+  inline const ::std::string& publisher_id() const;
+  inline void set_publisher_id(const ::std::string& value);
+  inline void set_publisher_id(const char* value);
+  inline void set_publisher_id(const char* value, size_t size);
+  inline ::std::string* mutable_publisher_id();
+  inline ::std::string* release_publisher_id();
+  inline void set_allocated_publisher_id(::std::string* publisher_id);
+
+  // optional string app_currency = 7;
+  inline bool has_app_currency() const;
+  inline void clear_app_currency();
+  static const int kAppCurrencyFieldNumber = 7;
+  inline const ::std::string& app_currency() const;
+  inline void set_app_currency(const ::std::string& value);
+  inline void set_app_currency(const char* value);
+  inline void set_app_currency(const char* value, size_t size);
+  inline ::std::string* mutable_app_currency();
+  inline ::std::string* release_app_currency();
+  inline void set_allocated_app_currency(::std::string* app_currency);
+
+  // optional string app_resell = 8;
+  inline bool has_app_resell() const;
+  inline void clear_app_resell();
+  static const int kAppResellFieldNumber = 8;
+  inline const ::std::string& app_resell() const;
+  inline void set_app_resell(const ::std::string& value);
+  inline void set_app_resell(const char* value);
+  inline void set_app_resell(const char* value, size_t size);
+  inline ::std::string* mutable_app_resell();
+  inline ::std::string* release_app_resell();
+  inline void set_allocated_app_resell(::std::string* app_resell);
+
+  // optional string app_direct_payment_model = 9;
+  inline bool has_app_direct_payment_model() const;
+  inline void clear_app_direct_payment_model();
+  static const int kAppDirectPaymentModelFieldNumber = 9;
+  inline const ::std::string& app_direct_payment_model() const;
+  inline void set_app_direct_payment_model(const ::std::string& value);
+  inline void set_app_direct_payment_model(const char* value);
+  inline void set_app_direct_payment_model(const char* value, size_t size);
+  inline ::std::string* mutable_app_direct_payment_model();
+  inline ::std::string* release_app_direct_payment_model();
+  inline void set_allocated_app_direct_payment_model(::std::string* app_direct_payment_model);
+
+  // optional string app_direct_payment_value = 10;
+  inline bool has_app_direct_payment_value() const;
+  inline void clear_app_direct_payment_value();
+  static const int kAppDirectPaymentValueFieldNumber = 10;
+  inline const ::std::string& app_direct_payment_value() const;
+  inline void set_app_direct_payment_value(const ::std::string& value);
+  inline void set_app_direct_payment_value(const char* value);
+  inline void set_app_direct_payment_value(const char* value, size_t size);
+  inline ::std::string* mutable_app_direct_payment_value();
+  inline ::std::string* release_app_direct_payment_value();
+  inline void set_allocated_app_direct_payment_value(::std::string* app_direct_payment_value);
+
+  // optional string app_indrect_payment_model = 11;
+  inline bool has_app_indrect_payment_model() const;
+  inline void clear_app_indrect_payment_model();
+  static const int kAppIndrectPaymentModelFieldNumber = 11;
+  inline const ::std::string& app_indrect_payment_model() const;
+  inline void set_app_indrect_payment_model(const ::std::string& value);
+  inline void set_app_indrect_payment_model(const char* value);
+  inline void set_app_indrect_payment_model(const char* value, size_t size);
+  inline ::std::string* mutable_app_indrect_payment_model();
+  inline ::std::string* release_app_indrect_payment_model();
+  inline void set_allocated_app_indrect_payment_model(::std::string* app_indrect_payment_model);
+
+  // optional string app_indrect_payment_value = 12;
+  inline bool has_app_indrect_payment_value() const;
+  inline void clear_app_indrect_payment_value();
+  static const int kAppIndrectPaymentValueFieldNumber = 12;
+  inline const ::std::string& app_indrect_payment_value() const;
+  inline void set_app_indrect_payment_value(const ::std::string& value);
+  inline void set_app_indrect_payment_value(const char* value);
+  inline void set_app_indrect_payment_value(const char* value, size_t size);
+  inline ::std::string* mutable_app_indrect_payment_value();
+  inline ::std::string* release_app_indrect_payment_value();
+  inline void set_allocated_app_indrect_payment_value(::std::string* app_indrect_payment_value);
+
+  // repeated string app_keywords = 13;
+  inline int app_keywords_size() const;
+  inline void clear_app_keywords();
+  static const int kAppKeywordsFieldNumber = 13;
+  inline const ::std::string& app_keywords(int index) const;
+  inline ::std::string* mutable_app_keywords(int index);
+  inline void set_app_keywords(int index, const ::std::string& value);
+  inline void set_app_keywords(int index, const char* value);
+  inline void set_app_keywords(int index, const char* value, size_t size);
+  inline ::std::string* add_app_keywords();
+  inline void add_app_keywords(const ::std::string& value);
+  inline void add_app_keywords(const char* value);
+  inline void add_app_keywords(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_keywords() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_keywords();
+
+  // repeated string app_support_language = 14;
+  inline int app_support_language_size() const;
+  inline void clear_app_support_language();
+  static const int kAppSupportLanguageFieldNumber = 14;
+  inline const ::std::string& app_support_language(int index) const;
+  inline ::std::string* mutable_app_support_language(int index);
+  inline void set_app_support_language(int index, const ::std::string& value);
+  inline void set_app_support_language(int index, const char* value);
+  inline void set_app_support_language(int index, const char* value, size_t size);
+  inline ::std::string* add_app_support_language();
+  inline void add_app_support_language(const ::std::string& value);
+  inline void add_app_support_language(const char* value);
+  inline void add_app_support_language(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_support_language() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_support_language();
+
+  // optional string app_category = 15;
+  inline bool has_app_category() const;
+  inline void clear_app_category();
+  static const int kAppCategoryFieldNumber = 15;
+  inline const ::std::string& app_category() const;
+  inline void set_app_category(const ::std::string& value);
+  inline void set_app_category(const char* value);
+  inline void set_app_category(const char* value, size_t size);
+  inline ::std::string* mutable_app_category();
+  inline ::std::string* release_app_category();
+  inline void set_allocated_app_category(::std::string* app_category);
+
+  // optional string app_package_name = 16;
+  inline bool has_app_package_name() const;
+  inline void clear_app_package_name();
+  static const int kAppPackageNameFieldNumber = 16;
+  inline const ::std::string& app_package_name() const;
+  inline void set_app_package_name(const ::std::string& value);
+  inline void set_app_package_name(const char* value);
+  inline void set_app_package_name(const char* value, size_t size);
+  inline ::std::string* mutable_app_package_name();
+  inline ::std::string* release_app_package_name();
+  inline void set_allocated_app_package_name(::std::string* app_package_name);
+
+  // optional string app_name = 17;
+  inline bool has_app_name() const;
+  inline void clear_app_name();
+  static const int kAppNameFieldNumber = 17;
+  inline const ::std::string& app_name() const;
+  inline void set_app_name(const ::std::string& value);
+  inline void set_app_name(const char* value);
+  inline void set_app_name(const char* value, size_t size);
+  inline ::std::string* mutable_app_name();
+  inline ::std::string* release_app_name();
+  inline void set_allocated_app_name(::std::string* app_name);
+
+  // repeated string app_store_url = 18;
+  inline int app_store_url_size() const;
+  inline void clear_app_store_url();
+  static const int kAppStoreUrlFieldNumber = 18;
+  inline const ::std::string& app_store_url(int index) const;
+  inline ::std::string* mutable_app_store_url(int index);
+  inline void set_app_store_url(int index, const ::std::string& value);
+  inline void set_app_store_url(int index, const char* value);
+  inline void set_app_store_url(int index, const char* value, size_t size);
+  inline ::std::string* add_app_store_url();
+  inline void add_app_store_url(const ::std::string& value);
+  inline void add_app_store_url(const char* value);
+  inline void add_app_store_url(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_store_url() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_store_url();
+
+  // optional string app_reviewed = 19;
+  inline bool has_app_reviewed() const;
+  inline void clear_app_reviewed();
+  static const int kAppReviewedFieldNumber = 19;
+  inline const ::std::string& app_reviewed() const;
+  inline void set_app_reviewed(const ::std::string& value);
+  inline void set_app_reviewed(const char* value);
+  inline void set_app_reviewed(const char* value, size_t size);
+  inline ::std::string* mutable_app_reviewed();
+  inline ::std::string* release_app_reviewed();
+  inline void set_allocated_app_reviewed(::std::string* app_reviewed);
+
+  // repeated string app_exclude_network = 20;
+  inline int app_exclude_network_size() const;
+  inline void clear_app_exclude_network();
+  static const int kAppExcludeNetworkFieldNumber = 20;
+  inline const ::std::string& app_exclude_network(int index) const;
+  inline ::std::string* mutable_app_exclude_network(int index);
+  inline void set_app_exclude_network(int index, const ::std::string& value);
+  inline void set_app_exclude_network(int index, const char* value);
+  inline void set_app_exclude_network(int index, const char* value, size_t size);
+  inline ::std::string* add_app_exclude_network();
+  inline void add_app_exclude_network(const ::std::string& value);
+  inline void add_app_exclude_network(const char* value);
+  inline void add_app_exclude_network(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_exclude_network() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_exclude_network();
+
+  // repeated string app_exclude_advertiser = 21;
+  inline int app_exclude_advertiser_size() const;
+  inline void clear_app_exclude_advertiser();
+  static const int kAppExcludeAdvertiserFieldNumber = 21;
+  inline const ::std::string& app_exclude_advertiser(int index) const;
+  inline ::std::string* mutable_app_exclude_advertiser(int index);
+  inline void set_app_exclude_advertiser(int index, const ::std::string& value);
+  inline void set_app_exclude_advertiser(int index, const char* value);
+  inline void set_app_exclude_advertiser(int index, const char* value, size_t size);
+  inline ::std::string* add_app_exclude_advertiser();
+  inline void add_app_exclude_advertiser(const ::std::string& value);
+  inline void add_app_exclude_advertiser(const char* value);
+  inline void add_app_exclude_advertiser(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_exclude_advertiser() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_exclude_advertiser();
+
+  // repeated string app_exclude_campaign = 22;
+  inline int app_exclude_campaign_size() const;
+  inline void clear_app_exclude_campaign();
+  static const int kAppExcludeCampaignFieldNumber = 22;
+  inline const ::std::string& app_exclude_campaign(int index) const;
+  inline ::std::string* mutable_app_exclude_campaign(int index);
+  inline void set_app_exclude_campaign(int index, const ::std::string& value);
+  inline void set_app_exclude_campaign(int index, const char* value);
+  inline void set_app_exclude_campaign(int index, const char* value, size_t size);
+  inline ::std::string* add_app_exclude_campaign();
+  inline void add_app_exclude_campaign(const ::std::string& value);
+  inline void add_app_exclude_campaign(const char* value);
+  inline void add_app_exclude_campaign(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_exclude_campaign() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_exclude_campaign();
+
+  // repeated string app_exclude_creative = 23;
+  inline int app_exclude_creative_size() const;
+  inline void clear_app_exclude_creative();
+  static const int kAppExcludeCreativeFieldNumber = 23;
+  inline const ::std::string& app_exclude_creative(int index) const;
+  inline ::std::string* mutable_app_exclude_creative(int index);
+  inline void set_app_exclude_creative(int index, const ::std::string& value);
+  inline void set_app_exclude_creative(int index, const char* value);
+  inline void set_app_exclude_creative(int index, const char* value, size_t size);
+  inline ::std::string* add_app_exclude_creative();
+  inline void add_app_exclude_creative(const ::std::string& value);
+  inline void add_app_exclude_creative(const char* value);
+  inline void add_app_exclude_creative(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& app_exclude_creative() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_app_exclude_creative();
+
+  // @@protoc_insertion_point(class_scope:com.rj.protos.mobile.MobileAdRequest.Aid)
+ private:
+  inline void set_has_id();
+  inline void clear_has_id();
+  inline void set_has_status();
+  inline void clear_has_status();
+  inline void set_has_network_id();
+  inline void clear_has_network_id();
+  inline void set_has_network_reselling();
+  inline void clear_has_network_reselling();
+  inline void set_has_network_reselling_share();
+  inline void clear_has_network_reselling_share();
+  inline void set_has_publisher_id();
+  inline void clear_has_publisher_id();
+  inline void set_has_app_currency();
+  inline void clear_has_app_currency();
+  inline void set_has_app_resell();
+  inline void clear_has_app_resell();
+  inline void set_has_app_direct_payment_model();
+  inline void clear_has_app_direct_payment_model();
+  inline void set_has_app_direct_payment_value();
+  inline void clear_has_app_direct_payment_value();
+  inline void set_has_app_indrect_payment_model();
+  inline void clear_has_app_indrect_payment_model();
+  inline void set_has_app_indrect_payment_value();
+  inline void clear_has_app_indrect_payment_value();
+  inline void set_has_app_category();
+  inline void clear_has_app_category();
+  inline void set_has_app_package_name();
+  inline void clear_has_app_package_name();
+  inline void set_has_app_name();
+  inline void clear_has_app_name();
+  inline void set_has_app_reviewed();
+  inline void clear_has_app_reviewed();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* id_;
+  ::std::string* status_;
+  ::std::string* network_id_;
+  ::std::string* network_reselling_;
+  ::std::string* network_reselling_share_;
+  ::std::string* publisher_id_;
+  ::std::string* app_currency_;
+  ::std::string* app_resell_;
+  ::std::string* app_direct_payment_model_;
+  ::std::string* app_direct_payment_value_;
+  ::std::string* app_indrect_payment_model_;
+  ::std::string* app_indrect_payment_value_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_keywords_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_support_language_;
+  ::std::string* app_category_;
+  ::std::string* app_package_name_;
+  ::std::string* app_name_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_store_url_;
+  ::std::string* app_reviewed_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_exclude_network_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_exclude_advertiser_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_exclude_campaign_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> app_exclude_creative_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(23 + 31) / 32];
+
+  friend void  protobuf_AddDesc_MobileAdRequest_2eproto();
+  friend void protobuf_AssignDesc_MobileAdRequest_2eproto();
+  friend void protobuf_ShutdownFile_MobileAdRequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static MobileAdRequest_Aid* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class MobileAdRequest_AppSession : public ::google::protobuf::Message {
+ public:
+  MobileAdRequest_AppSession();
+  virtual ~MobileAdRequest_AppSession();
+
+  MobileAdRequest_AppSession(const MobileAdRequest_AppSession& from);
+
+  inline MobileAdRequest_AppSession& operator=(const MobileAdRequest_AppSession& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MobileAdRequest_AppSession& default_instance();
+
+  void Swap(MobileAdRequest_AppSession* other);
+
+  // implements Message ----------------------------------------------
+
+  MobileAdRequest_AppSession* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MobileAdRequest_AppSession& from);
+  void MergeFrom(const MobileAdRequest_AppSession& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string property = 1;
+  inline bool has_property() const;
+  inline void clear_property();
+  static const int kPropertyFieldNumber = 1;
+  inline const ::std::string& property() const;
+  inline void set_property(const ::std::string& value);
+  inline void set_property(const char* value);
+  inline void set_property(const char* value, size_t size);
+  inline ::std::string* mutable_property();
+  inline ::std::string* release_property();
+  inline void set_allocated_property(::std::string* property);
+
+  // optional string id = 2;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 2;
+  inline const ::std::string& id() const;
+  inline void set_id(const ::std::string& value);
+  inline void set_id(const char* value);
+  inline void set_id(const char* value, size_t size);
+  inline ::std::string* mutable_id();
+  inline ::std::string* release_id();
+  inline void set_allocated_id(::std::string* id);
+
+  // optional string times = 3;
+  inline bool has_times() const;
+  inline void clear_times();
+  static const int kTimesFieldNumber = 3;
+  inline const ::std::string& times() const;
+  inline void set_times(const ::std::string& value);
+  inline void set_times(const char* value);
+  inline void set_times(const char* value, size_t size);
+  inline ::std::string* mutable_times();
+  inline ::std::string* release_times();
+  inline void set_allocated_times(::std::string* times);
+
+  // @@protoc_insertion_point(class_scope:com.rj.protos.mobile.MobileAdRequest.AppSession)
+ private:
+  inline void set_has_property();
+  inline void clear_has_property();
+  inline void set_has_id();
+  inline void clear_has_id();
+  inline void set_has_times();
+  inline void clear_has_times();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* property_;
+  ::std::string* id_;
+  ::std::string* times_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
+
+  friend void  protobuf_AddDesc_MobileAdRequest_2eproto();
+  friend void protobuf_AssignDesc_MobileAdRequest_2eproto();
+  friend void protobuf_ShutdownFile_MobileAdRequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static MobileAdRequest_AppSession* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class MobileAdRequest_Frequency_FrequencyValue : public ::google::protobuf::Message {
  public:
@@ -380,6 +909,110 @@ class MobileAdRequest_Frequency : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class MobileAdRequest_AdInsight : public ::google::protobuf::Message {
+ public:
+  MobileAdRequest_AdInsight();
+  virtual ~MobileAdRequest_AdInsight();
+
+  MobileAdRequest_AdInsight(const MobileAdRequest_AdInsight& from);
+
+  inline MobileAdRequest_AdInsight& operator=(const MobileAdRequest_AdInsight& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MobileAdRequest_AdInsight& default_instance();
+
+  void Swap(MobileAdRequest_AdInsight* other);
+
+  // implements Message ----------------------------------------------
+
+  MobileAdRequest_AdInsight* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MobileAdRequest_AdInsight& from);
+  void MergeFrom(const MobileAdRequest_AdInsight& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string property = 1;
+  inline bool has_property() const;
+  inline void clear_property();
+  static const int kPropertyFieldNumber = 1;
+  inline const ::std::string& property() const;
+  inline void set_property(const ::std::string& value);
+  inline void set_property(const char* value);
+  inline void set_property(const char* value, size_t size);
+  inline ::std::string* mutable_property();
+  inline ::std::string* release_property();
+  inline void set_allocated_property(::std::string* property);
+
+  // repeated string ids = 2;
+  inline int ids_size() const;
+  inline void clear_ids();
+  static const int kIdsFieldNumber = 2;
+  inline const ::std::string& ids(int index) const;
+  inline ::std::string* mutable_ids(int index);
+  inline void set_ids(int index, const ::std::string& value);
+  inline void set_ids(int index, const char* value);
+  inline void set_ids(int index, const char* value, size_t size);
+  inline ::std::string* add_ids();
+  inline void add_ids(const ::std::string& value);
+  inline void add_ids(const char* value);
+  inline void add_ids(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& ids() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_ids();
+
+  // @@protoc_insertion_point(class_scope:com.rj.protos.mobile.MobileAdRequest.AdInsight)
+ private:
+  inline void set_has_property();
+  inline void clear_has_property();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::std::string* property_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> ids_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+
+  friend void  protobuf_AddDesc_MobileAdRequest_2eproto();
+  friend void protobuf_AssignDesc_MobileAdRequest_2eproto();
+  friend void protobuf_ShutdownFile_MobileAdRequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static MobileAdRequest_AdInsight* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class MobileAdRequest_User : public ::google::protobuf::Message {
  public:
   MobileAdRequest_User();
@@ -558,12 +1191,17 @@ class MobileAdRequest_Device : public ::google::protobuf::Message {
   inline ::std::string* release_ipaddress();
   inline void set_allocated_ipaddress(::std::string* ipaddress);
 
-  // optional .com.rj.protos.mobile.MobileAdRequest.ConnectionType connectionType = 2;
+  // optional string connectionType = 2;
   inline bool has_connectiontype() const;
   inline void clear_connectiontype();
   static const int kConnectionTypeFieldNumber = 2;
-  inline ::com::rj::protos::mobile::MobileAdRequest_ConnectionType connectiontype() const;
-  inline void set_connectiontype(::com::rj::protos::mobile::MobileAdRequest_ConnectionType value);
+  inline const ::std::string& connectiontype() const;
+  inline void set_connectiontype(const ::std::string& value);
+  inline void set_connectiontype(const char* value);
+  inline void set_connectiontype(const char* value, size_t size);
+  inline ::std::string* mutable_connectiontype();
+  inline ::std::string* release_connectiontype();
+  inline void set_allocated_connectiontype(::std::string* connectiontype);
 
   // optional string ua = 3;
   inline bool has_ua() const;
@@ -771,6 +1409,7 @@ class MobileAdRequest_Device : public ::google::protobuf::Message {
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* ipaddress_;
+  ::std::string* connectiontype_;
   ::std::string* ua_;
   ::std::string* udid_;
   ::std::string* hidmd5_;
@@ -785,7 +1424,6 @@ class MobileAdRequest_Device : public ::google::protobuf::Message {
   ::std::string* screenwidth_;
   ::std::string* screenheight_;
   ::std::string* density_;
-  int connectiontype_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(16 + 31) / 32];
@@ -1088,7 +1726,10 @@ class MobileAdRequest : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
+  typedef MobileAdRequest_Aid Aid;
+  typedef MobileAdRequest_AppSession AppSession;
   typedef MobileAdRequest_Frequency Frequency;
+  typedef MobileAdRequest_AdInsight AdInsight;
   typedef MobileAdRequest_User User;
   typedef MobileAdRequest_Device Device;
   typedef MobileAdRequest_GeoInfo GeoInfo;
@@ -1191,33 +1832,6 @@ class MobileAdRequest : public ::google::protobuf::Message {
     return MobileAdRequest_AdType_Parse(name, value);
   }
 
-  typedef MobileAdRequest_ConnectionType ConnectionType;
-  static const ConnectionType UNKNOWN = MobileAdRequest_ConnectionType_UNKNOWN;
-  static const ConnectionType WIFI = MobileAdRequest_ConnectionType_WIFI;
-  static const ConnectionType G2 = MobileAdRequest_ConnectionType_G2;
-  static const ConnectionType G3 = MobileAdRequest_ConnectionType_G3;
-  static const ConnectionType G4 = MobileAdRequest_ConnectionType_G4;
-  static inline bool ConnectionType_IsValid(int value) {
-    return MobileAdRequest_ConnectionType_IsValid(value);
-  }
-  static const ConnectionType ConnectionType_MIN =
-    MobileAdRequest_ConnectionType_ConnectionType_MIN;
-  static const ConnectionType ConnectionType_MAX =
-    MobileAdRequest_ConnectionType_ConnectionType_MAX;
-  static const int ConnectionType_ARRAYSIZE =
-    MobileAdRequest_ConnectionType_ConnectionType_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  ConnectionType_descriptor() {
-    return MobileAdRequest_ConnectionType_descriptor();
-  }
-  static inline const ::std::string& ConnectionType_Name(ConnectionType value) {
-    return MobileAdRequest_ConnectionType_Name(value);
-  }
-  static inline bool ConnectionType_Parse(const ::std::string& name,
-      ConnectionType* value) {
-    return MobileAdRequest_ConnectionType_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   // optional string id = 1;
@@ -1232,17 +1846,17 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::std::string* release_id();
   inline void set_allocated_id(::std::string* id);
 
-  // required string aid = 2;
-  inline bool has_aid() const;
-  inline void clear_aid();
-  static const int kAidFieldNumber = 2;
-  inline const ::std::string& aid() const;
-  inline void set_aid(const ::std::string& value);
-  inline void set_aid(const char* value);
-  inline void set_aid(const char* value, size_t size);
-  inline ::std::string* mutable_aid();
-  inline ::std::string* release_aid();
-  inline void set_allocated_aid(::std::string* aid);
+  // optional string publishId = 2;
+  inline bool has_publishid() const;
+  inline void clear_publishid();
+  static const int kPublishIdFieldNumber = 2;
+  inline const ::std::string& publishid() const;
+  inline void set_publishid(const ::std::string& value);
+  inline void set_publishid(const char* value);
+  inline void set_publishid(const char* value, size_t size);
+  inline ::std::string* mutable_publishid();
+  inline ::std::string* release_publishid();
+  inline void set_allocated_publishid(::std::string* publishid);
 
   // optional string version = 3;
   inline bool has_version() const;
@@ -1405,10 +2019,34 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >*
       mutable_frequency();
 
-  // optional string appType = 18;
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
+  inline int appsession_size() const;
+  inline void clear_appsession();
+  static const int kAppSessionFieldNumber = 18;
+  inline const ::com::rj::protos::mobile::MobileAdRequest_AppSession& appsession(int index) const;
+  inline ::com::rj::protos::mobile::MobileAdRequest_AppSession* mutable_appsession(int index);
+  inline ::com::rj::protos::mobile::MobileAdRequest_AppSession* add_appsession();
+  inline const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession >&
+      appsession() const;
+  inline ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession >*
+      mutable_appsession();
+
+  // repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+  inline int adinsight_size() const;
+  inline void clear_adinsight();
+  static const int kAdInsightFieldNumber = 19;
+  inline const ::com::rj::protos::mobile::MobileAdRequest_AdInsight& adinsight(int index) const;
+  inline ::com::rj::protos::mobile::MobileAdRequest_AdInsight* mutable_adinsight(int index);
+  inline ::com::rj::protos::mobile::MobileAdRequest_AdInsight* add_adinsight();
+  inline const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AdInsight >&
+      adinsight() const;
+  inline ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AdInsight >*
+      mutable_adinsight();
+
+  // optional string appType = 20;
   inline bool has_apptype() const;
   inline void clear_apptype();
-  static const int kAppTypeFieldNumber = 18;
+  static const int kAppTypeFieldNumber = 20;
   inline const ::std::string& apptype() const;
   inline void set_apptype(const ::std::string& value);
   inline void set_apptype(const char* value);
@@ -1417,10 +2055,10 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::std::string* release_apptype();
   inline void set_allocated_apptype(::std::string* apptype);
 
-  // optional string trafficQuality = 19;
+  // optional string trafficQuality = 21;
   inline bool has_trafficquality() const;
   inline void clear_trafficquality();
-  static const int kTrafficQualityFieldNumber = 19;
+  static const int kTrafficQualityFieldNumber = 21;
   inline const ::std::string& trafficquality() const;
   inline void set_trafficquality(const ::std::string& value);
   inline void set_trafficquality(const char* value);
@@ -1429,10 +2067,10 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::std::string* release_trafficquality();
   inline void set_allocated_trafficquality(::std::string* trafficquality);
 
-  // optional string inventoryQuality = 20;
+  // optional string inventoryQuality = 22;
   inline bool has_inventoryquality() const;
   inline void clear_inventoryquality();
-  static const int kInventoryQualityFieldNumber = 20;
+  static const int kInventoryQualityFieldNumber = 22;
   inline const ::std::string& inventoryquality() const;
   inline void set_inventoryquality(const ::std::string& value);
   inline void set_inventoryquality(const char* value);
@@ -1441,19 +2079,52 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::std::string* release_inventoryquality();
   inline void set_allocated_inventoryquality(::std::string* inventoryquality);
 
-  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
+  // optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
   inline bool has_test() const;
   inline void clear_test();
-  static const int kTestFieldNumber = 21;
+  static const int kTestFieldNumber = 23;
   inline ::com::rj::protos::mobile::MobileAdRequest_TestFlag test() const;
   inline void set_test(::com::rj::protos::mobile::MobileAdRequest_TestFlag value);
+
+  // optional string appID = 24;
+  inline bool has_appid() const;
+  inline void clear_appid();
+  static const int kAppIDFieldNumber = 24;
+  inline const ::std::string& appid() const;
+  inline void set_appid(const ::std::string& value);
+  inline void set_appid(const char* value);
+  inline void set_appid(const char* value, size_t size);
+  inline ::std::string* mutable_appid();
+  inline ::std::string* release_appid();
+  inline void set_allocated_appid(::std::string* appid);
+
+  // optional string appCategory = 25;
+  inline bool has_appcategory() const;
+  inline void clear_appcategory();
+  static const int kAppCategoryFieldNumber = 25;
+  inline const ::std::string& appcategory() const;
+  inline void set_appcategory(const ::std::string& value);
+  inline void set_appcategory(const char* value);
+  inline void set_appcategory(const char* value, size_t size);
+  inline ::std::string* mutable_appcategory();
+  inline ::std::string* release_appcategory();
+  inline void set_allocated_appcategory(::std::string* appcategory);
+
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  inline bool has_aid() const;
+  inline void clear_aid();
+  static const int kAidFieldNumber = 26;
+  inline const ::com::rj::protos::mobile::MobileAdRequest_Aid& aid() const;
+  inline ::com::rj::protos::mobile::MobileAdRequest_Aid* mutable_aid();
+  inline ::com::rj::protos::mobile::MobileAdRequest_Aid* release_aid();
+  inline void set_allocated_aid(::com::rj::protos::mobile::MobileAdRequest_Aid* aid);
 
   // @@protoc_insertion_point(class_scope:com.rj.protos.mobile.MobileAdRequest)
  private:
   inline void set_has_id();
   inline void clear_has_id();
-  inline void set_has_aid();
-  inline void clear_has_aid();
+  inline void set_has_publishid();
+  inline void clear_has_publishid();
   inline void set_has_version();
   inline void clear_has_version();
   inline void set_has_type();
@@ -1490,11 +2161,17 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline void clear_has_inventoryquality();
   inline void set_has_test();
   inline void clear_has_test();
+  inline void set_has_appid();
+  inline void clear_has_appid();
+  inline void set_has_appcategory();
+  inline void clear_has_appcategory();
+  inline void set_has_aid();
+  inline void clear_has_aid();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* id_;
-  ::std::string* aid_;
+  ::std::string* publishid_;
   ::std::string* version_;
   ::std::string* timestamp_;
   ::std::string* adspacewidth_;
@@ -1510,13 +2187,18 @@ class MobileAdRequest : public ::google::protobuf::Message {
   ::com::rj::protos::mobile::MobileAdRequest_User* user_;
   ::com::rj::protos::mobile::MobileAdRequest_GeoInfo* geoinfo_;
   ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency > frequency_;
+  ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession > appsession_;
+  ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AdInsight > adinsight_;
   ::std::string* apptype_;
   ::std::string* trafficquality_;
   ::std::string* inventoryquality_;
+  ::std::string* appid_;
+  ::std::string* appcategory_;
+  ::com::rj::protos::mobile::MobileAdRequest_Aid* aid_;
   int test_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(21 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(26 + 31) / 32];
 
   friend void  protobuf_AddDesc_MobileAdRequest_2eproto();
   friend void protobuf_AssignDesc_MobileAdRequest_2eproto();
@@ -1529,6 +2211,1652 @@ class MobileAdRequest : public ::google::protobuf::Message {
 
 
 // ===================================================================
+
+// MobileAdRequest_Aid
+
+// optional string id = 1;
+inline bool MobileAdRequest_Aid::has_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void MobileAdRequest_Aid::clear_has_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void MobileAdRequest_Aid::clear_id() {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    id_->clear();
+  }
+  clear_has_id();
+}
+inline const ::std::string& MobileAdRequest_Aid::id() const {
+  return *id_;
+}
+inline void MobileAdRequest_Aid::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  return id_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string status = 2;
+inline bool MobileAdRequest_Aid::has_status() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_status() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void MobileAdRequest_Aid::clear_has_status() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void MobileAdRequest_Aid::clear_status() {
+  if (status_ != &::google::protobuf::internal::kEmptyString) {
+    status_->clear();
+  }
+  clear_has_status();
+}
+inline const ::std::string& MobileAdRequest_Aid::status() const {
+  return *status_;
+}
+inline void MobileAdRequest_Aid::set_status(const ::std::string& value) {
+  set_has_status();
+  if (status_ == &::google::protobuf::internal::kEmptyString) {
+    status_ = new ::std::string;
+  }
+  status_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_status(const char* value) {
+  set_has_status();
+  if (status_ == &::google::protobuf::internal::kEmptyString) {
+    status_ = new ::std::string;
+  }
+  status_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_status(const char* value, size_t size) {
+  set_has_status();
+  if (status_ == &::google::protobuf::internal::kEmptyString) {
+    status_ = new ::std::string;
+  }
+  status_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_status() {
+  set_has_status();
+  if (status_ == &::google::protobuf::internal::kEmptyString) {
+    status_ = new ::std::string;
+  }
+  return status_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_status() {
+  clear_has_status();
+  if (status_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = status_;
+    status_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_status(::std::string* status) {
+  if (status_ != &::google::protobuf::internal::kEmptyString) {
+    delete status_;
+  }
+  if (status) {
+    set_has_status();
+    status_ = status;
+  } else {
+    clear_has_status();
+    status_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string network_id = 3;
+inline bool MobileAdRequest_Aid::has_network_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_network_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void MobileAdRequest_Aid::clear_has_network_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void MobileAdRequest_Aid::clear_network_id() {
+  if (network_id_ != &::google::protobuf::internal::kEmptyString) {
+    network_id_->clear();
+  }
+  clear_has_network_id();
+}
+inline const ::std::string& MobileAdRequest_Aid::network_id() const {
+  return *network_id_;
+}
+inline void MobileAdRequest_Aid::set_network_id(const ::std::string& value) {
+  set_has_network_id();
+  if (network_id_ == &::google::protobuf::internal::kEmptyString) {
+    network_id_ = new ::std::string;
+  }
+  network_id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_id(const char* value) {
+  set_has_network_id();
+  if (network_id_ == &::google::protobuf::internal::kEmptyString) {
+    network_id_ = new ::std::string;
+  }
+  network_id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_id(const char* value, size_t size) {
+  set_has_network_id();
+  if (network_id_ == &::google::protobuf::internal::kEmptyString) {
+    network_id_ = new ::std::string;
+  }
+  network_id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_network_id() {
+  set_has_network_id();
+  if (network_id_ == &::google::protobuf::internal::kEmptyString) {
+    network_id_ = new ::std::string;
+  }
+  return network_id_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_network_id() {
+  clear_has_network_id();
+  if (network_id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = network_id_;
+    network_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_network_id(::std::string* network_id) {
+  if (network_id_ != &::google::protobuf::internal::kEmptyString) {
+    delete network_id_;
+  }
+  if (network_id) {
+    set_has_network_id();
+    network_id_ = network_id;
+  } else {
+    clear_has_network_id();
+    network_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string network_reselling = 4;
+inline bool MobileAdRequest_Aid::has_network_reselling() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_network_reselling() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void MobileAdRequest_Aid::clear_has_network_reselling() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void MobileAdRequest_Aid::clear_network_reselling() {
+  if (network_reselling_ != &::google::protobuf::internal::kEmptyString) {
+    network_reselling_->clear();
+  }
+  clear_has_network_reselling();
+}
+inline const ::std::string& MobileAdRequest_Aid::network_reselling() const {
+  return *network_reselling_;
+}
+inline void MobileAdRequest_Aid::set_network_reselling(const ::std::string& value) {
+  set_has_network_reselling();
+  if (network_reselling_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_ = new ::std::string;
+  }
+  network_reselling_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_reselling(const char* value) {
+  set_has_network_reselling();
+  if (network_reselling_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_ = new ::std::string;
+  }
+  network_reselling_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_reselling(const char* value, size_t size) {
+  set_has_network_reselling();
+  if (network_reselling_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_ = new ::std::string;
+  }
+  network_reselling_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_network_reselling() {
+  set_has_network_reselling();
+  if (network_reselling_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_ = new ::std::string;
+  }
+  return network_reselling_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_network_reselling() {
+  clear_has_network_reselling();
+  if (network_reselling_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = network_reselling_;
+    network_reselling_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_network_reselling(::std::string* network_reselling) {
+  if (network_reselling_ != &::google::protobuf::internal::kEmptyString) {
+    delete network_reselling_;
+  }
+  if (network_reselling) {
+    set_has_network_reselling();
+    network_reselling_ = network_reselling;
+  } else {
+    clear_has_network_reselling();
+    network_reselling_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string network_reselling_share = 5;
+inline bool MobileAdRequest_Aid::has_network_reselling_share() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_network_reselling_share() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void MobileAdRequest_Aid::clear_has_network_reselling_share() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void MobileAdRequest_Aid::clear_network_reselling_share() {
+  if (network_reselling_share_ != &::google::protobuf::internal::kEmptyString) {
+    network_reselling_share_->clear();
+  }
+  clear_has_network_reselling_share();
+}
+inline const ::std::string& MobileAdRequest_Aid::network_reselling_share() const {
+  return *network_reselling_share_;
+}
+inline void MobileAdRequest_Aid::set_network_reselling_share(const ::std::string& value) {
+  set_has_network_reselling_share();
+  if (network_reselling_share_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_share_ = new ::std::string;
+  }
+  network_reselling_share_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_reselling_share(const char* value) {
+  set_has_network_reselling_share();
+  if (network_reselling_share_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_share_ = new ::std::string;
+  }
+  network_reselling_share_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_network_reselling_share(const char* value, size_t size) {
+  set_has_network_reselling_share();
+  if (network_reselling_share_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_share_ = new ::std::string;
+  }
+  network_reselling_share_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_network_reselling_share() {
+  set_has_network_reselling_share();
+  if (network_reselling_share_ == &::google::protobuf::internal::kEmptyString) {
+    network_reselling_share_ = new ::std::string;
+  }
+  return network_reselling_share_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_network_reselling_share() {
+  clear_has_network_reselling_share();
+  if (network_reselling_share_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = network_reselling_share_;
+    network_reselling_share_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_network_reselling_share(::std::string* network_reselling_share) {
+  if (network_reselling_share_ != &::google::protobuf::internal::kEmptyString) {
+    delete network_reselling_share_;
+  }
+  if (network_reselling_share) {
+    set_has_network_reselling_share();
+    network_reselling_share_ = network_reselling_share;
+  } else {
+    clear_has_network_reselling_share();
+    network_reselling_share_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string publisher_id = 6;
+inline bool MobileAdRequest_Aid::has_publisher_id() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_publisher_id() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void MobileAdRequest_Aid::clear_has_publisher_id() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void MobileAdRequest_Aid::clear_publisher_id() {
+  if (publisher_id_ != &::google::protobuf::internal::kEmptyString) {
+    publisher_id_->clear();
+  }
+  clear_has_publisher_id();
+}
+inline const ::std::string& MobileAdRequest_Aid::publisher_id() const {
+  return *publisher_id_;
+}
+inline void MobileAdRequest_Aid::set_publisher_id(const ::std::string& value) {
+  set_has_publisher_id();
+  if (publisher_id_ == &::google::protobuf::internal::kEmptyString) {
+    publisher_id_ = new ::std::string;
+  }
+  publisher_id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_publisher_id(const char* value) {
+  set_has_publisher_id();
+  if (publisher_id_ == &::google::protobuf::internal::kEmptyString) {
+    publisher_id_ = new ::std::string;
+  }
+  publisher_id_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_publisher_id(const char* value, size_t size) {
+  set_has_publisher_id();
+  if (publisher_id_ == &::google::protobuf::internal::kEmptyString) {
+    publisher_id_ = new ::std::string;
+  }
+  publisher_id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_publisher_id() {
+  set_has_publisher_id();
+  if (publisher_id_ == &::google::protobuf::internal::kEmptyString) {
+    publisher_id_ = new ::std::string;
+  }
+  return publisher_id_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_publisher_id() {
+  clear_has_publisher_id();
+  if (publisher_id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = publisher_id_;
+    publisher_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_publisher_id(::std::string* publisher_id) {
+  if (publisher_id_ != &::google::protobuf::internal::kEmptyString) {
+    delete publisher_id_;
+  }
+  if (publisher_id) {
+    set_has_publisher_id();
+    publisher_id_ = publisher_id;
+  } else {
+    clear_has_publisher_id();
+    publisher_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_currency = 7;
+inline bool MobileAdRequest_Aid::has_app_currency() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_currency() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_currency() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void MobileAdRequest_Aid::clear_app_currency() {
+  if (app_currency_ != &::google::protobuf::internal::kEmptyString) {
+    app_currency_->clear();
+  }
+  clear_has_app_currency();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_currency() const {
+  return *app_currency_;
+}
+inline void MobileAdRequest_Aid::set_app_currency(const ::std::string& value) {
+  set_has_app_currency();
+  if (app_currency_ == &::google::protobuf::internal::kEmptyString) {
+    app_currency_ = new ::std::string;
+  }
+  app_currency_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_currency(const char* value) {
+  set_has_app_currency();
+  if (app_currency_ == &::google::protobuf::internal::kEmptyString) {
+    app_currency_ = new ::std::string;
+  }
+  app_currency_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_currency(const char* value, size_t size) {
+  set_has_app_currency();
+  if (app_currency_ == &::google::protobuf::internal::kEmptyString) {
+    app_currency_ = new ::std::string;
+  }
+  app_currency_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_currency() {
+  set_has_app_currency();
+  if (app_currency_ == &::google::protobuf::internal::kEmptyString) {
+    app_currency_ = new ::std::string;
+  }
+  return app_currency_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_currency() {
+  clear_has_app_currency();
+  if (app_currency_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_currency_;
+    app_currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_currency(::std::string* app_currency) {
+  if (app_currency_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_currency_;
+  }
+  if (app_currency) {
+    set_has_app_currency();
+    app_currency_ = app_currency;
+  } else {
+    clear_has_app_currency();
+    app_currency_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_resell = 8;
+inline bool MobileAdRequest_Aid::has_app_resell() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_resell() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_resell() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void MobileAdRequest_Aid::clear_app_resell() {
+  if (app_resell_ != &::google::protobuf::internal::kEmptyString) {
+    app_resell_->clear();
+  }
+  clear_has_app_resell();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_resell() const {
+  return *app_resell_;
+}
+inline void MobileAdRequest_Aid::set_app_resell(const ::std::string& value) {
+  set_has_app_resell();
+  if (app_resell_ == &::google::protobuf::internal::kEmptyString) {
+    app_resell_ = new ::std::string;
+  }
+  app_resell_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_resell(const char* value) {
+  set_has_app_resell();
+  if (app_resell_ == &::google::protobuf::internal::kEmptyString) {
+    app_resell_ = new ::std::string;
+  }
+  app_resell_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_resell(const char* value, size_t size) {
+  set_has_app_resell();
+  if (app_resell_ == &::google::protobuf::internal::kEmptyString) {
+    app_resell_ = new ::std::string;
+  }
+  app_resell_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_resell() {
+  set_has_app_resell();
+  if (app_resell_ == &::google::protobuf::internal::kEmptyString) {
+    app_resell_ = new ::std::string;
+  }
+  return app_resell_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_resell() {
+  clear_has_app_resell();
+  if (app_resell_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_resell_;
+    app_resell_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_resell(::std::string* app_resell) {
+  if (app_resell_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_resell_;
+  }
+  if (app_resell) {
+    set_has_app_resell();
+    app_resell_ = app_resell;
+  } else {
+    clear_has_app_resell();
+    app_resell_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_direct_payment_model = 9;
+inline bool MobileAdRequest_Aid::has_app_direct_payment_model() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_direct_payment_model() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_direct_payment_model() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void MobileAdRequest_Aid::clear_app_direct_payment_model() {
+  if (app_direct_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_model_->clear();
+  }
+  clear_has_app_direct_payment_model();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_direct_payment_model() const {
+  return *app_direct_payment_model_;
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_model(const ::std::string& value) {
+  set_has_app_direct_payment_model();
+  if (app_direct_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_model_ = new ::std::string;
+  }
+  app_direct_payment_model_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_model(const char* value) {
+  set_has_app_direct_payment_model();
+  if (app_direct_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_model_ = new ::std::string;
+  }
+  app_direct_payment_model_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_model(const char* value, size_t size) {
+  set_has_app_direct_payment_model();
+  if (app_direct_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_model_ = new ::std::string;
+  }
+  app_direct_payment_model_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_direct_payment_model() {
+  set_has_app_direct_payment_model();
+  if (app_direct_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_model_ = new ::std::string;
+  }
+  return app_direct_payment_model_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_direct_payment_model() {
+  clear_has_app_direct_payment_model();
+  if (app_direct_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_direct_payment_model_;
+    app_direct_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_direct_payment_model(::std::string* app_direct_payment_model) {
+  if (app_direct_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_direct_payment_model_;
+  }
+  if (app_direct_payment_model) {
+    set_has_app_direct_payment_model();
+    app_direct_payment_model_ = app_direct_payment_model;
+  } else {
+    clear_has_app_direct_payment_model();
+    app_direct_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_direct_payment_value = 10;
+inline bool MobileAdRequest_Aid::has_app_direct_payment_value() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_direct_payment_value() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_direct_payment_value() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void MobileAdRequest_Aid::clear_app_direct_payment_value() {
+  if (app_direct_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_value_->clear();
+  }
+  clear_has_app_direct_payment_value();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_direct_payment_value() const {
+  return *app_direct_payment_value_;
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_value(const ::std::string& value) {
+  set_has_app_direct_payment_value();
+  if (app_direct_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_value_ = new ::std::string;
+  }
+  app_direct_payment_value_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_value(const char* value) {
+  set_has_app_direct_payment_value();
+  if (app_direct_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_value_ = new ::std::string;
+  }
+  app_direct_payment_value_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_direct_payment_value(const char* value, size_t size) {
+  set_has_app_direct_payment_value();
+  if (app_direct_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_value_ = new ::std::string;
+  }
+  app_direct_payment_value_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_direct_payment_value() {
+  set_has_app_direct_payment_value();
+  if (app_direct_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_direct_payment_value_ = new ::std::string;
+  }
+  return app_direct_payment_value_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_direct_payment_value() {
+  clear_has_app_direct_payment_value();
+  if (app_direct_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_direct_payment_value_;
+    app_direct_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_direct_payment_value(::std::string* app_direct_payment_value) {
+  if (app_direct_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_direct_payment_value_;
+  }
+  if (app_direct_payment_value) {
+    set_has_app_direct_payment_value();
+    app_direct_payment_value_ = app_direct_payment_value;
+  } else {
+    clear_has_app_direct_payment_value();
+    app_direct_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_indrect_payment_model = 11;
+inline bool MobileAdRequest_Aid::has_app_indrect_payment_model() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_indrect_payment_model() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_indrect_payment_model() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void MobileAdRequest_Aid::clear_app_indrect_payment_model() {
+  if (app_indrect_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_model_->clear();
+  }
+  clear_has_app_indrect_payment_model();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_indrect_payment_model() const {
+  return *app_indrect_payment_model_;
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_model(const ::std::string& value) {
+  set_has_app_indrect_payment_model();
+  if (app_indrect_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_model_ = new ::std::string;
+  }
+  app_indrect_payment_model_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_model(const char* value) {
+  set_has_app_indrect_payment_model();
+  if (app_indrect_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_model_ = new ::std::string;
+  }
+  app_indrect_payment_model_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_model(const char* value, size_t size) {
+  set_has_app_indrect_payment_model();
+  if (app_indrect_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_model_ = new ::std::string;
+  }
+  app_indrect_payment_model_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_indrect_payment_model() {
+  set_has_app_indrect_payment_model();
+  if (app_indrect_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_model_ = new ::std::string;
+  }
+  return app_indrect_payment_model_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_indrect_payment_model() {
+  clear_has_app_indrect_payment_model();
+  if (app_indrect_payment_model_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_indrect_payment_model_;
+    app_indrect_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_indrect_payment_model(::std::string* app_indrect_payment_model) {
+  if (app_indrect_payment_model_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_indrect_payment_model_;
+  }
+  if (app_indrect_payment_model) {
+    set_has_app_indrect_payment_model();
+    app_indrect_payment_model_ = app_indrect_payment_model;
+  } else {
+    clear_has_app_indrect_payment_model();
+    app_indrect_payment_model_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_indrect_payment_value = 12;
+inline bool MobileAdRequest_Aid::has_app_indrect_payment_value() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_indrect_payment_value() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_indrect_payment_value() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void MobileAdRequest_Aid::clear_app_indrect_payment_value() {
+  if (app_indrect_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_value_->clear();
+  }
+  clear_has_app_indrect_payment_value();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_indrect_payment_value() const {
+  return *app_indrect_payment_value_;
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_value(const ::std::string& value) {
+  set_has_app_indrect_payment_value();
+  if (app_indrect_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_value_ = new ::std::string;
+  }
+  app_indrect_payment_value_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_value(const char* value) {
+  set_has_app_indrect_payment_value();
+  if (app_indrect_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_value_ = new ::std::string;
+  }
+  app_indrect_payment_value_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_indrect_payment_value(const char* value, size_t size) {
+  set_has_app_indrect_payment_value();
+  if (app_indrect_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_value_ = new ::std::string;
+  }
+  app_indrect_payment_value_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_indrect_payment_value() {
+  set_has_app_indrect_payment_value();
+  if (app_indrect_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    app_indrect_payment_value_ = new ::std::string;
+  }
+  return app_indrect_payment_value_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_indrect_payment_value() {
+  clear_has_app_indrect_payment_value();
+  if (app_indrect_payment_value_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_indrect_payment_value_;
+    app_indrect_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_indrect_payment_value(::std::string* app_indrect_payment_value) {
+  if (app_indrect_payment_value_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_indrect_payment_value_;
+  }
+  if (app_indrect_payment_value) {
+    set_has_app_indrect_payment_value();
+    app_indrect_payment_value_ = app_indrect_payment_value;
+  } else {
+    clear_has_app_indrect_payment_value();
+    app_indrect_payment_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// repeated string app_keywords = 13;
+inline int MobileAdRequest_Aid::app_keywords_size() const {
+  return app_keywords_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_keywords() {
+  app_keywords_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_keywords(int index) const {
+  return app_keywords_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_keywords(int index) {
+  return app_keywords_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_keywords(int index, const ::std::string& value) {
+  app_keywords_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_keywords(int index, const char* value) {
+  app_keywords_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_keywords(int index, const char* value, size_t size) {
+  app_keywords_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_keywords() {
+  return app_keywords_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_keywords(const ::std::string& value) {
+  app_keywords_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_keywords(const char* value) {
+  app_keywords_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_keywords(const char* value, size_t size) {
+  app_keywords_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_keywords() const {
+  return app_keywords_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_keywords() {
+  return &app_keywords_;
+}
+
+// repeated string app_support_language = 14;
+inline int MobileAdRequest_Aid::app_support_language_size() const {
+  return app_support_language_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_support_language() {
+  app_support_language_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_support_language(int index) const {
+  return app_support_language_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_support_language(int index) {
+  return app_support_language_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_support_language(int index, const ::std::string& value) {
+  app_support_language_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_support_language(int index, const char* value) {
+  app_support_language_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_support_language(int index, const char* value, size_t size) {
+  app_support_language_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_support_language() {
+  return app_support_language_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_support_language(const ::std::string& value) {
+  app_support_language_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_support_language(const char* value) {
+  app_support_language_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_support_language(const char* value, size_t size) {
+  app_support_language_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_support_language() const {
+  return app_support_language_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_support_language() {
+  return &app_support_language_;
+}
+
+// optional string app_category = 15;
+inline bool MobileAdRequest_Aid::has_app_category() const {
+  return (_has_bits_[0] & 0x00004000u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_category() {
+  _has_bits_[0] |= 0x00004000u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_category() {
+  _has_bits_[0] &= ~0x00004000u;
+}
+inline void MobileAdRequest_Aid::clear_app_category() {
+  if (app_category_ != &::google::protobuf::internal::kEmptyString) {
+    app_category_->clear();
+  }
+  clear_has_app_category();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_category() const {
+  return *app_category_;
+}
+inline void MobileAdRequest_Aid::set_app_category(const ::std::string& value) {
+  set_has_app_category();
+  if (app_category_ == &::google::protobuf::internal::kEmptyString) {
+    app_category_ = new ::std::string;
+  }
+  app_category_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_category(const char* value) {
+  set_has_app_category();
+  if (app_category_ == &::google::protobuf::internal::kEmptyString) {
+    app_category_ = new ::std::string;
+  }
+  app_category_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_category(const char* value, size_t size) {
+  set_has_app_category();
+  if (app_category_ == &::google::protobuf::internal::kEmptyString) {
+    app_category_ = new ::std::string;
+  }
+  app_category_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_category() {
+  set_has_app_category();
+  if (app_category_ == &::google::protobuf::internal::kEmptyString) {
+    app_category_ = new ::std::string;
+  }
+  return app_category_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_category() {
+  clear_has_app_category();
+  if (app_category_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_category_;
+    app_category_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_category(::std::string* app_category) {
+  if (app_category_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_category_;
+  }
+  if (app_category) {
+    set_has_app_category();
+    app_category_ = app_category;
+  } else {
+    clear_has_app_category();
+    app_category_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_package_name = 16;
+inline bool MobileAdRequest_Aid::has_app_package_name() const {
+  return (_has_bits_[0] & 0x00008000u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_package_name() {
+  _has_bits_[0] |= 0x00008000u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_package_name() {
+  _has_bits_[0] &= ~0x00008000u;
+}
+inline void MobileAdRequest_Aid::clear_app_package_name() {
+  if (app_package_name_ != &::google::protobuf::internal::kEmptyString) {
+    app_package_name_->clear();
+  }
+  clear_has_app_package_name();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_package_name() const {
+  return *app_package_name_;
+}
+inline void MobileAdRequest_Aid::set_app_package_name(const ::std::string& value) {
+  set_has_app_package_name();
+  if (app_package_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_package_name_ = new ::std::string;
+  }
+  app_package_name_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_package_name(const char* value) {
+  set_has_app_package_name();
+  if (app_package_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_package_name_ = new ::std::string;
+  }
+  app_package_name_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_package_name(const char* value, size_t size) {
+  set_has_app_package_name();
+  if (app_package_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_package_name_ = new ::std::string;
+  }
+  app_package_name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_package_name() {
+  set_has_app_package_name();
+  if (app_package_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_package_name_ = new ::std::string;
+  }
+  return app_package_name_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_package_name() {
+  clear_has_app_package_name();
+  if (app_package_name_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_package_name_;
+    app_package_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_package_name(::std::string* app_package_name) {
+  if (app_package_name_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_package_name_;
+  }
+  if (app_package_name) {
+    set_has_app_package_name();
+    app_package_name_ = app_package_name;
+  } else {
+    clear_has_app_package_name();
+    app_package_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string app_name = 17;
+inline bool MobileAdRequest_Aid::has_app_name() const {
+  return (_has_bits_[0] & 0x00010000u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_name() {
+  _has_bits_[0] |= 0x00010000u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_name() {
+  _has_bits_[0] &= ~0x00010000u;
+}
+inline void MobileAdRequest_Aid::clear_app_name() {
+  if (app_name_ != &::google::protobuf::internal::kEmptyString) {
+    app_name_->clear();
+  }
+  clear_has_app_name();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_name() const {
+  return *app_name_;
+}
+inline void MobileAdRequest_Aid::set_app_name(const ::std::string& value) {
+  set_has_app_name();
+  if (app_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_name_ = new ::std::string;
+  }
+  app_name_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_name(const char* value) {
+  set_has_app_name();
+  if (app_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_name_ = new ::std::string;
+  }
+  app_name_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_name(const char* value, size_t size) {
+  set_has_app_name();
+  if (app_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_name_ = new ::std::string;
+  }
+  app_name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_name() {
+  set_has_app_name();
+  if (app_name_ == &::google::protobuf::internal::kEmptyString) {
+    app_name_ = new ::std::string;
+  }
+  return app_name_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_name() {
+  clear_has_app_name();
+  if (app_name_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_name_;
+    app_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_name(::std::string* app_name) {
+  if (app_name_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_name_;
+  }
+  if (app_name) {
+    set_has_app_name();
+    app_name_ = app_name;
+  } else {
+    clear_has_app_name();
+    app_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// repeated string app_store_url = 18;
+inline int MobileAdRequest_Aid::app_store_url_size() const {
+  return app_store_url_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_store_url() {
+  app_store_url_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_store_url(int index) const {
+  return app_store_url_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_store_url(int index) {
+  return app_store_url_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_store_url(int index, const ::std::string& value) {
+  app_store_url_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_store_url(int index, const char* value) {
+  app_store_url_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_store_url(int index, const char* value, size_t size) {
+  app_store_url_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_store_url() {
+  return app_store_url_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_store_url(const ::std::string& value) {
+  app_store_url_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_store_url(const char* value) {
+  app_store_url_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_store_url(const char* value, size_t size) {
+  app_store_url_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_store_url() const {
+  return app_store_url_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_store_url() {
+  return &app_store_url_;
+}
+
+// optional string app_reviewed = 19;
+inline bool MobileAdRequest_Aid::has_app_reviewed() const {
+  return (_has_bits_[0] & 0x00040000u) != 0;
+}
+inline void MobileAdRequest_Aid::set_has_app_reviewed() {
+  _has_bits_[0] |= 0x00040000u;
+}
+inline void MobileAdRequest_Aid::clear_has_app_reviewed() {
+  _has_bits_[0] &= ~0x00040000u;
+}
+inline void MobileAdRequest_Aid::clear_app_reviewed() {
+  if (app_reviewed_ != &::google::protobuf::internal::kEmptyString) {
+    app_reviewed_->clear();
+  }
+  clear_has_app_reviewed();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_reviewed() const {
+  return *app_reviewed_;
+}
+inline void MobileAdRequest_Aid::set_app_reviewed(const ::std::string& value) {
+  set_has_app_reviewed();
+  if (app_reviewed_ == &::google::protobuf::internal::kEmptyString) {
+    app_reviewed_ = new ::std::string;
+  }
+  app_reviewed_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_reviewed(const char* value) {
+  set_has_app_reviewed();
+  if (app_reviewed_ == &::google::protobuf::internal::kEmptyString) {
+    app_reviewed_ = new ::std::string;
+  }
+  app_reviewed_->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_reviewed(const char* value, size_t size) {
+  set_has_app_reviewed();
+  if (app_reviewed_ == &::google::protobuf::internal::kEmptyString) {
+    app_reviewed_ = new ::std::string;
+  }
+  app_reviewed_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_reviewed() {
+  set_has_app_reviewed();
+  if (app_reviewed_ == &::google::protobuf::internal::kEmptyString) {
+    app_reviewed_ = new ::std::string;
+  }
+  return app_reviewed_;
+}
+inline ::std::string* MobileAdRequest_Aid::release_app_reviewed() {
+  clear_has_app_reviewed();
+  if (app_reviewed_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = app_reviewed_;
+    app_reviewed_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Aid::set_allocated_app_reviewed(::std::string* app_reviewed) {
+  if (app_reviewed_ != &::google::protobuf::internal::kEmptyString) {
+    delete app_reviewed_;
+  }
+  if (app_reviewed) {
+    set_has_app_reviewed();
+    app_reviewed_ = app_reviewed;
+  } else {
+    clear_has_app_reviewed();
+    app_reviewed_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// repeated string app_exclude_network = 20;
+inline int MobileAdRequest_Aid::app_exclude_network_size() const {
+  return app_exclude_network_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_exclude_network() {
+  app_exclude_network_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_exclude_network(int index) const {
+  return app_exclude_network_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_exclude_network(int index) {
+  return app_exclude_network_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_network(int index, const ::std::string& value) {
+  app_exclude_network_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_network(int index, const char* value) {
+  app_exclude_network_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_network(int index, const char* value, size_t size) {
+  app_exclude_network_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_exclude_network() {
+  return app_exclude_network_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_exclude_network(const ::std::string& value) {
+  app_exclude_network_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_network(const char* value) {
+  app_exclude_network_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_network(const char* value, size_t size) {
+  app_exclude_network_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_exclude_network() const {
+  return app_exclude_network_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_exclude_network() {
+  return &app_exclude_network_;
+}
+
+// repeated string app_exclude_advertiser = 21;
+inline int MobileAdRequest_Aid::app_exclude_advertiser_size() const {
+  return app_exclude_advertiser_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_exclude_advertiser() {
+  app_exclude_advertiser_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_exclude_advertiser(int index) const {
+  return app_exclude_advertiser_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_exclude_advertiser(int index) {
+  return app_exclude_advertiser_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_advertiser(int index, const ::std::string& value) {
+  app_exclude_advertiser_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_advertiser(int index, const char* value) {
+  app_exclude_advertiser_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_advertiser(int index, const char* value, size_t size) {
+  app_exclude_advertiser_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_exclude_advertiser() {
+  return app_exclude_advertiser_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_exclude_advertiser(const ::std::string& value) {
+  app_exclude_advertiser_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_advertiser(const char* value) {
+  app_exclude_advertiser_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_advertiser(const char* value, size_t size) {
+  app_exclude_advertiser_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_exclude_advertiser() const {
+  return app_exclude_advertiser_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_exclude_advertiser() {
+  return &app_exclude_advertiser_;
+}
+
+// repeated string app_exclude_campaign = 22;
+inline int MobileAdRequest_Aid::app_exclude_campaign_size() const {
+  return app_exclude_campaign_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_exclude_campaign() {
+  app_exclude_campaign_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_exclude_campaign(int index) const {
+  return app_exclude_campaign_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_exclude_campaign(int index) {
+  return app_exclude_campaign_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_campaign(int index, const ::std::string& value) {
+  app_exclude_campaign_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_campaign(int index, const char* value) {
+  app_exclude_campaign_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_campaign(int index, const char* value, size_t size) {
+  app_exclude_campaign_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_exclude_campaign() {
+  return app_exclude_campaign_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_exclude_campaign(const ::std::string& value) {
+  app_exclude_campaign_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_campaign(const char* value) {
+  app_exclude_campaign_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_campaign(const char* value, size_t size) {
+  app_exclude_campaign_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_exclude_campaign() const {
+  return app_exclude_campaign_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_exclude_campaign() {
+  return &app_exclude_campaign_;
+}
+
+// repeated string app_exclude_creative = 23;
+inline int MobileAdRequest_Aid::app_exclude_creative_size() const {
+  return app_exclude_creative_.size();
+}
+inline void MobileAdRequest_Aid::clear_app_exclude_creative() {
+  app_exclude_creative_.Clear();
+}
+inline const ::std::string& MobileAdRequest_Aid::app_exclude_creative(int index) const {
+  return app_exclude_creative_.Get(index);
+}
+inline ::std::string* MobileAdRequest_Aid::mutable_app_exclude_creative(int index) {
+  return app_exclude_creative_.Mutable(index);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_creative(int index, const ::std::string& value) {
+  app_exclude_creative_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_creative(int index, const char* value) {
+  app_exclude_creative_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_Aid::set_app_exclude_creative(int index, const char* value, size_t size) {
+  app_exclude_creative_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Aid::add_app_exclude_creative() {
+  return app_exclude_creative_.Add();
+}
+inline void MobileAdRequest_Aid::add_app_exclude_creative(const ::std::string& value) {
+  app_exclude_creative_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_creative(const char* value) {
+  app_exclude_creative_.Add()->assign(value);
+}
+inline void MobileAdRequest_Aid::add_app_exclude_creative(const char* value, size_t size) {
+  app_exclude_creative_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_Aid::app_exclude_creative() const {
+  return app_exclude_creative_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_Aid::mutable_app_exclude_creative() {
+  return &app_exclude_creative_;
+}
+
+// -------------------------------------------------------------------
+
+// MobileAdRequest_AppSession
+
+// optional string property = 1;
+inline bool MobileAdRequest_AppSession::has_property() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void MobileAdRequest_AppSession::set_has_property() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void MobileAdRequest_AppSession::clear_has_property() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void MobileAdRequest_AppSession::clear_property() {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    property_->clear();
+  }
+  clear_has_property();
+}
+inline const ::std::string& MobileAdRequest_AppSession::property() const {
+  return *property_;
+}
+inline void MobileAdRequest_AppSession::set_property(const ::std::string& value) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_property(const char* value) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_property(const char* value, size_t size) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_AppSession::mutable_property() {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  return property_;
+}
+inline ::std::string* MobileAdRequest_AppSession::release_property() {
+  clear_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = property_;
+    property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_AppSession::set_allocated_property(::std::string* property) {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    delete property_;
+  }
+  if (property) {
+    set_has_property();
+    property_ = property;
+  } else {
+    clear_has_property();
+    property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string id = 2;
+inline bool MobileAdRequest_AppSession::has_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void MobileAdRequest_AppSession::set_has_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void MobileAdRequest_AppSession::clear_has_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void MobileAdRequest_AppSession::clear_id() {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    id_->clear();
+  }
+  clear_has_id();
+}
+inline const ::std::string& MobileAdRequest_AppSession::id() const {
+  return *id_;
+}
+inline void MobileAdRequest_AppSession::set_id(const ::std::string& value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_id(const char* value) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_id(const char* value, size_t size) {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  id_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_AppSession::mutable_id() {
+  set_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    id_ = new ::std::string;
+  }
+  return id_;
+}
+inline ::std::string* MobileAdRequest_AppSession::release_id() {
+  clear_has_id();
+  if (id_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = id_;
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_AppSession::set_allocated_id(::std::string* id) {
+  if (id_ != &::google::protobuf::internal::kEmptyString) {
+    delete id_;
+  }
+  if (id) {
+    set_has_id();
+    id_ = id;
+  } else {
+    clear_has_id();
+    id_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string times = 3;
+inline bool MobileAdRequest_AppSession::has_times() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void MobileAdRequest_AppSession::set_has_times() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void MobileAdRequest_AppSession::clear_has_times() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void MobileAdRequest_AppSession::clear_times() {
+  if (times_ != &::google::protobuf::internal::kEmptyString) {
+    times_->clear();
+  }
+  clear_has_times();
+}
+inline const ::std::string& MobileAdRequest_AppSession::times() const {
+  return *times_;
+}
+inline void MobileAdRequest_AppSession::set_times(const ::std::string& value) {
+  set_has_times();
+  if (times_ == &::google::protobuf::internal::kEmptyString) {
+    times_ = new ::std::string;
+  }
+  times_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_times(const char* value) {
+  set_has_times();
+  if (times_ == &::google::protobuf::internal::kEmptyString) {
+    times_ = new ::std::string;
+  }
+  times_->assign(value);
+}
+inline void MobileAdRequest_AppSession::set_times(const char* value, size_t size) {
+  set_has_times();
+  if (times_ == &::google::protobuf::internal::kEmptyString) {
+    times_ = new ::std::string;
+  }
+  times_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_AppSession::mutable_times() {
+  set_has_times();
+  if (times_ == &::google::protobuf::internal::kEmptyString) {
+    times_ = new ::std::string;
+  }
+  return times_;
+}
+inline ::std::string* MobileAdRequest_AppSession::release_times() {
+  clear_has_times();
+  if (times_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = times_;
+    times_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_AppSession::set_allocated_times(::std::string* times) {
+  if (times_ != &::google::protobuf::internal::kEmptyString) {
+    delete times_;
+  }
+  if (times) {
+    set_has_times();
+    times_ = times;
+  } else {
+    clear_has_times();
+    times_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// -------------------------------------------------------------------
 
 // MobileAdRequest_Frequency_FrequencyValue
 
@@ -1913,6 +4241,124 @@ MobileAdRequest_Frequency::mutable_frequencyvalue() {
 
 // -------------------------------------------------------------------
 
+// MobileAdRequest_AdInsight
+
+// optional string property = 1;
+inline bool MobileAdRequest_AdInsight::has_property() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void MobileAdRequest_AdInsight::set_has_property() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void MobileAdRequest_AdInsight::clear_has_property() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void MobileAdRequest_AdInsight::clear_property() {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    property_->clear();
+  }
+  clear_has_property();
+}
+inline const ::std::string& MobileAdRequest_AdInsight::property() const {
+  return *property_;
+}
+inline void MobileAdRequest_AdInsight::set_property(const ::std::string& value) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(value);
+}
+inline void MobileAdRequest_AdInsight::set_property(const char* value) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(value);
+}
+inline void MobileAdRequest_AdInsight::set_property(const char* value, size_t size) {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  property_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_AdInsight::mutable_property() {
+  set_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    property_ = new ::std::string;
+  }
+  return property_;
+}
+inline ::std::string* MobileAdRequest_AdInsight::release_property() {
+  clear_has_property();
+  if (property_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = property_;
+    property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_AdInsight::set_allocated_property(::std::string* property) {
+  if (property_ != &::google::protobuf::internal::kEmptyString) {
+    delete property_;
+  }
+  if (property) {
+    set_has_property();
+    property_ = property;
+  } else {
+    clear_has_property();
+    property_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// repeated string ids = 2;
+inline int MobileAdRequest_AdInsight::ids_size() const {
+  return ids_.size();
+}
+inline void MobileAdRequest_AdInsight::clear_ids() {
+  ids_.Clear();
+}
+inline const ::std::string& MobileAdRequest_AdInsight::ids(int index) const {
+  return ids_.Get(index);
+}
+inline ::std::string* MobileAdRequest_AdInsight::mutable_ids(int index) {
+  return ids_.Mutable(index);
+}
+inline void MobileAdRequest_AdInsight::set_ids(int index, const ::std::string& value) {
+  ids_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_AdInsight::set_ids(int index, const char* value) {
+  ids_.Mutable(index)->assign(value);
+}
+inline void MobileAdRequest_AdInsight::set_ids(int index, const char* value, size_t size) {
+  ids_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_AdInsight::add_ids() {
+  return ids_.Add();
+}
+inline void MobileAdRequest_AdInsight::add_ids(const ::std::string& value) {
+  ids_.Add()->assign(value);
+}
+inline void MobileAdRequest_AdInsight::add_ids(const char* value) {
+  ids_.Add()->assign(value);
+}
+inline void MobileAdRequest_AdInsight::add_ids(const char* value, size_t size) {
+  ids_.Add()->assign(reinterpret_cast<const char*>(value), size);
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+MobileAdRequest_AdInsight::ids() const {
+  return ids_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+MobileAdRequest_AdInsight::mutable_ids() {
+  return &ids_;
+}
+
+// -------------------------------------------------------------------
+
 // MobileAdRequest_User
 
 // optional string uid = 1;
@@ -2152,7 +4598,7 @@ inline void MobileAdRequest_Device::set_allocated_ipaddress(::std::string* ipadd
   }
 }
 
-// optional .com.rj.protos.mobile.MobileAdRequest.ConnectionType connectionType = 2;
+// optional string connectionType = 2;
 inline bool MobileAdRequest_Device::has_connectiontype() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -2163,16 +4609,63 @@ inline void MobileAdRequest_Device::clear_has_connectiontype() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void MobileAdRequest_Device::clear_connectiontype() {
-  connectiontype_ = 0;
+  if (connectiontype_ != &::google::protobuf::internal::kEmptyString) {
+    connectiontype_->clear();
+  }
   clear_has_connectiontype();
 }
-inline ::com::rj::protos::mobile::MobileAdRequest_ConnectionType MobileAdRequest_Device::connectiontype() const {
-  return static_cast< ::com::rj::protos::mobile::MobileAdRequest_ConnectionType >(connectiontype_);
+inline const ::std::string& MobileAdRequest_Device::connectiontype() const {
+  return *connectiontype_;
 }
-inline void MobileAdRequest_Device::set_connectiontype(::com::rj::protos::mobile::MobileAdRequest_ConnectionType value) {
-  assert(::com::rj::protos::mobile::MobileAdRequest_ConnectionType_IsValid(value));
+inline void MobileAdRequest_Device::set_connectiontype(const ::std::string& value) {
   set_has_connectiontype();
-  connectiontype_ = value;
+  if (connectiontype_ == &::google::protobuf::internal::kEmptyString) {
+    connectiontype_ = new ::std::string;
+  }
+  connectiontype_->assign(value);
+}
+inline void MobileAdRequest_Device::set_connectiontype(const char* value) {
+  set_has_connectiontype();
+  if (connectiontype_ == &::google::protobuf::internal::kEmptyString) {
+    connectiontype_ = new ::std::string;
+  }
+  connectiontype_->assign(value);
+}
+inline void MobileAdRequest_Device::set_connectiontype(const char* value, size_t size) {
+  set_has_connectiontype();
+  if (connectiontype_ == &::google::protobuf::internal::kEmptyString) {
+    connectiontype_ = new ::std::string;
+  }
+  connectiontype_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest_Device::mutable_connectiontype() {
+  set_has_connectiontype();
+  if (connectiontype_ == &::google::protobuf::internal::kEmptyString) {
+    connectiontype_ = new ::std::string;
+  }
+  return connectiontype_;
+}
+inline ::std::string* MobileAdRequest_Device::release_connectiontype() {
+  clear_has_connectiontype();
+  if (connectiontype_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = connectiontype_;
+    connectiontype_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest_Device::set_allocated_connectiontype(::std::string* connectiontype) {
+  if (connectiontype_ != &::google::protobuf::internal::kEmptyString) {
+    delete connectiontype_;
+  }
+  if (connectiontype) {
+    set_has_connectiontype();
+    connectiontype_ = connectiontype;
+  } else {
+    clear_has_connectiontype();
+    connectiontype_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 // optional string ua = 3;
@@ -4003,73 +6496,73 @@ inline void MobileAdRequest::set_allocated_id(::std::string* id) {
   }
 }
 
-// required string aid = 2;
-inline bool MobileAdRequest::has_aid() const {
+// optional string publishId = 2;
+inline bool MobileAdRequest::has_publishid() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void MobileAdRequest::set_has_aid() {
+inline void MobileAdRequest::set_has_publishid() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void MobileAdRequest::clear_has_aid() {
+inline void MobileAdRequest::clear_has_publishid() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void MobileAdRequest::clear_aid() {
-  if (aid_ != &::google::protobuf::internal::kEmptyString) {
-    aid_->clear();
+inline void MobileAdRequest::clear_publishid() {
+  if (publishid_ != &::google::protobuf::internal::kEmptyString) {
+    publishid_->clear();
   }
-  clear_has_aid();
+  clear_has_publishid();
 }
-inline const ::std::string& MobileAdRequest::aid() const {
-  return *aid_;
+inline const ::std::string& MobileAdRequest::publishid() const {
+  return *publishid_;
 }
-inline void MobileAdRequest::set_aid(const ::std::string& value) {
-  set_has_aid();
-  if (aid_ == &::google::protobuf::internal::kEmptyString) {
-    aid_ = new ::std::string;
+inline void MobileAdRequest::set_publishid(const ::std::string& value) {
+  set_has_publishid();
+  if (publishid_ == &::google::protobuf::internal::kEmptyString) {
+    publishid_ = new ::std::string;
   }
-  aid_->assign(value);
+  publishid_->assign(value);
 }
-inline void MobileAdRequest::set_aid(const char* value) {
-  set_has_aid();
-  if (aid_ == &::google::protobuf::internal::kEmptyString) {
-    aid_ = new ::std::string;
+inline void MobileAdRequest::set_publishid(const char* value) {
+  set_has_publishid();
+  if (publishid_ == &::google::protobuf::internal::kEmptyString) {
+    publishid_ = new ::std::string;
   }
-  aid_->assign(value);
+  publishid_->assign(value);
 }
-inline void MobileAdRequest::set_aid(const char* value, size_t size) {
-  set_has_aid();
-  if (aid_ == &::google::protobuf::internal::kEmptyString) {
-    aid_ = new ::std::string;
+inline void MobileAdRequest::set_publishid(const char* value, size_t size) {
+  set_has_publishid();
+  if (publishid_ == &::google::protobuf::internal::kEmptyString) {
+    publishid_ = new ::std::string;
   }
-  aid_->assign(reinterpret_cast<const char*>(value), size);
+  publishid_->assign(reinterpret_cast<const char*>(value), size);
 }
-inline ::std::string* MobileAdRequest::mutable_aid() {
-  set_has_aid();
-  if (aid_ == &::google::protobuf::internal::kEmptyString) {
-    aid_ = new ::std::string;
+inline ::std::string* MobileAdRequest::mutable_publishid() {
+  set_has_publishid();
+  if (publishid_ == &::google::protobuf::internal::kEmptyString) {
+    publishid_ = new ::std::string;
   }
-  return aid_;
+  return publishid_;
 }
-inline ::std::string* MobileAdRequest::release_aid() {
-  clear_has_aid();
-  if (aid_ == &::google::protobuf::internal::kEmptyString) {
+inline ::std::string* MobileAdRequest::release_publishid() {
+  clear_has_publishid();
+  if (publishid_ == &::google::protobuf::internal::kEmptyString) {
     return NULL;
   } else {
-    ::std::string* temp = aid_;
-    aid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    ::std::string* temp = publishid_;
+    publishid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
     return temp;
   }
 }
-inline void MobileAdRequest::set_allocated_aid(::std::string* aid) {
-  if (aid_ != &::google::protobuf::internal::kEmptyString) {
-    delete aid_;
+inline void MobileAdRequest::set_allocated_publishid(::std::string* publishid) {
+  if (publishid_ != &::google::protobuf::internal::kEmptyString) {
+    delete publishid_;
   }
-  if (aid) {
-    set_has_aid();
-    aid_ = aid;
+  if (publishid) {
+    set_has_publishid();
+    publishid_ = publishid;
   } else {
-    clear_has_aid();
-    aid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    clear_has_publishid();
+    publishid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
 }
 
@@ -4888,15 +7381,65 @@ MobileAdRequest::mutable_frequency() {
   return &frequency_;
 }
 
-// optional string appType = 18;
+// repeated .com.rj.protos.mobile.MobileAdRequest.AppSession appSession = 18;
+inline int MobileAdRequest::appsession_size() const {
+  return appsession_.size();
+}
+inline void MobileAdRequest::clear_appsession() {
+  appsession_.Clear();
+}
+inline const ::com::rj::protos::mobile::MobileAdRequest_AppSession& MobileAdRequest::appsession(int index) const {
+  return appsession_.Get(index);
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_AppSession* MobileAdRequest::mutable_appsession(int index) {
+  return appsession_.Mutable(index);
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_AppSession* MobileAdRequest::add_appsession() {
+  return appsession_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession >&
+MobileAdRequest::appsession() const {
+  return appsession_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession >*
+MobileAdRequest::mutable_appsession() {
+  return &appsession_;
+}
+
+// repeated .com.rj.protos.mobile.MobileAdRequest.AdInsight adInsight = 19;
+inline int MobileAdRequest::adinsight_size() const {
+  return adinsight_.size();
+}
+inline void MobileAdRequest::clear_adinsight() {
+  adinsight_.Clear();
+}
+inline const ::com::rj::protos::mobile::MobileAdRequest_AdInsight& MobileAdRequest::adinsight(int index) const {
+  return adinsight_.Get(index);
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_AdInsight* MobileAdRequest::mutable_adinsight(int index) {
+  return adinsight_.Mutable(index);
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_AdInsight* MobileAdRequest::add_adinsight() {
+  return adinsight_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AdInsight >&
+MobileAdRequest::adinsight() const {
+  return adinsight_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AdInsight >*
+MobileAdRequest::mutable_adinsight() {
+  return &adinsight_;
+}
+
+// optional string appType = 20;
 inline bool MobileAdRequest::has_apptype() const {
-  return (_has_bits_[0] & 0x00020000u) != 0;
+  return (_has_bits_[0] & 0x00080000u) != 0;
 }
 inline void MobileAdRequest::set_has_apptype() {
-  _has_bits_[0] |= 0x00020000u;
+  _has_bits_[0] |= 0x00080000u;
 }
 inline void MobileAdRequest::clear_has_apptype() {
-  _has_bits_[0] &= ~0x00020000u;
+  _has_bits_[0] &= ~0x00080000u;
 }
 inline void MobileAdRequest::clear_apptype() {
   if (apptype_ != &::google::protobuf::internal::kEmptyString) {
@@ -4958,15 +7501,15 @@ inline void MobileAdRequest::set_allocated_apptype(::std::string* apptype) {
   }
 }
 
-// optional string trafficQuality = 19;
+// optional string trafficQuality = 21;
 inline bool MobileAdRequest::has_trafficquality() const {
-  return (_has_bits_[0] & 0x00040000u) != 0;
+  return (_has_bits_[0] & 0x00100000u) != 0;
 }
 inline void MobileAdRequest::set_has_trafficquality() {
-  _has_bits_[0] |= 0x00040000u;
+  _has_bits_[0] |= 0x00100000u;
 }
 inline void MobileAdRequest::clear_has_trafficquality() {
-  _has_bits_[0] &= ~0x00040000u;
+  _has_bits_[0] &= ~0x00100000u;
 }
 inline void MobileAdRequest::clear_trafficquality() {
   if (trafficquality_ != &::google::protobuf::internal::kEmptyString) {
@@ -5028,15 +7571,15 @@ inline void MobileAdRequest::set_allocated_trafficquality(::std::string* traffic
   }
 }
 
-// optional string inventoryQuality = 20;
+// optional string inventoryQuality = 22;
 inline bool MobileAdRequest::has_inventoryquality() const {
-  return (_has_bits_[0] & 0x00080000u) != 0;
+  return (_has_bits_[0] & 0x00200000u) != 0;
 }
 inline void MobileAdRequest::set_has_inventoryquality() {
-  _has_bits_[0] |= 0x00080000u;
+  _has_bits_[0] |= 0x00200000u;
 }
 inline void MobileAdRequest::clear_has_inventoryquality() {
-  _has_bits_[0] &= ~0x00080000u;
+  _has_bits_[0] &= ~0x00200000u;
 }
 inline void MobileAdRequest::clear_inventoryquality() {
   if (inventoryquality_ != &::google::protobuf::internal::kEmptyString) {
@@ -5098,15 +7641,15 @@ inline void MobileAdRequest::set_allocated_inventoryquality(::std::string* inven
   }
 }
 
-// optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 21;
+// optional .com.rj.protos.mobile.MobileAdRequest.TestFlag test = 23;
 inline bool MobileAdRequest::has_test() const {
-  return (_has_bits_[0] & 0x00100000u) != 0;
+  return (_has_bits_[0] & 0x00400000u) != 0;
 }
 inline void MobileAdRequest::set_has_test() {
-  _has_bits_[0] |= 0x00100000u;
+  _has_bits_[0] |= 0x00400000u;
 }
 inline void MobileAdRequest::clear_has_test() {
-  _has_bits_[0] &= ~0x00100000u;
+  _has_bits_[0] &= ~0x00400000u;
 }
 inline void MobileAdRequest::clear_test() {
   test_ = 0;
@@ -5119,6 +7662,184 @@ inline void MobileAdRequest::set_test(::com::rj::protos::mobile::MobileAdRequest
   assert(::com::rj::protos::mobile::MobileAdRequest_TestFlag_IsValid(value));
   set_has_test();
   test_ = value;
+}
+
+// optional string appID = 24;
+inline bool MobileAdRequest::has_appid() const {
+  return (_has_bits_[0] & 0x00800000u) != 0;
+}
+inline void MobileAdRequest::set_has_appid() {
+  _has_bits_[0] |= 0x00800000u;
+}
+inline void MobileAdRequest::clear_has_appid() {
+  _has_bits_[0] &= ~0x00800000u;
+}
+inline void MobileAdRequest::clear_appid() {
+  if (appid_ != &::google::protobuf::internal::kEmptyString) {
+    appid_->clear();
+  }
+  clear_has_appid();
+}
+inline const ::std::string& MobileAdRequest::appid() const {
+  return *appid_;
+}
+inline void MobileAdRequest::set_appid(const ::std::string& value) {
+  set_has_appid();
+  if (appid_ == &::google::protobuf::internal::kEmptyString) {
+    appid_ = new ::std::string;
+  }
+  appid_->assign(value);
+}
+inline void MobileAdRequest::set_appid(const char* value) {
+  set_has_appid();
+  if (appid_ == &::google::protobuf::internal::kEmptyString) {
+    appid_ = new ::std::string;
+  }
+  appid_->assign(value);
+}
+inline void MobileAdRequest::set_appid(const char* value, size_t size) {
+  set_has_appid();
+  if (appid_ == &::google::protobuf::internal::kEmptyString) {
+    appid_ = new ::std::string;
+  }
+  appid_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest::mutable_appid() {
+  set_has_appid();
+  if (appid_ == &::google::protobuf::internal::kEmptyString) {
+    appid_ = new ::std::string;
+  }
+  return appid_;
+}
+inline ::std::string* MobileAdRequest::release_appid() {
+  clear_has_appid();
+  if (appid_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = appid_;
+    appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest::set_allocated_appid(::std::string* appid) {
+  if (appid_ != &::google::protobuf::internal::kEmptyString) {
+    delete appid_;
+  }
+  if (appid) {
+    set_has_appid();
+    appid_ = appid;
+  } else {
+    clear_has_appid();
+    appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string appCategory = 25;
+inline bool MobileAdRequest::has_appcategory() const {
+  return (_has_bits_[0] & 0x01000000u) != 0;
+}
+inline void MobileAdRequest::set_has_appcategory() {
+  _has_bits_[0] |= 0x01000000u;
+}
+inline void MobileAdRequest::clear_has_appcategory() {
+  _has_bits_[0] &= ~0x01000000u;
+}
+inline void MobileAdRequest::clear_appcategory() {
+  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
+    appcategory_->clear();
+  }
+  clear_has_appcategory();
+}
+inline const ::std::string& MobileAdRequest::appcategory() const {
+  return *appcategory_;
+}
+inline void MobileAdRequest::set_appcategory(const ::std::string& value) {
+  set_has_appcategory();
+  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
+    appcategory_ = new ::std::string;
+  }
+  appcategory_->assign(value);
+}
+inline void MobileAdRequest::set_appcategory(const char* value) {
+  set_has_appcategory();
+  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
+    appcategory_ = new ::std::string;
+  }
+  appcategory_->assign(value);
+}
+inline void MobileAdRequest::set_appcategory(const char* value, size_t size) {
+  set_has_appcategory();
+  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
+    appcategory_ = new ::std::string;
+  }
+  appcategory_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* MobileAdRequest::mutable_appcategory() {
+  set_has_appcategory();
+  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
+    appcategory_ = new ::std::string;
+  }
+  return appcategory_;
+}
+inline ::std::string* MobileAdRequest::release_appcategory() {
+  clear_has_appcategory();
+  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = appcategory_;
+    appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void MobileAdRequest::set_allocated_appcategory(::std::string* appcategory) {
+  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
+    delete appcategory_;
+  }
+  if (appcategory) {
+    set_has_appcategory();
+    appcategory_ = appcategory;
+  } else {
+    clear_has_appcategory();
+    appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+inline bool MobileAdRequest::has_aid() const {
+  return (_has_bits_[0] & 0x02000000u) != 0;
+}
+inline void MobileAdRequest::set_has_aid() {
+  _has_bits_[0] |= 0x02000000u;
+}
+inline void MobileAdRequest::clear_has_aid() {
+  _has_bits_[0] &= ~0x02000000u;
+}
+inline void MobileAdRequest::clear_aid() {
+  if (aid_ != NULL) aid_->::com::rj::protos::mobile::MobileAdRequest_Aid::Clear();
+  clear_has_aid();
+}
+inline const ::com::rj::protos::mobile::MobileAdRequest_Aid& MobileAdRequest::aid() const {
+  return aid_ != NULL ? *aid_ : *default_instance_->aid_;
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_Aid* MobileAdRequest::mutable_aid() {
+  set_has_aid();
+  if (aid_ == NULL) aid_ = new ::com::rj::protos::mobile::MobileAdRequest_Aid;
+  return aid_;
+}
+inline ::com::rj::protos::mobile::MobileAdRequest_Aid* MobileAdRequest::release_aid() {
+  clear_has_aid();
+  ::com::rj::protos::mobile::MobileAdRequest_Aid* temp = aid_;
+  aid_ = NULL;
+  return temp;
+}
+inline void MobileAdRequest::set_allocated_aid(::com::rj::protos::mobile::MobileAdRequest_Aid* aid) {
+  delete aid_;
+  aid_ = aid;
+  if (aid) {
+    set_has_aid();
+  } else {
+    clear_has_aid();
+  }
 }
 
 
@@ -5148,10 +7869,6 @@ inline const EnumDescriptor* GetEnumDescriptor< ::com::rj::protos::mobile::Mobil
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::com::rj::protos::mobile::MobileAdRequest_AdType>() {
   return ::com::rj::protos::mobile::MobileAdRequest_AdType_descriptor();
-}
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::com::rj::protos::mobile::MobileAdRequest_ConnectionType>() {
-  return ::com::rj::protos::mobile::MobileAdRequest_ConnectionType_descriptor();
 }
 
 }  // namespace google

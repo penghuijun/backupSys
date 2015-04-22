@@ -1,3 +1,4 @@
+
 package com.rj.protos.msg;
 
 
@@ -289,8 +290,6 @@ message BidderResponse {
                 //<Tracking> 'creatvieView' attribute
                 repeated string creativeView = 12;
             }
-
-
             repeated Companion companion = 4;
         }
 

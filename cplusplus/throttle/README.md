@@ -6,3 +6,4 @@ worker is responserbility to handler things
 
 master comminute with worker by zmq push/pull
 update on 20141029
+update on 20150422

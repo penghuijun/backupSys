@@ -530,6 +530,9 @@ public:
 	{
 		m_at = 2;
 		m_allimps = 0;
+		m_tmax = 80;	
+		m_test = 0;
+		m_curArray.push_back("USD");
 	}
 	bool toJson(string& jsonStr);
 	void parse_mobile(const string& mobileReqStr);
@@ -543,14 +546,13 @@ private:
 	bidReqDataType<userObject> m_user;
 	bidReqDataType<regulationsObject> m_regs;		
 	bidReqDataType<int>    m_at;
+	bidReqDataType<int>    m_test;
 	bidReqDataType<int>    m_tmax;
 	bidReqDataType<int>    m_allimps;
 	bidReqDataType<vector<string>> m_wseatArray;
 	bidReqDataType<vector<string>> m_curArray;
 	bidReqDataType<vector<string>> m_bcatArray;
 	bidReqDataType<vector<string>> m_badvArray;
-
-
 };
 
 class bidObject
@@ -576,7 +578,6 @@ private:
 	string m_dealid;
 	bidReqDataType<int> m_h;
 	bidReqDataType<int> m_w;
-
 };
 
 class seatBidObject

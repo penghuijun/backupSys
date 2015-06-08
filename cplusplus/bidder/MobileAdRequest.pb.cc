@@ -65,7 +65,7 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
       "MobileAdRequest.proto");
   GOOGLE_CHECK(file != NULL);
   MobileAdRequest_descriptor_ = file->message_type(0);
-  static const int MobileAdRequest_offsets_[26] = {
+  static const int MobileAdRequest_offsets_[24] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, publishid_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, version_),
@@ -89,8 +89,6 @@ void protobuf_AssignDesc_MobileAdRequest_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, trafficquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, inventoryquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, test_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, appid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, appcategory_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MobileAdRequest, aid_),
   };
   MobileAdRequest_reflection_ =
@@ -347,7 +345,7 @@ void protobuf_AddDesc_MobileAdRequest_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025MobileAdRequest.proto\022\024com.rj.protos.m"
-    "obile\"\324\024\n\017MobileAdRequest\022\n\n\002id\030\001 \001(\t\022\021\n"
+    "obile\"\260\024\n\017MobileAdRequest\022\n\n\002id\030\001 \001(\t\022\021\n"
     "\tpublishId\030\002 \001(\t\022\017\n\007version\030\003 \001(\t\022:\n\004typ"
     "e\030\004 \001(\0162,.com.rj.protos.mobile.MobileAdR"
     "equest.AdType\022\021\n\ttimestamp\030\005 \001(\t\022\024\n\014adsp"
@@ -368,52 +366,51 @@ void protobuf_AddDesc_MobileAdRequest_2eproto() {
     "MobileAdRequest.AdInsight\022\017\n\007appType\030\024 \001"
     "(\t\022\026\n\016trafficQuality\030\025 \001(\t\022\030\n\020inventoryQ"
     "uality\030\026 \001(\t\022<\n\004test\030\027 \001(\0162..com.rj.prot"
-    "os.mobile.MobileAdRequest.TestFlag\022\r\n\005ap"
-    "pID\030\030 \001(\t\022\023\n\013appCategory\030\031 \001(\t\0226\n\003aid\030\032 "
-    "\001(\0132).com.rj.protos.mobile.MobileAdReque"
-    "st.Aid\032\326\004\n\003Aid\022\n\n\002id\030\001 \001(\t\022\016\n\006status\030\002 \001"
-    "(\t\022\021\n\tnetworkId\030\003 \001(\t\022\031\n\021network_reselli"
-    "ng\030\004 \001(\t\022\037\n\027network_reselling_share\030\005 \001("
-    "\t\022\024\n\014publisher_id\030\006 \001(\t\022\024\n\014app_currency\030"
-    "\007 \001(\t\022\022\n\napp_resell\030\010 \001(\t\022 \n\030app_direct_"
-    "payment_model\030\t \001(\t\022 \n\030app_direct_paymen"
-    "t_value\030\n \001(\t\022!\n\031app_indrect_payment_mod"
-    "el\030\013 \001(\t\022!\n\031app_indrect_payment_value\030\014 "
-    "\001(\t\022\024\n\014app_keywords\030\r \003(\t\022\034\n\024app_support"
-    "_language\030\016 \003(\t\022\024\n\014app_category\030\017 \001(\t\022\030\n"
-    "\020app_package_name\030\020 \001(\t\022\020\n\010app_name\030\021 \001("
-    "\t\022\025\n\rapp_store_url\030\022 \003(\t\022\024\n\014app_reviewed"
-    "\030\023 \001(\t\022\033\n\023app_exclude_network\030\024 \003(\t\022\036\n\026a"
-    "pp_exclude_advertiser\030\025 \003(\t\022\034\n\024app_exclu"
-    "de_campaign\030\026 \003(\t\022\034\n\024app_exclude_creativ"
-    "e\030\027 \003(\t\0329\n\nAppSession\022\020\n\010property\030\001 \001(\t\022"
-    "\n\n\002id\030\002 \001(\t\022\r\n\005times\030\003 \001(\t\032\312\001\n\tFrequency"
-    "\022\020\n\010property\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022V\n\016freque"
-    "ncyValue\030\003 \003(\0132>.com.rj.protos.mobile.Mo"
-    "bileAdRequest.Frequency.FrequencyValue\032G"
-    "\n\016FrequencyValue\022\025\n\rfrequencyType\030\001 \001(\t\022"
-    "\r\n\005times\030\002 \001(\t\022\017\n\007dueDate\030\003 \001(\t\032*\n\tAdIns"
-    "ight\022\020\n\010property\030\001 \001(\t\022\013\n\003ids\030\002 \003(\t\032^\n\004U"
-    "ser\022\013\n\003uid\030\001 \001(\t\022<\n\006gender\030\002 \001(\0162,.com.r"
-    "j.protos.mobile.MobileAdRequest.Gender\022\013"
-    "\n\003Age\030\003 \001(\t\032\265\002\n\006Device\022\021\n\tipAddress\030\001 \001("
-    "\t\022\026\n\016connectionType\030\002 \001(\t\022\n\n\002ua\030\003 \001(\t\022\014\n"
-    "\004udid\030\004 \001(\t\022\016\n\006hidMd5\030\005 \001(\t\022\017\n\007hidSha1\030\006"
-    " \001(\t\022\022\n\ndeviceType\030\007 \001(\t\022\020\n\010platform\030\010 \001"
-    "(\t\022\027\n\017platformVersion\030\t \001(\t\022\020\n\010language\030"
-    "\n \001(\t\022\016\n\006vender\030\013 \001(\t\022\021\n\tmodelName\030\014 \001(\t"
-    "\022\025\n\rmarketingName\030\r \001(\t\022\023\n\013screenWidth\030\016"
-    " \001(\t\022\024\n\014screenHeight\030\017 \001(\t\022\017\n\007density\030\020 "
-    "\001(\t\032\271\001\n\007GeoInfo\022\017\n\007country\030\001 \001(\t\022\016\n\006regi"
-    "on\030\002 \001(\t\022\014\n\004city\030\003 \001(\t\022\020\n\010latitude\030\004 \001(\t"
-    "\022\021\n\tlongitude\030\005 \001(\t\022\013\n\003isp\030\006 \001(\t\022\016\n\006doma"
-    "in\030\007 \001(\t\022\013\n\003mcc\030\010 \001(\t\022\013\n\003mnc\030\t \001(\t\022\022\n\nus"
-    "age_type\030\n \001(\t\022\017\n\007carrier\030\013 \001(\t\"\037\n\010TestF"
-    "lag\022\010\n\004TRUE\020\000\022\t\n\005FALSE\020\001\"2\n\006Gender\022\022\n\016UN"
-    "KNOWN_GENDER\020\000\022\010\n\004MALE\020\001\022\n\n\006FEMALE\020\002\"*\n\013"
-    "Orientation\022\r\n\tLANDSCAPE\020\000\022\014\n\010PORTRAIT\020\001"
-    "\"2\n\006AdType\022\n\n\006BANNER\020\000\022\020\n\014INTERSTITIAL\020\001"
-    "\022\n\n\006NATIVE\020\002", 2692);
+    "os.mobile.MobileAdRequest.TestFlag\0226\n\003ai"
+    "d\030\030 \001(\0132).com.rj.protos.mobile.MobileAdR"
+    "equest.Aid\032\326\004\n\003Aid\022\n\n\002id\030\001 \001(\t\022\016\n\006status"
+    "\030\002 \001(\t\022\021\n\tnetworkId\030\003 \001(\t\022\031\n\021network_res"
+    "elling\030\004 \001(\t\022\037\n\027network_reselling_share\030"
+    "\005 \001(\t\022\024\n\014publisher_id\030\006 \001(\t\022\024\n\014app_curre"
+    "ncy\030\007 \001(\t\022\022\n\napp_resell\030\010 \001(\t\022 \n\030app_dir"
+    "ect_payment_model\030\t \001(\t\022 \n\030app_direct_pa"
+    "yment_value\030\n \001(\t\022!\n\031app_indrect_payment"
+    "_model\030\013 \001(\t\022!\n\031app_indrect_payment_valu"
+    "e\030\014 \001(\t\022\024\n\014app_keywords\030\r \003(\t\022\034\n\024app_sup"
+    "port_language\030\016 \003(\t\022\024\n\014app_category\030\017 \001("
+    "\t\022\030\n\020app_package_name\030\020 \001(\t\022\020\n\010app_name\030"
+    "\021 \001(\t\022\025\n\rapp_store_url\030\022 \003(\t\022\024\n\014app_revi"
+    "ewed\030\023 \001(\t\022\033\n\023app_exclude_network\030\024 \003(\t\022"
+    "\036\n\026app_exclude_advertiser\030\025 \003(\t\022\034\n\024app_e"
+    "xclude_campaign\030\026 \003(\t\022\034\n\024app_exclude_cre"
+    "ative\030\027 \003(\t\0329\n\nAppSession\022\020\n\010property\030\001 "
+    "\001(\t\022\n\n\002id\030\002 \001(\t\022\r\n\005times\030\003 \001(\t\032\312\001\n\tFrequ"
+    "ency\022\020\n\010property\030\001 \001(\t\022\n\n\002id\030\002 \001(\t\022V\n\016fr"
+    "equencyValue\030\003 \003(\0132>.com.rj.protos.mobil"
+    "e.MobileAdRequest.Frequency.FrequencyVal"
+    "ue\032G\n\016FrequencyValue\022\025\n\rfrequencyType\030\001 "
+    "\001(\t\022\r\n\005times\030\002 \001(\t\022\017\n\007dueDate\030\003 \001(\t\032*\n\tA"
+    "dInsight\022\020\n\010property\030\001 \001(\t\022\013\n\003ids\030\002 \003(\t\032"
+    "^\n\004User\022\013\n\003uid\030\001 \001(\t\022<\n\006gender\030\002 \001(\0162,.c"
+    "om.rj.protos.mobile.MobileAdRequest.Gend"
+    "er\022\013\n\003Age\030\003 \001(\t\032\265\002\n\006Device\022\021\n\tipAddress\030"
+    "\001 \001(\t\022\026\n\016connectionType\030\002 \001(\t\022\n\n\002ua\030\003 \001("
+    "\t\022\014\n\004udid\030\004 \001(\t\022\016\n\006hidMd5\030\005 \001(\t\022\017\n\007hidSh"
+    "a1\030\006 \001(\t\022\022\n\ndeviceType\030\007 \001(\t\022\020\n\010platform"
+    "\030\010 \001(\t\022\027\n\017platformVersion\030\t \001(\t\022\020\n\010langu"
+    "age\030\n \001(\t\022\016\n\006vender\030\013 \001(\t\022\021\n\tmodelName\030\014"
+    " \001(\t\022\025\n\rmarketingName\030\r \001(\t\022\023\n\013screenWid"
+    "th\030\016 \001(\t\022\024\n\014screenHeight\030\017 \001(\t\022\017\n\007densit"
+    "y\030\020 \001(\t\032\271\001\n\007GeoInfo\022\017\n\007country\030\001 \001(\t\022\016\n\006"
+    "region\030\002 \001(\t\022\014\n\004city\030\003 \001(\t\022\020\n\010latitude\030\004"
+    " \001(\t\022\021\n\tlongitude\030\005 \001(\t\022\013\n\003isp\030\006 \001(\t\022\016\n\006"
+    "domain\030\007 \001(\t\022\013\n\003mcc\030\010 \001(\t\022\013\n\003mnc\030\t \001(\t\022\022"
+    "\n\nusage_type\030\n \001(\t\022\017\n\007carrier\030\013 \001(\t\"\037\n\010T"
+    "estFlag\022\010\n\004TRUE\020\000\022\t\n\005FALSE\020\001\"2\n\006Gender\022\022"
+    "\n\016UNKNOWN_GENDER\020\000\022\010\n\004MALE\020\001\022\n\n\006FEMALE\020\002"
+    "\"*\n\013Orientation\022\r\n\tLANDSCAPE\020\000\022\014\n\010PORTRA"
+    "IT\020\001\"2\n\006AdType\022\n\n\006BANNER\020\000\022\020\n\014INTERSTITI"
+    "AL\020\001\022\n\n\006NATIVE\020\002", 2656);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "MobileAdRequest.proto", &protobuf_RegisterTypes);
   MobileAdRequest::default_instance_ = new MobileAdRequest();
@@ -5474,8 +5471,6 @@ const int MobileAdRequest::kAppTypeFieldNumber;
 const int MobileAdRequest::kTrafficQualityFieldNumber;
 const int MobileAdRequest::kInventoryQualityFieldNumber;
 const int MobileAdRequest::kTestFieldNumber;
-const int MobileAdRequest::kAppIDFieldNumber;
-const int MobileAdRequest::kAppCategoryFieldNumber;
 const int MobileAdRequest::kAidFieldNumber;
 #endif  // !_MSC_VER
 
@@ -5519,8 +5514,6 @@ void MobileAdRequest::SharedCtor() {
   trafficquality_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   inventoryquality_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   test_ = 0;
-  appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   aid_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -5571,12 +5564,6 @@ void MobileAdRequest::SharedDtor() {
   }
   if (inventoryquality_ != &::google::protobuf::internal::kEmptyString) {
     delete inventoryquality_;
-  }
-  if (appid_ != &::google::protobuf::internal::kEmptyString) {
-    delete appid_;
-  }
-  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
-    delete appcategory_;
   }
   if (this != default_instance_) {
     delete device_;
@@ -5695,18 +5682,6 @@ void MobileAdRequest::Clear() {
       }
     }
     test_ = 0;
-    if (has_appid()) {
-      if (appid_ != &::google::protobuf::internal::kEmptyString) {
-        appid_->clear();
-      }
-    }
-  }
-  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
-    if (has_appcategory()) {
-      if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
-        appcategory_->clear();
-      }
-    }
     if (has_aid()) {
       if (aid_ != NULL) aid_->::com::rj::protos::mobile::MobileAdRequest_Aid::Clear();
     }
@@ -6107,46 +6082,12 @@ bool MobileAdRequest::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(194)) goto parse_appID;
+        if (input->ExpectTag(194)) goto parse_aid;
         break;
       }
 
-      // optional string appID = 24;
+      // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
       case 24: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_appID:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_appid()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->appid().data(), this->appid().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(202)) goto parse_appCategory;
-        break;
-      }
-
-      // optional string appCategory = 25;
-      case 25: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_appCategory:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_appcategory()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->appcategory().data(), this->appcategory().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(210)) goto parse_aid;
-        break;
-      }
-
-      // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
-      case 26: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_aid:
@@ -6357,28 +6298,10 @@ void MobileAdRequest::SerializeWithCachedSizes(
       23, this->test(), output);
   }
 
-  // optional string appID = 24;
-  if (has_appid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->appid().data(), this->appid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      24, this->appid(), output);
-  }
-
-  // optional string appCategory = 25;
-  if (has_appcategory()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->appcategory().data(), this->appcategory().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      25, this->appcategory(), output);
-  }
-
-  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
   if (has_aid()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      26, this->aid(), output);
+      24, this->aid(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -6589,31 +6512,11 @@ void MobileAdRequest::SerializeWithCachedSizes(
       23, this->test(), target);
   }
 
-  // optional string appID = 24;
-  if (has_appid()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->appid().data(), this->appid().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        24, this->appid(), target);
-  }
-
-  // optional string appCategory = 25;
-  if (has_appcategory()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->appcategory().data(), this->appcategory().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        25, this->appcategory(), target);
-  }
-
-  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
   if (has_aid()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        26, this->aid(), target);
+        24, this->aid(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -6768,23 +6671,7 @@ int MobileAdRequest::ByteSize() const {
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->test());
     }
 
-    // optional string appID = 24;
-    if (has_appid()) {
-      total_size += 2 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->appid());
-    }
-
-  }
-  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
-    // optional string appCategory = 25;
-    if (has_appcategory()) {
-      total_size += 2 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->appcategory());
-    }
-
-    // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+    // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
     if (has_aid()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -6909,14 +6796,6 @@ void MobileAdRequest::MergeFrom(const MobileAdRequest& from) {
     if (from.has_test()) {
       set_test(from.test());
     }
-    if (from.has_appid()) {
-      set_appid(from.appid());
-    }
-  }
-  if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
-    if (from.has_appcategory()) {
-      set_appcategory(from.appcategory());
-    }
     if (from.has_aid()) {
       mutable_aid()->::com::rj::protos::mobile::MobileAdRequest_Aid::MergeFrom(from.aid());
     }
@@ -6966,8 +6845,6 @@ void MobileAdRequest::Swap(MobileAdRequest* other) {
     std::swap(trafficquality_, other->trafficquality_);
     std::swap(inventoryquality_, other->inventoryquality_);
     std::swap(test_, other->test_);
-    std::swap(appid_, other->appid_);
-    std::swap(appcategory_, other->appcategory_);
     std::swap(aid_, other->aid_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

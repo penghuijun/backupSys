@@ -146,8 +146,8 @@ void protobuf_AssignDesc_campaign_5fproto_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, trafficquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, inventoryquality_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, frequency_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, appid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, appcategory_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, directapps_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, indirectapps_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CampaignProtoEntity_Targeting, session_),
   };
   CampaignProtoEntity_Targeting_reflection_ =
@@ -252,7 +252,7 @@ void protobuf_AddDesc_campaign_5fproto_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024campaign_proto.proto\022\027com.rj.targeting"
-    ".protos\"\217\013\n\023CampaignProtoEntity\022\n\n\002id\030\001 "
+    ".protos\"\225\013\n\023CampaignProtoEntity\022\n\n\002id\030\001 "
     "\001(\t\022\020\n\010currency\030\002 \001(\t\022\r\n\005state\030\003 \001(\t\022\023\n\013"
     "biddingType\030\004 \001(\t\022\024\n\014biddingValue\030\005 \001(\t\022"
     "\024\n\014advertiserId\030\006 \001(\t\022\022\n\npacingRate\030\007 \001("
@@ -272,22 +272,22 @@ void protobuf_AddDesc_campaign_5fproto_2eproto() {
     "rgeting.protos.CampaignProtoEntity.Creat"
     "ives.Datas\032e\n\005Datas\022\n\n\002id\030\001 \001(\t\022\022\n\ncateg"
     "oryId\030\002 \001(\t\022\017\n\007channel\030\003 \001(\t\022\023\n\013mediaTyp"
-    "eId\030\004 \001(\t\022\026\n\016mediaSubTypeId\030\005 \001(\t\032\325\004\n\tTa"
+    "eId\030\004 \001(\t\022\026\n\016mediaSubTypeId\030\005 \001(\t\032\333\004\n\tTa"
     "rgeting\022\033\n\023supplyTypeMobileWeb\030\001 \001(\t\022\033\n\023"
     "supplyTypeMobileApp\030\002 \001(\t\022\030\n\020deviceTypeT"
     "ablet\030\003 \001(\t\022\027\n\017deviceTypePhone\030\004 \001(\t\022\026\n\016"
     "trafficQuality\030\005 \001(\r\022\030\n\020inventoryQuality"
     "\030\006 \001(\t\022S\n\tfrequency\030\007 \001(\0132@.com.rj.targe"
     "ting.protos.CampaignProtoEntity.Targetin"
-    "g.Frequency\022Q\n\005appId\030\010 \001(\0132B.com.rj.targ"
-    "eting.protos.CampaignProtoEntity.Targeti"
-    "ng.AppCriteria\022W\n\013appCategory\030\t \001(\0132B.co"
-    "m.rj.targeting.protos.CampaignProtoEntit"
-    "y.Targeting.AppCriteria\022\017\n\007session\030\n \001(\r"
-    "\032o\n\tFrequency\022\020\n\010no_track\030\001 \001(\r\022\024\n\014five_"
-    "minutes\030\002 \001(\r\022\013\n\003day\030\003 \001(\r\022\014\n\004week\030\004 \001(\r"
-    "\022\r\n\005month\030\005 \001(\r\022\020\n\010lifetime\030\006 \001(\r\032&\n\013App"
-    "Criteria\022\n\n\002in\030\001 \001(\010\022\013\n\003ids\030\002 \003(\r", 1473);
+    "g.Frequency\022V\n\ndirectApps\030\010 \001(\0132B.com.rj"
+    ".targeting.protos.CampaignProtoEntity.Ta"
+    "rgeting.AppCriteria\022X\n\014inDirectApps\030\t \001("
+    "\0132B.com.rj.targeting.protos.CampaignProt"
+    "oEntity.Targeting.AppCriteria\022\017\n\007session"
+    "\030\n \001(\r\032o\n\tFrequency\022\020\n\010no_track\030\001 \001(\r\022\024\n"
+    "\014five_minutes\030\002 \001(\r\022\013\n\003day\030\003 \001(\r\022\014\n\004week"
+    "\030\004 \001(\r\022\r\n\005month\030\005 \001(\r\022\020\n\010lifetime\030\006 \001(\r\032"
+    "&\n\013AppCriteria\022\n\n\002in\030\001 \001(\010\022\013\n\003ids\030\002 \003(\r", 1479);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "campaign_proto.proto", &protobuf_RegisterTypes);
   CampaignProtoEntity::default_instance_ = new CampaignProtoEntity();
@@ -2043,8 +2043,8 @@ const int CampaignProtoEntity_Targeting::kDeviceTypePhoneFieldNumber;
 const int CampaignProtoEntity_Targeting::kTrafficQualityFieldNumber;
 const int CampaignProtoEntity_Targeting::kInventoryQualityFieldNumber;
 const int CampaignProtoEntity_Targeting::kFrequencyFieldNumber;
-const int CampaignProtoEntity_Targeting::kAppIdFieldNumber;
-const int CampaignProtoEntity_Targeting::kAppCategoryFieldNumber;
+const int CampaignProtoEntity_Targeting::kDirectAppsFieldNumber;
+const int CampaignProtoEntity_Targeting::kInDirectAppsFieldNumber;
 const int CampaignProtoEntity_Targeting::kSessionFieldNumber;
 #endif  // !_MSC_VER
 
@@ -2055,8 +2055,8 @@ CampaignProtoEntity_Targeting::CampaignProtoEntity_Targeting()
 
 void CampaignProtoEntity_Targeting::InitAsDefaultInstance() {
   frequency_ = const_cast< ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency*>(&::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency::default_instance());
-  appid_ = const_cast< ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria*>(&::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::default_instance());
-  appcategory_ = const_cast< ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria*>(&::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::default_instance());
+  directapps_ = const_cast< ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria*>(&::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::default_instance());
+  indirectapps_ = const_cast< ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria*>(&::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::default_instance());
 }
 
 CampaignProtoEntity_Targeting::CampaignProtoEntity_Targeting(const CampaignProtoEntity_Targeting& from)
@@ -2074,8 +2074,8 @@ void CampaignProtoEntity_Targeting::SharedCtor() {
   trafficquality_ = 0u;
   inventoryquality_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   frequency_ = NULL;
-  appid_ = NULL;
-  appcategory_ = NULL;
+  directapps_ = NULL;
+  indirectapps_ = NULL;
   session_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2102,8 +2102,8 @@ void CampaignProtoEntity_Targeting::SharedDtor() {
   }
   if (this != default_instance_) {
     delete frequency_;
-    delete appid_;
-    delete appcategory_;
+    delete directapps_;
+    delete indirectapps_;
   }
 }
 
@@ -2159,13 +2159,13 @@ void CampaignProtoEntity_Targeting::Clear() {
     if (has_frequency()) {
       if (frequency_ != NULL) frequency_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency::Clear();
     }
-    if (has_appid()) {
-      if (appid_ != NULL) appid_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
+    if (has_directapps()) {
+      if (directapps_ != NULL) directapps_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
     }
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    if (has_appcategory()) {
-      if (appcategory_ != NULL) appcategory_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
+    if (has_indirectapps()) {
+      if (indirectapps_ != NULL) indirectapps_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
     }
     session_ = 0u;
   }
@@ -2289,31 +2289,31 @@ bool CampaignProtoEntity_Targeting::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(66)) goto parse_appId;
+        if (input->ExpectTag(66)) goto parse_directApps;
         break;
       }
 
-      // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
+      // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
       case 8: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_appId:
+         parse_directApps:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_appid()));
+               input, mutable_directapps()));
         } else {
           goto handle_uninterpreted;
         }
-        if (input->ExpectTag(74)) goto parse_appCategory;
+        if (input->ExpectTag(74)) goto parse_inDirectApps;
         break;
       }
 
-      // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
+      // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
       case 9: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_appCategory:
+         parse_inDirectApps:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_appcategory()));
+               input, mutable_indirectapps()));
         } else {
           goto handle_uninterpreted;
         }
@@ -2411,16 +2411,16 @@ void CampaignProtoEntity_Targeting::SerializeWithCachedSizes(
       7, this->frequency(), output);
   }
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
-  if (has_appid()) {
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
+  if (has_directapps()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      8, this->appid(), output);
+      8, this->directapps(), output);
   }
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
-  if (has_appcategory()) {
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
+  if (has_indirectapps()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      9, this->appcategory(), output);
+      9, this->indirectapps(), output);
   }
 
   // optional uint32 session = 10;
@@ -2498,18 +2498,18 @@ void CampaignProtoEntity_Targeting::SerializeWithCachedSizes(
         7, this->frequency(), target);
   }
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
-  if (has_appid()) {
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
+  if (has_directapps()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        8, this->appid(), target);
+        8, this->directapps(), target);
   }
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
-  if (has_appcategory()) {
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
+  if (has_indirectapps()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        9, this->appcategory(), target);
+        9, this->indirectapps(), target);
   }
 
   // optional uint32 session = 10;
@@ -2577,20 +2577,20 @@ int CampaignProtoEntity_Targeting::ByteSize() const {
           this->frequency());
     }
 
-    // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
-    if (has_appid()) {
+    // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
+    if (has_directapps()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->appid());
+          this->directapps());
     }
 
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
-    if (has_appcategory()) {
+    // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
+    if (has_indirectapps()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->appcategory());
+          this->indirectapps());
     }
 
     // optional uint32 session = 10;
@@ -2648,13 +2648,13 @@ void CampaignProtoEntity_Targeting::MergeFrom(const CampaignProtoEntity_Targetin
     if (from.has_frequency()) {
       mutable_frequency()->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency::MergeFrom(from.frequency());
     }
-    if (from.has_appid()) {
-      mutable_appid()->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::MergeFrom(from.appid());
+    if (from.has_directapps()) {
+      mutable_directapps()->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::MergeFrom(from.directapps());
     }
   }
   if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    if (from.has_appcategory()) {
-      mutable_appcategory()->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::MergeFrom(from.appcategory());
+    if (from.has_indirectapps()) {
+      mutable_indirectapps()->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::MergeFrom(from.indirectapps());
     }
     if (from.has_session()) {
       set_session(from.session());
@@ -2689,8 +2689,8 @@ void CampaignProtoEntity_Targeting::Swap(CampaignProtoEntity_Targeting* other) {
     std::swap(trafficquality_, other->trafficquality_);
     std::swap(inventoryquality_, other->inventoryquality_);
     std::swap(frequency_, other->frequency_);
-    std::swap(appid_, other->appid_);
-    std::swap(appcategory_, other->appcategory_);
+    std::swap(directapps_, other->directapps_);
+    std::swap(indirectapps_, other->indirectapps_);
     std::swap(session_, other->session_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

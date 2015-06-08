@@ -772,23 +772,23 @@ class CampaignProtoEntity_Targeting : public ::google::protobuf::Message {
   inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency* release_frequency();
   inline void set_allocated_frequency(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency* frequency);
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
-  inline bool has_appid() const;
-  inline void clear_appid();
-  static const int kAppIdFieldNumber = 8;
-  inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& appid() const;
-  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* mutable_appid();
-  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* release_appid();
-  inline void set_allocated_appid(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appid);
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
+  inline bool has_directapps() const;
+  inline void clear_directapps();
+  static const int kDirectAppsFieldNumber = 8;
+  inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& directapps() const;
+  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* mutable_directapps();
+  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* release_directapps();
+  inline void set_allocated_directapps(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* directapps);
 
-  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
-  inline bool has_appcategory() const;
-  inline void clear_appcategory();
-  static const int kAppCategoryFieldNumber = 9;
-  inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& appcategory() const;
-  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* mutable_appcategory();
-  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* release_appcategory();
-  inline void set_allocated_appcategory(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appcategory);
+  // optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
+  inline bool has_indirectapps() const;
+  inline void clear_indirectapps();
+  static const int kInDirectAppsFieldNumber = 9;
+  inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& indirectapps() const;
+  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* mutable_indirectapps();
+  inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* release_indirectapps();
+  inline void set_allocated_indirectapps(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* indirectapps);
 
   // optional uint32 session = 10;
   inline bool has_session() const;
@@ -813,10 +813,10 @@ class CampaignProtoEntity_Targeting : public ::google::protobuf::Message {
   inline void clear_has_inventoryquality();
   inline void set_has_frequency();
   inline void clear_has_frequency();
-  inline void set_has_appid();
-  inline void clear_has_appid();
-  inline void set_has_appcategory();
-  inline void clear_has_appcategory();
+  inline void set_has_directapps();
+  inline void clear_has_directapps();
+  inline void set_has_indirectapps();
+  inline void clear_has_indirectapps();
   inline void set_has_session();
   inline void clear_has_session();
 
@@ -830,8 +830,8 @@ class CampaignProtoEntity_Targeting : public ::google::protobuf::Message {
   ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_Frequency* frequency_;
   ::google::protobuf::uint32 trafficquality_;
   ::google::protobuf::uint32 session_;
-  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appid_;
-  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appcategory_;
+  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* directapps_;
+  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* indirectapps_;
 
   mutable int _cached_size_;
   ::google::protobuf::uint32 _has_bits_[(10 + 31) / 32];
@@ -2422,79 +2422,79 @@ inline void CampaignProtoEntity_Targeting::set_allocated_frequency(::com::rj::ta
   }
 }
 
-// optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appId = 8;
-inline bool CampaignProtoEntity_Targeting::has_appid() const {
+// optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria directApps = 8;
+inline bool CampaignProtoEntity_Targeting::has_directapps() const {
   return (_has_bits_[0] & 0x00000080u) != 0;
 }
-inline void CampaignProtoEntity_Targeting::set_has_appid() {
+inline void CampaignProtoEntity_Targeting::set_has_directapps() {
   _has_bits_[0] |= 0x00000080u;
 }
-inline void CampaignProtoEntity_Targeting::clear_has_appid() {
+inline void CampaignProtoEntity_Targeting::clear_has_directapps() {
   _has_bits_[0] &= ~0x00000080u;
 }
-inline void CampaignProtoEntity_Targeting::clear_appid() {
-  if (appid_ != NULL) appid_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
-  clear_has_appid();
+inline void CampaignProtoEntity_Targeting::clear_directapps() {
+  if (directapps_ != NULL) directapps_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
+  clear_has_directapps();
 }
-inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& CampaignProtoEntity_Targeting::appid() const {
-  return appid_ != NULL ? *appid_ : *default_instance_->appid_;
+inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& CampaignProtoEntity_Targeting::directapps() const {
+  return directapps_ != NULL ? *directapps_ : *default_instance_->directapps_;
 }
-inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::mutable_appid() {
-  set_has_appid();
-  if (appid_ == NULL) appid_ = new ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria;
-  return appid_;
+inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::mutable_directapps() {
+  set_has_directapps();
+  if (directapps_ == NULL) directapps_ = new ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria;
+  return directapps_;
 }
-inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::release_appid() {
-  clear_has_appid();
-  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* temp = appid_;
-  appid_ = NULL;
+inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::release_directapps() {
+  clear_has_directapps();
+  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* temp = directapps_;
+  directapps_ = NULL;
   return temp;
 }
-inline void CampaignProtoEntity_Targeting::set_allocated_appid(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appid) {
-  delete appid_;
-  appid_ = appid;
-  if (appid) {
-    set_has_appid();
+inline void CampaignProtoEntity_Targeting::set_allocated_directapps(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* directapps) {
+  delete directapps_;
+  directapps_ = directapps;
+  if (directapps) {
+    set_has_directapps();
   } else {
-    clear_has_appid();
+    clear_has_directapps();
   }
 }
 
-// optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria appCategory = 9;
-inline bool CampaignProtoEntity_Targeting::has_appcategory() const {
+// optional .com.rj.targeting.protos.CampaignProtoEntity.Targeting.AppCriteria inDirectApps = 9;
+inline bool CampaignProtoEntity_Targeting::has_indirectapps() const {
   return (_has_bits_[0] & 0x00000100u) != 0;
 }
-inline void CampaignProtoEntity_Targeting::set_has_appcategory() {
+inline void CampaignProtoEntity_Targeting::set_has_indirectapps() {
   _has_bits_[0] |= 0x00000100u;
 }
-inline void CampaignProtoEntity_Targeting::clear_has_appcategory() {
+inline void CampaignProtoEntity_Targeting::clear_has_indirectapps() {
   _has_bits_[0] &= ~0x00000100u;
 }
-inline void CampaignProtoEntity_Targeting::clear_appcategory() {
-  if (appcategory_ != NULL) appcategory_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
-  clear_has_appcategory();
+inline void CampaignProtoEntity_Targeting::clear_indirectapps() {
+  if (indirectapps_ != NULL) indirectapps_->::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria::Clear();
+  clear_has_indirectapps();
 }
-inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& CampaignProtoEntity_Targeting::appcategory() const {
-  return appcategory_ != NULL ? *appcategory_ : *default_instance_->appcategory_;
+inline const ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria& CampaignProtoEntity_Targeting::indirectapps() const {
+  return indirectapps_ != NULL ? *indirectapps_ : *default_instance_->indirectapps_;
 }
-inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::mutable_appcategory() {
-  set_has_appcategory();
-  if (appcategory_ == NULL) appcategory_ = new ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria;
-  return appcategory_;
+inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::mutable_indirectapps() {
+  set_has_indirectapps();
+  if (indirectapps_ == NULL) indirectapps_ = new ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria;
+  return indirectapps_;
 }
-inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::release_appcategory() {
-  clear_has_appcategory();
-  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* temp = appcategory_;
-  appcategory_ = NULL;
+inline ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* CampaignProtoEntity_Targeting::release_indirectapps() {
+  clear_has_indirectapps();
+  ::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* temp = indirectapps_;
+  indirectapps_ = NULL;
   return temp;
 }
-inline void CampaignProtoEntity_Targeting::set_allocated_appcategory(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* appcategory) {
-  delete appcategory_;
-  appcategory_ = appcategory;
-  if (appcategory) {
-    set_has_appcategory();
+inline void CampaignProtoEntity_Targeting::set_allocated_indirectapps(::com::rj::targeting::protos::CampaignProtoEntity_Targeting_AppCriteria* indirectapps) {
+  delete indirectapps_;
+  indirectapps_ = indirectapps;
+  if (indirectapps) {
+    set_has_indirectapps();
   } else {
-    clear_has_appcategory();
+    clear_has_indirectapps();
   }
 }
 

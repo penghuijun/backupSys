@@ -161,8 +161,6 @@ public:
 		return true;
 	}
 
-	bool appCriteria_valid(const CampaignProtoEntity_Targeting_AppCriteria& appcriteria, const string& request_appid);
-
 	void set_supmapp(const string &res)
 	{
 		m_target_supmapp = res;
@@ -187,14 +185,6 @@ public:
 	{
 		m_target_inventory = res;
 	}
-	void set_appid(const string &res)
-	{
-		if(is_number(res))m_target_appid = res;
-	}
-	void set_appcategory(const string &res)
-	{
-		if(is_number(res)) m_target_appcategory = res;
-	}
 
 	string& get_supmapp(){return m_target_supmapp;}
 	string& get_supmweb(){return m_target_supmweb;}
@@ -202,11 +192,16 @@ public:
 	string& get_devTablet(){return m_target_devtablet;}
 	string& get_traffic(){return m_target_traffic;}
 	string& get_inventory(){return m_target_inventory;}
-	string& get_appid(){return m_target_appid;}
-	string& get_appcategory(){return m_target_appcategory;}
 
 	bool target_valid(const CampaignProtoEntity_Targeting &camp_target);
 	void display(shared_ptr<spdlog::logger>& file_logger);
+	void display_string(shared_ptr<spdlog::logger>& file_logger, const char* name, string& value)
+	{
+		if(value.empty()==false)
+		{
+	    	file_logger->debug("{0}:{1}",name, value);	
+		}
+	}
 	~verifyTarget(){}
 private:
 	string m_target_supmapp;
@@ -215,8 +210,6 @@ private:
 	string m_target_devtablet;
 	string m_target_traffic;
 	string m_target_inventory;
-	string m_target_appid;
-	string m_target_appcategory;
 };
 
 
@@ -228,12 +221,14 @@ public:
 	}
 	bool parse_action(const rapidjson::Value &tmp_obj);
 	bool parse_campaign( char *data, int dataLen , verifyTarget& cam_target, string& creativeSize, MobileAdRequest &mobile_request);
+    bool appCriteria_valid(const CampaignProtoEntity_Targeting_AppCriteria& appcriteria, const string& request_appid);
 
 	bool frequency_valid(	const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >& frequency
         ,const CampaignProtoEntity_Targeting_Frequency& camp_frequency);
     bool expectecpm(MobileAdRequest &mobile_request, CampaignProtoEntity &campaign_proto, string& invetory);
     bool set_appSession(MobileAdRequest &mobile_request, const CampaignProtoEntity_Targeting& camp_targeting);
 
+    void displayCampaign(CampaignProtoEntity &campaign_proto);
 
 	bool parseCreativeSize(const string &creativeSize, int &width, int &height);
 	string &get_id(){return m_id;}

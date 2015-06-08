@@ -66,7 +66,6 @@ public:
 							struct event_base* base,  event_callback_fn fn, void *arg);
 	void update(const vector<connectorConfig*>& configList);
 	void set_login_status(bool status);
-	void get_logined_address(vector<ipAddress*> &addr);
 	void reloginDevice(const string& ip, unsigned short port);
 
 	~connectorManager()

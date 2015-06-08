@@ -30,9 +30,7 @@ message MobileAdRequest {
     optional string trafficQuality = 21; // default is "0"  <-- server
     optional string inventoryQuality = 22; // default is "reviewed"  <-- server
     optional TestFlag test = 23;
-    optional string appID = 24;
-    optional string appCategory = 25;
-    optional Aid aid = 26;
+    optional Aid aid = 24;
     message Aid {
         optional string id = 1;
         optional string status = 2;

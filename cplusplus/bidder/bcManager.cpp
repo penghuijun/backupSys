@@ -1,14 +1,13 @@
 #include "bcManager.h"
 using namespace com::rj::protos::manager;
 
-//key  reqestSym@bcIP:bcPort-bidderIP:bidderPort  eg:  1@1.1.1.1:1111-2.2.2.2:2222
-
 bidderCollecter::bidderCollecter(string &bidder_ip, unsigned short bidder_port,const string& bc_ip, unsigned short bc_managerPort, unsigned short bc_dataPort)
 {
     m_bidderLoginToBC = false;
 	set( bidder_ip, bidder_port, bc_ip, bc_managerPort, bc_dataPort);
     g_manager_logger->info("[add a bc]:{0},{1:d}", bc_ip, bc_managerPort);
 }
+//bcip:bcmanagerport:bcdataport-bidderip:bidderport
 void bidderCollecter::set(string &bidder_ip, unsigned short bidder_port,const string& bc_ip, unsigned short bc_managerPort, unsigned short bc_dataPort)
 {
 	m_bcIP = bc_ip;
@@ -26,7 +25,7 @@ void bidderCollecter::set(string &bidder_ip, unsigned short bidder_port,const st
 	os<<bc_ip<<":"<<bc_managerPort<<":"<<bc_dataPort;
 	m_bcIdentify = os.str();
 }
-
+//connect to bc and establish async event
 bool bidderCollecter::startManagerConnectToBC(zeromqConnect& conntor, string& identify,struct event_base* base,  event_callback_fn fn, void *arg)
 {
 	m_bidderStateHander = conntor.establishConnect(true, true, identify, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
@@ -38,6 +37,7 @@ bool bidderCollecter::startManagerConnectToBC(zeromqConnect& conntor, string& id
 	return true;
 }
 
+//connect to bc data port
 bool bidderCollecter::startDataConnectToBC(zeromqConnect& conntor)
 {
 	m_bidderDataHandler = conntor.establishConnect(true, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
@@ -52,21 +52,7 @@ bool bidderCollecter::startDataConnectToBC(zeromqConnect& conntor)
 	return true;
 }
 
-void bidderCollecter::erase_throttle_identify(string &id)
-{
-	for(auto it = m_throttleIdentifyList.begin(); it != m_throttleIdentifyList.end();)
-	{
-		string &identify = *it;
-		if(identify == id)
-		{
-			it = m_throttleIdentifyList.erase(it);
-		}
-		else
-		{
-			it++;
-		}
-	}
-}
+
 
 void bidderCollecter::add_throttle_id(string& id)
 {
@@ -114,6 +100,8 @@ void *bidderCollecter::get_handler(int fd)
 	return NULL;
 }
 
+
+//bc manager init
 void bcManager::init(bidderConfig& bidder_conf, vector<bcConfig*>& bc_conf_list)
 {
 	for(auto it = bc_conf_list.begin(); it != bc_conf_list.end(); it++)
@@ -139,6 +127,8 @@ void bcManager::add_throttle_identify(string& throttleID)
     m_bcList_lock.unlock();
 }
 
+
+//add bc to bc list
 bool bcManager::add_bc(zeromqConnect &connector, string& identify, struct event_base * base, event_callback_fn fn, void * arg, 
 		 string &bidder_ip, unsigned short bidder_port,const string& bc_ip, unsigned short bc_ManagerPort, unsigned short bc_dataPort)
 {
@@ -149,12 +139,14 @@ bool bcManager::add_bc(zeromqConnect &connector, string& identify, struct event_
 		if(bc == NULL) continue;
 		if((bc_ip == bc->get_bcIP())&&(bc_ManagerPort == bc->get_bcManagerPort())&&(bc_dataPort == bc->get_bcDataPort()))
         {      
+            //bc exist
 			bc->lost_time_clear();
             m_bcList_lock.unlock();
 			return false;
 		}
 	}
 
+    //new a bc and add it to bc list
 	bidderCollecter *bc = new bidderCollecter(bidder_ip, bidder_port, bc_ip, bc_ManagerPort, bc_dataPort);
 	bc->startManagerConnectToBC(connector, identify, base, fn, arg);
     bc->startDataConnectToBC(connector);
@@ -164,6 +156,7 @@ bool bcManager::add_bc(zeromqConnect &connector, string& identify, struct event_
 }
 
 
+//add bc to bc list
 bool bcManager::add_bc(zeromqConnect &connector, string &bidder_ip, unsigned short bidder_port,
 		string& bc_ip, unsigned short bc_ManagerPort, unsigned short bc_dataPort)
 {
@@ -186,7 +179,7 @@ bool bcManager::add_bc(zeromqConnect &connector, string &bidder_ip, unsigned sho
 	return true;
 }
 
-
+//send login request or heart req to bc
 bool bcManager::loginOrHeartReqToBc(const string &ip, unsigned short port, vector<string> &unsubKeyList)
 {
 	string bcIP;
@@ -198,7 +191,7 @@ bool bcManager::loginOrHeartReqToBc(const string &ip, unsigned short port, vecto
 	for(auto it = m_bc_list.begin(); it != m_bc_list.end();)
 	{
 		bidderCollecter *bc = *it;
-		if(bc&&(bc->loginOrHeartReqToBc(ip, port, unsubKeyList)==false))
+		if(bc&&(bc->loginOrHeartReqToBc(ip, port, unsubKeyList)==false))// lost heart to max times
 		{
 			ret = false;
 		}
@@ -211,6 +204,7 @@ bool bcManager::loginOrHeartReqToBc(const string &ip, unsigned short port, vecto
 	return ret;
 }
 
+//update bc
 void bcManager::update_bc(vector<bcConfig*>& bcConfList)
 {
     m_bcList_lock.lock();
@@ -248,7 +242,7 @@ void bcManager::update_bc(vector<bcConfig*>& bcConfList)
 
 }
 
-
+//connect to bc data port
 bool bcManager::startDataConnectToBC(zeromqConnect& conntor)
 {
     m_bcList_lock.lock();
@@ -260,6 +254,7 @@ bool bcManager::startDataConnectToBC(zeromqConnect& conntor)
     m_bcList_lock.unlock();
 }
 
+//connect to bc manager port
 bool bcManager::BCManagerConnectToBC(zeromqConnect & conntor, string& identify, struct event_base * base,event_callback_fn fn,void * arg)
 {
     m_bcList_lock.lock();
@@ -271,6 +266,7 @@ bool bcManager::BCManagerConnectToBC(zeromqConnect & conntor, string& identify, 
     m_bcList_lock.unlock();
 }
 
+//register key to throttle
 void bcManager::registerToThrottle(string &identify)
 {
     m_bcList_lock.lock();
@@ -282,6 +278,7 @@ void bcManager::registerToThrottle(string &identify)
     m_bcList_lock.unlock();
 }
 
+//send ad response to bc
 int bcManager::sendAdRspToBC(string& bcIP, unsigned short bcDataPort, void* data, size_t dataSize, int flags)
 {
     m_bcList_lock.lock();
@@ -319,6 +316,7 @@ void *bcManager::get_bcManager_handler(int fd)
 	return NULL;
 }		
 
+//recv heart response form bc
 bool bcManager::recv_heartBeatRsp(const string& bcIP, unsigned short bcPort)
 {
     m_bcList_lock.lock();

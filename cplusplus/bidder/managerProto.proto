@@ -3,7 +3,6 @@ package com.rj.protos.manager;
 message managerProtocol {  
      	required messageType   messagetype = 1; 
      	required messageTrans  messagefrom = 2;
-     	//required messageTrans  messageto   = 4;
      	required messageValue  messagevalue = 3; 
 	 
      	enum messageType {
@@ -23,10 +22,8 @@ message managerProtocol {
      	}
 	message messageValue {   
 	 	optional string ip = 1;   
-	 	repeated uint32    port = 2; 
-	 	optional string ip1 = 3;
-	 	optional uint32 port1 = 4;
-	 	optional string key = 5;
+	 	repeated uint32 port = 2; 
+	 	optional string key = 3;
 	 }        
  }  
  

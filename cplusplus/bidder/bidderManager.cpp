@@ -1,4 +1,6 @@
 #include "bidderManager.h"
+
+//init 
 void bidderManager::init(zeromqConnect &connector, throttleInformation& throttle_info, bidderInformation& bidder_info, bcInformation& bc_info)
 {
     determine_bidder_address(connector, bidder_info, bc_info.get_bcConfigList());
@@ -9,6 +11,7 @@ void bidderManager::init(zeromqConnect &connector, throttleInformation& throttle
     m_bidderIdentify = os.str();
 }
 
+//determine bidder address
 void bidderManager::determine_bidder_address(zeromqConnect &connector, bidderInformation& bidder_info, vector<bcConfig*>& bcList)
 {
 	int hwm = 30000;
@@ -110,7 +113,7 @@ void bidderManager::add_throttle_identify(string& throttleIP, unsigned short thr
 	m_bc_manager.add_throttle_identify(identify);
 }
 
-
+//add bc to bc list and add key to key list
 bool bidderManager::add_bc(zeromqConnect &connector, struct event_base * base, event_callback_fn fn, void * arg,
 				const string& bc_ip, unsigned short bcManagerPort, unsigned short bcDataPort)
 {
@@ -119,6 +122,8 @@ bool bidderManager::add_bc(zeromqConnect &connector, struct event_base * base, e
     add_subKey(bc_ip, bcManagerPort, bcDataPort);
 	return ret;
 }
+
+//add throttle to throttle list , add key to key list which in throttle object
 bool bidderManager::add_throttle(zeromqConnect &connector, struct event_base * base, event_callback_fn fn, event_callback_fn fn1,void * arg,
 				const string& ip, unsigned short managerPort, unsigned short dataPort)
 {
@@ -136,6 +141,7 @@ bool bidderManager::add_throttle(zeromqConnect &connector, struct event_base * b
 	return ret;
 }
 
+//update bclist
 void bidderManager::update_bcList(zeromqConnect &connector, bcInformation& bcInfo)
 {
 	auto bcList = bcInfo.get_bcConfigList();
@@ -150,7 +156,7 @@ void bidderManager::update_bcList(zeromqConnect &connector, bcInformation& bcInf
 	}
 }
 
-
+//send login or heart to bc,
 void bidderManager::loginOrHeartReqToBc(configureObject& config)
 {
 	 vector<string> unsubKeyList;
@@ -204,11 +210,13 @@ unsigned short bidderManager::get_redis_port() {return m_redisPort;}
 bidderConfig& bidderManager::get_bidder_config(){return m_bidderConfig;}
 string& bidderManager::get_bidder_identify(){return m_bidderIdentify;}
 
+
+//recv heart response from bc, 
 void bidderManager::recv_BCHeartBeatRsp(const string& bcIP, unsigned short bcPort)
 {
     bool ret = m_bc_manager.recv_heartBeatRsp(bcIP, bcPort);
 
-    if(ret)
+    if(ret)//the bc exsit
     {
         bool exist = false;
         m_subKey_lock.read_lock();
@@ -230,6 +238,7 @@ bool bidderManager::recv_throttleHeartReq(const string &ip, unsigned short port)
 	return m_throttle_manager.recvHeartReq(ip, port);
 }
 
+//add key to key list , and add key to key list which in throttle object
 bool bidderManager::add_subKey(const string& bc_ip, unsigned short bcManagerPort, unsigned short bcDataPOort)
 {
     m_subKey_lock.write_lock();
@@ -242,6 +251,7 @@ bool bidderManager::add_subKey(const string& bc_ip, unsigned short bcManagerPort
     }
 }
 
+//update 
 bool bidderManager::update(bidderInformation &new_bidder_info)
 {
     auto old_bidderip = m_bidderConfig.get_bidderIP();//

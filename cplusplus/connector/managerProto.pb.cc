@@ -119,7 +119,7 @@ void protobuf_AddDesc_managerProto_2eproto() {
     "ssageTrans\022I\n\014messagevalue\030\003 \002(\01323.com.r"
     "j.protos.manager.managerProtocol.message"
     "Value\0325\n\014messageValue\022\n\n\002ip\030\001 \001(\t\022\014\n\004por"
-    "t\030\002 \003(\r\022\013\n\003key\030\005 \001(\t\"m\n\013messageType\022\r\n\tL"
+    "t\030\002 \003(\r\022\013\n\003key\030\003 \001(\t\"m\n\013messageType\022\r\n\tL"
     "OGIN_REQ\020\001\022\r\n\tLOGIN_RSP\020\002\022\r\n\tHEART_REQ\020\003"
     "\022\r\n\tHEART_RSP\020\004\022\020\n\014REGISTER_REQ\020\005\022\020\n\014REG"
     "ISTER_RSP\020\006\"\?\n\014messageTrans\022\014\n\010THROTTLE\020"
@@ -317,12 +317,12 @@ bool managerProtocol_messageValue::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(16)) goto parse_port;
-        if (input->ExpectTag(42)) goto parse_key;
+        if (input->ExpectTag(26)) goto parse_key;
         break;
       }
 
-      // optional string key = 5;
-      case 5: {
+      // optional string key = 3;
+      case 3: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_key:
@@ -371,13 +371,13 @@ void managerProtocol_messageValue::SerializeWithCachedSizes(
       2, this->port(i), output);
   }
 
-  // optional string key = 5;
+  // optional string key = 3;
   if (has_key()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->key().data(), this->key().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      5, this->key(), output);
+      3, this->key(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -404,14 +404,14 @@ void managerProtocol_messageValue::SerializeWithCachedSizes(
       WriteUInt32ToArray(2, this->port(i), target);
   }
 
-  // optional string key = 5;
+  // optional string key = 3;
   if (has_key()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->key().data(), this->key().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        5, this->key(), target);
+        3, this->key(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -432,7 +432,7 @@ int managerProtocol_messageValue::ByteSize() const {
           this->ip());
     }
 
-    // optional string key = 5;
+    // optional string key = 3;
     if (has_key()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(

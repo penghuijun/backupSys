@@ -59,11 +59,9 @@ void protobuf_AssignDesc_managerProto_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(managerProtocol));
   managerProtocol_messageValue_descriptor_ = managerProtocol_descriptor_->nested_type(0);
-  static const int managerProtocol_messageValue_offsets_[5] = {
+  static const int managerProtocol_messageValue_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(managerProtocol_messageValue, ip_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(managerProtocol_messageValue, port_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(managerProtocol_messageValue, ip1_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(managerProtocol_messageValue, port1_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(managerProtocol_messageValue, key_),
   };
   managerProtocol_messageValue_reflection_ =
@@ -114,19 +112,18 @@ void protobuf_AddDesc_managerProto_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\022managerProto.proto\022\025com.rj.protos.mana"
-    "ger\"\362\003\n\017managerProtocol\022G\n\013messagetype\030\001"
+    "ger\"\326\003\n\017managerProtocol\022G\n\013messagetype\030\001"
     " \002(\01622.com.rj.protos.manager.managerProt"
     "ocol.messageType\022H\n\013messagefrom\030\002 \002(\01623."
     "com.rj.protos.manager.managerProtocol.me"
     "ssageTrans\022I\n\014messagevalue\030\003 \002(\01323.com.r"
     "j.protos.manager.managerProtocol.message"
-    "Value\032Q\n\014messageValue\022\n\n\002ip\030\001 \001(\t\022\014\n\004por"
-    "t\030\002 \003(\r\022\013\n\003ip1\030\003 \001(\t\022\r\n\005port1\030\004 \001(\r\022\013\n\003k"
-    "ey\030\005 \001(\t\"m\n\013messageType\022\r\n\tLOGIN_REQ\020\001\022\r"
-    "\n\tLOGIN_RSP\020\002\022\r\n\tHEART_REQ\020\003\022\r\n\tHEART_RS"
-    "P\020\004\022\020\n\014REGISTER_REQ\020\005\022\020\n\014REGISTER_RSP\020\006\""
-    "\?\n\014messageTrans\022\014\n\010THROTTLE\020\001\022\n\n\006BIDDER\020"
-    "\002\022\r\n\tCONNECTOR\020\003\022\006\n\002BC\020\004", 544);
+    "Value\0325\n\014messageValue\022\n\n\002ip\030\001 \001(\t\022\014\n\004por"
+    "t\030\002 \003(\r\022\013\n\003key\030\003 \001(\t\"m\n\013messageType\022\r\n\tL"
+    "OGIN_REQ\020\001\022\r\n\tLOGIN_RSP\020\002\022\r\n\tHEART_REQ\020\003"
+    "\022\r\n\tHEART_RSP\020\004\022\020\n\014REGISTER_REQ\020\005\022\020\n\014REG"
+    "ISTER_RSP\020\006\"\?\n\014messageTrans\022\014\n\010THROTTLE\020"
+    "\001\022\n\n\006BIDDER\020\002\022\r\n\tCONNECTOR\020\003\022\006\n\002BC\020\004", 516);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "managerProto.proto", &protobuf_RegisterTypes);
   managerProtocol::default_instance_ = new managerProtocol();
@@ -202,8 +199,6 @@ const int managerProtocol::messageTrans_ARRAYSIZE;
 #ifndef _MSC_VER
 const int managerProtocol_messageValue::kIpFieldNumber;
 const int managerProtocol_messageValue::kPortFieldNumber;
-const int managerProtocol_messageValue::kIp1FieldNumber;
-const int managerProtocol_messageValue::kPort1FieldNumber;
 const int managerProtocol_messageValue::kKeyFieldNumber;
 #endif  // !_MSC_VER
 
@@ -224,8 +219,6 @@ managerProtocol_messageValue::managerProtocol_messageValue(const managerProtocol
 void managerProtocol_messageValue::SharedCtor() {
   _cached_size_ = 0;
   ip_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  ip1_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  port1_ = 0u;
   key_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -237,9 +230,6 @@ managerProtocol_messageValue::~managerProtocol_messageValue() {
 void managerProtocol_messageValue::SharedDtor() {
   if (ip_ != &::google::protobuf::internal::kEmptyString) {
     delete ip_;
-  }
-  if (ip1_ != &::google::protobuf::internal::kEmptyString) {
-    delete ip1_;
   }
   if (key_ != &::google::protobuf::internal::kEmptyString) {
     delete key_;
@@ -276,12 +266,6 @@ void managerProtocol_messageValue::Clear() {
         ip_->clear();
       }
     }
-    if (has_ip1()) {
-      if (ip1_ != &::google::protobuf::internal::kEmptyString) {
-        ip1_->clear();
-      }
-    }
-    port1_ = 0u;
     if (has_key()) {
       if (key_ != &::google::protobuf::internal::kEmptyString) {
         key_->clear();
@@ -333,45 +317,12 @@ bool managerProtocol_messageValue::MergePartialFromCodedStream(
           goto handle_uninterpreted;
         }
         if (input->ExpectTag(16)) goto parse_port;
-        if (input->ExpectTag(26)) goto parse_ip1;
+        if (input->ExpectTag(26)) goto parse_key;
         break;
       }
 
-      // optional string ip1 = 3;
+      // optional string key = 3;
       case 3: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
-         parse_ip1:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_ip1()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-            this->ip1().data(), this->ip1().length(),
-            ::google::protobuf::internal::WireFormat::PARSE);
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(32)) goto parse_port1;
-        break;
-      }
-
-      // optional uint32 port1 = 4;
-      case 4: {
-        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
-         parse_port1:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &port1_)));
-          set_has_port1();
-        } else {
-          goto handle_uninterpreted;
-        }
-        if (input->ExpectTag(42)) goto parse_key;
-        break;
-      }
-
-      // optional string key = 5;
-      case 5: {
         if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
             ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED) {
          parse_key:
@@ -420,27 +371,13 @@ void managerProtocol_messageValue::SerializeWithCachedSizes(
       2, this->port(i), output);
   }
 
-  // optional string ip1 = 3;
-  if (has_ip1()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->ip1().data(), this->ip1().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      3, this->ip1(), output);
-  }
-
-  // optional uint32 port1 = 4;
-  if (has_port1()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->port1(), output);
-  }
-
-  // optional string key = 5;
+  // optional string key = 3;
   if (has_key()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->key().data(), this->key().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      5, this->key(), output);
+      3, this->key(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -467,29 +404,14 @@ void managerProtocol_messageValue::SerializeWithCachedSizes(
       WriteUInt32ToArray(2, this->port(i), target);
   }
 
-  // optional string ip1 = 3;
-  if (has_ip1()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8String(
-      this->ip1().data(), this->ip1().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE);
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        3, this->ip1(), target);
-  }
-
-  // optional uint32 port1 = 4;
-  if (has_port1()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->port1(), target);
-  }
-
-  // optional string key = 5;
+  // optional string key = 3;
   if (has_key()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8String(
       this->key().data(), this->key().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE);
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        5, this->key(), target);
+        3, this->key(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -510,21 +432,7 @@ int managerProtocol_messageValue::ByteSize() const {
           this->ip());
     }
 
-    // optional string ip1 = 3;
-    if (has_ip1()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->ip1());
-    }
-
-    // optional uint32 port1 = 4;
-    if (has_port1()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->port1());
-    }
-
-    // optional string key = 5;
+    // optional string key = 3;
     if (has_key()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -572,12 +480,6 @@ void managerProtocol_messageValue::MergeFrom(const managerProtocol_messageValue&
     if (from.has_ip()) {
       set_ip(from.ip());
     }
-    if (from.has_ip1()) {
-      set_ip1(from.ip1());
-    }
-    if (from.has_port1()) {
-      set_port1(from.port1());
-    }
     if (from.has_key()) {
       set_key(from.key());
     }
@@ -606,8 +508,6 @@ void managerProtocol_messageValue::Swap(managerProtocol_messageValue* other) {
   if (other != this) {
     std::swap(ip_, other->ip_);
     port_.Swap(&other->port_);
-    std::swap(ip1_, other->ip1_);
-    std::swap(port1_, other->port1_);
     std::swap(key_, other->key_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

@@ -2086,34 +2086,10 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline ::com::rj::protos::mobile::MobileAdRequest_TestFlag test() const;
   inline void set_test(::com::rj::protos::mobile::MobileAdRequest_TestFlag value);
 
-  // optional string appID = 24;
-  inline bool has_appid() const;
-  inline void clear_appid();
-  static const int kAppIDFieldNumber = 24;
-  inline const ::std::string& appid() const;
-  inline void set_appid(const ::std::string& value);
-  inline void set_appid(const char* value);
-  inline void set_appid(const char* value, size_t size);
-  inline ::std::string* mutable_appid();
-  inline ::std::string* release_appid();
-  inline void set_allocated_appid(::std::string* appid);
-
-  // optional string appCategory = 25;
-  inline bool has_appcategory() const;
-  inline void clear_appcategory();
-  static const int kAppCategoryFieldNumber = 25;
-  inline const ::std::string& appcategory() const;
-  inline void set_appcategory(const ::std::string& value);
-  inline void set_appcategory(const char* value);
-  inline void set_appcategory(const char* value, size_t size);
-  inline ::std::string* mutable_appcategory();
-  inline ::std::string* release_appcategory();
-  inline void set_allocated_appcategory(::std::string* appcategory);
-
-  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
+  // optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
   inline bool has_aid() const;
   inline void clear_aid();
-  static const int kAidFieldNumber = 26;
+  static const int kAidFieldNumber = 24;
   inline const ::com::rj::protos::mobile::MobileAdRequest_Aid& aid() const;
   inline ::com::rj::protos::mobile::MobileAdRequest_Aid* mutable_aid();
   inline ::com::rj::protos::mobile::MobileAdRequest_Aid* release_aid();
@@ -2161,10 +2137,6 @@ class MobileAdRequest : public ::google::protobuf::Message {
   inline void clear_has_inventoryquality();
   inline void set_has_test();
   inline void clear_has_test();
-  inline void set_has_appid();
-  inline void clear_has_appid();
-  inline void set_has_appcategory();
-  inline void clear_has_appcategory();
   inline void set_has_aid();
   inline void clear_has_aid();
 
@@ -2192,13 +2164,11 @@ class MobileAdRequest : public ::google::protobuf::Message {
   ::std::string* apptype_;
   ::std::string* trafficquality_;
   ::std::string* inventoryquality_;
-  ::std::string* appid_;
-  ::std::string* appcategory_;
   ::com::rj::protos::mobile::MobileAdRequest_Aid* aid_;
   int test_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(26 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(24 + 31) / 32];
 
   friend void  protobuf_AddDesc_MobileAdRequest_2eproto();
   friend void protobuf_AssignDesc_MobileAdRequest_2eproto();
@@ -7664,155 +7634,15 @@ inline void MobileAdRequest::set_test(::com::rj::protos::mobile::MobileAdRequest
   test_ = value;
 }
 
-// optional string appID = 24;
-inline bool MobileAdRequest::has_appid() const {
+// optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 24;
+inline bool MobileAdRequest::has_aid() const {
   return (_has_bits_[0] & 0x00800000u) != 0;
 }
-inline void MobileAdRequest::set_has_appid() {
+inline void MobileAdRequest::set_has_aid() {
   _has_bits_[0] |= 0x00800000u;
 }
-inline void MobileAdRequest::clear_has_appid() {
-  _has_bits_[0] &= ~0x00800000u;
-}
-inline void MobileAdRequest::clear_appid() {
-  if (appid_ != &::google::protobuf::internal::kEmptyString) {
-    appid_->clear();
-  }
-  clear_has_appid();
-}
-inline const ::std::string& MobileAdRequest::appid() const {
-  return *appid_;
-}
-inline void MobileAdRequest::set_appid(const ::std::string& value) {
-  set_has_appid();
-  if (appid_ == &::google::protobuf::internal::kEmptyString) {
-    appid_ = new ::std::string;
-  }
-  appid_->assign(value);
-}
-inline void MobileAdRequest::set_appid(const char* value) {
-  set_has_appid();
-  if (appid_ == &::google::protobuf::internal::kEmptyString) {
-    appid_ = new ::std::string;
-  }
-  appid_->assign(value);
-}
-inline void MobileAdRequest::set_appid(const char* value, size_t size) {
-  set_has_appid();
-  if (appid_ == &::google::protobuf::internal::kEmptyString) {
-    appid_ = new ::std::string;
-  }
-  appid_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* MobileAdRequest::mutable_appid() {
-  set_has_appid();
-  if (appid_ == &::google::protobuf::internal::kEmptyString) {
-    appid_ = new ::std::string;
-  }
-  return appid_;
-}
-inline ::std::string* MobileAdRequest::release_appid() {
-  clear_has_appid();
-  if (appid_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = appid_;
-    appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void MobileAdRequest::set_allocated_appid(::std::string* appid) {
-  if (appid_ != &::google::protobuf::internal::kEmptyString) {
-    delete appid_;
-  }
-  if (appid) {
-    set_has_appid();
-    appid_ = appid;
-  } else {
-    clear_has_appid();
-    appid_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
-}
-
-// optional string appCategory = 25;
-inline bool MobileAdRequest::has_appcategory() const {
-  return (_has_bits_[0] & 0x01000000u) != 0;
-}
-inline void MobileAdRequest::set_has_appcategory() {
-  _has_bits_[0] |= 0x01000000u;
-}
-inline void MobileAdRequest::clear_has_appcategory() {
-  _has_bits_[0] &= ~0x01000000u;
-}
-inline void MobileAdRequest::clear_appcategory() {
-  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
-    appcategory_->clear();
-  }
-  clear_has_appcategory();
-}
-inline const ::std::string& MobileAdRequest::appcategory() const {
-  return *appcategory_;
-}
-inline void MobileAdRequest::set_appcategory(const ::std::string& value) {
-  set_has_appcategory();
-  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
-    appcategory_ = new ::std::string;
-  }
-  appcategory_->assign(value);
-}
-inline void MobileAdRequest::set_appcategory(const char* value) {
-  set_has_appcategory();
-  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
-    appcategory_ = new ::std::string;
-  }
-  appcategory_->assign(value);
-}
-inline void MobileAdRequest::set_appcategory(const char* value, size_t size) {
-  set_has_appcategory();
-  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
-    appcategory_ = new ::std::string;
-  }
-  appcategory_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* MobileAdRequest::mutable_appcategory() {
-  set_has_appcategory();
-  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
-    appcategory_ = new ::std::string;
-  }
-  return appcategory_;
-}
-inline ::std::string* MobileAdRequest::release_appcategory() {
-  clear_has_appcategory();
-  if (appcategory_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = appcategory_;
-    appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void MobileAdRequest::set_allocated_appcategory(::std::string* appcategory) {
-  if (appcategory_ != &::google::protobuf::internal::kEmptyString) {
-    delete appcategory_;
-  }
-  if (appcategory) {
-    set_has_appcategory();
-    appcategory_ = appcategory;
-  } else {
-    clear_has_appcategory();
-    appcategory_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
-}
-
-// optional .com.rj.protos.mobile.MobileAdRequest.Aid aid = 26;
-inline bool MobileAdRequest::has_aid() const {
-  return (_has_bits_[0] & 0x02000000u) != 0;
-}
-inline void MobileAdRequest::set_has_aid() {
-  _has_bits_[0] |= 0x02000000u;
-}
 inline void MobileAdRequest::clear_has_aid() {
-  _has_bits_[0] &= ~0x02000000u;
+  _has_bits_[0] &= ~0x00800000u;
 }
 inline void MobileAdRequest::clear_aid() {
   if (aid_ != NULL) aid_->::com::rj::protos::mobile::MobileAdRequest_Aid::Clear();

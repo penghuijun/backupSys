@@ -18,7 +18,7 @@ message mobileBid {
     repeated Creative creative = 5;
     optional Action action = 6;
     optional UUID uuid = 7; //uuid update or anything
-
+    
 	optional string expectCpm = 8; 
 }
 

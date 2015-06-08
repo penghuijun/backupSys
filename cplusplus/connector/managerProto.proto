@@ -24,7 +24,7 @@ message managerProtocol {
 	message messageValue {   
 	 	optional string ip = 1;   
 	 	repeated uint32    port = 2; 
-	 	optional string key = 5;
+	 	optional string key = 3;
 	 }        
  }  
  

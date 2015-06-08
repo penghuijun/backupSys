@@ -47,6 +47,9 @@ extern shared_ptr<spdlog::logger> g_worker_logger;
 
 #ifdef TIMELOG
 
+/*
+  *get micro time from master progress
+  */
 unsigned long long bidderServ::getMasterMicroTime()
 {
     m_mastertime_lock.lock();
@@ -55,6 +58,9 @@ unsigned long long bidderServ::getMasterMicroTime()
     return t;
 }
 
+/*
+  *get micro time from child progress
+  */
 unsigned long long bidderServ::getchildMicroTime()
 {
     m_childtime_lock.lock();
@@ -63,6 +69,9 @@ unsigned long long bidderServ::getchildMicroTime()
     return t;
 }
 
+/*
+  *child progress update time on regular time
+  */
 void* bidderServ::childProcessGetTime(void *arg)
 {
     bidderServ *serv = (bidderServ*) arg;
@@ -77,6 +86,9 @@ void* bidderServ::childProcessGetTime(void *arg)
 
 }
 
+/*
+  *master progress update time on regular time
+  */
 void *bidderServ::getTime(void *arg)
 {
     bidderServ *serv = (bidderServ*) arg;
@@ -141,6 +153,10 @@ void bidderServ::calSpeed()
      }
 }
 
+
+/*
+  *changer log level
+  */
 bool bidderServ::logLevelChange()
 {
      int logLevel = m_config.get_bidderLogLevel();
@@ -154,7 +170,7 @@ bool bidderServ::logLevelChange()
          log_level = (spdlog::level::level_enum) logLevel;
      }
      
-     if(log_level != m_logLevel)
+     if(log_level != m_logLevel)// loglevel change
      {
          g_manager_logger->emerg("log level from level {0:d} to {1:d}", (int)m_logLevel, (int)log_level);
          m_logLevel = log_level;
@@ -163,15 +179,18 @@ bool bidderServ::logLevelChange()
      return false;
 }
 
+/*
+  *update worker
+  */
 void bidderServ::updateWorker()
 {
     readConfigFile();
-    m_bidder_manager.update_bcList(m_zmq_connect, m_config.get_bc_info());
+    m_bidder_manager.update_bcList(m_zmq_connect, m_config.get_bc_info());//update bc list
     int poolsize = m_bidder_manager.get_bidder_config().get_bidderThreadPoolSize();
     bidderInformation &binfo = m_config.get_bidder_info();
-    m_redis_pool_manager.redisPool_update(binfo.get_redis_ip(), binfo.get_redis_port(), poolsize+10);
+    m_redis_pool_manager.redisPool_update(binfo.get_redis_ip(), binfo.get_redis_port(), poolsize+10);//redis pool update
 
-    if(logLevelChange())
+    if(logLevelChange())//loglevel change
     {
         g_file_logger->set_level(m_logLevel);
         g_manager_logger->set_level(m_logLevel); 
@@ -185,6 +204,8 @@ bidderServ::bidderServ(configureObject &config):m_config(config)
     try
     {
         m_mastertime_lock.init();
+
+        //set log level
         int logLevel = m_config.get_bidderLogLevel();
         if( (logLevel>((int)spdlog::level::off) ) || (logLevel < ((int)spdlog::level::trace))) 
         {
@@ -199,7 +220,8 @@ bidderServ::bidderServ(configureObject &config):m_config(config)
         g_manager_logger->emerg("log level:{0}", m_logLevel);
 
         m_heartInterval = m_config.get_heart_interval();
-        m_zmq_connect.init(); 
+        m_zmq_connect.init();
+        //bidder manager init
         m_bidder_manager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_bidder_info(), m_config.get_bc_info());
         m_workerNum = m_bidder_manager.get_bidder_config().get_bidderWorkerNum();
         m_vastBusinessCode = m_config.get_vast_businessCode();
@@ -208,6 +230,7 @@ bidderServ::bidderServ(configureObject &config):m_config(config)
         m_logRedisIP = m_config.get_logRedisIP();
         m_logRedisPort = m_config.get_logRedisPort();
 
+        //establish connect between master with worker    
         m_masterPushHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PUSH, "masterworker" , NULL);
         m_masterPullHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PULL, "workermaster" , &m_masterPullFd);    
         if((m_masterPushHandler == NULL)||(m_masterPullHandler == NULL))
@@ -217,7 +240,7 @@ bidderServ::bidderServ(configureObject &config):m_config(config)
         }
         g_manager_logger->info("[master push and pull success]");
 
-    
+        //init worker progress list   
         m_diplayLock.init();
         auto i = 0;
     	for(i = 0; i < m_workerNum; i++)
@@ -306,6 +329,7 @@ void bidderServ::signal_handler(int signo)
 }
 
 
+//parse publish key
 bool bidderServ::parse_publishKey(string& origin, string& bcIP, unsigned short &bcManagerPort, unsigned short &bcDataPort,
                                     string& bidderIP, unsigned short& bidderPort, int recvLen)
 {
@@ -367,6 +391,7 @@ void bidderServ::usr1SigHandler(int fd, short event, void *arg)
     }
 }
 
+//get bidder target data
 bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operationTarget &target_operation_set
                                     , verifyTarget &target_verify_set)
 {
@@ -437,9 +462,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     target_operation_set.add_target_os("version", dev.platformversion());
     target_operation_set.add_target_dev("vendor", dev.vender());
     target_operation_set.add_target_dev("model", dev.modelname());
-
-//    target_operation_set.add_target_app("app.instance", mobile_request.appid());
-//    target_operation_set.add_target_app("app.category", mobile_request.appcategory());    
+  
 
     target_operation_set.add_target_signal("lang", dev.language());
     target_operation_set.add_target_signal("carrier", geo_info.carrier());
@@ -453,37 +476,52 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     target_verify_set.set_supmweb(web);
     target_verify_set.set_inventory(mobile_request.inventoryquality());
     target_verify_set.set_traffic(mobile_request.trafficquality());
-    target_verify_set.set_appid(mobile_request.appid());
-    target_verify_set.set_appcategory(mobile_request.appcategory());
     return true;
 }
 
 void bidderServ::frequency_display(shared_ptr<spdlog::logger>& file_logger,
     const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >&frequency)
 {
+    ostringstream os;
+    file_logger->debug("---frequency display---");
+    
     for(auto it = frequency.begin(); it != frequency.end();it++)
     {
        auto fre = *it;
-       file_logger->debug("property-id:{0}-{1}", fre.property(), fre.id());
+       os<<fre.property()<<":"<<fre.id()<<endl;
+ //      file_logger->debug("property-id:{0}-{1}", fre.property(), fre.id());
        auto value = fre.frequencyvalue();
        for(auto iter = value.begin(); iter != value.end(); iter++)
        {
            auto fre_value = *iter;
-           file_logger->debug("frequencyType:{0}    times:{1}", fre_value.frequencytype(), fre_value.times()); 
+           os<<fre_value.frequencytype()<<"@"<<fre_value.times()<<"     ";
+        //   file_logger->debug("frequencyType:{0}    times:{1}", fre_value.frequencytype(), fre_value.times()); 
        }
+       os<<endl;
     }
+    file_logger->debug("{0}",  os.str());
+    file_logger->debug("---frequency display---");    
+    
 }
 
 void bidderServ::appsession_display(shared_ptr<spdlog::logger>& file_logger,
     const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_AppSession>& appsession)
 {
+    ostringstream os;
+    file_logger->debug("---appsession display---");
     for(auto it = appsession.begin(); it != appsession.end();it++)
     {
        auto sess = *it;
-       file_logger->debug("appsession property-id:{0}-{1}-{2}", sess.property(), sess.id(), sess.times());
+       os<<sess.property()<<"@"<<sess.id()<<"@"<<sess.times()<<endl;
+     //  file_logger->debug("appsession property-id:{0}-{1}-{2}", sess.property(), sess.id(), sess.times());
     }
+    file_logger->debug("{0}",  os.str()); 
+    file_logger->debug("---appsession display---");
+      
 }
 
+
+//gen mobile response 
 char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoManager &ad_campaignInfoManager, 
  const CommonMessage& commMsg, MobileAdRequest& mobile_request, int &dataLen)
 {
@@ -491,6 +529,7 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
     auto ad_campaignList = ad_campaignInfoManager.get_campaignInfoList();
+    g_file_logger->trace("cID\tcrID\ttype\tvalue\tcur\tecmp\tfre\tsess\tmtype\tmsubtype");
     for(auto it = ad_campaignList.begin(); it != ad_campaignList.end(); it++)
     {
         campaignInformation* camp_info = *it;
@@ -504,9 +543,6 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         mobile_creative->set_mediasubtypeid(camp_info->get_mediaSubTypeID());
             
         mobile_bidder->set_campaignid(camp_info->get_id());
-        g_file_logger->trace("index campaignID-creativeID-biddingType-value-currecy:{0}::{1}::{2}::{3}::{4}::{5}"
-            , camp_info->get_id(), camp_info->get_creativeID(),camp_info->get_biddingType(),camp_info->get_biddingValue()
-            , camp_info->get_curency(), camp_info->get_expectEcmp());
         mobile_bidder->set_biddingtype(camp_info->get_biddingType());
         mobile_bidder->set_biddingvalue(camp_info->get_biddingValue());
         mobile_bidder->set_currency(camp_info->get_curency());
@@ -516,13 +552,17 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         if(camp_info->get_camFrequecy()==true)
         {
             mobileUuid->add_uuidtype(MobileAdResponse_UuidType_FRE);
-            g_worker_logger->debug("mobile ad response add frequecy");
         }
         if(camp_info->get_camAppSession()==true)
         {
             mobileUuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
-            g_worker_logger->debug("mobile ad response add session");
         }
+
+        g_file_logger->trace("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6:d}\t{7:d}\t{8}\t{9}"
+            , camp_info->get_id(), camp_info->get_creativeID(),camp_info->get_biddingType(),camp_info->get_biddingValue()
+            , camp_info->get_curency(), camp_info->get_expectEcmp(), (int)camp_info->get_camFrequecy()
+            , (int)camp_info->get_camAppSession(), camp_info->get_mediaTypeID(), camp_info->get_mediaSubTypeID());
+        
         const campaign_action& cam_action = camp_info->get_campaign_action();  
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();
         mobile_action->set_content(cam_action.get_content());
@@ -570,8 +610,8 @@ bool bidderServ::mobile_request_handler(const char* pubKey, const CommonMessage&
 {
 try
 {
+    unsigned long long starttime=getchildMicroTime();
     const string& request_data = request_commMsg.data();// data   
-
     MobileAdRequest mobile_request;
     mobile_request.ParseFromString(request_data); 
     const string& uuid = mobile_request.id(); 
@@ -585,7 +625,7 @@ try
     }
     operationTarget target_operation;
     verifyTarget    target_verify;
-    get_bidder_target(mobile_request, target_operation, target_verify);
+    get_bidder_target(mobile_request, target_operation, target_verify);//get target data
 
     os.str("");
     const string& ad_width = mobile_request.adspacewidth();
@@ -600,21 +640,35 @@ try
     auto   appsession = mobile_request.appsession();
 
     g_worker_logger->debug("===parse reqeust start===");
-    g_worker_logger->debug("ad_width_ad_height:{0}", cretive_size);
+    g_worker_logger->debug("ad_width_ad_height:{0}", cretive_size);
+    g_worker_logger->trace("dnsip:{0}", mobile_request.dnsip());
+    g_worker_logger->trace("packagename:{0}", mobile_request.packagename());
+    g_worker_logger->debug("uuid:{0}", uuid);
+
     target_operation.display(g_worker_logger);
     target_verify.display(g_worker_logger);
     frequency_display(g_worker_logger, frequency);
     appsession_display(g_worker_logger, appsession);
+    if(mobile_request.has_aid())
+    {
+        auto   aidstr     = mobile_request.aid();
+        g_file_logger->trace("request aid: id, networkid, publishid, appreviewed, retwork_reselling, app_reselling :{0},{1},{2},{3},{4},{5}"
+            ,aidstr.id(), aidstr.networkid(), aidstr.publisher_id(), aidstr.app_reviewed(), aidstr.network_reselling(), aidstr.app_resell());
+    }
+
+    
     g_worker_logger->debug("===parse reqeust end===");
 
 
     bufferManager campaign_string_manager;
+    //get campaign list with target from index redis
     if(m_redis_pool_manager.redis_get_camp_pipe(target_operation, campaign_string_manager, m_target_converce_num)==false)
     {
         g_worker_logger->debug("redis_get_camp_pipe error");
         return false;
     }
 
+    //campaign list is null
     if(campaign_string_manager.bufferListSize()==0) 
     {
         g_worker_logger->debug("camp_string_vec.empty()");
@@ -625,15 +679,16 @@ try
 
     auto campaignStringList = campaign_string_manager.get_bufferList();
     campaignInfoManager campaign_info_manager;
-    static int firstnum = 0;
+    //parse campaign list and check sum
     if(campaign_info_manager.parse_campaingnStringList(campaignStringList, target_verify, cretive_size, mobile_request)==false)
     {
-        g_worker_logger->debug("no campaign valid or pass buget");
+        g_worker_logger->debug("have not meet the requirements of the campaign");
         return false;
     }
     int responseDataLen = 0;
+    //gen response 
     char *responseDataStr = gen_mobile_response_protobuf(pubKey, campaign_info_manager, request_commMsg, mobile_request, responseDataLen);
-    if(responseDataStr&&(responseDataLen>0))
+    if(responseDataStr&&(responseDataLen>0))//if get response success
     {
         string subscribeKey(pubKey);
         string bcIP;
@@ -641,14 +696,15 @@ try
         unsigned short bcDataPort;
         string bidderIP;
         unsigned short bidderPort;
+        //parse publishkey, get dest bc address
         bool parse_result = parse_publishKey(subscribeKey, bcIP, bcManagerPort, bcDataPort,
-                    bidderIP , bidderPort, subscribeKey.size());
+                    bidderIP, bidderPort, subscribeKey.size());
         if(parse_result == false)
         {
             delete[] responseDataStr;
             return false;
         }
-        
+        //sent to the bc
         int ssize = m_bidder_manager.sendAdRspToBC(bcIP, bcDataPort, responseDataStr, responseDataLen, ZMQ_NOBLOCK);
         delete[] responseDataStr;
 
@@ -674,6 +730,8 @@ try
     {
         g_worker_logger->debug("can not find valid campaign for request");      
     }  
+    unsigned long long endtime=getchildMicroTime();
+    g_worker_logger->debug("cost time:{0:d}", endtime-starttime);       
     return true;
 }
 catch(...)
@@ -816,8 +874,10 @@ try{
     evsignal_add(usr1_event, NULL);
 
     int poolSize = m_bidder_manager.get_bidder_config().get_bidderThreadPoolSize();
-    m_thread_manager.Init(10000, poolSize, poolSize);
+    m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
+    //redis pool init
     m_redis_pool_manager.connectorPool_init(m_bidder_manager.get_redis_ip(), m_bidder_manager.get_redis_port(), poolSize+10);
+    //log redis pool init
     m_log_redis_manager.connectorPool_init(m_logRedisIP, m_logRedisPort, poolSize+10);
     event_base_dispatch(m_base);
 }
@@ -833,9 +893,9 @@ catch(...)
 void bidderServ::worker_net_init()
 { 
     m_zmq_connect.init();
-    m_bidder_manager.init_bidder();
+    m_bidder_manager.init_bidder();//bidder manager init
 
-    m_bidder_manager.dataConnectToBC(m_zmq_connect);
+    m_bidder_manager.dataConnectToBC(m_zmq_connect);//connect to bc
     
 #ifdef TIMELOG
     pthread_t pth;
@@ -879,6 +939,8 @@ int bidderServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
      return rc;
 }
 
+
+//subscribe throttle callback
 void bidderServ::recvRequest_callback(int fd, short __, void *pair)
 {
     uint32_t events;
@@ -932,6 +994,7 @@ void bidderServ::recvRequest_callback(int fd, short __, void *pair)
     }
 }
 
+//recv login response callback
 void bidderServ::recvRsponse_callback(int fd, short __, void *pair)
 {
      uint32_t events;
@@ -997,7 +1060,7 @@ void *bidderServ::throttle_request_handler(void *arg)
       return NULL;  
 }
 
-
+//request message handler
 void bidderServ::bidderManagerMsg_handler(int fd, short __, void *pair)
 {
     uint32_t events;
@@ -1073,6 +1136,7 @@ void *bidderServ::bidderManagerHandler(void *arg)
       return NULL;  
 }
 
+//send login or heart to bc, and register key to throttle
 void *bidderServ::sendHeartToBC(void *bidder)
 {
     bidderServ *serv = (bidderServ*) bidder;
@@ -1085,6 +1149,7 @@ void *bidderServ::sendHeartToBC(void *bidder)
     }
 }
 
+//handler message from bc
 bool bidderServ::manager_from_BC_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -1136,6 +1201,8 @@ bool bidderServ::manager_from_BC_handler(const managerProtocol_messageType &type
     return ret;
 }
 
+
+//handler message from throttle
 bool bidderServ::manager_from_throttle_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -1278,7 +1345,6 @@ void bidderServ::updateConfigure()
   *param: void 
   *function: start the bidder
   */
-  
 void bidderServ::run()
 {
     int num_children = 0;//the number of children process

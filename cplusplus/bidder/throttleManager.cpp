@@ -36,6 +36,8 @@ zmqSubKeyManager::zmqSubKeyManager()
 {
 }
 
+
+//add key to key list
 string& zmqSubKeyManager::add_subKey(string& bidder_ip, unsigned short bidder_port,const string& bc_ip, unsigned short bcManagerPort, unsigned short bcDataPOort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end(); it++)
@@ -46,14 +48,19 @@ string& zmqSubKeyManager::add_subKey(string& bidder_ip, unsigned short bidder_po
 			((bc_ip==subscribe_key->get_bc_ip())&&(bcManagerPort ==subscribe_key->get_bc_manager_port()))
 			&&(bcDataPOort == subscribe_key->get_bc_data_port()))
 		{
+		//key exist
 			return subscribe_key->get_subKey();
 		}
 	}
+
+    //new a key and add it to key list
 	zmqSubscribeKey *key = new zmqSubscribeKey(bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort);
 	m_subKey_list.push_back(key);	
 	return key->get_subKey();
 }
 
+
+//the  key about bc exist 
 bool zmqSubKeyManager::keyExist(const string& bcIp, unsigned short managerPort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end(); it++)
@@ -68,7 +75,7 @@ bool zmqSubKeyManager::keyExist(const string& bcIp, unsigned short managerPort)
     return false;
 }
 
-	
+// erase key from key list	
 void zmqSubKeyManager::erase_subKey(string& subKey)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -86,6 +93,7 @@ void zmqSubKeyManager::erase_subKey(string& subKey)
 	}
 }
 
+//erase key about bc address
 void zmqSubKeyManager::erase_subKey_by_bcAddr(string& bcIP, unsigned short bcManagerPort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -93,6 +101,7 @@ void zmqSubKeyManager::erase_subKey_by_bcAddr(string& bcIP, unsigned short bcMan
 		zmqSubscribeKey* key = *it;
 		if(key&&(key->get_bc_ip()==bcIP)&&(key->get_bc_manager_port() ==bcManagerPort))
 		{
+		    //find key about the bc
 			delete key;
 			it = m_subKey_list.erase(it);
 		}
@@ -103,6 +112,7 @@ void zmqSubKeyManager::erase_subKey_by_bcAddr(string& bcIP, unsigned short bcMan
 	}		
 }
 
+//erase key about bidder address
 void zmqSubKeyManager::erase_subKey_by_bidderAddr(string& bidderIP, unsigned short bidderManagerPort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -110,6 +120,7 @@ void zmqSubKeyManager::erase_subKey_by_bidderAddr(string& bidderIP, unsigned sho
 		zmqSubscribeKey* key = *it;
 		if(key&&(key->get_bidder_ip()==bidderIP)&&(key->get_bidder_manager_port() == bidderManagerPort))
 		{
+		    //find key about bidder
 			delete key;
 			it = m_subKey_list.erase(it);
 		}
@@ -120,6 +131,7 @@ void zmqSubKeyManager::erase_subKey_by_bidderAddr(string& bidderIP, unsigned sho
 	}		
 }
 
+//erase one key
 void zmqSubKeyManager:: erase_subKey(string& bidderIP, unsigned short bidderManagerPort, string& bcIP, unsigned short bcManagerPort)
 {
     for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -164,6 +176,7 @@ catch(...)
 }
 }
 
+//connect to throttle publish port, and establish async event
 bool throttleObject::startSubThrottle(zeromqConnect& conntor, struct event_base* base,  event_callback_fn fn, void *arg)
 {
 	m_throtlePubHandler = conntor.establishConnect(true, "tcp", ZMQ_SUB, 
@@ -173,6 +186,7 @@ bool throttleObject::startSubThrottle(zeromqConnect& conntor, struct event_base*
 	return true;
 }
 
+//connect to throttle manager port and establish async event
 void throttleObject::connectToThrottle(zeromqConnect &connector, string& bidderID, struct event_base * base, event_callback_fn fn, void * arg)
 {
 
@@ -191,10 +205,11 @@ void* throttleObject::get_manager_handler(int fd)
 	if(fd == m_throttleManagerFd) return m_throtleManagerHandler;
 	return NULL;
 }
-	
+
+//regist key to throttle
 void throttleObject::registerBCToThrottle(string& ip, unsigned short port)
 {
-    if(m_bidderLoginToThro==false)//first login to throttle
+    if(m_bidderLoginToThro==false)//have not login to throttle
     {
 		managerProPackage::send(m_throtleManagerHandler, managerProtocol_messageTrans_BIDDER
             , managerProtocol_messageType_LOGIN_REQ, ip, port);
@@ -208,7 +223,7 @@ void throttleObject::registerBCToThrottle(string& ip, unsigned short port)
        if(zmqSubKey == NULL) continue;
        string &subKey =  zmqSubKey->get_subKey();
        if(subKey.empty()) continue;
-       if(zmqSubKey->get_subscribed()==false)
+       if(zmqSubKey->get_subscribed()==false)//have not subscribe
        {
            int rc =  zmq_setsockopt(m_throtlePubHandler, ZMQ_SUBSCRIBE, subKey.c_str(), subKey.size());
            if(rc==0)
@@ -218,7 +233,7 @@ void throttleObject::registerBCToThrottle(string& ip, unsigned short port)
            }                     
        }
 
-       if(zmqSubKey->get_regist_status() == false)
+       if(zmqSubKey->get_regist_status() == false)// have not register to throttle
        {
            managerProPackage::send(m_throtleManagerHandler, managerProtocol_messageTrans_BIDDER
                , managerProtocol_messageType_REGISTER_REQ, subKey, ip, port);
@@ -292,7 +307,8 @@ bool throttleObject::set_subscribe_opt(string &key)
 	}	
 	return true;
 }
-	
+
+//unsubscribe the key	
 bool throttleObject::set_unsubscribe_opt(string &key)
 {
 	int rc =  zmq_setsockopt(m_throtlePubHandler, ZMQ_UNSUBSCRIBE, key.c_str(), key.size());
@@ -326,7 +342,7 @@ bool throttleObject::drop()
     return false;
 }
 
-
+//erase key from key list
 void throttleObject::erase_subKey(string &key)
 {
     for(auto it = m_subThroKey_list.begin(); it != m_subThroKey_list.end();)
@@ -390,6 +406,7 @@ void throttleManager::run(zeromqConnect& conntor, struct event_base * base, even
     m_throttleList_lock.unlock();
 }
 
+//connect to throttle
 void throttleManager::connectToThrottle(zeromqConnect &connector, string& bidderID, struct event_base * base, 
 												event_callback_fn fn, void * arg)
 {
@@ -402,7 +419,7 @@ void throttleManager::connectToThrottle(zeromqConnect &connector, string& bidder
     m_throttleList_lock.unlock();
 }
 
-
+//add throttle to throttle list
 void throttleManager::add_throttle(string &throttleIP, unsigned short throttlePort, unsigned short managerPort)
 {
 	bool throttle_exsit = false;
@@ -413,6 +430,7 @@ void throttleManager::add_throttle(string &throttleIP, unsigned short throttlePo
 		if(throttle==NULL) continue;
 		if((throttleIP == throttle->get_throttle_ip())&&(throttlePort == throttle->get_throttle_port()))
 		{
+		    //find the throttle
 			throttle_exsit = true;
 			break;
 		}
@@ -425,7 +443,7 @@ void throttleManager::add_throttle(string &throttleIP, unsigned short throttlePo
     m_throttleList_lock.unlock();
 }
 
-
+//get throttle data handler with fd   
 void* throttleManager::get_throttle_handler(int fd)
 {
     m_throttleList_lock.lock();
@@ -443,7 +461,8 @@ void* throttleManager::get_throttle_handler(int fd)
     m_throttleList_lock.unlock();
 	return NULL;
 }
-	
+
+//get throttle manager handler with fd    
 void* throttleManager::get_throttle_manager_handler(int fd)
 {
   
@@ -471,6 +490,7 @@ void throttleManager::add_throttle_identify(string& throttleIP, unsigned short t
     m_throttleList_lock.unlock();
 }
 
+//register key to throttle
 void throttleManager::registerBCToThrottle(string& ip, unsigned short port)
 {
     m_throttleList_lock.lock();
@@ -482,6 +502,7 @@ void throttleManager::registerBCToThrottle(string& ip, unsigned short port)
     m_throttleList_lock.unlock();
 }
 
+//register key to throttle
 void throttleManager::registerBCToThrottle(string &ip, unsigned short port,const string &throttle_ip, unsigned short throttle_mangerPort)
 {
      m_throttleList_lock.lock();
@@ -499,7 +520,7 @@ void throttleManager::registerBCToThrottle(string &ip, unsigned short port,const
      m_throttleList_lock.unlock();
 }
 
-
+//throttle init
 void throttleManager::throttle_init(string &throttle_ip, unsigned short throttle_mangerPort)
 {
      m_throttleList_lock.lock();
@@ -517,7 +538,7 @@ void throttleManager::throttle_init(string &throttle_ip, unsigned short throttle
      m_throttleList_lock.unlock();
 }
 
-
+//key register success
 void throttleManager::set_publishKey_registed(const string& ip, unsigned short managerPort,const string& publishKey)
 {
     m_throttleList_lock.lock();
@@ -530,6 +551,7 @@ void throttleManager::set_publishKey_registed(const string& ip, unsigned short m
     m_throttleList_lock.unlock();
 }
 
+//logined throttle success , so set the sym to logined
 void throttleManager::logined(const string& throttleIP, unsigned short throttleManagerPort)	
 {
     m_throttleList_lock.lock();
@@ -538,6 +560,7 @@ void throttleManager::logined(const string& throttleIP, unsigned short throttleM
         throttleObject *thorttle = *it;
         if(thorttle&&(thorttle->get_throttle_ip() == throttleIP)&&(thorttle->get_throttle_managerPort() == throttleManagerPort))
         {
+            //throttle logined success
             thorttle->set_bidderLoginToThro(true);
             break;
         }
@@ -560,6 +583,7 @@ void *throttleManager::get_handler(int fd)
 	return NULL;
 }
 
+//erase publish key
  void throttleManager::erase_bidder_publishKey(vector<string>& unsubKeyList)
  {
      m_throttleList_lock.lock();
@@ -571,14 +595,15 @@ void *throttleManager::get_handler(int fd)
 			for(auto it = unsubKeyList.begin(); it != unsubKeyList.end(); it++)
 			{
 				string &key = *it;
-				throttle->set_unsubscribe_opt(key);
-                throttle->erase_subKey(key);
+				throttle->set_unsubscribe_opt(key);//unsubscribe key
+                throttle->erase_subKey(key);//erase key
 			}
 		}
 	 }
      m_throttleList_lock.unlock();
  }
 
+//add throttle to throttle list and connect to throttle , and subscribe all key
 bool throttleManager::add_throttle(zeromqConnect &connector, struct event_base * base, event_callback_fn fn, event_callback_fn fn1,void * arg, string& bidderIdentify,
 	const	string& throttleIP, unsigned short managerPort, unsigned short dataPort)
 {
@@ -590,15 +615,17 @@ bool throttleManager::add_throttle(zeromqConnect &connector, struct event_base *
 		if((throttleIP == throttle->get_throttle_ip())&&(throttle->get_throttle_managerPort() == managerPort)
 			&&(dataPort == throttle->get_throttle_port()))
 		{
+		    //throttle exist, so set all key status to unregister
 		    throttle->set_publishKey_status(false);
 		    m_throttleList_lock.unlock();
 			return false;
 		}
 	}
 
+    //new a throttle 
 	throttleObject *throttle = new throttleObject(throttleIP, dataPort, managerPort);
-	throttle->connectToThrottle(connector, bidderIdentify, base, fn, arg);
-	throttle->startSubThrottle(connector,  base, fn1, arg);
+	throttle->connectToThrottle(connector, bidderIdentify, base, fn, arg);//connect to throttle
+	throttle->startSubThrottle(connector,  base, fn1, arg);//subscribe to the throttle
 	m_throttle_list.push_back(throttle);
     m_throttleList_lock.unlock();
 	return true;
@@ -619,6 +646,7 @@ bool throttleManager::dropDev()
     return ret;
 }
 
+// update throttle list
 bool throttleManager::update_throttle(vector<throttleConfig*>& throConfList)
 {
     m_throttleList_lock.lock();
@@ -637,7 +665,7 @@ bool throttleManager::update_throttle(vector<throttleConfig*>& throConfList)
                     break;
             }       
 
-            if(itor == throConfList.end())
+            if(itor == throConfList.end())//delete throttle
             {
                 delete throttle;
                 it = m_throttle_list.erase(it);
@@ -656,7 +684,7 @@ bool throttleManager::update_throttle(vector<throttleConfig*>& throConfList)
     return true;
 }
 
-
+//recv heart req from throttle
 bool throttleManager::recvHeartReq(const string &ip, unsigned short port)
 {
     m_throttleList_lock.lock();
@@ -667,6 +695,7 @@ bool throttleManager::recvHeartReq(const string &ip, unsigned short port)
 		{
 		    if((throttle->get_throttle_ip()==ip)&&(throttle->get_throttle_managerPort()==port))
 			{
+			    //find the throttle
 				throttle->lost_times_clear();
                 m_throttleList_lock.unlock();    
                 return true;

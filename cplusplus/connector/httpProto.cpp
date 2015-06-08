@@ -75,7 +75,8 @@ int httpProtocol::pro_send(const char * str)
     char httpRequest[BUF_SIZE];
     char tmpBuf[BUF_SIZE];
     memset(httpRequest, 0, BUF_SIZE);
-    sprintf(tmpBuf, "POST /br HTTP/1.1\r\n");
+    sprintf(tmpBuf, "POST http://service.reachjunction.com/dsp HTTP/1.1\r\n");
+  //  sprintf(tmpBuf, "POST /br HTTP/1.1\r\n");
     // sprintf(tmpBuf, "GET /%s HTTP/1.1\r\n", str);
     strcat(httpRequest, tmpBuf);//index.html
     sprintf(tmpBuf, "Host: %s:%d\r\n", m_ip.c_str(), m_port);

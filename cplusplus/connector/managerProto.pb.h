@@ -164,10 +164,10 @@ class managerProtocol_messageValue : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
       mutable_port();
 
-  // optional string key = 5;
+  // optional string key = 3;
   inline bool has_key() const;
   inline void clear_key();
-  static const int kKeyFieldNumber = 5;
+  static const int kKeyFieldNumber = 3;
   inline const ::std::string& key() const;
   inline void set_key(const ::std::string& value);
   inline void set_key(const char* value);
@@ -461,7 +461,7 @@ managerProtocol_messageValue::mutable_port() {
   return &port_;
 }
 
-// optional string key = 5;
+// optional string key = 3;
 inline bool managerProtocol_messageValue::has_key() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }

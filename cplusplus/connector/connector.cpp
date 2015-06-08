@@ -389,6 +389,7 @@ void connectorServ::worker_parse_master_data(char *data, unsigned int dataLen)
     const string &dataStr=commMsg.data();
     const string &tbusinessCode = commMsg.businesscode();
     const string &codeType = commMsg.datacodingtype();
+//   get iso stadard
 
     bidRequestObject bidObj;    
     if(tbusinessCode == m_mobileBusinessCode)
@@ -588,9 +589,7 @@ try{
 
     m_zmq_connect.init();
     pid_t pid = getpid();
-  //  ostringstream os;
-  //  os<<"logs/worker_"<<pid<<"_idx";
-  //  string workerLogFile = os.str();
+
     g_worker_logger = spdlog::rotating_logger_mt("worker", "logs/cdebugfile", 1048576*500, 3, true);  
     g_worker_logger->set_level(m_logLevel);  
     g_worker_logger->info("worker start:{0:d}", getpid());
@@ -619,6 +618,9 @@ try{
     int poolSize = m_device_manager.get_connector_config().get_connectorThreadPoolSize();
     m_thread_manager.Init(10000, poolSize, poolSize);
     m_extbid_manager.init(m_config.get_externBid_info(), m_base, recv_exbidder_adResponse, this);
+
+// 初始化对照表
+    
     event_base_dispatch(m_base);
 }
 catch(...)

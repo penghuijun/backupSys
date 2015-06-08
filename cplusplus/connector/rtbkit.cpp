@@ -59,7 +59,8 @@ bool producerObject::toJson(rapidjson::Value& value, rapidjson::Document::Alloca
 }
 
 void producerObject::parse_mobile(const MobileAdRequest& mobileReq)
-{}
+{
+}
 
 bool contentObject::toJson(rapidjson::Value& value, rapidjson::Document::AllocatorType &allocator)
 {
@@ -156,12 +157,12 @@ void geoObject::parse_mobile(const MobileAdRequest& mobileReq)
 {
     const MobileAdRequest_Device &dev = mobileReq.device();
     const MobileAdRequest_GeoInfo &geo = mobileReq.geoinfo();
-    const MobileAdRequest_rtbGeoInfo &rtbGeo = geo.rtbgeoinfo();
     if(geo.latitude().empty() == false) m_lat = atof(geo.latitude().c_str());
     if(geo.longitude().empty() == false) m_lon = atof(geo.longitude().c_str());
-    if(rtbGeo.rtb_coutry().empty() == false) m_country = rtbGeo.rtb_coutry();
-    if(rtbGeo.rtb_region().empty() == false) m_region = rtbGeo.rtb_region();
-    if(rtbGeo.rtb_city().empty() == false) m_city = rtbGeo.rtb_city();
+
+    if(geo.country().empty() == false) m_country = geo.country();
+    if(geo.region().empty() == false) m_region = geo.region();
+    if(geo.city().empty() == false) m_city = geo.city();
 }
 
 bool deviceObject::toJson(rapidjson::Value& value, rapidjson::Document::AllocatorType &allocator)
@@ -193,19 +194,18 @@ void deviceObject::parse_mobile(const MobileAdRequest& mobileReq)
 {
     const MobileAdRequest_Device &dev = mobileReq.device();
     const MobileAdRequest_GeoInfo &geo = mobileReq.geoinfo();
-    const MobileAdRequest_rtbDevice& rtbdev = dev.rtbdevice();
     m_ip = dev.ipaddress();
     m_ua = dev.ua();
     m_ifa = dev.udid();
     m_dpidmd5 = dev.hidmd5();
     m_dpidsha1 = dev.hidsha1();
-    m_language = rtbdev.rtb_language();
-    m_os = rtbdev.rtb_platform();
-    m_osv = rtbdev.rtb_platformversion();
-    m_devicetype = atoi(rtbdev.rtb_devicetype().c_str());
-    m_connectiontype = atoi(rtbdev.rtb_connectiontype().c_str());
-    m_make = rtbdev.rtb_vendor();
-    m_model = rtbdev.rtb_modelname();
+    m_language = dev.language();
+    m_os = dev.platform();
+    m_osv = dev.platformversion();
+    m_devicetype = atoi(dev.devicetype().c_str());
+    m_connectiontype = atoi(dev.connectiontype().c_str());
+    m_make = dev.vender();
+    m_model = dev.modelname();
     m_geo.parse_mobile(mobileReq);
     if((geo.mnc().empty() == false)||(geo.mcc().empty() == false))
     {
@@ -225,7 +225,7 @@ bool publisherObject::toJson(rapidjson::Value& value, rapidjson::Document::Alloc
 }
 void publisherObject::parse_mobile(const MobileAdRequest& mobileReq)
 {
-    if(mobileReq.aid().empty() == false) m_id = mobileReq.aid();
+    if(mobileReq.publishid().empty() == false) m_id = mobileReq.publishid();
 }
 
 
@@ -407,6 +407,7 @@ bool bidRequestObject::toJson(string& jsonStr)
     m_at.toJson(document, allocator, "at");
     m_tmax.toJson(document, allocator, "tmax");
     m_allimps.toJson(document, allocator, "allimps");
+    m_test.toJson(document, allocator, "test");
     m_wseatArray.stringArrayToJson(document, allocator, "wseat");
     m_curArray.stringArrayToJson(document, allocator, "cur");
     m_bcatArray.stringArrayToJson(document, allocator, "bcat");
@@ -513,6 +514,7 @@ void bidObject::parse(const rapidjson::Value &value)
 
 }
 
+
 bool bidObject::toProtobuf(MobileAdResponse_mobileBid *bidContent)
 {
 	ostringstream os;
@@ -545,6 +547,8 @@ bool bidObject::toProtobuf(MobileAdResponse_mobileBid *bidContent)
 	}
 	creative->set_width(value);
 }
+
+
 
 
 void seatBidObject::parse(const rapidjson::Value &value)

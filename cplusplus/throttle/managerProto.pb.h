@@ -164,29 +164,10 @@ class managerProtocol_messageValue : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
       mutable_port();
 
-  // optional string ip1 = 3;
-  inline bool has_ip1() const;
-  inline void clear_ip1();
-  static const int kIp1FieldNumber = 3;
-  inline const ::std::string& ip1() const;
-  inline void set_ip1(const ::std::string& value);
-  inline void set_ip1(const char* value);
-  inline void set_ip1(const char* value, size_t size);
-  inline ::std::string* mutable_ip1();
-  inline ::std::string* release_ip1();
-  inline void set_allocated_ip1(::std::string* ip1);
-
-  // optional uint32 port1 = 4;
-  inline bool has_port1() const;
-  inline void clear_port1();
-  static const int kPort1FieldNumber = 4;
-  inline ::google::protobuf::uint32 port1() const;
-  inline void set_port1(::google::protobuf::uint32 value);
-
-  // optional string key = 5;
+  // optional string key = 3;
   inline bool has_key() const;
   inline void clear_key();
-  static const int kKeyFieldNumber = 5;
+  static const int kKeyFieldNumber = 3;
   inline const ::std::string& key() const;
   inline void set_key(const ::std::string& value);
   inline void set_key(const char* value);
@@ -199,10 +180,6 @@ class managerProtocol_messageValue : public ::google::protobuf::Message {
  private:
   inline void set_has_ip();
   inline void clear_has_ip();
-  inline void set_has_ip1();
-  inline void clear_has_ip1();
-  inline void set_has_port1();
-  inline void clear_has_port1();
   inline void set_has_key();
   inline void clear_has_key();
 
@@ -210,12 +187,10 @@ class managerProtocol_messageValue : public ::google::protobuf::Message {
 
   ::std::string* ip_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > port_;
-  ::std::string* ip1_;
   ::std::string* key_;
-  ::google::protobuf::uint32 port1_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(5 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_managerProto_2eproto();
   friend void protobuf_AssignDesc_managerProto_2eproto();
@@ -486,107 +461,15 @@ managerProtocol_messageValue::mutable_port() {
   return &port_;
 }
 
-// optional string ip1 = 3;
-inline bool managerProtocol_messageValue::has_ip1() const {
+// optional string key = 3;
+inline bool managerProtocol_messageValue::has_key() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void managerProtocol_messageValue::set_has_ip1() {
+inline void managerProtocol_messageValue::set_has_key() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void managerProtocol_messageValue::clear_has_ip1() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void managerProtocol_messageValue::clear_ip1() {
-  if (ip1_ != &::google::protobuf::internal::kEmptyString) {
-    ip1_->clear();
-  }
-  clear_has_ip1();
-}
-inline const ::std::string& managerProtocol_messageValue::ip1() const {
-  return *ip1_;
-}
-inline void managerProtocol_messageValue::set_ip1(const ::std::string& value) {
-  set_has_ip1();
-  if (ip1_ == &::google::protobuf::internal::kEmptyString) {
-    ip1_ = new ::std::string;
-  }
-  ip1_->assign(value);
-}
-inline void managerProtocol_messageValue::set_ip1(const char* value) {
-  set_has_ip1();
-  if (ip1_ == &::google::protobuf::internal::kEmptyString) {
-    ip1_ = new ::std::string;
-  }
-  ip1_->assign(value);
-}
-inline void managerProtocol_messageValue::set_ip1(const char* value, size_t size) {
-  set_has_ip1();
-  if (ip1_ == &::google::protobuf::internal::kEmptyString) {
-    ip1_ = new ::std::string;
-  }
-  ip1_->assign(reinterpret_cast<const char*>(value), size);
-}
-inline ::std::string* managerProtocol_messageValue::mutable_ip1() {
-  set_has_ip1();
-  if (ip1_ == &::google::protobuf::internal::kEmptyString) {
-    ip1_ = new ::std::string;
-  }
-  return ip1_;
-}
-inline ::std::string* managerProtocol_messageValue::release_ip1() {
-  clear_has_ip1();
-  if (ip1_ == &::google::protobuf::internal::kEmptyString) {
-    return NULL;
-  } else {
-    ::std::string* temp = ip1_;
-    ip1_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-    return temp;
-  }
-}
-inline void managerProtocol_messageValue::set_allocated_ip1(::std::string* ip1) {
-  if (ip1_ != &::google::protobuf::internal::kEmptyString) {
-    delete ip1_;
-  }
-  if (ip1) {
-    set_has_ip1();
-    ip1_ = ip1;
-  } else {
-    clear_has_ip1();
-    ip1_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
-  }
-}
-
-// optional uint32 port1 = 4;
-inline bool managerProtocol_messageValue::has_port1() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void managerProtocol_messageValue::set_has_port1() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void managerProtocol_messageValue::clear_has_port1() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void managerProtocol_messageValue::clear_port1() {
-  port1_ = 0u;
-  clear_has_port1();
-}
-inline ::google::protobuf::uint32 managerProtocol_messageValue::port1() const {
-  return port1_;
-}
-inline void managerProtocol_messageValue::set_port1(::google::protobuf::uint32 value) {
-  set_has_port1();
-  port1_ = value;
-}
-
-// optional string key = 5;
-inline bool managerProtocol_messageValue::has_key() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void managerProtocol_messageValue::set_has_key() {
-  _has_bits_[0] |= 0x00000010u;
-}
 inline void managerProtocol_messageValue::clear_has_key() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void managerProtocol_messageValue::clear_key() {
   if (key_ != &::google::protobuf::internal::kEmptyString) {

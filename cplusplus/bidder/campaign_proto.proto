@@ -42,8 +42,8 @@ message Targeting {
  optional  uint32  trafficQuality = 5;
  optional  string  inventoryQuality = 6;
  optional  Frequency frequency = 7;
- optional  AppCriteria appId = 8;
- optional  AppCriteria appCategory = 9;
+ optional  AppCriteria directApps = 8;
+ optional  AppCriteria inDirectApps = 9;
  optional  uint32 session = 10;
  
 message Frequency {

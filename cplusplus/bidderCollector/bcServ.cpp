@@ -57,6 +57,8 @@ sig_atomic_t sigusr1_recved = 0;;
 extern shared_ptr<spdlog::logger> g_file_logger;
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
+
+//get micro time
 mircotime_t bcServ::get_microtime()
 {
     m_tmMutex.lock();
@@ -65,6 +67,7 @@ mircotime_t bcServ::get_microtime()
     return t;
 }
 
+//update time
 void *bcServ::getTime(void *arg)
 {
     bcServ *serv = (bcServ *)arg;
@@ -170,6 +173,8 @@ void bcServ::calSpeed()
     }
 }
 
+
+//change log level
 bool bcServ::logLevelChange()
 {
      int logLevel = m_config.get_bcLogLevel();
@@ -205,6 +210,7 @@ void bcServ::usr1SigHandler(int fd, short event, void *arg)
     
 }
 
+//check data list , if time out ,erase 
 void bcServ::check_data_record()
 {
     int lost=0;
@@ -237,6 +243,8 @@ void bcServ::check_data_record()
     m_bcDataMutex.unlock();
 }
 
+
+//erase dislike campaign and creative ,and hset the result
 void bcServ::worker_thread_func(void *arg)
 {
     adResponseValue *response_value = (adResponseValue*) arg;
@@ -252,7 +260,7 @@ void bcServ::worker_thread_func(void *arg)
             mobile_response.ParseFromString(dataStr);
             response_value->get_insightManager();
             adInsightManager& insight_manager = response_value->get_insightManager();
-            insight_manager.eraseDislikeAd(mobile_response);
+            insight_manager.eraseDislikeAd(mobile_response);//erase dislike campaign ,creative
 
             int responseSizze = mobile_response.ByteSize();
             char *responseDaata = new char[responseSizze];
@@ -264,6 +272,7 @@ void bcServ::worker_thread_func(void *arg)
             char* comMessBuf = new char[responseSizze];
             commesg.SerializeToArray(comMessBuf, responseSizze);
 
+            //hset the ad response to redis
             if(serv->m_redisPoolManager.redis_hset_request(response_value->get_uuid().c_str(), response_value->get_field().c_str(),
                 comMessBuf, responseSizze, serv->m_bc_manager.get_redis_timeout())==true)
             {
@@ -310,6 +319,8 @@ void bcServ::handler_recv_buffer(adInsightManager* insightManager, stringBuffer 
      }
 }
 
+
+//recv bidder data handler
 void bcServ::bidderHandler(char * pbuf,int size)
 {
     ostringstream os;
@@ -440,6 +451,7 @@ void bcServ::subVastHandler(char * pbuf,int size)
         VastRequest vastReq;
         vastReq.ParseFromString(data);
         uuid = vastReq.id();
+
     }
     else if(busiCode==m_mobileBusiCode)
     {
@@ -460,7 +472,7 @@ void bcServ::subVastHandler(char * pbuf,int size)
                 stringList.push_back(ids);
             }
             adInsight_manager->add_insight(insight_pro, stringList);
-        }
+        }     
     }
     else
     {
@@ -521,6 +533,7 @@ void bcServ::subVastHandler(char * pbuf,int size)
      }
 }
 
+//subscribe throttle callback
 void bcServ::recvRequest_callback(int fd, short __, void *pair)
 {
     zmq_msg_t msg;
@@ -597,6 +610,8 @@ int bcServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
      }
      return rc;
 }
+
+//recv bidder callback
 void bcServ::recvBidder_callback(int fd, short __, void *pair)
 {
     zmq_msg_t msg;
@@ -651,6 +666,7 @@ void bcServ::recvBidder_callback(int fd, short __, void *pair)
 }
 
 
+//handler manager info from throttle
 bool bcServ::managerProto_from_throttle_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value,  managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -694,6 +710,7 @@ bool bcServ::managerProto_from_throttle_handler(const managerProtocol_messageTyp
     return ret;
 }
 
+//handler manager info from connector
 bool bcServ::managerProto_from_connector_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value,  managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -810,7 +827,7 @@ bool bcServ::manager_handler(const managerProtocol_messageTrans &from, const man
         default:
         {
             //invalid msg
-            g_manager_logger->info("###manager protocol type from throttle is ivalid:{0:d}", (int)from);  
+            g_manager_logger->info("###manager_handler from is ivalid:{0:d}", (int)from);  
             break;
         }
     }
@@ -832,6 +849,7 @@ void bcServ::manager_handler(void *handler, string& identify, const managerProto
     if(ret)
     {
         //need response to request device
+       // g_manager_logger->trace("identify:{0}, from:{1:d}, type:{2:d}",identify, (int)from, (int) rspType);
         bcConfig& bcc = m_bc_manager.get_bc_config();
         managerProPackage::send_response(handler, identify, managerProtocol_messageTrans_BC, rspType, bcc.get_bcIP()
             ,bcc.get_bcMangerPort(), bcc.get_bcDataPort());
@@ -922,7 +940,7 @@ void bcServ::managerEventHandler(int fd, short __, void *pair)
                char *id_str=(char *)zmq_msg_data(&id_part);
                string identify(id_str, id_len);
                zmq_msg_close(&id_part);
-
+ 
                zmq_msg_t data_part;
                int dataLen = serv->zmq_get_message(handler, data_part, ZMQ_NOBLOCK);
                if ( dataLen == -1 )

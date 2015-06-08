@@ -46,6 +46,7 @@ extern shared_ptr<spdlog::logger> g_file_logger;
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
 //#ifdef DEBUG
+//get micro time
 unsigned long long throttleServ::getLonglongTime()
 {
     m_timeMutex.lock();
@@ -53,6 +54,7 @@ unsigned long long throttleServ::getLonglongTime()
     m_timeMutex.unlock(); 
     return t;
 }
+//update time on regular time
 void *throttleServ::getTime(void *arg)
 {
     throttleServ *serv = (throttleServ*) arg;
@@ -64,6 +66,7 @@ void *throttleServ::getTime(void *arg)
         serv->m_timeMutex.unlock();     
     }
 }
+
 
 void *throttleServ::logWrite(void *arg)
 {
@@ -87,6 +90,7 @@ void *throttleServ::logWrite(void *arg)
 }
 
 //#endif
+//update dev with reload configure
 void throttleServ::updateConfigure()
 {
     try
@@ -115,6 +119,7 @@ void throttleServ::updateConfigure()
 
 }
 
+//throttleServ structure
 throttleServ::throttleServ(configureObject &config):m_config(config)
 {
 try
@@ -146,10 +151,12 @@ try
     m_logRedisIP           = m_config.get_logRedisIP();
     m_logRedisPort         = m_config.get_logRedisPort();
 
+//dev manager init
     m_throttleManager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_connector_info(), m_config.get_bidder_info()
         , m_config.get_bc_info());
     m_workerNum = m_throttleManager.get_throttleConfig().get_throttleWorkerNum();
-    
+
+//establish connect between master with worker    
     m_masterPushHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PUSH, "masterworker" , NULL);
     m_masterPullHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PULL, "workermaster" , &m_masterPullFd);    
     if((m_masterPushHandler == NULL)||(m_masterPullHandler == NULL))
@@ -158,7 +165,8 @@ try
         exit(1);
     }
     g_manager_logger->info("[master push and pull success]");
-    
+
+//init worker progress list    
 	for(auto i = 0; i < m_workerNum; i++)
 	{
 		BC_process_t *pro = new BC_process_t;
@@ -176,6 +184,12 @@ catch(...)
 }
 }
 
+/*
+  *name:zmq_get_message
+  *argument:
+  *func:get zmq_msg_t format message from zeromq socket
+  *return: failure return -1, success return msglen
+  */
 int throttleServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
 {
      int rc = zmq_msg_init (&part);
@@ -192,6 +206,12 @@ int throttleServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
      return rc;
 }
 
+/*
+  *name:recvAD_callback
+  *argument:fd,event,argment
+  *func:if recv throttle data msg(subscribe), trigger the callback function
+  *return: 
+  */
 void throttleServ::recvAD_callback(int _, short __, void *pair)
 {
     zmq_msg_t msg;
@@ -220,7 +240,7 @@ void throttleServ::recvAD_callback(int _, short __, void *pair)
         return;
     }
 
-    if ( events & ZMQ_POLLIN )
+    if ( events & ZMQ_POLLIN )//recv msg
     {
         while (1)
         {
@@ -257,6 +277,12 @@ void throttleServ::recvAD_callback(int _, short __, void *pair)
     }
 }
 
+/*
+  *name:broadcastLoginOrHeartReq
+  *argument:throttleserv point
+  *func:send login or heart req to bidder, connector, bc
+  *return: 
+  */
 void *throttleServ::broadcastLoginOrHeartReq(void *throttle)
 {
     try
@@ -270,7 +296,7 @@ void *throttleServ::broadcastLoginOrHeartReq(void *throttle)
         sleep(1);
         while(1)
         {
-            if(serv->m_throttleManager.loginOrHeartReq() == false)
+            if(serv->m_throttleManager.loginOrHeartReq() == false)//if there is device dorp(lost heart 3 times ), reload configure continuous
             {   
                 serv->m_config.readConfig();
                 serv->m_throttleManager.updateDev(serv->m_config.get_bidder_info(), serv->m_config.get_bc_info()
@@ -285,17 +311,28 @@ void *throttleServ::broadcastLoginOrHeartReq(void *throttle)
     }
 }
 
+
+/*
+  *name:broadcastLoginOrHeartReq
+  *argument:throttleserv point
+  *func:establish Asynchronous event using libevent
+  *return: 
+  */
 void *throttleServ::throttleManager_handler(void *throttle)
 {
     throttleServ *serv = (throttleServ*) throttle;
     struct event_base* base = event_base_new(); 
     eventArgment *arg = new eventArgment(base, throttle);
 
+    //master pull worker handlered msg
     struct event *masterPullEvent = event_new(base, serv->m_masterPullFd, EV_READ|EV_PERSIST, masterPullMsg, throttle); 
     event_add(masterPullEvent, NULL);
 
+    //subscribe throttle async event
     serv->m_throttleManager.throttleRequest_event_new(base, recvAD_callback, throttle);   
+    //manager async event
     serv->m_throttleManager.throttleManager_event_new(base, recvManangerInfo_callback, arg);
+    //recv response msg event
     serv->m_throttleManager.connectAllDev(serv->m_zmq_connect, base, recvBidderLogin_callback, throttle);
     event_base_dispatch(base);
     return NULL;  
@@ -313,6 +350,13 @@ bool throttleServ::masterRun()
 	  return true;
 }
 
+
+/*
+  *name:manager_from_connector_handler
+  *argument:
+  *func:manager messager handler from connector
+  *return: if need response ,return true, else false
+  */
 bool throttleServ::manager_from_connector_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -325,7 +369,7 @@ bool throttleServ::manager_from_connector_handler(const managerProtocol_messageT
         case managerProtocol_messageType_REGISTER_REQ:
         {
             const string& key = value.key();
-            g_manager_logger->info("[login req][throttle <- connector]:{0},{1:d},{2}", ip, mangerPort, key);
+            g_manager_logger->info("[register req][throttle <- connector]:{0},{1:d},{2}", ip, mangerPort, key);
             ret = m_throttleManager.registerKey_handler(false,key, m_zmq_connect, base, recvBidderLogin_callback, arg);
             if(ret)
             {
@@ -367,6 +411,12 @@ bool throttleServ::manager_from_connector_handler(const managerProtocol_messageT
 }
 
 
+/*
+  *name:manager_from_bidder_handler
+  *argument:
+  *func:manager messager handler from bidder
+  *return: if need response ,return true, else false
+  */
 bool throttleServ::manager_from_bidder_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -422,6 +472,12 @@ bool throttleServ::manager_from_bidder_handler(const managerProtocol_messageType
     return ret;
 }
 
+/*
+  *name:manager_from_BC_handler
+  *argument:
+  *func:manager messager handler from bc
+  *return: if need response ,return true, else false
+  */
 bool throttleServ::manager_from_BC_handler(const managerProtocol_messageType &type
   , const managerProtocol_messageValue &value, managerProtocol_messageType &rspType, struct event_base * base, void * arg)
 {
@@ -464,6 +520,12 @@ bool throttleServ::manager_from_BC_handler(const managerProtocol_messageType &ty
     return ret;
 }
 
+/*
+  *name:manager_handler
+  *argument:
+  *func:manager messager handler 
+  *return: if need response ,return true, else false
+  */
 bool throttleServ::manager_handler(const managerProtocol_messageTrans &from
            ,const managerProtocol_messageType &type, const managerProtocol_messageValue &value
            ,managerProtocol_messageType &rspType,struct event_base * base, void * arg)
@@ -499,17 +561,17 @@ bool throttleServ::manager_handler(void *handler, string& identify,  const manag
 {
     managerProtocol_messageType rspType;
     bool ret = manager_handler(from, type, value, rspType, base, arg);
-    if(ret)
+    if(ret)//if need response 
     {
         throttleConfig& configure = m_throttleManager.get_throttleConfig();
         const string ip = configure.get_throttleIP();
         int size = 0;
-        if(rspType != managerProtocol_messageType_REGISTER_RSP)
+        if(rspType != managerProtocol_messageType_REGISTER_RSP)//not register response ,there is not the key
         {
             size = managerProPackage::send_response(handler, identify, managerProtocol_messageTrans_THROTTLE, rspType
                 , ip , configure.get_throttleManagerPort(), configure.get_throttlePubPort());
         }
-        else
+        else//register response ,there is the key
         {
             size = managerProPackage::send_response(handler, identify, managerProtocol_messageTrans_THROTTLE, rspType
                 , value.key(), ip , configure.get_throttleManagerPort(), configure.get_throttlePubPort());
@@ -519,7 +581,12 @@ bool throttleServ::manager_handler(void *handler, string& identify,  const manag
     return ret;
 }
 
-
+/*
+  *name:recvBidderLogin_callback
+  *argument:
+  *func:manager response messager callback
+  *return:
+  */
 void throttleServ::recvBidderLogin_callback(int fd, short event, void *pair)
 {
     zmq_msg_t msg;
@@ -575,6 +642,12 @@ void throttleServ::recvBidderLogin_callback(int fd, short event, void *pair)
     }
 }
 
+/*
+  *name:recvManangerInfo_callback
+  *argument:
+  *func:manager request messager callback
+  *return:
+  */
 void throttleServ::recvManangerInfo_callback(int fd, short event, void *pair)
 {
     zmq_msg_t msg;
@@ -640,7 +713,12 @@ void throttleServ::recvManangerInfo_callback(int fd, short event, void *pair)
         }
     }
 }
-
+/*
+  *name:publishData
+  *argument:
+  *func:publish data with zeromq publish
+  *return:
+  */
 void throttleServ::publishData(char *msgData, int msgLen)
 {
     char uuid[PUBLISHKEYLEN_MAX];
@@ -661,11 +739,13 @@ void throttleServ::publishData(char *msgData, int msgLen)
         {
             if(bidderKey.empty()==false)
             {
+                //publish data to bidder
                 zmq_send(pubVastHandler, bidderKey.c_str(), bidderKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
                 zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
             }
             if(connectorKey.empty()==false)
             {
+                //publish data to connector
                 zmq_send(pubVastHandler, connectorKey.c_str(), connectorKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
                 zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
             }
@@ -678,6 +758,14 @@ void throttleServ::publishData(char *msgData, int msgLen)
         g_file_logger->warn("req failure:{0}, {1:d}", uuid, failureTimes);  
     }
 }
+
+
+/*
+  *name:masterPullMsg
+  *argument:
+  *func:master pull message
+  *return:
+  */
 
 void throttleServ::masterPullMsg(int _, short __, void *pair)
 {
@@ -728,6 +816,12 @@ void throttleServ::masterPullMsg(int _, short __, void *pair)
     }
 }
 
+/*
+  *name:parseAdRequest
+  *argument:
+  *func:parse ad request
+  *return:
+  */
 void throttleServ::parseAdRequest(char *msgData, int msgLen)
 {
     CommonMessage commMsg;
@@ -781,6 +875,13 @@ void throttleServ::parseAdRequest(char *msgData, int msgLen)
     delete[] tmpBuf; 
 }
 
+/*
+  *name:workerPullMsg
+  *argument:
+  *func:worker pull ad request
+  *return:
+  */
+
 void throttleServ::workerPullMsg(int _, short __, void *pair)
 {
     zmq_msg_t msg;
@@ -830,6 +931,12 @@ void throttleServ::workerPullMsg(int _, short __, void *pair)
     }
 }
 
+/*
+  *name:hupSigHandler
+  *argument:
+  *func:worker recv hup sig handler
+  *return:
+  */
 void throttleServ::hupSigHandler(int fd, short event, void *arg)
 {
     throttleServ *serv = (throttleServ*) arg;
@@ -837,7 +944,12 @@ void throttleServ::hupSigHandler(int fd, short event, void *arg)
     exit(0);
 }
 
-
+/*
+  *name:intSigHandler
+  *argument:
+  *func:worker recv int sig handler
+  *return:
+  */
 void throttleServ::intSigHandler(int fd, short event, void *arg)
 {
     throttleServ *serv = (throttleServ*) arg;
@@ -846,12 +958,25 @@ void throttleServ::intSigHandler(int fd, short event, void *arg)
     exit(0);
 }
 
+/*
+  *name:termSigHandler
+  *argument:
+  *func:worker recv term sig handler
+  *return:
+  */
 void throttleServ::termSigHandler(int fd, short event, void *arg)
 {
     throttleServ *serv = (throttleServ*) arg;
     g_file_logger->info("signal term");
     exit(0);
 }
+
+/*
+  *name:usr1SigHandler
+  *argument:
+  *func:worker recv usr1 sig handler(kill -10)
+  *return:
+  */
 
 void throttleServ::usr1SigHandler(int fd, short event, void *arg)
 {
@@ -903,7 +1028,12 @@ void throttleServ::signal_handler(int signo)
     }
 }
 
-
+/*
+  *name:start_worker
+  *argument:
+  *func:worker init
+  *return:
+  */
 void throttleServ::start_worker()
 {
     try
@@ -952,6 +1082,13 @@ void throttleServ::start_worker()
     }
 }
 
+/*
+  *name:displayRecord
+  *argument:
+  *func:record speed, cost time and so on
+  *return:
+  */
+
 void throttleServ::displayRecord()
 {
     static long long m_begTime=0;
@@ -988,7 +1125,12 @@ void throttleServ::displayRecord()
     }
 }
 
-
+/*
+  *name:updataWorkerList
+  *argument:
+  *func:update worker list 
+  *return:
+  */
 void throttleServ::updataWorkerList(pid_t pid)
 {
     for(auto it = m_workerList.begin(); it != m_workerList.end(); it++)
@@ -1015,6 +1157,13 @@ inline bool throttleServ::needRemoveWorker() const
     return (m_workerList.size()>m_workerNum)?true:false;
 }
 
+
+/*
+  *name:logLevelChange
+  *argument:
+  *func:changer log level
+  *return:
+  */
 bool throttleServ::logLevelChange()
 {
      int logLevel = m_config.get_throttleLogLevel();
@@ -1157,7 +1306,7 @@ void throttleServ::run()
                 }
             }
 
-            if(is_child==0 &&sigusr1_recved)
+            if(is_child==0 &&sigusr1_recved)//master and notice worker reload configure
             {    
                 g_manager_logger->info("master progress recv sigusr1");         
                 updateConfigure();//read configur file
@@ -1200,6 +1349,7 @@ void throttleServ::run()
         }
         int workIndex = 1;
 
+        //fork child progress and start run progess
         bool proInit = false;
         for (auto it = m_workerList.begin(); it != m_workerList.end(); it++)
         {
@@ -1245,7 +1395,7 @@ void throttleServ::run()
         }
 
         
-        if(is_child==0 && master_started==false)
+        if(is_child==0 && master_started==false)//master run init 
         {    
              //master serv start  
              sleep(1);

@@ -17,6 +17,12 @@ inline void bidderCollecter::set(const string& bc_ip, unsigned short managerPort
 	m_bcManagerPort = managerPort;	
 }
 
+/*
+  *name:connect
+  *argument:
+  *func:connect to bc and establish async event
+  *return: return true
+  */
 inline bool bidderCollecter::connect(zeromqConnect& conntor, string& throttleID, struct event_base* base,  event_callback_fn fn, void *arg)
 {
 	m_bcManagerHander = conntor.establishConnect(true, true, throttleID, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
@@ -26,6 +32,12 @@ inline bool bidderCollecter::connect(zeromqConnect& conntor, string& throttleID,
 	return true;
 }
 
+/*
+  *name:loginOrHeart
+  *argument:
+  *func:send login or heart req to bc, if lost times more than max times relogin bc
+  *return:if lost times more than max times return false, else true
+  */
 bool bidderCollecter::loginOrHeart(const string& tip, unsigned short tmanagerPort, unsigned short tdataport)
 {
     ostringstream os;
@@ -54,6 +66,12 @@ bool bidderCollecter::loginOrHeart(const string& tip, unsigned short tmanagerPor
 	return true;
 }	
 
+/*
+  *name:loginedSuccess
+  *argument:
+  *func:login to the bc success
+  *return:if it is the bc, return true ,else false
+  */
 inline bool bidderCollecter::loginedSuccess(const string& bcIP, unsigned short bcPort)
 {
 	if((bcIP == m_bcIP)&&(bcPort == m_bcManagerPort)) 
@@ -89,6 +107,14 @@ bcManager::bcManager()
 {
     m_bcList_lock.init();
 }
+
+/*
+  *name:init
+  *argument:
+  *func:init bc list
+  *return:
+  */
+
 void bcManager::init( bcInformation& bcInfo)
 {
 	const vector<bcConfig*>& bcList = bcInfo.get_bcConfigList();
@@ -104,7 +130,13 @@ void bcManager::init( bcInformation& bcInfo)
         }
     }
 }
-	
+
+/*
+  *name:run
+  *argument:
+  *func:connect to bc device in bc list
+  *return:
+  */	
 void bcManager::run(zeromqConnect& conntor, string& throttleID, struct event_base* base, event_callback_fn fn, void *arg)
 {
     m_bcList_lock.lock();
@@ -153,6 +185,12 @@ void bcManager::loginedSuccess(const string& ip, unsigned short port)
     m_bcList_lock.unlock();
 }
 
+/*
+  *name:erase_bc
+  *argument:bc ip, bc manager port
+  *func:erase bc
+  *return:
+  */	
 void bcManager::erase_bc(string &bcIP, unsigned short bcManagerPort)
 {
     m_bcList_lock.lock();
@@ -171,7 +209,12 @@ void bcManager::erase_bc(string &bcIP, unsigned short bcManagerPort)
 	}		
     m_bcList_lock.unlock();
 }
-
+/*
+  *name:loginOrHeart
+  *argument:throttle ip, throttle manager port, throttle data port, bc list which lost heart to max times
+  *func:send login or heart req to bc which in bc list
+  *return:
+  */	
 bool bcManager::loginOrHeart(const string& tip, unsigned short tmanagerPort, unsigned short tdataport 
 , vector<ipAddress> &LostAddrList)
 {
@@ -201,6 +244,13 @@ bool bcManager::loginOrHeart(const string& tip, unsigned short tmanagerPort, uns
     m_bcList_lock.unlock();
 	return ret;
 }
+
+/*
+  *name:updateBC
+  *argument:bc list
+  *func:update bclist
+  *return:
+  */	
 
 void bcManager::updateBC(const vector<bcConfig*>& bcConfigList)
 {
@@ -238,7 +288,12 @@ void bcManager::updateBC(const vector<bcConfig*>& bcConfigList)
     m_bcList_lock.unlock();
 }
 
-
+/*
+  *name:add_bc
+  *argument:
+  *func:add bc
+  *return:
+  */	
 void bcManager::add_bc(const string& bcIP, unsigned short bcManagerPort, zeromqConnect& conntor, string& throttleID, 
 						struct event_base* base,  event_callback_fn fn, void *arg)
 {
@@ -271,6 +326,12 @@ void bcManager::set_login_status(bool status)
     m_bcList_lock.unlock();
 }
 
+/*
+  *name:recvHeartFromBC
+  *argument:bc ip, bc manager port;
+  *func:recv heart response from bc
+  *return:if find the bc return turn , else false
+  */	
 bool bcManager::recvHeartFromBC(const string& bcIP, unsigned short bcPort)
 {
     m_bcList_lock.lock();
@@ -288,6 +349,12 @@ bool bcManager::recvHeartFromBC(const string& bcIP, unsigned short bcPort)
     return false;
 }
 
+/*
+  *name:reloginDevice
+  *argument:bc ip, bc manager port;
+  *func:set device to need relogin bc
+  *return:
+  */	
 void bcManager::reloginDevice(const string& ip, unsigned short port)
 {
     m_bcList_lock.lock();

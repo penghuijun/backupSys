@@ -290,7 +290,9 @@ private:
 	redisPoolManager m_redis_pool_manager;
 	redisPoolManager m_log_redis_manager;
 	ThreadPoolManager m_thread_manager;
-	
+
+	ThreadPoolManager m_business_thread_manager;
+
 	struct event_base* m_base;
 	unsigned short m_thread_pool_size;
 	unsigned short m_target_converce_num = 0;

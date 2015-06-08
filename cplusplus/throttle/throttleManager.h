@@ -28,7 +28,6 @@ public:
 	void *get_throttle_manager_handler();
 	void *get_login_handler(int fd);
 	bool  get_throttle_publishKey(const char* uuid, string& bidderKey, string& connectorKey);
-	void organize_publishKey();
 	void reloginAllDev();
 	throttleConfig& get_throttleConfig();
 	string&         get_throttle_identify();

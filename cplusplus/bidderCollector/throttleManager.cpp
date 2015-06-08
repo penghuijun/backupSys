@@ -18,6 +18,8 @@ inline void zmqSubscribeKey::set(const string& bidderIP, unsigned short bidderPo
     os<<bcIP<<":"<<bcManagerPort<<":"<<bcDataPort<<"-"<<bidderIP<<":"<<bidderPort;
     m_subKey = os.str();
 }
+
+//key exsit
 inline bool zmqSubscribeKey::subKey_equal(const string &bidderIP, unsigned short bidderPort
     , const string& bcIP, unsigned short bcManagerPort, unsigned short bcDataPort)
 {
@@ -101,7 +103,8 @@ void zmqSubKeyManager::add_subKey(const string& bidder_ip, unsigned short bidder
         cout<<"add sub key exception"<<endl;
     }
 }
-	
+
+// erase key
 void zmqSubKeyManager::erase_subKey(string& subKey)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -119,7 +122,7 @@ void zmqSubKeyManager::erase_subKey(string& subKey)
 	}
 }
 
-
+//erase key about bc
 void zmqSubKeyManager::erase_subKey_by_bcAddr(string& bcIP, unsigned short bcManagerPort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -137,6 +140,7 @@ void zmqSubKeyManager::erase_subKey_by_bcAddr(string& bcIP, unsigned short bcMan
 	}		
 }
 
+//erase key about bidder or connector
 void zmqSubKeyManager::erase_subKey_by_bidderAddr(string& bidderIP, unsigned short bidderManagerPort)
 {
 	for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -154,6 +158,7 @@ void zmqSubKeyManager::erase_subKey_by_bidderAddr(string& bidderIP, unsigned sho
 	}		
 }
 
+//erase key
 void zmqSubKeyManager:: erase_subKey(string& bidderIP, unsigned short bidderManagerPort, string& bcIP, unsigned short bcManagerPort)
 {
     for(auto it = m_subKey_list.begin(); it != m_subKey_list.end();)
@@ -205,6 +210,8 @@ catch(...)
 }
 }
 
+
+//subscribe key
 bool throttleObject::set_subscribe_opt(string &key)
 {
     int rc =  zmq_setsockopt(m_throtllePubHandler, ZMQ_SUBSCRIBE, key.c_str(), key.size());
@@ -220,6 +227,7 @@ bool throttleObject::set_subscribe_opt(string &key)
     return true;
 }
 
+//unsubscribe key
 bool throttleObject::set_unsubscribe_opt(string &key)
 {
     int rc =  zmq_setsockopt(m_throtllePubHandler, ZMQ_UNSUBSCRIBE, key.c_str(), key.size());
@@ -235,6 +243,8 @@ bool throttleObject::set_unsubscribe_opt(string &key)
     return true;
 }
 
+
+//connect to throttle and establish async event
 void throttleObject::startConnectToThrottle(zeromqConnect& conntor,  string& bc_id, struct event_base* base,  event_callback_fn fn, void *arg)
 {
     m_throttleManagerHandler = conntor.establishConnect(true, true, bc_id, "tcp", ZMQ_DEALER, m_throttleIP.c_str(),
@@ -243,6 +253,8 @@ void throttleObject::startConnectToThrottle(zeromqConnect& conntor,  string& bc_
     event_add(m_throttleManagerEvent, NULL);
 }
 
+
+//connect to throttle and subscribe all key and establish recv throttle publish data event
 inline bool throttleObject::startSubThrottle(vector<zmqSubscribeKey*>& subKeyList, zeromqConnect& conntor, 
     struct event_base* base,  event_callback_fn fn, void *arg)
 {
@@ -272,6 +284,7 @@ inline bool throttleObject::startSubThrottle(vector<zmqSubscribeKey*>& subKeyLis
 }
 
 
+//login to throttle
 void throttleObject::loginThrottle(const string &ip, unsigned short managerPort, unsigned short dataPort)
 {
     if(m_loginThrottled==false)//first login to throttle
@@ -370,6 +383,8 @@ void* throttleManager::get_throttle_handler(int fd)
     return NULL;
 }
 
+
+//connect to throttle
 void throttleManager::startConnectToThrottle(zeromqConnect& conntor,  string& bc_id, struct event_base* base,  event_callback_fn fn, void *arg)
 {
     m_throttleList_lock.lock();
@@ -382,6 +397,7 @@ void throttleManager::startConnectToThrottle(zeromqConnect& conntor,  string& bc
     m_throttleList_lock.unlock();
 }
 
+//add throttle device
 void throttleManager::add_throttle(const string& throttleIP, unsigned short throttleManagerPort, unsigned short throttlePubPort,
     vector<zmqSubscribeKey*>& subKeyList ,zeromqConnect & conntor, struct event_base * base,event_callback_fn fn,void * arg)
 {

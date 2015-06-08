@@ -16,6 +16,12 @@ inline void connectorObject::set(const string& ip, unsigned short managerPort)
 	m_managerPort = managerPort;
 }
 
+/*
+  *name:loginOrHeart
+  *argument:connector ip, connector manager port, connector data port
+  *func:send login or heart req to connector
+  *return:if lost heart more than max times ,return false, else true
+  */	
 bool connectorObject::loginOrHeart(const string &ip, unsigned short managerPort, unsigned short dataPort)
 {
 	ostringstream os;
@@ -28,10 +34,10 @@ bool connectorObject::loginOrHeart(const string &ip, unsigned short managerPort,
 	else
 	{
         m_lostHeartTimes++;
-        if(m_lostHeartTimes > m_lostHeartTime_max)
+        if(m_lostHeartTimes > m_lostHeartTime_max)//lost heat to max
         {
         	m_lostHeartTimes = 0;
-            m_throttleLogined = false;
+            m_throttleLogined = false;//need relogin to connector
         	return false;
         }	
         else
@@ -45,7 +51,13 @@ bool connectorObject::loginOrHeart(const string &ip, unsigned short managerPort,
 	zmq_send(m_managerHander, bidderstr.c_str(), bidderstr.size(), ZMQ_NOBLOCK);	
 	return true;
 }
-	
+
+/*
+  *name:connect
+  *argument:
+  *func:connect to connector, and establish async event
+  *return:
+  */		
 inline bool connectorObject::connect(zeromqConnect& conntor, string& identify, struct event_base* base, event_callback_fn fn, void *arg)
 {
 	m_managerHander = conntor.establishConnect(true, true, identify, "tcp", ZMQ_DEALER
@@ -86,6 +98,12 @@ connectorManager::connectorManager()
     m_manager_lock.init();
 }
 
+/*
+  *name:init
+  *argument:
+  *func:init connector list
+  *return:
+  */	
 void connectorManager::init(connectorInformation& connInfo)
 {
 	auto devlist = connInfo.get_connectorConfigList();
@@ -102,6 +120,12 @@ void connectorManager::init(connectorInformation& connInfo)
 	}
 }
 
+/*
+  *name:run
+  *argument:
+  *func:connect to connector
+  *return:
+  */	
 void connectorManager::run(zeromqConnect& conntor, string& identify, struct event_base* base, event_callback_fn fn, void *arg)
 {
     m_manager_lock.lock();
@@ -112,7 +136,13 @@ void connectorManager::run(zeromqConnect& conntor, string& identify, struct even
 	}
     m_manager_lock.unlock();
 }
-	
+
+/*
+  *name:loginOrHeart
+  *argument:
+  *func:login or heart to connector , if the connector list have lost heart to max times device, then record the address
+  *return:if connector list have lost heart to max times device return false, else true
+  */		
 bool connectorManager::loginOrHeart(const string &ip, unsigned short managerPort, unsigned short dataPort, vector<ipAddress> &LostAddrList)
 {
 	string lostHeartIP;
@@ -145,6 +175,12 @@ bool connectorManager::loginOrHeart(const string &ip, unsigned short managerPort
 	return ret;
 }
 
+/*
+  *name:update
+  *argument:
+  *func:update device 
+  *return:
+  */	
 void connectorManager::update(const vector<connectorConfig*>& configList)
 {
     m_manager_lock.lock();
@@ -199,6 +235,13 @@ void *connectorManager::get_login_handler(int fd)
     m_manager_lock.unlock();
 	return NULL;
 }
+
+    /*
+      *name:recvHeartRsp
+      *argument:
+      *func:recv heart response from connector,if find the bidder, clear lost times
+      *return:if find the bidder return true, else false;
+      */
 
 bool connectorManager::recvHeartRsp(const string& ip, unsigned short port)
 {
@@ -232,7 +275,12 @@ void connectorManager::loginSucess(const string& ip, unsigned short port)
 	}
     m_manager_lock.unlock();
 }		
-
+/*
+  *name:add
+  *argument:
+  *func:add connector to connector list and connect to the connector
+  *return:
+  */
 void connectorManager::add(const string& ip, unsigned short managerPort, zeromqConnect& conntor, string& throttleID, 
 						struct event_base* base,  event_callback_fn fn, void *arg)
 {
@@ -267,19 +315,14 @@ void connectorManager::set_login_status(bool status)
 
 }
 
-void connectorManager::get_logined_address(vector<ipAddress*> &addr)
-{
-    m_manager_lock.lock();
-	for(auto it = m_dev_list.begin(); it != m_dev_list.end(); it++)
-	{
-        connectorObject *connector = *it;
-		if(connector == NULL)continue; 
-        if(connector->get_login_status() == false) continue;
-        ipAddress *ipaddr = new ipAddress(connector->get_devIP(), connector->get_managerPort());
-        addr.push_back(ipaddr);
-	}
-    m_manager_lock.unlock();
-}
+
+
+/*
+  *name:reloginDevice
+  *argument:connector ip, connector manager port
+  *func:set login symbol to false
+  *return:
+  */
 
 void connectorManager::reloginDevice(const string& ip, unsigned short port)
 {

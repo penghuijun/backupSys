@@ -45,7 +45,6 @@ public:
 	void *get_bcDataHandler(){return m_bidderDataHandler;}
 
 	vector<string> get_throttleIdentifyList(){return m_throttleIdentifyList;}
-	void erase_throttle_identify(string &id);
 	void add_throttle_id(string& id);
 	void set_login_status(bool status){m_bidderLoginToBC=status;}
 	bool get_login_status(){return m_bidderLoginToBC;}

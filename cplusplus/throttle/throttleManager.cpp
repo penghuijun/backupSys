@@ -7,6 +7,14 @@ extern shared_ptr<spdlog::logger> g_manager_logger;
 
 throttleManager::throttleManager(){}
 
+
+
+/*
+  *name:init
+  *argument:
+  *func:throttle manager init
+  *return:
+  */
 void throttleManager::init(zeromqConnect &connector, throttleInformation& thro_info
     , connectorInformation& conn_info,  bidderInformation& bidder_info, bcInformation& bc_info)
 {
@@ -18,6 +26,7 @@ void throttleManager::init(zeromqConnect &connector, throttleInformation& thro_i
 	os<<m_throttle_config.get_throttleIP()<<":"<<m_throttle_config.get_throttleManagerPort()<<":"<<m_throttle_config.get_throttlePubPort();
 	m_throttle_identify = os.str();
 }
+
 
 bool throttleManager::update(throttleInformation &new_throttle_info)
 {
@@ -51,7 +60,12 @@ bool throttleManager::update(throttleInformation &new_throttle_info)
 }
 
 
-
+/*
+  *name:address_init
+  *argument:
+  *func:determine throttle address and bind the address
+  *return:
+  */
 void throttleManager::address_init(zeromqConnect &connector, throttleInformation& thro_info)
 {
 	try
@@ -60,7 +74,7 @@ void throttleManager::address_init(zeromqConnect &connector, throttleInformation
 		const vector<throttleConfig*>& throttleList = thro_info.get_throttleConfigList();
 			
 	   	vector<string> ipAddrList;
-	    ipAddress::get_local_ipaddr(ipAddrList);
+	    ipAddress::get_local_ipaddr(ipAddrList);//get local ip address
 	    bool estatblish=false;
 	   	for(auto it = ipAddrList.begin(); it != ipAddrList.end(); it++)
 	   	{
@@ -70,7 +84,7 @@ void throttleManager::address_init(zeromqConnect &connector, throttleInformation
 	           	throttleConfig* throttle = *et;
 				if(throttle == NULL) continue;
                 const string& ip_str = throttle->get_throttleIP();
-	            if(ip_str.compare(0,ip_str.size(), str)==0)
+	            if(ip_str.compare(0,ip_str.size(), str)==0)//find equal local address ip
 	            {
 	                g_manager_logger->info("local ip address:{0}", ip_str);
 	        		m_throttleAdHandler = connector.establishConnect(false, "tcp", ZMQ_ROUTER, ip_str.c_str(),
@@ -121,6 +135,13 @@ void throttleManager::address_init(zeromqConnect &connector, throttleInformation
 	}
 }	
 
+
+/*
+  *name:loginOrHeartReq
+  *argument:
+  *func:send login or heart request to bidder ,connector, bc£¬if lost heart 3 times erase publish key from key list
+  *return:if lost heart 3 times return false£¬ else true;
+  */
 bool throttleManager::loginOrHeartReq()
 {
     try
@@ -175,6 +196,7 @@ void throttleManager::updateDev( bidderInformation& bidder_info,  bcInformation&
 void throttleManager::recvHeartBeatRsp(bidderSymDevType sysType, const string& ip, unsigned short port)
 {
     bool ret = false;
+    static int  checktimes = 0;
     switch(sysType)
     {
         case sys_bidder:
@@ -198,14 +220,22 @@ void throttleManager::recvHeartBeatRsp(bidderSymDevType sysType, const string& i
         }
     }
 
-    if(ret)
+    if(ret&&(checktimes++>3))
     {
+        checktimes = 0;
         if(m_throttlePublish.publishExist(sysType, ip, port) == false)//publish key not exist, so relogin the device
         {
             reloginDevice(sysType, ip, port);         
         }        
     }
 }
+
+/*
+  *name:loginSuccess
+  *argument:
+  *func:if login success, handler sucess
+  *return:
+  */
 
 void throttleManager::loginSuccess(bidderSymDevType sysType, const string& ip, unsigned short port)
 {
@@ -280,6 +310,13 @@ bool throttleManager::throttleManager::get_throttle_publishKey(const char* uuid,
 	return m_throttlePublish.get_publish_key(uuid, bidderKey, connectorKey);
 }
 
+/*
+  *name:reloginDevice
+  *argument:
+  *func:relogin bidder ,connector ,bc
+  *return:
+  */
+
 void throttleManager::reloginDevice(bidderSymDevType sysType, const string& ip, unsigned short port)
 {
 
@@ -311,14 +348,13 @@ void throttleManager::reloginDevice(bidderSymDevType sysType, const string& ip, 
     }
 }
 
-void throttleManager::organize_publishKey()
-{
-    vector<ipAddress*> loginBidderAddr;
-    vector<ipAddress*> loginConnectorAddr;
-    m_bidder_manager.get_logined_address(loginBidderAddr);
-    m_connector_manager.get_logined_address(loginConnectorAddr);
-}
 
+/*
+  *name:add_dev
+  *argument:
+  *func:add bidder ,connector ,bc with dev type
+  *return:
+  */
 
 void throttleManager::add_dev(bidderSymDevType sysType,const string& ip, unsigned short port, zeromqConnect& connector
 , struct event_base* base,  event_callback_fn fn, void *arg)
@@ -352,24 +388,34 @@ void throttleManager::add_dev(bidderSymDevType sysType,const string& ip, unsigne
 throttleConfig& throttleManager::get_throttleConfig() {return m_throttle_config;}
 string &throttleManager::get_throttle_identify(){return m_throttle_identify;}	
 
+/*
+  *name:add_dev
+  *argument:
+  *func:recv register request, parse the key, add device and key
+  *return:
+  */
 bool throttleManager::registerKey_handler(bool fromBidder, const string &key, zeromqConnect& connector
     , struct event_base* base,  event_callback_fn fn, void *arg)
 {
     zmqSubscribeKey subKey(key);
 
-    if(subKey.parse())
+    if(subKey.parse())//parse key
     {
+        //add publish key
         add_throttle_publish_key(fromBidder,subKey.get_bidder_ip(), subKey.get_bidder_port()
             , subKey.get_bc_ip(), subKey.get_bcManangerPort(), subKey.get_bcDataPort());
 
         if(fromBidder)
         {
+            //add bidder 
             add_dev(sys_bidder, subKey.get_bidder_ip(), subKey.get_bidder_port(), connector, base, fn , arg);
         }
         else
         {
+            //add connector
             add_dev(sys_connector, subKey.get_bidder_ip(), subKey.get_bidder_port(), connector, base, fn , arg);        
         }
+        //add bc
         add_dev(sys_bc, subKey.get_bc_ip(), subKey.get_bcManangerPort(), connector, base, fn ,arg);
         return true;
     }
@@ -380,6 +426,12 @@ bool throttleManager::registerKey_handler(bool fromBidder, const string &key, ze
     return false;
 }
 
+/*
+  *name:delete_bc
+  *argument:
+  *func:delete bc and erase the publish key about the bc
+  *return:
+  */
 void throttleManager::delete_bc(string bcIP, unsigned short bcPort)
 {
 	m_bc_manager.erase_bc(bcIP, bcPort);

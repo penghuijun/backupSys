@@ -5,36 +5,33 @@
 extern shared_ptr<spdlog::logger> g_manager_logger;
 extern shared_ptr<spdlog::logger> g_file_logger;
 
-	uint32_t hashFnv1a64::hash_fnv1a_64(const char *key, size_t key_length)
-	{
-		uint32_t hash = (uint32_t) FNV_64_INIT;
-		size_t x;
+uint32_t hashFnv1a64::hash_fnv1a_64(const char *key, size_t key_length)
+{
+	uint32_t hash = (uint32_t) FNV_64_INIT;
+	size_t x;
 		
-		for (x = 0; x < key_length; x++)
-		{
-			uint32_t val = (uint32_t)key[x];
-			hash ^= val;
-			hash *= (uint32_t) FNV_64_PRIME;
-		}
-		
-		return hash;
-	}
-	uint32_t hashFnv1a64::get_rand_index(const char* uuid)
+	for (x = 0; x < key_length; x++)
 	{
-		const int keyLen=32;
-		char key[keyLen];
-        int strLen = strlen(uuid);
-		for(int i= 0; i < strLen; i++)
-		{
-			char ch = *(uuid+i);
-			if(ch != '-') key[i]=ch;
-		}
-		uint32_t secret = hash_fnv1a_64(key, keyLen);
-		return secret;
+		uint32_t val = (uint32_t)key[x];
+		hash ^= val;
+		hash *= (uint32_t) FNV_64_PRIME;
 	}
-
-
-
+		
+	return hash;
+}
+uint32_t hashFnv1a64::get_rand_index(const char* uuid)
+{
+	const int keyLen=32;
+	char key[keyLen];
+    int strLen = strlen(uuid);
+	for(int i= 0; i < strLen; i++)
+	{
+		char ch = *(uuid+i);
+    	if(ch != '-') key[i]=ch;
+	}
+	uint32_t secret = hash_fnv1a_64(key, keyLen);
+	return secret;
+}
 
 zmqSubscribeKey::zmqSubscribeKey(const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort)

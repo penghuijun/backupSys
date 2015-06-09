@@ -1,1 +1,0 @@
-zeromqConnect.o: zeromqConnect.cpp

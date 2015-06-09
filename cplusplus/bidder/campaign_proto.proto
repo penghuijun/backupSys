@@ -1,0 +1,64 @@
+package com.rj.targeting.protos;
+message CampaignProtoEntity{
+ optional  string  id = 1;
+ optional  string  currency = 2;
+ optional  string  state = 3;
+ optional  string  biddingType = 4;
+ optional  string  biddingValue = 5;
+ optional  string  advertiserId = 6;
+ optional  double  pacingRate = 7;
+ optional Action action = 8;
+ repeated Creatives creatives = 9;
+ optional Targeting targeting = 10;
+ 
+ optional bool externalBuying = 11;
+ optional string expectCpm = 12;
+ optional string thirdPartyExpectCpm = 13;
+ optional string thirdPartyBiddingType = 14;
+ optional string thirdPartyBiddingValue = 15;
+ optional uint32 networkId = 16;
+ optional string publisherSource= 17;
+message Action {
+ optional  string  actionTypeName = 1;
+ optional  string  inApp = 2;
+ optional  string  content = 3;
+}
+
+message Creatives {
+ optional  string  size = 1;
+ repeated  Datas   datas = 2;
+message Datas {
+ optional  string  id = 1;
+ optional  string  categoryId = 2;
+ optional  string  channel = 3;
+ optional  string  mediaTypeId = 4;
+ optional  string  mediaSubTypeId = 5;
+}} 
+message Targeting {
+ optional  string  supplyTypeMobileWeb = 1;
+ optional  string  supplyTypeMobileApp = 2;
+ optional  string  deviceTypeTablet = 3;
+ optional  string  deviceTypePhone = 4;
+ optional  uint32  trafficQuality = 5;
+ optional  string  inventoryQuality = 6;
+ optional  Frequency frequency = 7;
+ optional  AppCriteria directApps = 8;
+ optional  AppCriteria inDirectApps = 9;
+ optional  uint32 session = 10;
+ 
+message Frequency {
+ optional  uint32  no_track = 1;
+ optional  uint32  five_minutes = 2;
+ optional  uint32  day = 3;
+ optional  uint32  week = 4;
+ optional  uint32  month = 5;
+ optional  uint32  lifetime = 6;
+}
+message AppCriteria{
+	optional bool in = 1;
+	repeated uint32 ids = 2;
+}
+
+}
+}
+

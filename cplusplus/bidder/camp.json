@@ -1,0 +1,132 @@
+{
+    "id": 138,
+    "name": "ttttttttttttt",
+    "code": "",
+    "state": "active",
+    "deliveryChannel": "mobix",
+    "biddingType": "cpm",
+    "biddingValue": 11,
+    "currency": "USD",
+    "biddingAgent": 1,
+    "startDate": 1416513300000,
+    "endDate": null,
+    "budgetType": "unlimited",
+    "impressionLifetimeBudget": 0,
+    "impressionDailyBudget": 0,
+    "impressionDailyPacing": "even",
+    "mediacostLifetimeBudget": 0,
+    "mediacostDailyBudget": 0,
+    "mediacostDailyPacing": "even",
+    "advertiserId": 39,
+    "dealId": 37,
+    "createdAt": 1416513361000,
+    "updatedAt": 1416513361000,
+    "frequencyLifetime": 0,
+    "frequencyDay": 0,
+    "frequencyMinute": 0,
+    "sessionImps": 0,
+    "frequencyMinuteType": 1,
+    "daypartTimezone": 0,
+    "action": {
+        "name": "Test Action",
+        "inApp": true,
+        "actionType": "web_page",
+        "content": "{\"page_title\": \"Test Web Page\",\"domain_name\": \"www.baidu.com\",\"in_app\": true,\"web_url\": \"http://www.baidu.com\"}"
+    },
+    "creatives": [
+        {
+            "size": "320_50",
+            "datas": [
+                {
+                    "id": 1234,
+                    "macro": null,
+                    "content": "%3C%21DOCTYPE+html%3E%3Chtml%3E%3Chead%3E++%3Cmeta+http-equiv%3D%22content-type%22+content%3D%22text%2Fhtml%3Bcharset%3Dutf-8%22%3E++%3Cmeta+name%3D%22viewport%22+content%3D%22width%3Ddevice-width%2Cminimum-scale%3D1.0%2Cmaximum-scale%3D1.0%2Cuser-scalable%3Dno%22%3E++%3Ctitle%3Ebanner+creative+preview%3C%2Ftitle%3E++%3Cstyle+type%3D%22text%2Fcss%22%3E++++html+%7B++++%7D++++body+%7B++++++margin%3A+0%3B++++++overflow%3A+hidden%3B++++++++%7D++++%23container+%7B++++++position%3A+absolute%3B++++++width%3A+%24%7BAS_WIDTH%7Dpx%3B++++++height%3A+%24%7BAS_HEIGHT%7Dpx%3B++++++overflow%3A+hidden%3B++++++background%3A+black%3B++++%7D++++.icon%7B++++++width%3A+100%25%3B++++++height%3A+100%25%3B++++++margin-right%3A+1%25%3B++++%7D++++.icon+img%7B++++++width%3A+100%25%3B++++++height%3A+100%25%3B++++%7D++%3C%2Fstyle%3E%3C%2Fhead%3E%3Cbody%3E++%3Cdiv+id%3D%22container%22%3E++++%3Ca+href%3D%22%24%7BCLICK_URL%7D%22+id%3D%22imgs%22+class%3D%22icon%22%3E++++%3C%2Fa%3E++%3C%2Fdiv%3E++%3Cscript+type%3D%22text%2Fjavascript%22%3E++++var+imgs+%3D+%5B%24%7BIMPRESSION_URLS%7D%5D%3B++++var+imgHtml+%3D+%27%27%3B%27%27++++for%28i%3D0%3B+i%3Cimgs.length%3B+i%2B%2B%29%7B++++++imgHtml+%3D+imgHtml+%2B+%27%3Cimg+src%3D%22%27+%2B+imgs%5Bi%5D+%2B+%27%22%3E%27%3B++++%7D++++document.getElementById%28%27imgs%27%29.innerHTML+%3D+imgHtml%3B++%3C%2Fscript%3E%3C%2Fbody%3E%3C%2Fhtml%3E"
+                }
+            ]
+        },
+        {
+            "size": "300_50",
+            "datas": [
+                {
+                    "id": 122234,
+                    "macro": null,
+                    "content": "%3C%21DOCTYPE+html%3E%3Chtml%3E%3Chead%3E++%3Cmeta+http-equiv%3D%22content-type%22+content%3D%22text%2Fhtml%3Bcharset%3Dutf-8%22%3E++%3Cmeta+name%3D%22viewport%22+content%3D%22width%3Ddevice-width%2Cminimum-scale%3D1.0%2Cmaximum-scale%3D1.0%2Cuser-scalable%3Dno%22%3E++%3Ctitle%3Ebanner+creative+preview%3C%2Ftitle%3E++%3Cstyle+type%3D%22text%2Fcss%22%3E++++html+%7B++++%7D++++body+%7B++++++margin%3A+0%3B++++++overflow%3A+hidden%3B++++++++%7D++++%23container+%7B++++++position%3A+absolute%3B++++++width%3A+%24%7BAS_WIDTH%7Dpx%3B++++++height%3A+%24%7BAS_HEIGHT%7Dpx%3B++++++overflow%3A+hidden%3B++++++background%3A+black%3B++++%7D++++.icon%7B++++++width%3A+100%25%3B++++++height%3A+100%25%3B++++++margin-right%3A+1%25%3B++++%7D++++.icon+img%7B++++++width%3A+100%25%3B++++++height%3A+100%25%3B++++%7D++%3C%2Fstyle%3E%3C%2Fhead%3E%3Cbody%3E++%3Cdiv+id%3D%22container%22%3E++++%3Ca+href%3D%22%24%7BCLICK_URL%7D%22+id%3D%22imgs%22+class%3D%22icon%22%3E++++%3C%2Fa%3E++%3C%2Fdiv%3E++%3Cscript+type%3D%22text%2Fjavascript%22%3E++++var+imgs+%3D+%5B%24%7BIMPRESSION_URLS%7D%5D%3B++++var+imgHtml+%3D+%27%27%3B%27%27++++for%28i%3D0%3B+i%3Cimgs.length%3B+i%2B%2B%29%7B++++++imgHtml+%3D+imgHtml+%2B+%27%3Cimg+src%3D%22%27+%2B+imgs%5Bi%5D+%2B+%27%22%3E%27%3B++++%7D++++document.getElementById%28%27imgs%27%29.innerHTML+%3D+imgHtml%3B++%3C%2Fscript%3E%3C%2Fbody%3E%3C%2Fhtml%3E"
+                }
+            ]
+        }
+    ],
+    "targeting": {
+        "version": 1,
+        "geoCountry": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "geoRegion": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "geoCity": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "deviceModels": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "languages": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "osFamilies": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "carriers": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "connectionTypes": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "deviceVendors": {
+            "action": "include",
+            "list": [
+                1
+            ]
+        },
+        "osFamilyVersions": null,
+        "dayPart": null,
+        "sessionImps": 1,
+        "supplyTypeMobileWeb": false,
+        "supplyTypeMobileApp": true,
+        "deviceTypeTablet": true,
+        "deviceTypePhone": true,
+        "trafficQuality": 1,
+        "inventoryQuality": "reviewed",
+        "frequency": {
+            "noTrack": 0,
+            "fiveMinutes": 1,
+            "day": 5,
+            "week": 15,
+            "month": 15,
+            "lifetime": 15
+        }
+    }
+}

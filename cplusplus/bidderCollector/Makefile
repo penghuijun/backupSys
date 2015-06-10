@@ -35,7 +35,7 @@ CFLAGS    += `pkg-config --cflags --libs protobuf`
 # The compiling flags used only for C++.
 # If it is a C program, no need to set these flags.
 # If it is a C and C++ merging program, set these flags for the C++ parts.
-CXXFLAGS  := -g -DTIMELOG -L/usr/local/zeromq-4.0.4/lib -I/usr/local/zeromq-4.0.4/include
+CXXFLAGS  := -g -DTIMELOG 
 CXXFLAGS  += `pkg-config --cflags --libs protobuf`
 # The library and the link options ( C and C++ common).
 LDFLAGS   := -lzmq -levent -lpthread -lhiredis

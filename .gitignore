@@ -1,0 +1,16 @@
+cplusplus/bidder/bidder_mobile
+cplusplus/bidder/logs/*
+cplusplus/bidder/*.o
+cplusplus/bidder/*.d
+cplusplus/bidder/*.pb.cc
+cplusplus/bidder/*.pb.h
+cplusplus/bidderCollector/bc_mobile
+cplusplus/bidderCollector/*.o
+cplusplus/bidderCollector/*.d
+cplusplus/bidderCollector/*.pb.cc
+cplusplus/bidderCollector/*.pb.h
+cplusplus/throttle/thro_mobile
+cplusplus/throttle/*.o
+cplusplus/throttle/*.d
+cplusplus/throttle/*.pb.cc
+cplusplus/throttle/*.pb.h

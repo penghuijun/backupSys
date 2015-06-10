@@ -9,7 +9,9 @@ cplusplus/bidderCollector/*.o
 cplusplus/bidderCollector/*.d
 cplusplus/bidderCollector/*.pb.cc
 cplusplus/bidderCollector/*.pb.h
+cplusplus/bidderCollector/logs/*
 cplusplus/throttle/thro_mobile
+cplusplus/throttle/logs/*
 cplusplus/throttle/*.o
 cplusplus/throttle/*.d
 cplusplus/throttle/*.pb.cc

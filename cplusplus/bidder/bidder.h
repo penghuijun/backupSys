@@ -35,7 +35,8 @@
 #include "redisPoolManager.h"
 #include "lock.h"
 #include "zeromqConnect.h"
-#include "login.h"
+#include "login.h"
+
 #include "bidderManager.h"
 #include "campaign.h"
 #include "managerProto.pb.h"
@@ -47,6 +48,7 @@ using namespace com::rj::protos;
 using namespace std;
 
 #define PUBLISHKEYLEN_MAX 100
+#define BIDDER_VERSION    "0.1.1"
 
 const int	c_update_throttleAddr=0x01;
 const int	c_update_bcAddr=0x02;
@@ -196,7 +198,8 @@ public:
     	ostringstream os;
    	 	os<<num;
     	str = os.str();
-	}
+	}
+
 
 	void updateConfigure();
 	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);

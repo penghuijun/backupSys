@@ -11,7 +11,6 @@ shared_ptr<spdlog::logger> g_file_logger;
 shared_ptr<spdlog::logger> g_manager_logger;
 shared_ptr<spdlog::logger> g_worker_logger;
 
-unsigned short bidder_daemon;
 unsigned short bidder_show_help;
 unsigned short bidder_show_version;
 /**
@@ -25,27 +24,14 @@ static inline void print_help();
 
 int main(int argc, char *argv[])
 {
-
-    g_file_logger = spdlog::rotating_logger_mt("debug", "logs/debugfile", 1048576*500, 3, true); 
-    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
-#ifdef DEBUG
-    g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
-#else
-    g_manager_logger->info("-------------------------------------RELEASE MODE-------------------------------------");
-#endif
-
     int major, minor, patch;
-    /**
-     * init bidder_daemon
-     */
-    bidder_daemon       = 0;
     bidder_show_help    = 0;
     bidder_show_version = 0;
     bidder_conf_file    = NULL;
 
     if (cmd_get_options(argc, argv) == -1) 
         exit(-1);
-
+    
     if (bidder_show_help == 1) {
         print_help();
         exit(0);
@@ -54,23 +40,25 @@ int main(int argc, char *argv[])
         printf("bidder version: bidder_mobile/%s\n", BIDDER_VERSION);
         exit(0);
     }
-    if (bidder_conf_file == NULL) {
-        printf("%s -c config_path, -c option is requires.\n", argv[0]);
-        exit(-1);
-    }
+    
+    g_file_logger = spdlog::rotating_logger_mt("debug", "logs/debugfile", 1048576*500, 3, true); 
+    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
+#ifdef DEBUG
+    g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
+#else
+    g_manager_logger->info("-------------------------------------RELEASE MODE-------------------------------------");
+#endif
+    
     zmq_version (&major, &minor, &patch);
     g_manager_logger->info("Current 0MQ version is {0:d}.{1:d}.{2:d}", major, minor, patch);
 
-    string configFileName(bidder_conf_file);
-    if(argc==2)
-    {
-        configFileName = argv[1];
-    }
-    
+    string configFileName(bidder_conf_file == NULL ? "../adManagerConfig.txt" : bidder_conf_file);
     configureObject configure(configFileName);
     configure.display();
+
     bidderServ bidder(configure);
     bidder.run();
+
     return 0;
 }
 
@@ -101,10 +89,6 @@ cmd_get_options(int argc, char *const *argv)
 
             case 'v':
                 bidder_show_version = 1;
-                break;
-
-            case 'd':
-                bidder_daemon = 1;
                 break;
 
             case 'c':
@@ -138,12 +122,11 @@ static inline void
 print_help()
 {
     printf(
-        "Usage: bidder_mobile [-?hvdc]\n\n" 
+        "Usage: bidder_mobile [-?hvc]\n\n" 
         "Options:\n" 
         "\t-?, -h\t\t : help info\n" 
-        "\t-c filename\t : set bidder run config file path\n" 
+        "\t-c filename\t : set bidder run config file path. default path is '../adManagerConfig.txt'\n" 
         "\t-v\t\t : show version\n" 
-        "\t-d\t\t : usage daemon run\n" 
         "Restart:\n" 
         "\tkill -SIGHUP master_pid\n\n" 
     );

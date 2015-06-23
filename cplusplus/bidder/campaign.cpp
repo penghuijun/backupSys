@@ -211,7 +211,8 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 m_expectEcmp = campaign_proto.expectcpm();
             }
             else
-            {
+            {
+
                 m_expectEcmp = campaign_proto.thirdpartyexpectcpm();
             } 
 
@@ -225,7 +226,8 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 }   
             }
             else if(publishSource == "third-party")
-            {
+            {
+
                 if((appid.empty() == false)&&(camp_targeting.has_indirectapps())&&(appCriteria_valid(indirectapps, appid) == false))
                 {
                     g_file_logger->debug("camp {0} can not show in the third-party apps", m_id);    
@@ -363,7 +365,8 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
         auto   frequency = mobile_request.frequency(); 
         auto   aidstr     = mobile_request.aid();
         const CampaignProtoEntity_Targeting& camp_targeting = campaign_proto.targeting();   
-        const CampaignProtoEntity_Action&    camp_action = campaign_proto.action();
+        const CampaignProtoEntity_Action&    camp_action = campaign_proto.action();
+
 
         m_id = campaign_proto.id();
         m_state = campaign_proto.state();
@@ -412,6 +415,9 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             return false;
         }
         
+        /**
+         * creatives parse
+         */
         int creativeCnt = campaign_proto.creatives_size();
         for(auto i = 0; i < creativeCnt; i++)
         {

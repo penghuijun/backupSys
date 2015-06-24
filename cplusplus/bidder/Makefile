@@ -106,10 +106,10 @@ else
 endif
 -include $(DEPS)
 rebuild: clean all
-clean :
+clean:
 	$(RM) *.o *.d
 protobuf:
 	protoc --cpp_out=. *.proto
-cleanall: clean
-	$(RM) $(PROGRAM) $(PROGRAM).exe
+cleanall:
+	$(RM) *.o *.d *.pb.cc *.pb.h
 

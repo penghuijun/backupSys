@@ -441,6 +441,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 const CampaignProtoEntity_Creative& creative_data = camp_creative.datas(idx);
                 m_creativeID = creative_data.creativeid();
                 // m_caterogyID = creative_data.categoryid();
+                m_ctr = creative_data.ctr();
                 m_mediaTypeID = creative_data.mediatypeid();
                 m_mediaSubTypeID = creative_data.mediasubtypeid();
                 g_file_logger->trace("campid {0} find valid size", m_id);

@@ -545,6 +545,7 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         mobile_creative->set_height(mobile_request.adspaceheight());  
         mobile_creative->set_mediatypeid(camp_info->get_mediaTypeID());
         mobile_creative->set_mediasubtypeid(camp_info->get_mediaSubTypeID());
+        mobile_creative->set_ctr(camp_info->get_ctr());
         
         /**
          * set MobileAdResponse bidContent

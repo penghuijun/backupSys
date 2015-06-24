@@ -173,7 +173,8 @@ bool bidderServ::logLevelChange()
      if(log_level != m_logLevel)// loglevel change
      {
          g_manager_logger->emerg("log level from level {0:d} to {1:d}", (int)m_logLevel, (int)log_level);
-         m_logLevel = log_level;
+         m_logLevel = log_level;
+
          return true;
      }
      return false;
@@ -535,13 +536,19 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         campaignInformation* camp_info = *it;
         if(camp_info == NULL) continue;
         MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();
+        /**
+         * set MobileAdResponse Creative Message
+         */
         MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();
         mobile_creative->set_creativeid(camp_info->get_creativeID());
         mobile_creative->set_width(mobile_request.adspacewidth());
         mobile_creative->set_height(mobile_request.adspaceheight());  
         mobile_creative->set_mediatypeid(camp_info->get_mediaTypeID());
         mobile_creative->set_mediasubtypeid(camp_info->get_mediaSubTypeID());
-            
+        
+        /**
+         * set MobileAdResponse bidContent
+         */
         mobile_bidder->set_campaignid(camp_info->get_id());
         mobile_bidder->set_biddingtype(camp_info->get_biddingType());
         mobile_bidder->set_biddingvalue(camp_info->get_biddingValue());
@@ -574,7 +581,8 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
     if(ret)
     {
         int bidID=1;  
-        string bid_id_str;
+        string bid_id_str;
+
         intToString(bidID, bid_id_str);
         bidID++;
         mobile_response.set_id(mobile_request.id());
@@ -640,7 +648,8 @@ try
     auto   appsession = mobile_request.appsession();
 
     g_worker_logger->debug("===parse reqeust start===");
-    g_worker_logger->debug("ad_width_ad_height:{0}", cretive_size);
+    g_worker_logger->debug("ad_width_ad_height:{0}", cretive_size);
+
     g_worker_logger->trace("dnsip:{0}", mobile_request.dnsip());
     g_worker_logger->trace("packagename:{0}", mobile_request.packagename());
     g_worker_logger->debug("uuid:{0}", uuid);

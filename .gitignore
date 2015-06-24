@@ -22,3 +22,5 @@ cplusplus/connector/*.o
 cplusplus/connector/*.d
 cplusplus/connector/*.pb.cc
 cplusplus/connector/*.pb.h
+cplusplus/adManagerConfig.txt
+

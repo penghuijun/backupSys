@@ -10,7 +10,6 @@ message CampaignProtoEntity{
     optional Action action = 8;
     repeated Creatives creatives = 9;
     optional Targeting targeting = 10;
-
     optional bool externalBuying = 11;
     optional string expectCpm = 12;
     optional string thirdPartyExpectCpm = 13;
@@ -18,6 +17,7 @@ message CampaignProtoEntity{
     optional string thirdPartyBiddingValue = 15;
     optional uint32 networkId = 16;
     optional string publisherSource= 17;
+ 
     message Action {
         optional  string  actionTypeName = 1;
         optional  string  inApp = 2;
@@ -26,14 +26,43 @@ message CampaignProtoEntity{
 
     message Creatives {
         optional  string  size = 1;
-        repeated  Datas   datas = 2;
-        message Datas {
-            optional  string  id = 1;
-            optional  string  categoryId = 2;
-            optional  string  channel = 3;
-            optional  string  mediaTypeId = 4;
-            optional  string  mediaSubTypeId = 5;
-        }
+        repeated Creative datas = 2;        
+    } 
+
+    message Creative {
+        optional string creativeId = 1;
+        optional string admarkup = 2;
+        optional string width = 3;
+        optional string height = 4;
+        optional string macro = 5; // creative macro to replace in the actions
+        repeated TrackingEvents events = 6;
+        optional string mediaTypeId = 7;
+        optional string mediaSubTypeId = 8;
+        optional CreativeSession session =9; // creative session setting
+        optional UUID uuid = 10; //uuid update or anything
+        optional string CTR = 11;
+        
+    }
+
+    message CreativeSession{
+    optional string sessionLimit = 1;
+    }
+
+    message UUID {
+    repeated UuidType uuidType = 1;
+    }
+
+    enum UuidType {
+    FRE = 0;
+    SESSION = 1;
+    }   
+
+    message TrackingEvents {
+    // 1. image, telephone, video, 
+    // 2. start, complet, midpoint,firstquartile, thirdquartile, pause, unpause, mute, unmute, replay, 
+    //      skip, sec
+    optional string event = 1; 
+    optional string trackUrl = 2;
     }
 
     message Targeting {
@@ -43,18 +72,18 @@ message CampaignProtoEntity{
         optional  string  deviceTypePhone = 4;
         optional  uint32  trafficQuality = 5;
         optional  string  inventoryQuality = 6;
-        optional  Frequency frequency = 7;
-        optional  AppCriteria directApps = 8;
-        optional  AppCriteria inDirectApps = 9;
-        optional  uint32 session = 10;
- 
+        optional Frequency frequency = 7;
+        optional AppCriteria directApps = 8;
+        optional AppCriteria inDirectApps = 9;
+        optional uint32 session = 10;
+     
         message Frequency {
-         optional  uint32  no_track = 1;
-         optional  uint32  five_minutes = 2;
-         optional  uint32  day = 3;
-         optional  uint32  week = 4;
-         optional  uint32  month = 5;
-         optional  uint32  lifetime = 6;
+            optional  uint32  no_track = 1;
+            optional  uint32  five_minutes = 2;
+            optional  uint32  day = 3;
+            optional  uint32  week = 4;
+            optional  uint32  month = 5;
+            optional  uint32  lifetime = 6;
         }
         message AppCriteria{
             optional bool in = 1;
@@ -63,4 +92,3 @@ message CampaignProtoEntity{
 
     }
 }
-

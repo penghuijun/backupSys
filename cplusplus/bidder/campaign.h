@@ -238,7 +238,7 @@ public:
 	string &get_curency(){return m_curency;}
 	string &get_advertiserID(){return m_advertiserID;}
 	string &get_creativeID(){return m_creativeID;}
-	string &get_categoryID(){return m_caterogyID;}
+	// string &get_categoryID(){return m_caterogyID;}
 	string &get_mediaTypeID(){return m_mediaTypeID;}
 	string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
 	string &get_expectEcmp(){return m_expectEcmp;}
@@ -261,7 +261,7 @@ private:
 	string   m_advertiserID;
 	campaign_action m_action;
 	string   m_creativeID;
-	string   m_caterogyID;
+	// string   m_caterogyID;
 	string   m_mediaTypeID;
 	string   m_mediaSubTypeID;
 	bool     m_camAppSession = false;

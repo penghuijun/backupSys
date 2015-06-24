@@ -127,8 +127,10 @@ print_help()
         "\t-?, -h\t\t : help info\n" 
         "\t-c filename\t : set bidder run config file path. default path is '../adManagerConfig.txt'\n" 
         "\t-v\t\t : show version\n" 
-        "Restart:\n" 
-        "\tkill -SIGHUP master_pid\n\n" 
+        "run method:\n" 
+        "\tkill -SIGHUP  master_pid \t: restart server\n" 
+        "\tkill -SIGTERM master_pid \t: ungraceful stop server\n" 
+        "\tkill -SIGINT  master_pid \t: graceful stop server\n\n" 
     );
 }
 

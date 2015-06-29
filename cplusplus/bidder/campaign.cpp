@@ -436,14 +436,15 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
            // g_file_logger->trace("---------------:cw:{0:d},ch:{1:d},rw:{2:d},rh:{3:d}", campWidth, campHeight, ad_width, ad_heigh);
             if(creativeSize.empty()||camp_creative.size()==anySize||((campWidth<=ad_width)&&(campHeight==ad_heigh)))
             {
-                int creativeSizeCnt = camp_creative.datas_size();
-                int idx = rand()%creativeSizeCnt;
+                int creativeSizeCnt                               = camp_creative.datas_size();
+                int idx                                           = rand()%creativeSizeCnt;
                 const CampaignProtoEntity_Creative& creative_data = camp_creative.datas(idx);
-                m_creativeID = creative_data.creativeid();
-                // m_caterogyID = creative_data.categoryid();
-                m_ctr = creative_data.ctr();
-                m_mediaTypeID = creative_data.mediatypeid();
-                m_mediaSubTypeID = creative_data.mediasubtypeid();
+                m_creativeID                                      = creative_data.creativeid();
+                // m_caterogyID                                   = creative_data.categoryid();
+                m_ctr                                             = creative_data.ctr();
+                m_cs                                              = creative_data.session();
+                m_mediaTypeID                                     = creative_data.mediatypeid();
+                m_mediaSubTypeID                                  = creative_data.mediasubtypeid();
                 g_file_logger->trace("campid {0} find valid size", m_id);
                 return true;
             }

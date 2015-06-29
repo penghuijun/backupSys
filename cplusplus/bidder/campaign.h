@@ -239,6 +239,7 @@ public:
 	string &get_advertiserID(){return m_advertiserID;}
 	string &get_creativeID(){return m_creativeID;}
 	// string &get_categoryID(){return m_caterogyID;}
+	CampaignProtoEntity_CreativeSession &get_creativeSession() {return m_cs;}
 	string &get_ctr() { return m_ctr;}
 	string &get_mediaTypeID(){return m_mediaTypeID;}
 	string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
@@ -263,6 +264,7 @@ private:
 	campaign_action m_action;
 	string   m_creativeID;
 	// string   m_caterogyID;
+	CampaignProtoEntity_CreativeSession m_cs;
 	string   m_ctr;
 	string   m_mediaTypeID;
 	string   m_mediaSubTypeID;

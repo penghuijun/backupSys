@@ -547,9 +547,27 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         mobile_creative->set_mediasubtypeid(camp_info->get_mediaSubTypeID());
         mobile_creative->set_ctr(camp_info->get_ctr());
 
+        /**
+         * add MobileAdResponse Creative Session
+         */
         MobileAdResponse_CreativeSession *cs = mobile_creative->mutable_session();
         cs->set_sessionlimit(camp_info->get_creativeSession().sessionlimit());
         
+        /**
+         * add MobileAdResponse Creative UUID
+         */
+        MobileAdResponse_UUID *creative_uuid = mobile_creative->mutable_uuid();
+        CampaignProtoEntity_UUID &cpuuid = camp_info->get_uuid();
+        int cpuuid_len = cpuuid.uuidtype_size();
+        for (int i = 0; i < cpuuid_len; ++i)
+        {
+          if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_FRE)
+            creative_uuid->set_uuidtype(i, MobileAdResponse_UuidType_FRE);
+          else if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_SESSION)
+            creative_uuid->set_uuidtype(i, MobileAdResponse_UuidType_SESSION);
+
+        }
+
         /**
          * set MobileAdResponse bidContent
          */

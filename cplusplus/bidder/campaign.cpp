@@ -445,6 +445,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 m_cs                                              = creative_data.session();
                 m_mediaTypeID                                     = creative_data.mediatypeid();
                 m_mediaSubTypeID                                  = creative_data.mediasubtypeid();
+                m_uuid                                            = creative_data.uuid();
                 g_file_logger->trace("campid {0} find valid size", m_id);
                 return true;
             }

@@ -562,10 +562,9 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         for (int i = 0; i < cpuuid_len; ++i)
         {
           if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_FRE)
-            creative_uuid->set_uuidtype(i, MobileAdResponse_UuidType_FRE);
+            creative_uuid->add_uuidtype(MobileAdResponse_UuidType_FRE);
           else if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_SESSION)
-            creative_uuid->set_uuidtype(i, MobileAdResponse_UuidType_SESSION);
-
+            creative_uuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
         }
 
         /**

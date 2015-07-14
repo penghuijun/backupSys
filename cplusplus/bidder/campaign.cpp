@@ -159,7 +159,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
         {
             const string &camp_vetory = camp_targeting.inventoryquality(); 
             auto   aidstr     = mobile_request.aid();
-            const string& appReviewed = aidstr.app_reviewed();
+            const string& appReviewed = aidstr.appreviewed();
             if(appReviewed !=  "1") 
             {
                 if(camp_vetory == "reviewed")
@@ -180,8 +180,8 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             auto   aidstr     = mobile_request.aid();
             bool index_externBuying = false;
             if(campaign_proto.has_externalbuying())  index_externBuying = campaign_proto.externalbuying();
-            const string& request_network_reselling = aidstr.network_reselling();
-            const string& request_app_reselling = aidstr.app_resell();
+            const string& request_network_reselling = aidstr.networkreselling();
+            const string& request_app_reselling = aidstr.appresell();
             const string& request_network_idstr = aidstr.networkid();
             if(aidstr.has_networkid() == false)
             {
@@ -295,7 +295,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
     bool campaignInformation::parseCreativeSize(const string &creativeSize, int &width, int &height)
     {
         int widthCnt = 0;
-        bool find = false;
+        bool find = false;
         for(auto it = creativeSize.begin(); it != creativeSize.end(); it++)
         {
            char ch = *it;

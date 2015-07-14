@@ -131,6 +131,7 @@ void bidderServ::calSpeed()
      test_count++;
      couuut = test_count;
      if(test_count%printNum==1)
+
      {
         struct timeval btime;
         gettimeofday(&btime, NULL);
@@ -683,7 +684,7 @@ try
     {
         auto   aidstr     = mobile_request.aid();
         g_file_logger->trace("request aid: id, networkid, publishid, appreviewed, retwork_reselling, app_reselling :{0},{1},{2},{3},{4},{5}"
-            ,aidstr.id(), aidstr.networkid(), aidstr.publisher_id(), aidstr.app_reviewed(), aidstr.network_reselling(), aidstr.app_resell());
+            ,aidstr.id(), aidstr.networkid(), aidstr.publisherid(), aidstr.appreviewed(), aidstr.networkreselling(), aidstr.appresell());
     }
 
     

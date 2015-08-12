@@ -568,6 +568,25 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
             creative_uuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
         }
 
+        
+        /**
+                *add MobileAdResponse Creative adChannelType
+                */
+        switch(camp_info->get_creativeAdChannelType())
+        {
+            case CampaignProtoEntity_AdChannelType_MOBILE_APP:
+                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
+                break;
+            case CampaignProtoEntity_AdChannelType_MOBILE_WEB:
+                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
+                break;
+            case CampaignProtoEntity_AdChannelType_PC_WEB:
+                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
+                break;
+            default:
+                break;
+        }
+
         /**
          * set MobileAdResponse bidContent
          */
@@ -686,7 +705,12 @@ try
         g_file_logger->trace("request aid: id, networkid, publishid, appreviewed, retwork_reselling, app_reselling :{0},{1},{2},{3},{4},{5}"
             ,aidstr.id(), aidstr.networkid(), aidstr.publisherid(), aidstr.appreviewed(), aidstr.networkreselling(), aidstr.appresell());
     }
-
+    else if(mobile_request.has_wid())
+    {
+        auto   widstr     = mobile_request.wid();
+        g_file_logger->trace("request wid: id, networkid, publishid, reviewed, retwork_reselling, reselling :{0},{1},{2},{3},{4},{5}"
+            ,widstr.id(), widstr.networkid(), widstr.publisherid(), widstr.reviewed(), widstr.networkreselling(), widstr.resell());
+    }
     
     g_worker_logger->debug("===parse reqeust end===");
 

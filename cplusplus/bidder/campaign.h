@@ -222,6 +222,7 @@ public:
 	bool parse_action(const rapidjson::Value &tmp_obj);
 	bool parse_campaign( char *data, int dataLen , verifyTarget& cam_target, string& creativeSize, MobileAdRequest &mobile_request);
     bool appCriteria_valid(const CampaignProtoEntity_Targeting_AppCriteria& appcriteria, const string& request_appid);
+	bool WebsiteCriteria_valid(const CampaignProtoEntity_Targeting_WebsiteCriteria& websitecriteria, const string& request_webid);
 
 	bool frequency_valid(	const ::google::protobuf::RepeatedPtrField< ::com::rj::protos::mobile::MobileAdRequest_Frequency >& frequency
         ,const CampaignProtoEntity_Targeting_Frequency& camp_frequency);
@@ -250,6 +251,7 @@ public:
 	void set_camFrequecy(bool res){m_camFrequecy = res;}
 	bool get_camFrequecy(){return m_camFrequecy;}
 	bool get_camAppSession(){return m_camAppSession;}
+	CampaignProtoEntity_AdChannelType& get_creativeAdChannelType(){return m_adChannelType;}
 
 	void display();	
 	~campaignInformation()
@@ -267,6 +269,7 @@ private:
 	// string   m_caterogyID;
 	CampaignProtoEntity_CreativeSession m_cs;
 	CampaignProtoEntity_UUID m_uuid;
+	CampaignProtoEntity_AdChannelType m_adChannelType;	
 	string   m_ctr;
 	string   m_mediaTypeID;
 	string   m_mediaSubTypeID;

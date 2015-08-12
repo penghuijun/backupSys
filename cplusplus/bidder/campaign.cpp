@@ -151,6 +151,44 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
        return true;
     }
 
+    bool campaignInformation::WebsiteCriteria_valid(const CampaignProtoEntity_Targeting_WebsiteCriteria& websitecriteria
+        , const string& request_webid)
+    {    
+        bool websiteAllow = websitecriteria.in();
+        if(request_webid.empty()) return true;
+        int numwebid = atoi(request_webid.c_str());
+        if(websiteAllow)
+        {
+           bool inner = false;
+           auto idsCnt = websitecriteria.ids_size();
+           if(idsCnt == 0) return true;
+           for(auto i = 0; i < idsCnt; i++)
+           {
+              int num = websitecriteria.ids(i);
+              if(num == numwebid)
+              {
+                  inner = true;
+                  break;
+              }
+           }
+           if(inner == false) return false;
+       }
+       else
+       {
+          auto idsCnt = websitecriteria.ids_size();
+          if(idsCnt == 0) return true;
+          for(auto i = 0; i < idsCnt; i++)
+          {
+              int num = websitecriteria.ids(i);
+              if(num == numwebid)
+              {
+                  return false;
+              }
+          }
+       }
+       return true;
+    }
+
     bool campaignInformation::expectecpm(MobileAdRequest &mobile_request, CampaignProtoEntity &campaign_proto
         , string& invetory)
     {
@@ -165,6 +203,20 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 if(camp_vetory == "reviewed")
                 {
                     g_file_logger->trace("app is not reviewed, but camp need reviewed:{0}", appReviewed);
+                    return false;
+                }
+            }
+        }
+        else if(mobile_request.has_wid())
+        {
+            const string &camp_vetory = camp_targeting.inventoryquality(); 
+            auto   widstr     = mobile_request.wid();
+            const string& webReviewed = widstr.reviewed();
+            if(webReviewed !=  "1") 
+            {
+                if(camp_vetory == "reviewed")
+                {
+                    g_file_logger->trace("web is not reviewed, but camp need reviewed:{0}", webReviewed);
                     return false;
                 }
             }
@@ -261,6 +313,92 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 return false;
             }
             
+        }
+        if(mobile_request.has_wid())
+        {
+            MobileAdRequest_Wid widstr = mobile_request.wid();
+            bool index_externBuying = false;
+            if(campaign_proto.has_externalbuying())  index_externBuying = campaign_proto.externalbuying();
+            const string& request_network_reselling = widstr.networkreselling();
+            const string& request_web_reselling = widstr.resell();
+            const string& request_network_idstr = widstr.networkid();
+            if(widstr.has_networkid() == false)
+            {
+                g_file_logger->trace("mobile request wid has not network_id:{0}", widstr.networkid());
+                return false;
+            }   
+            
+            int  request_network_reselling_id = atoi(request_network_reselling.c_str());
+            int  request_web_reselling_id = atoi(request_web_reselling.c_str());
+            int  request_network_idstr_id = atoi(request_network_idstr.c_str());
+            if((index_externBuying == false)||(request_network_reselling_id == 0) || (request_web_reselling_id == 0))
+            {
+                if(request_network_idstr_id != campaign_proto.networkid())  
+                {
+                    g_file_logger->trace("campid {0} network is not equal between request and index:{1:d},{2:d}", m_id, 
+                        request_network_idstr_id, campaign_proto.networkid());
+                    return false;
+                }
+            }
+            
+            const CampaignProtoEntity_Targeting_WebsiteCriteria& directWebsites = camp_targeting.directwebsites();
+            const CampaignProtoEntity_Targeting_WebsiteCriteria& inDirectWebsites = camp_targeting.indirectwebsites();
+            const string& webid = widstr.id();
+            
+            if(request_network_idstr_id == campaign_proto.networkid())  
+            {  
+                m_expectEcmp = campaign_proto.expectcpm();
+            }
+            else
+            {
+
+                m_expectEcmp = campaign_proto.thirdpartyexpectcpm();
+            } 
+
+            const string& publishSource = campaign_proto.publishersource();
+            if(publishSource == "direct")  
+            {   
+                if((webid.empty() == false)&&(camp_targeting.has_directapps())&&(WebsiteCriteria_valid(directWebsites, webid) == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the directwebsites", m_id);    
+                    return false;
+                }   
+            }
+            else if(publishSource == "third-party")
+            {
+
+                if((webid.empty() == false)&&(camp_targeting.has_indirectapps())&&(WebsiteCriteria_valid(inDirectWebsites, webid) == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the third-party websites", m_id);    
+                    return false;
+                }
+            } 
+            else if(publishSource == "direct,third-party")
+            {
+                if(webid.empty()) return true;
+                bool direct = true;
+                bool indirect = true;
+                if(camp_targeting.has_directapps())
+                {
+                    direct =  WebsiteCriteria_valid(directWebsites, webid);
+                }
+
+                if(camp_targeting.has_indirectapps())
+                {
+                    indirect = WebsiteCriteria_valid(inDirectWebsites, webid);
+                }
+
+                if((indirect == false)&&(direct == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the directwebsites or third-party websites", m_id);    
+                    return false;
+                } 
+            }
+            else
+            {
+                g_file_logger->debug("camp {0} publishSource exception", m_id); 
+                return false;
+            }
         }
         return true;
     }
@@ -446,6 +584,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 m_mediaTypeID                                     = creative_data.mediatypeid();
                 m_mediaSubTypeID                                  = creative_data.mediasubtypeid();
                 m_uuid                                            = creative_data.uuid();
+                m_adChannelType                                   = creative_data.adchanneltype();
                 g_file_logger->trace("campid {0} find valid size", m_id);
                 return true;
             }

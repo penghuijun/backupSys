@@ -10,12 +10,12 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
     int tranffic = camp_target.trafficquality();
     int request_tranffic = atoi(m_target_traffic.c_str());
     
-    if((m_target_supmapp.empty()==false)&&(m_target_supmapp != supmapp))
+    if((atoi(m_target_supmapp.c_str()) != 0)&&(m_target_supmapp != supmapp))
     {
          g_file_logger->debug("supmapp error:{0},{1}", m_target_supmapp, supmapp);
          return false;
     }
-    if((m_target_supmweb.empty()==false)&&(m_target_supmweb != supmweb))
+    if((atoi(m_target_supmweb.c_str()) != 0)&&(m_target_supmweb != supmweb))
     {
          g_file_logger->debug("supmweb error:{0},{1}", m_target_supmweb, supmweb);
          return false;

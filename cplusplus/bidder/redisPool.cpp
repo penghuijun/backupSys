@@ -155,6 +155,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 					else
 					{
 						min_array_ptr = target_set_intersection(first_array, first_array_len, target_item->get_array_ptr(), target_item->get_array_size(), min_array_size);//new
+						g_worker_logger->info("target_set_intersection time[{0:d}] result size : {1:d}",index,min_array_size);
 						//free node1 and node2, erase node1, add intersection result to node2, so as a word, erase the origin node, insert the result
 						target_result_info *front_item = *it;
 						target_obj.erase_target_origin(front_item->get_name());
@@ -360,6 +361,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                      free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                      array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
                      delete[] tmp_result;//free
+                     g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
                      target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_geo");
                   }
               }
@@ -373,6 +375,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                       result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                       free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                       array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
+                      g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
                       target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_os");
                    }
               }
@@ -386,6 +389,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
+                       g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_dev");
                     }
               }
@@ -399,6 +403,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
+                       g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_app");
                     }
                }

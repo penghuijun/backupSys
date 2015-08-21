@@ -249,7 +249,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     vector<target_infomation*>& target_dev = target_obj.get_target_dev().get();
     vector<target_infomation*>& target_app = target_obj.get_app().get();
     vector<target_infomation*>& target_signal_vec = target_obj.get_target_signal();
-    
+
+    g_worker_logger->debug("Redis hget geo/os/dev/app/fre value !");
     
     for(auto it = target_geo.begin(); it != target_geo.end(); it++)
     {
@@ -318,6 +319,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
          }
          total_num++;
       }
+
+     g_worker_logger->debug("Redis hget command send over!");
                 
       const int geo_os_dev_count = geo_num+os_num+dev_num;
       const int allUnion_cnt = geo_num+os_num+dev_num+app_num;

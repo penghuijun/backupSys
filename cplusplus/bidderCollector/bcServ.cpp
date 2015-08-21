@@ -232,6 +232,7 @@ void bcServ::check_data_record()
         mircotime_t diff = micro - tm;
         if(diff>=overTime)//if have overtime, then user overtime, if not use default overtime
         {
+            g_file_logger->debug("Timeout delete data uuid:{0}",bcDataIt->first);
             delete bcData;  
             m_bcDataRecList.erase(bcDataIt++);
         }
@@ -405,6 +406,7 @@ void bcServ::bidderHandler(char * pbuf,int size)
                }
                else//have not recv throttle, so record the bidder response data;
                {
+                  g_file_logger->debug("have not recv throttle!");
                   if(bcData)
                   {
                        bcData->add_bidder_buf(pbuf, size, bidIDandTime);
@@ -415,12 +417,14 @@ void bcServ::bidderHandler(char * pbuf,int size)
           }
           else//invalid bcData ,assert , throw error
           {
+              g_file_logger->debug("invalid bcData !");
               m_bcDataRecList.erase(bcDataIt);
               m_bcDataMutex.unlock();
           }
      }
      else// can not find uuid,represent throttle info have not recved
      {
+           g_file_logger->debug("DataRecList can not find uuid:{0}",uuid); 
            bcDataRec *bData = new bcDataRec(recvBidTime, overTime, false);
            bData->add_bidder_buf(pbuf, size, bidIDandTime);
            m_bcDataRecList.insert(pair<string, bcDataRec*>(uuid, bData)); 

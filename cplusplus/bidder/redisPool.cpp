@@ -251,6 +251,10 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     vector<target_infomation*>& target_signal_vec = target_obj.get_target_signal();
 
     g_worker_logger->debug("Redis hget geo/os/dev/app/fre value !");
+    struct timeval tv;
+    memset(&tv,0,sizeof(struct timeval));
+    gettimeofday(&tv,NULL);
+    long long begin_t = tv.tv_sec*1000 + tv.tv_usec/1000;
     
     for(auto it = target_geo.begin(); it != target_geo.end(); it++)
     {
@@ -430,6 +434,12 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
         }
     }
 
+    memset(&tv,0,sizeof(struct timeval));
+    gettimeofday(&tv,NULL);
+    long long end_t = tv.tv_sec*1000 + tv.tv_usec/1000;
+    long long diff = end_t - begin_t;
+    g_worker_logger->debug("#####CAST TIME1 : {0:d} ms",diff);    
+
     int convergence_num = conver_num;
     target_set_convergence(target_item_list, target_obj, convergence_num, tar_result_info);
     for(auto it = target_item_list.begin(); it != target_item_list.end();)
@@ -485,7 +495,10 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                     }
                 }   
             
-                
+                struct timeval tv;
+                memset(&tv,0,sizeof(struct timeval));
+                gettimeofday(&tv,NULL);
+                long long begin_t = tv.tv_sec*1000 + tv.tv_usec/1000;
                 int get_num = 0;
                 for(int idx = 0; idx < cnt; idx++)
                 {
@@ -516,6 +529,11 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                     }
                     freeReplyObject(ply);           
                 }
+                memset(&tv,0,sizeof(struct timeval));
+                gettimeofday(&tv,NULL);
+                long long end_t = tv.tv_sec*1000 + tv.tv_usec/1000;
+                long long diff = end_t - begin_t;
+                g_worker_logger->debug("#####CAST TIME2 : {0:d} ms",diff);                
                 return true;        
             }
 

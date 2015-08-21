@@ -249,8 +249,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     vector<target_infomation*>& target_dev = target_obj.get_target_dev().get();
     vector<target_infomation*>& target_app = target_obj.get_app().get();
     vector<target_infomation*>& target_signal_vec = target_obj.get_target_signal();
-
-    g_worker_logger->debug("Redis hget geo/os/dev/app/fre value !");
+    
     struct timeval tv;
     memset(&tv,0,sizeof(struct timeval));
     gettimeofday(&tv,NULL);
@@ -322,9 +321,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
             return false;
          }
          total_num++;
-      }
-
-     g_worker_logger->debug("Redis hget command send over!");
+      }     
                 
       const int geo_os_dev_count = geo_num+os_num+dev_num;
       const int allUnion_cnt = geo_num+os_num+dev_num+app_num;
@@ -368,7 +365,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                      free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                      array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
                      delete[] tmp_result;//free
-                     g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
+                     //g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
                      target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_geo");
                   }
               }
@@ -382,7 +379,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                       result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                       free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                       array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                      g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
+                      //g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
                       target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_os");
                    }
               }
@@ -396,7 +393,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
+                       //g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_dev");
                     }
               }
@@ -410,7 +407,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
+                       //g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_app");
                     }
                }

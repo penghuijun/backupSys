@@ -211,7 +211,40 @@ private:
 	string m_target_traffic;
 	string m_target_inventory;
 };
-
+class creativeInformation
+{
+public:
+	creativeInformation(){}
+	creativeInformation(const string& id,const CampaignProtoEntity_CreativeSession& m_csArg,const CampaignProtoEntity_UUID& m_uuidArg,const CampaignProtoEntity_AdChannelType& m_adChannelTypeArg,
+							const string& m_ctrArg,const string& m_mediaTypeIDArg,const string& m_mediaSubTypeIDArg)
+	{
+		m_creativeID = id;
+		m_cs = m_csArg;
+		m_uuid = m_uuidArg;
+		m_adChannelType = m_adChannelTypeArg;
+		m_ctr = m_ctrArg;
+		m_mediaTypeID = m_mediaTypeIDArg;
+		m_mediaSubTypeID = m_mediaSubTypeIDArg;
+	}
+	string &get_creativeID(){return m_creativeID;}
+	// string &get_categoryID(){return m_caterogyID;}
+	CampaignProtoEntity_CreativeSession &get_creativeSession() {return m_cs;}
+	CampaignProtoEntity_UUID &get_uuid() {return m_uuid;}
+	string &get_ctr() { return m_ctr;}
+	string &get_mediaTypeID(){return m_mediaTypeID;}
+	string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
+	CampaignProtoEntity_AdChannelType& get_creativeAdChannelType(){return m_adChannelType;}
+	~creativeInformation(){}
+private:
+	string   m_creativeID;
+	// string   m_caterogyID;
+	CampaignProtoEntity_CreativeSession m_cs;
+	CampaignProtoEntity_UUID m_uuid;
+	CampaignProtoEntity_AdChannelType m_adChannelType;	
+	string   m_ctr;
+	string   m_mediaTypeID;
+	string   m_mediaSubTypeID;
+};
 
 class campaignInformation
 {
@@ -238,20 +271,21 @@ public:
 	string &get_biddingValue(){return m_biddingValue;}
 	string &get_curency(){return m_curency;}
 	string &get_advertiserID(){return m_advertiserID;}
-	string &get_creativeID(){return m_creativeID;}
+	vector<creativeInformation*> &getCreativeInfoList(){return m_creativeInfoList;}
+	//string &get_creativeID(){return m_creativeID;}
 	// string &get_categoryID(){return m_caterogyID;}
-	CampaignProtoEntity_CreativeSession &get_creativeSession() {return m_cs;}
-	CampaignProtoEntity_UUID &get_uuid() {return m_uuid;}
-	string &get_ctr() { return m_ctr;}
-	string &get_mediaTypeID(){return m_mediaTypeID;}
-	string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
+	//CampaignProtoEntity_CreativeSession &get_creativeSession() {return m_cs;}
+	//CampaignProtoEntity_UUID &get_uuid() {return m_uuid;}
+	//string &get_ctr() { return m_ctr;}
+	//string &get_mediaTypeID(){return m_mediaTypeID;}
+	//string &get_mediaSubTypeID(){return m_mediaSubTypeID;}
 	string &get_expectEcmp(){return m_expectEcmp;}
 	const campaign_action& get_campaign_action() const {return m_action;}
 
 	void set_camFrequecy(bool res){m_camFrequecy = res;}
 	bool get_camFrequecy(){return m_camFrequecy;}
 	bool get_camAppSession(){return m_camAppSession;}
-	CampaignProtoEntity_AdChannelType& get_creativeAdChannelType(){return m_adChannelType;}
+	//CampaignProtoEntity_AdChannelType& get_creativeAdChannelType(){return m_adChannelType;}
 
 	void display();	
 	~campaignInformation()
@@ -265,17 +299,18 @@ private:
 	string   m_biddingValue;
 	string   m_advertiserID;
 	campaign_action m_action;
-	string   m_creativeID;
+	//string   m_creativeID;
 	// string   m_caterogyID;
-	CampaignProtoEntity_CreativeSession m_cs;
-	CampaignProtoEntity_UUID m_uuid;
-	CampaignProtoEntity_AdChannelType m_adChannelType;	
-	string   m_ctr;
-	string   m_mediaTypeID;
-	string   m_mediaSubTypeID;
+	//CampaignProtoEntity_CreativeSession m_cs;
+	//CampaignProtoEntity_UUID m_uuid;
+	//CampaignProtoEntity_AdChannelType m_adChannelType;	
+	//string   m_ctr;
+	//string   m_mediaTypeID;
+	//string   m_mediaSubTypeID;
 	bool     m_camAppSession = false;
 	bool     m_camFrequecy = false;
 	string   m_expectEcmp;
+	vector<creativeInformation*> m_creativeInfoList;
 };
 
 

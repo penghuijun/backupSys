@@ -540,6 +540,7 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         /**
          * set MobileAdResponse Creative Message
          */
+        #if 0
         MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();
         mobile_creative->set_creativeid(camp_info->get_creativeID());
         mobile_creative->set_width(mobile_request.adspacewidth());
@@ -547,47 +548,9 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
         mobile_creative->set_mediatypeid(camp_info->get_mediaTypeID());
         mobile_creative->set_mediasubtypeid(camp_info->get_mediaSubTypeID());
         mobile_creative->set_ctr(camp_info->get_ctr());
+        #endif
 
-        /**
-         * add MobileAdResponse Creative Session
-         */
-        MobileAdResponse_CreativeSession *cs = mobile_creative->mutable_session();
-        cs->set_sessionlimit(camp_info->get_creativeSession().sessionlimit());
-        
-        /**
-         * add MobileAdResponse Creative UUID
-         */
-        MobileAdResponse_UUID *creative_uuid = mobile_creative->mutable_uuid();
-        CampaignProtoEntity_UUID &cpuuid = camp_info->get_uuid();
-        int cpuuid_len = cpuuid.uuidtype_size();
-        for (int i = 0; i < cpuuid_len; ++i)
-        {
-          if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_FRE)
-            creative_uuid->add_uuidtype(MobileAdResponse_UuidType_FRE);
-          else if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_SESSION)
-            creative_uuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
-        }
-
-        
-        /**
-                *add MobileAdResponse Creative adChannelType
-                */
-        switch(camp_info->get_creativeAdChannelType())
-        {
-            case CampaignProtoEntity_AdChannelType_MOBILE_APP:
-                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
-                break;
-            case CampaignProtoEntity_AdChannelType_MOBILE_WEB:
-                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
-                break;
-            case CampaignProtoEntity_AdChannelType_PC_WEB:
-                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
-                break;
-            default:
-                break;
-        }
-
-        /**
+         /**
          * set MobileAdResponse bidContent
          */
         mobile_bidder->set_campaignid(camp_info->get_id());
@@ -606,10 +569,65 @@ char* bidderServ::gen_mobile_response_protobuf(const char* pubKey, campaignInfoM
             mobileUuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
         }
 
-        g_file_logger->trace("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6:d}\t{7:d}\t{8}\t{9}"
-            , camp_info->get_id(), camp_info->get_creativeID(),camp_info->get_biddingType(),camp_info->get_biddingValue()
+        
+        auto creativeInfoList = camp_info->getCreativeInfoList();
+        for(auto creative_it = creativeInfoList.begin(); creative_it != creativeInfoList.end(); creative_it++)
+        {
+            creativeInformation* creative_info = *creative_it;   
+            MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();
+            mobile_creative->set_creativeid(creative_info->get_creativeID());
+            mobile_creative->set_width(mobile_request.adspacewidth());
+            mobile_creative->set_height(mobile_request.adspaceheight());  
+            mobile_creative->set_mediatypeid(creative_info->get_mediaTypeID());
+            mobile_creative->set_mediasubtypeid(creative_info->get_mediaSubTypeID());
+            mobile_creative->set_ctr(creative_info->get_ctr());
+
+            /**
+             * add MobileAdResponse Creative Session
+             */
+            MobileAdResponse_CreativeSession *cs = mobile_creative->mutable_session();
+            cs->set_sessionlimit(creative_info->get_creativeSession().sessionlimit());
+            
+            /**
+             * add MobileAdResponse Creative UUID
+             */
+            MobileAdResponse_UUID *creative_uuid = mobile_creative->mutable_uuid();
+            CampaignProtoEntity_UUID &cpuuid = creative_info->get_uuid();
+            int cpuuid_len = cpuuid.uuidtype_size();
+            for (int i = 0; i < cpuuid_len; ++i)
+            {
+              if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_FRE)
+                creative_uuid->add_uuidtype(MobileAdResponse_UuidType_FRE);
+              else if (cpuuid.uuidtype(i) == CampaignProtoEntity_UuidType_SESSION)
+                creative_uuid->add_uuidtype(MobileAdResponse_UuidType_SESSION);
+            }
+
+            
+            /**
+                    *add MobileAdResponse Creative adChannelType
+                    */
+            switch(creative_info->get_creativeAdChannelType())
+            {
+                case CampaignProtoEntity_AdChannelType_MOBILE_APP:
+                    mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
+                    break;
+                case CampaignProtoEntity_AdChannelType_MOBILE_WEB:
+                    mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
+                    break;
+                case CampaignProtoEntity_AdChannelType_PC_WEB:
+                    mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
+                    break;
+                default:
+                    break;
+            }
+
+            g_file_logger->trace("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6:d}\t{7:d}\t{8}\t{9}"
+            , camp_info->get_id(), creative_info->get_creativeID(),camp_info->get_biddingType(),camp_info->get_biddingValue()
             , camp_info->get_curency(), camp_info->get_expectEcmp(), (int)camp_info->get_camFrequecy()
-            , (int)camp_info->get_camAppSession(), camp_info->get_mediaTypeID(), camp_info->get_mediaSubTypeID());
+            , (int)camp_info->get_camAppSession(), creative_info->get_mediaTypeID(), creative_info->get_mediaSubTypeID());
+            
+        }     
+        
         
         const campaign_action& cam_action = camp_info->get_campaign_action();  
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();

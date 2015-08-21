@@ -571,6 +571,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             int  campWidth = 0;
             parseCreativeSize(campCretiveSize, campWidth, campHeight);
 
+            #if 0
            // g_file_logger->trace("---------------:cw:{0:d},ch:{1:d},rw:{2:d},rh:{3:d}", campWidth, campHeight, ad_width, ad_heigh);
             if(creativeSize.empty()||camp_creative.size()==anySize||((campWidth<=ad_width)&&(campHeight==ad_heigh)))
             {
@@ -588,6 +589,21 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 g_file_logger->trace("campid {0} find valid size", m_id);
                 return true;
             }
+            #endif
+
+            if(creativeSize.empty()||camp_creative.size()==anySize||((campWidth<=ad_width)&&(campHeight==ad_heigh)))
+            {
+                int creativeSizeCnt = camp_creative.datas_size();
+                for(int j=0; j<creativeSizeCnt; j++)
+                {
+                    const CampaignProtoEntity_Creative& creative_data = camp_creative.datas(j);
+                    creativeInformation *m_creativeInfo = new creativeInformation(creative_data.creativeid(),creative_data.session(),creative_data.uuid(),creative_data.adchanneltype(),creative_data.ctr(),creative_data.mediatypeid(),creative_data.mediasubtypeid()); 
+                    m_creativeInfoList.push_back(m_creativeInfo);
+                }
+            }
+            if(m_creativeInfoList.size())
+                return true;
+            
         }
         g_file_logger->debug("campid {0} can not find valid size", m_id);
 	    return false;

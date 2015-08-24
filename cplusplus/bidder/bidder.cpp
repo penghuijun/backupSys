@@ -416,24 +416,24 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     }
       
     string app;
-    string web;
-    if(app_web=="app")//"app" "web" "all" "none"
+    string mweb;
+    if(app_web=="app")//"app" "mweb" "all" "none"
     {
       app="1";
-      web="0";
+      mweb="0";
     }
-    else if(app_web=="web")
+    else if(app_web=="mweb")
     {
       app="0";
-      web="1";
+      mweb="1";
     }
     else if(app_web=="all")
     {
-      app=web="1";
+      app=mweb="1";
     }
     else if(app_web=="none")
     {
-      app=web="0";
+      app=mweb="0";
     }
 
     string phone;
@@ -475,7 +475,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     target_verify_set.set_devphone(phone);
     target_verify_set.set_devtablet(tablet);
     target_verify_set.set_supmapp(app);
-    target_verify_set.set_supmweb(web);
+    target_verify_set.set_supmweb(mweb);
     target_verify_set.set_inventory(mobile_request.inventoryquality());
     target_verify_set.set_traffic(mobile_request.trafficquality());
     return true;

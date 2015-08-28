@@ -328,6 +328,7 @@ void bcServ::bidderHandler(char * pbuf,int size)
     string uuid;
     string bidID;
     string sockID;
+    string campaignId;
 
     commMsg.ParseFromArray(pbuf, size);  
     const string &busiCode=commMsg.businesscode();
@@ -350,7 +351,10 @@ void bcServ::bidderHandler(char * pbuf,int size)
         MobileAdResponse mobile_rsp;
         mobile_rsp.ParseFromString(rsp);
         uuid=mobile_rsp.id();
-        bidID=mobile_rsp.bidid();      
+        bidID=mobile_rsp.bidid(); 
+        MobileAdResponse_mobileBid mobileBid;
+        mobileBid=mobile_rsp.bidcontent(0);
+        campaignId = mobileBid.campaignid();
     }
     else
     {
@@ -423,7 +427,7 @@ void bcServ::bidderHandler(char * pbuf,int size)
      }
      else// can not find uuid,represent throttle info have not recved
      {
-           g_file_logger->debug("DataRecList can not find uuid:{0}",uuid); 
+           g_file_logger->debug("DataRecList can not find uuid:{0} && campaignId:{1}",uuid,campaignId);
            bcDataRec *bData = new bcDataRec(recvBidTime, overTime, false);
            bData->add_bidder_buf(pbuf, size, bidIDandTime);
            m_bcDataRecList.insert(pair<string, bcDataRec*>(uuid, bData)); 

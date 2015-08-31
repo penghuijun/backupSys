@@ -122,7 +122,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 {
     int result_item_size = target_result_list.size();
 	target_result_info *target_item =NULL;
-	
+	g_worker_logger->debug("##### result_item_size: {0:d} , convergence_num: {1:d}",result_item_size,convergence_num);
 	if(result_item_size > 1)
 	{
         int index = 0;
@@ -138,6 +138,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 			{
 				int *campaignID_set_ptr = target_item->get_array_ptr();
 				int  size = target_item->get_array_size();
+				g_worker_logger->debug("##### target name:{0} size:{1:d}",target_item->get_name(),size);
 	
 				if(size <= convergence_num)
 				{
@@ -158,6 +159,8 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 						g_worker_logger->info("target_set_intersection time[{0:d}] result size : {1:d}",index,min_array_size);
 						char *temp_str = new char[1024];      
                         char *buffer = new char[5];
+                        memset(temp_str,0,1024*sizeof(char));
+                        memset(buffer,0,5*sizeof(char));
                         for(int n=0; n<min_array_size; n++)
                         {
                            sprintf(buffer,"%d ",min_array_ptr[n]);
@@ -369,6 +372,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                  campaignID_array = get_campaignID_set((const byte*)ply->str, ply->len, size);//new  
                  char *temp_str = new char[1024];      
                  char *buffer = new char[5];
+                 memset(temp_str,0,1024*sizeof(char));
+                 memset(buffer,0,5*sizeof(char));
                  for(int n=0; n<size; n++)
                  {
                     sprintf(buffer,"%d ",campaignID_array[n]);
@@ -394,6 +399,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                      g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
                      char *temp_str = new char[1024];      
                      char *buffer = new char[5];
+                     memset(temp_str,0,1024*sizeof(char));
+                     memset(buffer,0,5*sizeof(char));
                      for(int n=0; n<result_set_calculation_size; n++)
                      {
                         sprintf(buffer,"%d ",result_set_calculation[n]);
@@ -418,6 +425,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                       g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
                       char *temp_str = new char[1024];      
                       char *buffer = new char[5];
+                      memset(temp_str,0,1024*sizeof(char));
+                      memset(buffer,0,5*sizeof(char));
                       for(int n=0; n<result_set_calculation_size; n++)
                       {
                          sprintf(buffer,"%d ",result_set_calculation[n]);
@@ -442,6 +451,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
                        char *temp_str = new char[1024];      
                        char *buffer = new char[5];
+                       memset(temp_str,0,1024*sizeof(char));
+                       memset(buffer,0,5*sizeof(char));
                        for(int n=0; n<result_set_calculation_size; n++)
                        {
                           sprintf(buffer,"%d ",result_set_calculation[n]);
@@ -466,6 +477,8 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
                        char *temp_str = new char[1024];      
                        char *buffer = new char[5];
+                       memset(temp_str,0,1024*sizeof(char));
+                       memset(buffer,0,5*sizeof(char));
                        for(int n=0; n<result_set_calculation_size; n++)
                        {
                           sprintf(buffer,"%d ",result_set_calculation[n]);

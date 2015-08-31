@@ -156,6 +156,16 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 					{
 						min_array_ptr = target_set_intersection(first_array, first_array_len, target_item->get_array_ptr(), target_item->get_array_size(), min_array_size);//new
 						g_worker_logger->info("target_set_intersection time[{0:d}] result size : {1:d}",index,min_array_size);
+						char *temp_str = new char[1024];      
+                        char *buffer = new char[5];
+                        for(int n=0; n<min_array_size; n++)
+                        {
+                           sprintf(buffer,"%d ",min_array_ptr[n]);
+                           strcat(temp_str,buffer);
+                        }
+                        g_worker_logger->debug("{0}",temp_str);
+                        delete [] temp_str;
+                        delete [] buffer;
 						//free node1 and node2, erase node1, add intersection result to node2, so as a word, erase the origin node, insert the result
 						target_result_info *front_item = *it;
 						target_obj.erase_target_origin(front_item->get_name());
@@ -259,6 +269,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     {
        target_infomation *info = *it;
        if(!info) continue;
+       g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
        if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
        {
            redis_free();
@@ -273,6 +284,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     {
         target_infomation *info = *it;
         if(!info) continue;
+        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -287,6 +299,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      {
         target_infomation *info = *it;
         if(!info) continue;
+        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -301,6 +314,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      {
         target_infomation *info = *it;
         if(!info) continue;
+        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -314,6 +328,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      for(auto it = target_signal_vec.begin(); it != target_signal_vec.end(); it++)
      {
          target_infomation *info = *it;
+         g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
          if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
          {
             redis_free();
@@ -333,6 +348,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                 
       for(int idx = 1; idx <= total_num; idx++)
       {
+         g_worker_logger->debug("index: {0:d}",idx);
          vector<int> tmp_vec;
          redisReply *ply;
          if(redisGetReply(m_context, (void **) &ply)!= REDIS_OK)
@@ -351,6 +367,16 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
              if(ply->type == REDIS_REPLY_STRING)
              {
                  campaignID_array = get_campaignID_set((const byte*)ply->str, ply->len, size);//new  
+                 char *temp_str = new char[1024];      
+                 char *buffer = new char[5];
+                 for(int n=0; n<size; n++)
+                 {
+                    sprintf(buffer,"%d ",campaignID_array[n]);
+                    strcat(temp_str,buffer);
+                 }
+                 g_worker_logger->debug("{0}",temp_str);
+                 delete [] temp_str;
+                 delete [] buffer;
              }
                         
              if(idx <= geo_num)//target Geographic, if geo_num is 0, jump to os infomation
@@ -359,13 +385,23 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                  campaignID_set_size[idx-1] = size;
                  if(idx == geo_num)
                  {
-                     int tmpSize;
+                     int tmpSize;                     
                      int* tmp_result = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], tmpSize);//new
                      result_set_calculation = target_set_union(campaignID_set[2], campaignID_set_size[2], tmp_result, tmpSize, result_set_calculation_size);//new
                      free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                      array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
                      delete[] tmp_result;//free
-                     //g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
+                     g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
+                     char *temp_str = new char[1024];      
+                     char *buffer = new char[5];
+                     for(int n=0; n<result_set_calculation_size; n++)
+                     {
+                        sprintf(buffer,"%d ",result_set_calculation[n]);
+                        strcat(temp_str,buffer);
+                     }
+                     g_worker_logger->debug("{0}",temp_str);
+                     delete [] temp_str;
+                     delete [] buffer;
                      target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_geo");
                   }
               }
@@ -379,7 +415,17 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                       result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                       free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                       array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                      //g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
+                      g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
+                      char *temp_str = new char[1024];      
+                      char *buffer = new char[5];
+                      for(int n=0; n<result_set_calculation_size; n++)
+                      {
+                         sprintf(buffer,"%d ",result_set_calculation[n]);
+                         strcat(temp_str,buffer);
+                      }
+                      g_worker_logger->debug("{0}",temp_str);
+                      delete [] temp_str;
+                      delete [] buffer;
                       target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_os");
                    }
               }
@@ -393,7 +439,17 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       //g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
+                       g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
+                       char *temp_str = new char[1024];      
+                       char *buffer = new char[5];
+                       for(int n=0; n<result_set_calculation_size; n++)
+                       {
+                          sprintf(buffer,"%d ",result_set_calculation[n]);
+                          strcat(temp_str,buffer);
+                       }
+                       g_worker_logger->debug("{0}",temp_str);
+                       delete [] temp_str;
+                       delete [] buffer;
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_dev");
                     }
               }
@@ -407,7 +463,17 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       //g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
+                       g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
+                       char *temp_str = new char[1024];      
+                       char *buffer = new char[5];
+                       for(int n=0; n<result_set_calculation_size; n++)
+                       {
+                          sprintf(buffer,"%d ",result_set_calculation[n]);
+                          strcat(temp_str,buffer);
+                       }
+                       g_worker_logger->debug("{0}",temp_str);
+                       delete [] temp_str;
+                       delete [] buffer;
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_app");
                     }
                }

@@ -712,6 +712,7 @@ try
     g_worker_logger->trace("dnsip:{0}", mobile_request.dnsip());
     g_worker_logger->trace("packagename:{0}", mobile_request.packagename());
     g_worker_logger->debug("uuid:{0}", uuid);
+    g_worker_logger->debug("timestamp:{0}", mobile_request.timestamp());
 
     target_operation.display(g_worker_logger);
     target_verify.display(g_worker_logger);

@@ -368,7 +368,7 @@ void throttleManager::add_dev(bidderSymDevType sysType,const string& ip, unsigne
         }
         case sys_connector:
         {
-            m_connector_manager.add(ip, port, connector, m_throttle_identify, base, fn, arg);
+            m_connector_manager.add_connector(ip, port, connector, m_throttle_identify, base, fn, arg);
             break;
         }
         case sys_bc:

@@ -62,7 +62,7 @@ public:
 	void *get_login_handler(int fd);
 	bool recvHeartRsp(const string& ip, unsigned short port);
 	void loginSucess(const string& ip, unsigned short port);
-	void add(const string& ip, unsigned short managerPort, zeromqConnect& conntor, string& throttleID, 
+	void add_connector(const string& ip, unsigned short managerPort, zeromqConnect& conntor, string& throttleID, 
 							struct event_base* base,  event_callback_fn fn, void *arg);
 	void update(const vector<connectorConfig*>& configList);
 	void set_login_status(bool status);

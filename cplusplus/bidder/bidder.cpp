@@ -463,7 +463,11 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     target_operation_set.add_target_os("family", dev.platform());
     target_operation_set.add_target_os("version", dev.platformversion());
     target_operation_set.add_target_dev("vendor", dev.vender());
-    target_operation_set.add_target_dev("model", dev.modelname());
+    const string& venderStr = dev.vender();
+    if((venderStr.empty()==false)&&is_number(venderStr))
+    {
+        target_operation_set.add_target_dev("model", dev.modelname());
+    }    
   
 
     target_operation_set.add_target_signal("lang", dev.language());

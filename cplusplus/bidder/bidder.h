@@ -173,6 +173,18 @@ class bidderServ
 {
 public:
 	bidderServ(configureObject& config);
+	bool is_number(const string& str)
+	{
+		const char *id_str = str.c_str();
+		size_t id_size = str.size();
+		if(id_size==0) return false;
+		for(int i=0; i < id_size; i++)
+		{
+			char ch = *(id_str+i);
+			if(ch<'0'||ch>'9') return false;
+		}
+		return true;
+	}
 	void readConfigFile();//read configure file
 	bool needRemoveWorker() const 
 	{

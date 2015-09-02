@@ -44,7 +44,7 @@ bool connectorObject::loginOrHeart(const string &ip, unsigned short managerPort,
         {
              managerProPackage::send(m_managerHander, managerProtocol_messageTrans_THROTTLE, managerProtocol_messageType_HEART_REQ
             , ip, managerPort, dataPort);
-            g_manager_logger->info("[heart req][throttle->connector]:{0},{1:d},losttime:{2:d}", m_devIP, m_managerPort, m_lostHeartTimes);  
+            g_manager_logger->info("[heart req][throttle -> connector]:{0},{1:d},losttime:{2:d}", m_devIP, m_managerPort, m_lostHeartTimes);  
         }
 	}
 	string bidderstr = os.str();
@@ -281,7 +281,7 @@ void connectorManager::loginSucess(const string& ip, unsigned short port)
   *func:add connector to connector list and connect to the connector
   *return:
   */
-void connectorManager::add(const string& ip, unsigned short managerPort, zeromqConnect& conntor, string& throttleID, 
+void connectorManager::add_connector(const string& ip, unsigned short managerPort, zeromqConnect& conntor, string& throttleID, 
 						struct event_base* base,  event_callback_fn fn, void *arg)
 {
     m_manager_lock.lock();
@@ -292,7 +292,7 @@ void connectorManager::add(const string& ip, unsigned short managerPort, zeromqC
 		if((connector->get_devIP()==ip)&&(connector->get_managerPort()==managerPort))
         {
             m_manager_lock.unlock();
-            g_manager_logger->info("bidder exist:{0},{1:d}", ip, managerPort);
+            g_manager_logger->info("connector exist:{0},{1:d}", ip, managerPort);
             return;
         }
 	}

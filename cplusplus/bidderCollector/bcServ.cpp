@@ -652,6 +652,9 @@ void bcServ::recvBidder_callback(int fd, short __, void *pair)
                zmq_msg_close (&first_part);
                break;
            }
+           char *id_str=(char *)zmq_msg_data(&first_part);
+           string identify(id_str, recvLen);
+           g_file_logger->debug("[BidRsponse identify]: {0}", identify);
            zmq_msg_close(&first_part);
 
            zmq_msg_t part;
@@ -946,6 +949,7 @@ void bcServ::managerEventHandler(int fd, short __, void *pair)
                }
                char *id_str=(char *)zmq_msg_data(&id_part);
                string identify(id_str, id_len);
+               g_manager_logger->info("[Manager identify]: {0}", identify);
                zmq_msg_close(&id_part);
  
                zmq_msg_t data_part;

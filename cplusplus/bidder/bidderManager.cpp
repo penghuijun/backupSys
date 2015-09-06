@@ -7,7 +7,7 @@ void bidderManager::init(zeromqConnect &connector, throttleInformation& throttle
     m_throttle_manager.init(throttle_info.get_throttleConfigList());
     m_bc_manager.init(m_bidderConfig, bc_info.get_bcConfigList());
     ostringstream os;
-    os<<m_bidderConfig.get_bidderIP()<<":"<<m_bidderConfig.get_bidderLoginPort();
+    os<<"bidderIP : "<<m_bidderConfig.get_bidderIP();
     m_bidderIdentify = os.str();
 }
 
@@ -83,7 +83,7 @@ void bidderManager::registerBCToThrottle(string &throttle_ip, unsigned short thr
 
 void bidderManager::dataConnectToBC(zeromqConnect & conntor)
 {
-	m_bc_manager.startDataConnectToBC(conntor);
+	m_bc_manager.startDataConnectToBC(conntor, m_bidderIdentify);
 }	
 
 
@@ -150,7 +150,7 @@ void bidderManager::update_bcList(zeromqConnect &connector, bcInformation& bcInf
 		bcConfig* bc_conf = *it;
 		if(bc_conf)
 		{
-			m_bc_manager.add_bc(connector, m_bidderConfig.get_bidderIP(), m_bidderConfig.get_bidderLoginPort(),
+			m_bc_manager.add_bc(connector, m_bidderIdentify, m_bidderConfig.get_bidderIP(), m_bidderConfig.get_bidderLoginPort(),
 					bc_conf->get_bcIP(), bc_conf->get_bcMangerPort(), bc_conf->get_bcDataPort());
 		}
 	}

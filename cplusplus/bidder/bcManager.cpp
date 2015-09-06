@@ -38,9 +38,9 @@ bool bidderCollecter::startManagerConnectToBC(zeromqConnect& conntor, string& id
 }
 
 //connect to bc data port
-bool bidderCollecter::startDataConnectToBC(zeromqConnect& conntor)
+bool bidderCollecter::startDataConnectToBC(zeromqConnect& conntor,string& identify)
 {
-	m_bidderDataHandler = conntor.establishConnect(true, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
+	m_bidderDataHandler = conntor.establishConnect(true, true, identify, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
 												m_bcDataPort, NULL);//client sub 
 	if(m_bidderDataHandler)
 	{
@@ -149,7 +149,7 @@ bool bcManager::add_bc(zeromqConnect &connector, string& identify, struct event_
     //new a bc and add it to bc list
 	bidderCollecter *bc = new bidderCollecter(bidder_ip, bidder_port, bc_ip, bc_ManagerPort, bc_dataPort);
 	bc->startManagerConnectToBC(connector, identify, base, fn, arg);
-    bc->startDataConnectToBC(connector);
+    bc->startDataConnectToBC(connector, identify);
 	m_bc_list.push_back(bc);
     m_bcList_lock.unlock();
 	return true;
@@ -157,7 +157,7 @@ bool bcManager::add_bc(zeromqConnect &connector, string& identify, struct event_
 
 
 //add bc to bc list
-bool bcManager::add_bc(zeromqConnect &connector, string &bidder_ip, unsigned short bidder_port,
+bool bcManager::add_bc(zeromqConnect &connector, string& identify, string &bidder_ip, unsigned short bidder_port,
 		string& bc_ip, unsigned short bc_ManagerPort, unsigned short bc_dataPort)
 {
     m_bcList_lock.lock();
@@ -173,7 +173,7 @@ bool bcManager::add_bc(zeromqConnect &connector, string &bidder_ip, unsigned sho
 	}
 
 	bidderCollecter *bc = new bidderCollecter(bidder_ip, bidder_port, bc_ip, bc_ManagerPort, bc_dataPort);
-    bc->startDataConnectToBC(connector);
+    bc->startDataConnectToBC(connector, identify);
     m_bc_list.push_back(bc);
     m_bcList_lock.unlock();
 	return true;
@@ -243,13 +243,13 @@ void bcManager::update_bc(vector<bcConfig*>& bcConfList)
 }
 
 //connect to bc data port
-bool bcManager::startDataConnectToBC(zeromqConnect& conntor)
+bool bcManager::startDataConnectToBC(zeromqConnect& conntor,string& identify)
 {
     m_bcList_lock.lock();
 	for(auto it = m_bc_list.begin(); it != m_bc_list.end(); it++)
 	{
 		bidderCollecter *bc = *it;
-		if(bc) bc->startDataConnectToBC(conntor);
+		if(bc) bc->startDataConnectToBC(conntor, identify);
 	}		
     m_bcList_lock.unlock();
 }

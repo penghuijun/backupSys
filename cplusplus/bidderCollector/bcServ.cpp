@@ -653,8 +653,7 @@ void bcServ::recvBidder_callback(int fd, short __, void *pair)
                break;
            }
            char *id_str=(char *)zmq_msg_data(&first_part);
-           string identify(id_str, recvLen);
-           g_file_logger->debug("[BidRsponse identify]: {0}", identify);
+           string identify(id_str, recvLen);           
            zmq_msg_close(&first_part);
 
            zmq_msg_t part;

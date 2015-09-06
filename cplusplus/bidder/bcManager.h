@@ -34,7 +34,7 @@ public:
 	void set(string &bidder_ip, unsigned short bidder_port,const string& bc_ip, unsigned short bc_managerPort, unsigned short bc_dataPort);
 
 	bool startManagerConnectToBC(zeromqConnect& conntor, string& identify, struct event_base* base,  event_callback_fn fn, void *arg);
-	bool startDataConnectToBC(zeromqConnect& conntor);
+	bool startDataConnectToBC(zeromqConnect& conntor, string& identify);
 	string& get_subkey(){return m_subKey;}
 	string& get_bcIP(){return m_bcIP;}
 	unsigned short get_bcManagerPort(){return m_bcManagerPort;}
@@ -103,14 +103,14 @@ public:
 		string &bidder_ip, unsigned short bidder_port, const string& bc_ip, unsigned short bc_ManagerPort, unsigned short bc_dataPort);
 
 
-	bool add_bc(zeromqConnect &connector, string &bidder_ip, unsigned short bidder_port,
+	bool add_bc(zeromqConnect &connector, string& identify, string &bidder_ip, unsigned short bidder_port,
 		string& bc_ip, unsigned short bc_ManagerPort, unsigned short bc_dataPort);
 
 
 	bool loginOrHeartReqToBc(const string &ip, unsigned short port, vector<string> &unsubKeyList);
 	void update_bc(vector<bcConfig*>& bcConfList);
 
-	bool startDataConnectToBC(zeromqConnect& conntor);
+	bool startDataConnectToBC(zeromqConnect& conntor, string& identify);
 
 	bool BCManagerConnectToBC(zeromqConnect & conntor, string& identify,struct event_base * base,event_callback_fn fn,void * arg);
 	void registerToThrottle(string &identify);

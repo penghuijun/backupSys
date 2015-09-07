@@ -5,6 +5,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
 {
     const string& supmapp = camp_target.supplytypemobileapp();
     const string& supmweb = camp_target.supplytypemobileweb();
+    const string& suppcweb = camp_target.supplytypepcweb();
     const string& devphone = camp_target.devicetypephone();
     const string& devtablet = camp_target.devicetypetablet();
     int tranffic = camp_target.trafficquality();
@@ -18,6 +19,11 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
     if((atoi(m_target_supmweb.c_str()) != 0)&&(m_target_supmweb != supmweb))
     {
          g_file_logger->debug("supmweb error:{0},{1}", m_target_supmweb, supmweb);
+         return false;
+    }
+    if((atoi(m_target_suppcweb.c_str()) != 0)&&(m_target_suppcweb != suppcweb))
+    {
+         g_file_logger->debug("suppcweb error:{0},{1}", m_target_suppcweb, suppcweb);
          return false;
     }
     if((m_target_devphone.empty()==false)&&(m_target_devphone != devphone))
@@ -188,6 +194,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
        }
        return true;
     }
+    
 
     bool campaignInformation::expectecpm(MobileAdRequest &mobile_request, CampaignProtoEntity &campaign_proto
         , string& invetory)
@@ -343,6 +350,10 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             
             const CampaignProtoEntity_Targeting_WebsiteCriteria& directWebsites = camp_targeting.directwebsites();
             const CampaignProtoEntity_Targeting_WebsiteCriteria& inDirectWebsites = camp_targeting.indirectwebsites();
+
+            const CampaignProtoEntity_Targeting_WebsiteCriteria& pcDirectWebsites = camp_targeting.pcdirectwebsites();
+            const CampaignProtoEntity_Targeting_WebsiteCriteria& pcInDirectWebsites = camp_targeting.pcindirectwebsites();
+            
             const string& webid = widstr.id();
             
             if(request_network_idstr_id == campaign_proto.networkid())  
@@ -358,18 +369,28 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             const string& publishSource = campaign_proto.publishersource();
             if(publishSource == "direct")  
             {   
-                if((webid.empty() == false)&&(camp_targeting.has_directapps())&&(WebsiteCriteria_valid(directWebsites, webid) == false))
+                if((webid.empty() == false)&&(camp_targeting.has_directwebsites())&&(WebsiteCriteria_valid(directWebsites, webid) == false))
                 {
                     g_file_logger->debug("camp {0} can not show in the directwebsites", m_id);    
                     return false;
-                }   
+                }  
+                if((webid.empty() == false)&&(camp_targeting.has_pcdirectwebsites())&&(WebsiteCriteria_valid(pcDirectWebsites, webid) == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the pcDirectWebsites", m_id);    
+                    return false;
+                } 
             }
             else if(publishSource == "third-party")
             {
 
-                if((webid.empty() == false)&&(camp_targeting.has_indirectapps())&&(WebsiteCriteria_valid(inDirectWebsites, webid) == false))
+                if((webid.empty() == false)&&(camp_targeting.has_indirectwebsites())&&(WebsiteCriteria_valid(inDirectWebsites, webid) == false))
                 {
                     g_file_logger->debug("camp {0} can not show in the third-party websites", m_id);    
+                    return false;
+                }
+                if((webid.empty() == false)&&(camp_targeting.has_pcindirectwebsites())&&(WebsiteCriteria_valid(pcInDirectWebsites, webid) == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the third-party PCwebsites", m_id);    
                     return false;
                 }
             } 
@@ -378,12 +399,12 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 if(webid.empty()) return true;
                 bool direct = true;
                 bool indirect = true;
-                if(camp_targeting.has_directapps())
+                if(camp_targeting.has_directwebsites())
                 {
                     direct =  WebsiteCriteria_valid(directWebsites, webid);
                 }
 
-                if(camp_targeting.has_indirectapps())
+                if(camp_targeting.has_indirectwebsites())
                 {
                     indirect = WebsiteCriteria_valid(inDirectWebsites, webid);
                 }
@@ -391,6 +412,23 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                 if((indirect == false)&&(direct == false))
                 {
                     g_file_logger->debug("camp {0} can not show in the directwebsites or third-party websites", m_id);    
+                    return false;
+                } 
+                bool pcdirect = true;
+                bool pcindirect = true;
+                if(camp_targeting.has_pcdirectwebsites())
+                {
+                    pcdirect =  WebsiteCriteria_valid(pcDirectWebsites, webid);
+                }
+
+                if(camp_targeting.has_indirectwebsites())
+                {
+                    pcindirect = WebsiteCriteria_valid(pcInDirectWebsites, webid);
+                }
+
+                if((pcdirect == false)&&(pcindirect == false))
+                {
+                    g_file_logger->debug("camp {0} can not show in the PCdirectwebsites or third-party PCwebsites", m_id);    
                     return false;
                 } 
             }

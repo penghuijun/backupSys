@@ -169,6 +169,10 @@ public:
 	{
 		m_target_supmweb = res;
 	}
+	void set_suppcweb(const string& res)
+	{
+		m_target_suppcweb = res;
+	}
 	void set_devphone(const string &res)
 	{
 		m_target_devphone = res;
@@ -188,6 +192,7 @@ public:
 
 	string& get_supmapp(){return m_target_supmapp;}
 	string& get_supmweb(){return m_target_supmweb;}
+	string& get_suppcweb(){return m_target_suppcweb;}
 	string& get_devphone(){return m_target_devphone;}
 	string& get_devTablet(){return m_target_devtablet;}
 	string& get_traffic(){return m_target_traffic;}
@@ -206,6 +211,7 @@ public:
 private:
 	string m_target_supmapp;
 	string m_target_supmweb;
+	string m_target_suppcweb;
 	string m_target_devphone;
 	string m_target_devtablet;
 	string m_target_traffic;

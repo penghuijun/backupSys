@@ -403,7 +403,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
 
     //get connecttype
     const string& timeStamp = mobile_request.timestamp();
-    const string& app_web = mobile_request.apptype();
+    const string& apptype = mobile_request.apptype();
     const string& phone_tablet = dev.devicetype();
       //covert timestamp to daypart array
     string daypart; 
@@ -417,23 +417,32 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
       
     string app;
     string mweb;
-    if(app_web=="app")//"app" "mweb" "all" "none"
+    string pcweb;
+    if(apptype=="app")//"app" "mweb" "all" "none"
     {
       app="1";
       mweb="0";
+      pcweb="0";
     }
-    else if(app_web=="mweb")
+    else if(apptype=="mweb")
     {
       app="0";
       mweb="1";
+      pcweb="0";
     }
-    else if(app_web=="all")
+    else if(apptype=="pcweb")
     {
-      app=mweb="1";
+      app="0";
+      mweb="0";
+      pcweb="1";
     }
-    else if(app_web=="none")
+    else if(apptype=="all")
     {
-      app=mweb="0";
+      app=mweb=pcweb="1";
+    }
+    else if(apptype=="none")
+    {
+      app=mweb=pcweb="0";
     }
 
     string phone;
@@ -480,6 +489,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     target_verify_set.set_devtablet(tablet);
     target_verify_set.set_supmapp(app);
     target_verify_set.set_supmweb(mweb);
+    target_verify_set.set_suppcweb(pcweb);
     target_verify_set.set_inventory(mobile_request.inventoryquality());
     target_verify_set.set_traffic(mobile_request.trafficquality());
     return true;

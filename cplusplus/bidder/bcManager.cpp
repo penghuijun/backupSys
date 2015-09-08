@@ -40,7 +40,7 @@ bool bidderCollecter::startManagerConnectToBC(zeromqConnect& conntor, string& id
 //connect to bc data port
 bool bidderCollecter::startDataConnectToBC(zeromqConnect& conntor,string& identify)
 {
-	m_bidderDataHandler = conntor.establishConnect(true, true, identify, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
+	m_bidderDataHandler = conntor.establishConnect(true, "tcp", ZMQ_DEALER, m_bcIP.c_str(),
 												m_bcDataPort, NULL);//client sub 
 	if(m_bidderDataHandler)
 	{

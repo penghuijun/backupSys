@@ -620,8 +620,7 @@ int bcServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
 
 //recv bidder callback
 void bcServ::recvBidder_callback(int fd, short __, void *pair)
-{
-    g_file_logger->debug("##### recvBidder_callback ");
+{    
     zmq_msg_t msg;
     uint32_t events;
     size_t len=sizeof(int);
@@ -650,13 +649,9 @@ void bcServ::recvBidder_callback(int fd, short __, void *pair)
            int recvLen = serv->zmq_get_message(handler, first_part, ZMQ_NOBLOCK);
            if ( recvLen == -1 )
            {
-               zmq_msg_close (&first_part);
-               g_file_logger->debug("##### break while");                
+               zmq_msg_close (&first_part);                            
                break;
-           }
-           char *id_str=(char *)zmq_msg_data(&first_part);
-           string identify(id_str, recvLen);      
-           g_file_logger->debug("[Recv From]: {0}", identify);
+           }          
            zmq_msg_close(&first_part);
 
            zmq_msg_t part;

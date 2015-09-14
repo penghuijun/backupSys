@@ -1,0 +1,61 @@
+{
+   "allimps" : 1,
+   "app" : {
+      "bundle" : "com.rj.rj2048",
+      "cat" : [ "Others" ],
+      "id" : "agltb3B1Yi1pbmNyDAsSA0FwcBiJkfIUDA",
+      "keywords" : "theline",
+      "name" : "OnTheLine",
+      "publisher" : {
+         "id" : "agltb3B1Yi1pbmNyDAsSA0FwcBiJkfTUCV"
+      },
+      "sectioncat" : [ "" ],
+      "storeurl" : "baidu@http://app.baidu.com/"
+   },
+   "at" : 1,
+   "cur" : [ "CNY", "EUR", "HKD", "CHF", "USD", "CAD", "GBP", "JPY", "AUD", "TWD" ],
+   "device" : {
+      "carrier" : "Celcom",
+      "connectiontype" : 2,
+      "devicetype" : "",
+      "dpidmd5" : "89cc3ce8dde24fd782b92fcf0d5164ab",
+      "dpidsha1" : "6910b662e8425c6e751fb6fed6aa02e31f5efd0b",
+      "geo" : {
+         "city" : "Shanghai",
+         "country" : "CN",
+         "lat" : 30.745670080,
+         "lon" : 121.334486970,
+         "region" : "Shanghai",
+         "type" : 0
+      },
+      "h" : 598,
+      "ip" : "101.231.247.130",
+      "language" : "zh",
+      "make" : "Cowon",
+      "model" : "RC0710B",
+      "os" : "Android",
+      "osv" : "V0.8",
+      "ppi" : 640,
+      "ua" : "Mozilla/5.0 (Linux; U; Android 5.0.1; zh-cn; LG-D857 Build/LRX22G; WIFI) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
+      "uuid" : "",
+      "w" : 360
+   },
+   "id" : "e5fe11cf-d2c9-4871-ab76-d4bb3c68dc16",
+   "imp" : [
+      {
+         "banner" : {
+            "api" : [ 5 ],
+            "h" : 598,
+            "mimes" : [ "image/jpg", "image/gif", "image/png" ],
+            "pos" : 0,
+            "w" : 360
+         },
+         "bidfloor" : 5.0,
+         "bidfloorcur" : "CNY",
+         "id" : "1",
+         "instl" : 1,
+         "secure" : 1
+      }
+   ],
+   "tmax" : 80
+}

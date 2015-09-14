@@ -1,0 +1,8 @@
+package com.rj.protos;
+
+message CommonMessage {
+  required string businessCode = 1;
+  optional string dataCodingType = 2;
+  required bytes data = 3;
+  optional string ttl = 4; // time to live
+}

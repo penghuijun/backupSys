@@ -1231,7 +1231,7 @@ char* memstr(char* full_data, int full_data_len, char* substr)
 int getPartLen(char *Src,int& partLen)
 {    
     char *ch = memstr(Src,strlen(Src),"\r\n");
-    if(!ch)
+    if(ch == NULL)
         return -1;
     int len = ch - Src;
     char partLenStr[5] = {};
@@ -1242,7 +1242,7 @@ int getPartLen(char *Src,int& partLen)
 int getPartData(char *Dest,char *Src)
 {
     char *ch = memstr(Src,strlen(Src),"\r\n");
-    if(!ch)
+    if(ch == NULL)
         return -1;
     int len = ch - Src;
     strncat(Dest, Src, len);    
@@ -1262,7 +1262,7 @@ void connectorServ::getJsonData(char *Dest,char *Src)
     {
         char *Src_end = Src+strlen(Src); //avoid point overflow
         char *chunked_start = memstr(Src,strlen(Src),"\r\n\r\n");    
-        if(!chunked_start)
+        if(chunked_start == NULL)
         {
             return ;
         }
@@ -2302,6 +2302,8 @@ void connectorServ::workerRun()
     g_worker_logger->set_level(m_logLevel);  
     g_worker_logger->info("worker start:{0:d}", getpid());
     
+    m_zmq_connect.init();
+    
     m_base = event_base_new();
     struct event * hup_event = evsignal_new(m_base, SIGHUP, hupSigHandler, this);
     struct event * int_event = evsignal_new(m_base, SIGINT, intSigHandler, this);
@@ -2330,7 +2332,6 @@ void connectorServ::workerRun()
 
     m_dspManager.init();
     
-    m_zmq_connect.init();
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 
         

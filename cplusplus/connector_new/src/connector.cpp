@@ -1231,6 +1231,8 @@ char* memstr(char* full_data, int full_data_len, char* substr)
 int getPartLen(char *Src,int& partLen)
 {    
     char *ch = memstr(Src,strlen(Src),"\r\n");
+    if(!ch)
+        return -1;
     int len = ch - Src;
     char partLenStr[5] = {};
     strncpy(partLenStr,Src,len);    
@@ -1240,6 +1242,8 @@ int getPartLen(char *Src,int& partLen)
 int getPartData(char *Dest,char *Src)
 {
     char *ch = memstr(Src,strlen(Src),"\r\n");
+    if(!ch)
+        return -1;
     int len = ch - Src;
     strncat(Dest, Src, len);    
     return len;
@@ -1256,22 +1260,43 @@ void connectorServ::getJsonData(char *Dest,char *Src)
     }
     if(temp.find("chunked") != temp.npos)
     {
+        char *Src_end = Src+strlen(Src); //avoid point overflow
         char *chunked_start = memstr(Src,strlen(Src),"\r\n\r\n");    
         if(!chunked_start)
         {
             return ;
         }
-        chunked_start += 4;    
+        chunked_start += 4; 
+        if(chunked_start >= Src_end) //overflow
+            return ;
         int partLen;
         int len = getPartLen(chunked_start,partLen);   
-        chunked_start = chunked_start+len+2;    
+        if(len == -1)
+        {
+            g_worker_logger->debug("getJsonData fail : chunked len novalid");
+            return ;
+        }
+        chunked_start = chunked_start+len+2;  
+        if(chunked_start >= Src_end) //overflow
+            return ;
         int tempLen = 0;
         while(partLen)
         {
             tempLen = getPartData(Dest,chunked_start);
+            if(tempLen == -1)
+            {
+                g_worker_logger->debug("getJsonData fail : jsonData novalid");
+                break;
+            }
             chunked_start = chunked_start+tempLen+2;
+            if(chunked_start >= Src_end) //overflow
+                break;
             len = getPartLen(chunked_start,partLen);
-            chunked_start = chunked_start+len+2;        
+            if(len == -1)
+                break;
+            chunked_start = chunked_start+len+2;     
+            if(chunked_start >= Src_end) //overflow
+                break;
         }
     }
     else if(temp.find("content-length") != temp.npos)

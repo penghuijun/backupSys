@@ -33,9 +33,11 @@ extern shared_ptr<spdlog::logger> g_worker_logger;
 vector<map<int,string>> SQL_MAP;
 map<int,string> Creative_template;
 map<int,string> CampaignMap;
+#if 0
 map<string,ContentCategory> AndroidContenCategoryMap;
 map<string,ContentCategory> IOSContenCategoryMap;
 map<int,ConnectionType> ConnectionTypeMap;
+#endif
 
 
 const int CHECK_COMMMSG_TIMEOUT = 100; // 100ms
@@ -306,28 +308,29 @@ int connectorServ::getDataFromMysql_Appump()
     //释放结果集 关闭数据库  
     mysql_free_result(result);      
     mysql_close(&mydata);  
-    return 1;
-    
+    return 1;    
     
 }
+
+#if 0
 void connectorServ::mapInit()
 {
     //Android
-    //Primary category
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Games",CAT_805));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Apps",CAT_805));
+    //Primary category    
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Games",CAT_805));    
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Apps",CAT_805));
 
-    //second category
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Catalogues",CAT_824));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Books&Reference",CAT_82005));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Business",CAT_819));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Comics",CAT_80603));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Communication",CAT_82202));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Education",CAT_808));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Enterainment",CAT_806));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Finance",CAT_802));
+    //second category    
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Catalogues",CAT_824));
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Books&Reference",CAT_82005));
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Business",CAT_819));
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Comics",CAT_80603));
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Communication",CAT_82202));
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Education",CAT_808));    
+    AndroidContenCategoryMap.insert(map<string,ContentCategory>::value_type("Enterainment",CAT_806));    
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Finance",CAT_802));    
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Health&Fitness",CAT_804));
-    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Libraries&Demo",CAT_820));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Libraries&Demo",CAT_820));    
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Lifestyle",CAT_818));
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Live Wallpaper",CAT_80604));
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Media&Video",CAT_80601));
@@ -345,7 +348,7 @@ void connectorServ::mapInit()
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Travel&Local",CAT_813));
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Weather",CAT_81307));
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Widgets",CAT_82507));
-
+    
     //GAMES
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Action",CAT_805));
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Adventure",CAT_805));
@@ -368,7 +371,7 @@ void connectorServ::mapInit()
     
     AndroidContenCategoryMap.insert(pair<string,ContentCategory>("UNKNOWN",CAT_824));
 
-    //IOS
+    //IOS    
     IOSContenCategoryMap.insert(pair<string,ContentCategory>("Games",CAT_805));
     IOSContenCategoryMap.insert(pair<string,ContentCategory>("Kids",CAT_803));
     IOSContenCategoryMap.insert(pair<string,ContentCategory>("Education",CAT_808));
@@ -395,7 +398,7 @@ void connectorServ::mapInit()
     IOSContenCategoryMap.insert(pair<string,ContentCategory>("Catalogues",CAT_824));
 
     IOSContenCategoryMap.insert(pair<string,ContentCategory>("UNKNOWN",CAT_824));
-
+    
     ConnectionTypeMap.insert(pair<int,ConnectionType>(0,UNKNOWN_TYPE));
     ConnectionTypeMap.insert(pair<int,ConnectionType>(1,ETHERNET));
     ConnectionTypeMap.insert(pair<int,ConnectionType>(2,WIFI));
@@ -403,9 +406,12 @@ void connectorServ::mapInit()
     ConnectionTypeMap.insert(pair<int,ConnectionType>(4,CELLULAR_NETWORK_2G));
     ConnectionTypeMap.insert(pair<int,ConnectionType>(5,CELLULAR_NETWORK_3G));
     ConnectionTypeMap.insert(pair<int,ConnectionType>(6,CELLULAR_NETWORK_4G));    
+   
+    cout << "mapinit success" << endl;
+    g_master_logger->debug("mapinit success ");
     
 }
-
+#endif
 connectorServ::connectorServ(configureObject& config):m_config(config)
 {
     try
@@ -426,7 +432,7 @@ connectorServ::connectorServ(configureObject& config):m_config(config)
             throw -1;
         }        
         g_master_logger->info("getDataFromMysql_Funda success !");    
-        mapInit();
+        //mapInit();
         
         m_logRedisOn = m_config.get_logRedisState();
         m_logRedisIP = m_config.get_logRedisIP();
@@ -1744,8 +1750,11 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
     
     MobileAdRequest_Device dev = mobile_request.device();
     string category = aid.appcategory();
+    enum ContentCategory targetCat;
     if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
-    {       
+    {   
+        targetCat = GYin_AndroidgetTargetCat(category);
+        #if 0
         map<string,ContentCategory>::iterator it = AndroidContenCategoryMap.find(category);
         if(it == AndroidContenCategoryMap.end())
         {
@@ -1753,9 +1762,12 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
             return false;
         }
         app->set_cat(it->second);
+        #endif
     }
     else if(strcmp("2",dev.platform().c_str()) == 0)    //IOS
     {
+        targetCat = GYin_IOSgetTargetCat(category);
+        #if 0
         map<string,ContentCategory>::iterator it = IOSContenCategoryMap.find(category);
         if(it == IOSContenCategoryMap.end())
         {
@@ -1763,7 +1775,9 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
             return false;
         }
         app->set_cat(it->second);
+        #endif
     }
+    app->set_cat(targetCat);
     
     Publisher *publisher;
     publisher = app->mutable_publisher();
@@ -1808,6 +1822,9 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
    
     
     int connectionTypeID = atoi(request_dev.connectiontype().c_str());
+    ConnectionType conType = GYin_getConnectionType(connectionTypeID);
+    device->set_connectiontype(conType);
+    #if 0
     map<int,ConnectionType>::iterator it = ConnectionTypeMap.find(connectionTypeID);
     if(it == ConnectionTypeMap.end())
     {
@@ -1815,6 +1832,7 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
         return false;
     }
     device->set_connectiontype(it->second);    
+    #endif
 
     device->set_ua(request_dev.ua());
     Geo *geo;

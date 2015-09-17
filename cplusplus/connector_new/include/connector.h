@@ -39,6 +39,7 @@
 #include "connectorManager.h"
 #include "zmqSubKeyManager.h"
 #include "DSPmanager.h"
+#include "GYinGetTarget.h"
 #include "MobileAdRequest.pb.h"
 #include "CommonMessage.pb.h"
 #include "MobileAdResponse.pb.h"
@@ -139,7 +140,9 @@ public:
 	connectorServ(configureObject& config);
 	void readConfigFile();
 	void run();	
-	void mapInit();
+	//ContentCategory GYin_AndroidgetTargetCat(string& cat);
+	//ContentCategory GYin_IOSgetTargetCat(string& cat);
+	//void mapInit();
 	static void signal_handler(int signo);
 	static void hupSigHandler(int fd, short event, void *arg);
 	static void	intSigHandler(int fd, short event, void *arg);

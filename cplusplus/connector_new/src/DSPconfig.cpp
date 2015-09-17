@@ -456,7 +456,8 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
-        g_worker_logger->error("adReqSock connect failed ...");        
+        g_worker_logger->error("adReqSock connect failed ...");   
+        close(sock);
         return false;
     }
     
@@ -582,7 +583,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     
     //cout << "send_str : " << send_str << endl;
-    g_worker_logger->debug("GYin ADREQ DATA : ",data);
+    g_worker_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
     
     
     sockaddr_in sin;
@@ -602,7 +603,8 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
-        g_worker_logger->error("adReqSock connect failed ...");        
+        g_worker_logger->error("adReqSock connect failed ...");      
+        close(sock);
         return false;
     }
     g_worker_logger->debug("adReqSock connect success ");

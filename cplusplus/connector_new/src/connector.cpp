@@ -1907,9 +1907,10 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     else 
     {
         string tempid = dev.hidmd5() + "-" + dev.hidsha1();
+        g_worker_logger->debug("user id: {0}",tempid);
         user->set_id(tempid);
     }   
-    g_worker_logger->debug("GYin App Finish");
+    g_worker_logger->debug("GYin User Finish");
     
     //Device
     Device *device;
@@ -1926,6 +1927,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
 
     int length = bidRequest.ByteSize();
     bidRequest.SerializeToArray(dataBuf,length);
+    g_worker_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success");
 
     return true;    
 }

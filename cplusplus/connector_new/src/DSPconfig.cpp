@@ -533,9 +533,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     //初始化发送信息
     //char send_str[2048] = {0};
     char *send_str = new char[4096];
-    memset(send_str,0,4096*sizeof(char));  
-
-     
+    memset(send_str,0,4096*sizeof(char));       
 
     //头信息
     strcat(send_str, adReqType.c_str());
@@ -583,7 +581,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     
     //cout << "send_str : " << send_str << endl;
-    //g_worker_logger->debug("ADREQ DATA : ",data);
+    g_worker_logger->debug("GYin ADREQ DATA : ",data);
     
     
     sockaddr_in sin;
@@ -599,13 +597,14 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         g_worker_logger->error("adReqSock create failed ...");
         return false;
     }   
-
+    g_worker_logger->debug("adReqSock create success ");
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
         g_worker_logger->error("adReqSock connect failed ...");        
         return false;
     }
+    g_worker_logger->debug("adReqSock connect success ");
     
     //add this socket to event listen queue
     struct event *sock_event;
@@ -624,6 +623,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         delete [] send_str;
         return false;
     }         
+    g_worker_logger->debug("adReqSock send success ");
     delete [] send_str;
     return true;
 }

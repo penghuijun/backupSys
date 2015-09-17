@@ -97,7 +97,7 @@ private:
 	string extNetId;
 	string intNetId;
 		
-	list<listenObject *> m_listenObjectList;
+	//list<listenObject *> m_listenObjectList;
 };
 
 class guangYinObject : public dspObject
@@ -132,6 +132,6 @@ private:
 	string intNetId;
 	bool test;
 
-	list<listenObject *> m_listenObjectList;	
+	//list<listenObject *> m_listenObjectList;	
 };
 #endif

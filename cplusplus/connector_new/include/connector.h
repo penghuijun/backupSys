@@ -42,16 +42,17 @@
 #include "MobileAdRequest.pb.h"
 #include "CommonMessage.pb.h"
 #include "MobileAdResponse.pb.h"
+#include "GMobileAdRequestResponse.pb.h"
 
 using namespace com::rj::protos::mobile::request;
 using namespace com::rj::protos::mobile::response;
+using namespace com::rj::adsys::dsp::connector::obj::g::proto;
 using namespace com::rj::protos;
 using namespace std;
 
 #define PUBLISHKEYLEN_MAX 100
 extern vector<map<int,string>> SQL_MAP;
 extern map<int,string> Creative_template;
-
 
 class eventArgment
 {
@@ -79,6 +80,11 @@ enum proStatus
     PRO_BUSY,
 	PRO_RESTART,
 	PRO_KILLING
+};
+enum dataType
+{
+	DATA_JSON,
+	DATA_PROTOBUF
 };
 
 typedef struct BCProessInfo
@@ -133,6 +139,7 @@ public:
 	connectorServ(configureObject& config);
 	void readConfigFile();
 	void run();	
+	void mapInit();
 	static void signal_handler(int signo);
 	static void hupSigHandler(int fd, short event, void *arg);
 	static void	intSigHandler(int fd, short event, void *arg);
@@ -142,7 +149,8 @@ public:
 	static void handle_recvLoginHeartReq(int fd,short event,void *arg);	
 	static void handle_recvLoginHeartRsp(int fd,short event,void *arg);
 	static void handle_recvAdRequest(int fd,short event,void *arg);
-	static void handle_recvAdResponse(int fd,short event,void *arg);
+	static void handle_recvAdResponseTele(int fd,short event,void *arg);
+	static void handle_recvAdResponseGYin(int sock,short event,void *arg);
 	static void *connectToOther(void *arg);
 	static void *sendLoginHeartToOther(void *arg);
 	static void *recvLoginHeartFromOther(void *arg);
@@ -173,13 +181,18 @@ public:
 	void sendToWorker(char *subkey, int keylen, char *buf, int bufLen);	
 	void httpPostRequest(const char* hostname, const char* api, const char* parameters);
 	bool getStringFromSQLMAP(vector<string>& str_buf,const MobileAdRequest_Device& request_dev,const MobileAdRequest_GeoInfo& request_geo);
-	void AdReqJsonAddApp(Json::Value &app, MobileAdRequest& mobile_request);
-	void AdReqJsonAddImp(Json::Value &impArray,MobileAdRequest &mobile_request);
-	bool AdReqJsonAddDevice(Json::Value &device,MobileAdRequest& mobile_request);
+	void Tele_AdReqJsonAddApp(Json::Value &app, const MobileAdRequest& mobile_request);
+	void Tele_AdReqJsonAddImp(Json::Value &impArray,const MobileAdRequest &mobile_request);
+	bool Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRequest& mobile_request);
+	bool GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mobile_request);
+	bool GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request);
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
-	void handle_BidResponseFromDSP(char *data,int dataLen);		
-	char* convertBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
+	void handle_BidResponseFromDSP(dataType type,char *data,int dataLen);		
+	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
+	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
+	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);
+	bool convertProtoToGYinProto(char *data,const MobileAdRequest& mobile_request);
 	bool mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action);
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
 	commMsgRecord* checkValidId(const string& str_id);

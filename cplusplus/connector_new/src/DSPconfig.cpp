@@ -19,14 +19,40 @@ void chinaTelecomObject::strGet(string& Dest,const char* Src)
     Dest[len] = '\0';    
 }
 #endif
+
+struct listenObject* dspObject::findListenObject(int sock)
+{
+    list<listenObject *>::iterator it = m_listenObjectList.begin();
+    for( ; it != m_listenObjectList.end(); it++)
+    {
+        listenObject *object = *it;
+        if(object->sock == sock)
+            return object;
+    }
+    return NULL;
+}
+
+void dspObject::eraseListenObject(int sock)
+{
+    list<listenObject *>::iterator it = m_listenObjectList.begin();
+    for( ; it != m_listenObjectList.end(); it++)
+    {
+        listenObject *object = *it;
+        if(object->sock == sock)
+        {
+            m_listenObjectList.erase(it);
+            return ;
+        }            
+    }
+}
+
 void chinaTelecomObject::readChinaTelecomConfig()
 {
     ifstream ifile;	
-    ifile.open("clientConfig.json",ios::in);
+    ifile.open("chinaTelecomConfig.json",ios::in);
     if(ifile.is_open() == false)
-    {		
-        //cout << "open clientConfig.txt failure" << endl;	
-        g_worker_logger->error("Open clientConfig.json failure...");
+    {		        
+        g_worker_logger->error("Open chinaTelecomConfig.json failure...");
         exit(1);	
     }	
 
@@ -455,29 +481,152 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     return true;
 }
 
-struct listenObject* chinaTelecomObject::findListenObject(int sock)
+void guangYinObject::readGuangYinConfig()
 {
-    list<listenObject *>::iterator it = m_listenObjectList.begin();
-    for( ; it != m_listenObjectList.end(); it++)
+    ifstream ifile; 
+    ifile.open("guangYinConfig.json",ios::in);
+    if(ifile.is_open() == false)
+    {               
+        g_worker_logger->error("Open guangYinConfig.json failure...");
+        exit(1);    
+    }   
+    
+    Json::Reader reader;
+    Json::Value root;
+    
+    if(reader.parse(ifile, root))
     {
-        listenObject *object = *it;
-        if(object->sock == sock)
-            return object;
+        ifile.close();
+        name        = root["name"].asString();
+        
+        adReqType   = root["adReqType"].asString();
+        adReqIP     = root["adReqIP"].asString();
+        adReqPort   = root["adReqPort"].asString();
+        adReqUrl    = root["adReqUrl"].asString();
+        
+        httpVersion = root["httpVersion"].asString();
+    
+        //HTTP header
+        Connection  = root["Connection"].asString();
+        UserAgent   = root["User-Agent"].asString();
+        ContentType = root["Content-Type"].asString();        
+        Host        = root["Host"].asString();        
+    
+        //filter
+        publisherId = root["publisherId"].asString();
+        extNetId    = root["extNetId"].asString();
+        intNetId    = root["intNetId"].asString();     
+        test        = root["test"].asBool();
+        
     }
-    return NULL;
+    else
+    {
+        g_worker_logger->error("Parse guangYinConfig.json failure...");
+        ifile.close();
+        exit(1);
+    }
+
 }
-void chinaTelecomObject::eraseListenObject(int sock)
+
+bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
 {
-    list<listenObject *>::iterator it = m_listenObjectList.begin();
-    for( ; it != m_listenObjectList.end(); it++)
+    //初始化发送信息
+    //char send_str[2048] = {0};
+    char *send_str = new char[4096];
+    memset(send_str,0,4096*sizeof(char));  
+
+     
+
+    //头信息
+    strcat(send_str, adReqType.c_str());
+    strcat(send_str, adReqUrl.c_str());    
+    strcat(send_str, httpVersion.c_str());    
+    strcat(send_str, "\r\n");             
+    
+    char content_header[100];
+    sprintf(content_header,"Content-Length: %d\r\n", dataLen);
+    strcat(send_str, content_header); 
+
+    if(Connection.empty() == false)
     {
-        listenObject *object = *it;
-        if(object->sock == sock)
-        {
-            m_listenObjectList.erase(it);
-            return ;
-        }            
+        strcat(send_str, "Connection: ");
+        strcat(send_str,Connection.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(UserAgent.empty() == false)
+    {
+        strcat(send_str, "User-Agent: ");
+        strcat(send_str,UserAgent.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(ContentType.empty() == false)
+    {
+        strcat(send_str, "Content-Type: ");    
+        strcat(send_str,ContentType.c_str());
+        strcat(send_str, "\r\n");
+    }        
+
+    if(Host.empty() == false)
+    {
+        strcat(send_str, "Host: ");
+        strcat(send_str,Host.c_str());
+        strcat(send_str, "\r\n");
+    }      
+
+
+    //内容信息
+    
+    strcat(send_str, "\r\n");    
+    strcat(send_str, data);
+    
+    
+    //cout << "send_str : " << send_str << endl;
+    //g_worker_logger->debug("ADREQ DATA : ",data);
+    
+    
+    sockaddr_in sin;
+    unsigned short httpPort = atoi(adReqPort.c_str());      
+    
+    sin.sin_family = AF_INET;    
+    sin.sin_port = htons(httpPort);    
+    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        g_worker_logger->error("adReqSock create failed ...");
+        return false;
+    }   
+
+    //建立连接
+    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
+    {
+        g_worker_logger->error("adReqSock connect failed ...");        
+        return false;
     }
+    
+    //add this socket to event listen queue
+    struct event *sock_event;
+    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    event_add(sock_event, NULL);
+
+    struct listenObject *listen = new listenObject();    
+    listen->sock = sock;
+    listen->_event = sock_event;
+    m_listenObjectList.push_back(listen);
+    
+    //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
+    if (send(sock, send_str, strlen(send_str),0) == -1)
+    {        
+        g_worker_logger->error("adReqSock send failed ...");
+        delete [] send_str;
+        return false;
+    }         
+    delete [] send_str;
+    return true;
 }
+
 
 

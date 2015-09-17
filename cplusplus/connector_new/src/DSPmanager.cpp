@@ -3,6 +3,7 @@
 void dspManager::init()
 {
     m_chinaTelecomObject = new chinaTelecomObject();
+    m_guangYinObject     = new guangYinObject();
 }
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
 {
@@ -20,6 +21,11 @@ bool dspManager::sendAdRequestToChinaTelecomDSP(struct event_base * base, const 
 {
     return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(base, data, dataLen, fn, arg);
 }
+bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+{
+    return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
+}
+
 
 
 

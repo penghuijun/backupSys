@@ -33,6 +33,11 @@ extern shared_ptr<spdlog::logger> g_worker_logger;
 vector<map<int,string>> SQL_MAP;
 map<int,string> Creative_template;
 map<int,string> CampaignMap;
+map<string,ContentCategory> AndroidContenCategoryMap;
+map<string,ContentCategory> IOSContenCategoryMap;
+map<int,ConnectionType> ConnectionTypeMap;
+
+
 const int CHECK_COMMMSG_TIMEOUT = 100; // 100ms
 const long long TELECODEUPDATE_TIME = 24*60*60*1000; // 24 hours
 const long long CLOCK_TIME = 17*60*60*1000; //Beijing time : 01:00:00  -> GMT(Greenwich mean time): 17:00:00
@@ -305,6 +310,101 @@ int connectorServ::getDataFromMysql_Appump()
     
     
 }
+void connectorServ::mapInit()
+{
+    //Android
+    //Primary category
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Games",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Apps",CAT_805));
+
+    //second category
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Catalogues",CAT_824));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Books&Reference",CAT_82005));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Business",CAT_819));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Comics",CAT_80603));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Communication",CAT_82202));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Education",CAT_808));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Enterainment",CAT_806));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Finance",CAT_802));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Health&Fitness",CAT_804));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Libraries&Demo",CAT_820));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Lifestyle",CAT_818));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Live Wallpaper",CAT_80604));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Media&Video",CAT_80601));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Medical",CAT_804));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Music&Audio",CAT_806));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("News&Magazines",CAT_82208));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Personalization",CAT_814));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Photography",CAT_82001));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Productivity",CAT_817));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Shopping",CAT_82204));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Social",CAT_823));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Sports",CAT_812));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Tools",CAT_82507));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Transportation",CAT_81302));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Travel&Local",CAT_813));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Weather",CAT_81307));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Widgets",CAT_82507));
+
+    //GAMES
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Action",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Adventure",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Arcade",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Board",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Card",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Casino",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Education",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Family",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Music",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Puzzle",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Racing",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Role Playing",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Simulation",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Sports",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Strategy",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Trivia",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Word",CAT_805));
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("Others",CAT_805));
+    
+    AndroidContenCategoryMap.insert(pair<string,ContentCategory>("UNKNOWN",CAT_824));
+
+    //IOS
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Games",CAT_805));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Kids",CAT_803));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Education",CAT_808));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Newsstand",CAT_82204));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Photo&Video",CAT_80601));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Productivity",CAT_817));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Lifestyle",CAT_818));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Health&Fitness",CAT_804));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Travel",CAT_813));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Music",CAT_80602));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Sports",CAT_812));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Business",CAT_819));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("News",CAT_82208));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Utilities",CAT_823));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Entertainment",CAT_806));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Social Networking",CAT_822));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Food&Drink",CAT_815));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Finance",CAT_802));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Reference",CAT_825));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Navigation",CAT_82207));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Medical",CAT_804));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Books",CAT_82005));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Weather",CAT_81307));
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("Catalogues",CAT_824));
+
+    IOSContenCategoryMap.insert(pair<string,ContentCategory>("UNKNOWN",CAT_824));
+
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(0,UNKNOWN_TYPE));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(1,ETHERNET));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(2,WIFI));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(3,CELLULAR_NETWORK_UNKNOWN_GENERATION));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(4,CELLULAR_NETWORK_2G));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(5,CELLULAR_NETWORK_3G));
+    ConnectionTypeMap.insert(pair<int,ConnectionType>(6,CELLULAR_NETWORK_4G));    
+    
+}
 
 connectorServ::connectorServ(configureObject& config):m_config(config)
 {
@@ -326,6 +426,7 @@ connectorServ::connectorServ(configureObject& config):m_config(config)
             throw -1;
         }        
         g_master_logger->info("getDataFromMysql_Funda success !");    
+        mapInit();
         
         m_logRedisOn = m_config.get_logRedisState();
         m_logRedisIP = m_config.get_logRedisIP();
@@ -538,7 +639,7 @@ void connectorServ::updateWorker()
 
 }
 
-char* connectorServ::convertBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
+char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
 {    
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
@@ -552,12 +653,12 @@ char* connectorServ::convertBidResponseJsonToProtobuf(char *data,int dataLen,int
     Json::Value root;
 
     ofstream outfile;
-    outfile.open("BidResponse.json",ios::out | ios::binary);
+    outfile.open("TeleBidResponse.json",ios::out | ios::binary);
     outfile.write(data,dataLen); 
     outfile.close();
 
     ifstream infile;
-    infile.open("BidResponse.json",ios::in | ios::binary);
+    infile.open("TeleBidResponse.json",ios::in | ios::binary);
 
     if(reader.parse(infile,root))
     {
@@ -723,6 +824,12 @@ char* connectorServ::convertBidResponseJsonToProtobuf(char *data,int dataLen,int
         return NULL;
     }
 }
+char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
+{
+    g_worker_logger->debug("convertGYinBidResponseProtoToProtobuf END...");
+    return NULL;
+}
+
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
 {   
     vector<commMsgRecord*>::iterator it = commMsgRecordList.begin();
@@ -1358,11 +1465,22 @@ void connectorServ::hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDa
     m_bc_manager.hashGetBCinfo(uuid,bcIP,bcDataPort);
 }
 
-void connectorServ::handle_BidResponseFromDSP(char *data,int dataLen)
+void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataLen)
 {
     int responseDataLen = 0;    
     string uuid;    //for hash get bc info
-    char *responseDataStr = convertBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid);
+    char *responseDataStr;
+    switch(type)
+    {
+        case DATA_JSON:
+            responseDataStr = convertTeleBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid);
+            break;
+        case DATA_PROTOBUF:
+            responseDataStr = convertGYinBidResponseProtoToProtobuf(data,dataLen,responseDataLen,uuid);
+            break;
+        default:
+            break;
+    }    
     
     if(responseDataStr && (responseDataLen > 0))
     {
@@ -1445,7 +1563,7 @@ bool connectorServ::getStringFromSQLMAP(vector<string>& str_buf,const MobileAdRe
     return true;    
 }
 
-void connectorServ::AdReqJsonAddApp(Json::Value &app, MobileAdRequest& mobile_request)
+void connectorServ::Tele_AdReqJsonAddApp(Json::Value &app, const MobileAdRequest& mobile_request)
 {
     const MobileAdRequest_Aid& request_app = mobile_request.aid();   
     
@@ -1471,7 +1589,7 @@ void connectorServ::AdReqJsonAddApp(Json::Value &app, MobileAdRequest& mobile_re
     app["storeurl"]     = request_app.appstoreurl(0);
     
 }
-bool connectorServ::AdReqJsonAddDevice(Json::Value &device,MobileAdRequest& mobile_request)
+bool connectorServ::Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRequest& mobile_request)
 {
     const MobileAdRequest_Device& request_dev = mobile_request.device();     
     const MobileAdRequest_GeoInfo& request_geo = mobile_request.geoinfo();        
@@ -1531,7 +1649,7 @@ bool connectorServ::AdReqJsonAddDevice(Json::Value &device,MobileAdRequest& mobi
     return true;
     
 }
-void connectorServ::AdReqJsonAddImp(Json::Value &impArray,MobileAdRequest &mobile_request)
+void connectorServ::Tele_AdReqJsonAddImp(Json::Value &impArray,const MobileAdRequest &mobile_request)
 {
     Json::Value imp;
     Json::Value banner;    
@@ -1561,6 +1679,233 @@ void connectorServ::AdReqJsonAddImp(Json::Value &impArray,MobileAdRequest &mobil
     imp["secure"] = 1;
     impArray.append(imp);
 }
+bool connectorServ::convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request)
+{
+    string id = mobile_request.id();                           
+        
+    Json::Value root;            
+    Json::Value app;        
+    Json::Value device;
+    Json::Value impArray;     
+    Json::Value curArray;
+    if(!Tele_AdReqJsonAddDevice(device,mobile_request))
+        return false;
+    Tele_AdReqJsonAddApp(app,mobile_request);
+    Tele_AdReqJsonAddImp(impArray,mobile_request);
+
+    curArray.append("CNY");
+    curArray.append("EUR");
+    curArray.append("HKD");
+    curArray.append("CHF");
+    curArray.append("USD");
+    curArray.append("CAD");
+    curArray.append("GBP");
+    curArray.append("JPY");
+    curArray.append("AUD");
+    curArray.append("TWD");
+
+    root["at"]      = 1;
+    root["id"]      = id;
+    root["imp"]     = impArray;
+    root["app"]     = app;
+    root["device"]  = device;
+    root["allimps"] = 1;
+    root["tmax"]    = 80;
+    root["cur"]     = curArray;
+
+    root.toStyledString();
+    reqTeleJsonData = root.toStyledString();
+    g_worker_logger->debug("MobileAdRequest.proto->TeleBidRequest.json success");
+    
+    ofstream outfile;
+    outfile.open("TeleBidRequest.json",ios::out | ios::binary);        
+    outfile.write(reqTeleJsonData.c_str(),strlen(reqTeleJsonData.c_str()));
+    outfile.close();
+    
+    if(m_dspManager.isChinaTelecomObjectCeritifyCodeEmpty())
+    {
+        if(!m_dspManager.getCeritifyCodeFromChinaTelecomDSP())
+        {
+            g_worker_logger->error("GET DSP PASSWORD FAIL ... ");   
+            return false;
+        }
+    }
+    return true;
+    
+}
+bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mobile_request)
+{
+    MobileAdRequest_Aid aid = mobile_request.aid();
+    app->set_id(aid.id());
+    app->set_name(aid.appname());
+    app->set_bundle(aid.apppackagename());
+    app->set_storeurl(aid.appstoreurl(0));
+    app->set_paid(0);
+    
+    MobileAdRequest_Device dev = mobile_request.device();
+    string category = aid.appcategory();
+    if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
+    {       
+        map<string,ContentCategory>::iterator it = AndroidContenCategoryMap.find(category);
+        if(it == AndroidContenCategoryMap.end())
+        {
+            g_worker_logger->debug("CONVERT GYIN FAIL : novlid android category");
+            return false;
+        }
+        app->set_cat(it->second);
+    }
+    else if(strcmp("2",dev.platform().c_str()) == 0)    //IOS
+    {
+        map<string,ContentCategory>::iterator it = IOSContenCategoryMap.find(category);
+        if(it == IOSContenCategoryMap.end())
+        {
+            g_worker_logger->debug("CONVERT GYIN FAIL : novlid IOS category");
+            return false;
+        }
+        app->set_cat(it->second);
+    }
+    
+    Publisher *publisher;
+    publisher = app->mutable_publisher();
+    publisher->set_id(aid.publisherid());
+    publisher->set_domain("www.reachjunction.com");
+    
+    for(int i=0; i<aid.appkeywords_size(); i++)
+    {
+        app->add_keywords(aid.appkeywords(i));
+    }
+
+}
+bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request)
+{
+    const MobileAdRequest_Device& request_dev = mobile_request.device();     
+    const MobileAdRequest_GeoInfo& request_geo = mobile_request.geoinfo();        
+    
+    vector<string> str_buf;
+    if(getStringFromSQLMAP(str_buf,request_dev,request_geo))
+    {
+        g_worker_logger->debug("get string from SQLMAP success!");
+    }
+    else
+    {
+        g_worker_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
+        return false;
+    }           
+    
+    int size = mobile_request.paramter_size();
+    int i=0;
+    for(; i<size; i++)
+    {
+        MobileAdRequest_Paramter paramter = mobile_request.paramter(i);
+        if(strcmp(paramter.key().c_str(),"imei") == 0)
+        {
+            device->set_imei(paramter.value());
+            break;
+        }            
+    }
+    if(i == size)
+        device->set_imei("");   
+   
+    
+    int connectionTypeID = atoi(request_dev.connectiontype().c_str());
+    map<int,ConnectionType>::iterator it = ConnectionTypeMap.find(connectionTypeID);
+    if(it == ConnectionTypeMap.end())
+    {
+        g_worker_logger->debug("CONVERT GYIN FAIL : novlid connectionType");
+        return false;
+    }
+    device->set_connectiontype(it->second);    
+
+    device->set_ua(request_dev.ua());
+    Geo *geo;
+    MobileAdRequest_GeoInfo geoinfo = mobile_request.geoinfo();
+    geo = device->mutable_geo();
+    geo->set_lat(atof(geoinfo.latitude().c_str()));
+    geo->set_lon(atof(geoinfo.longitude().c_str()));
+    geo->set_country(str_buf.at(6));
+    geo->set_province(str_buf.at(7));
+    geo->set_city(str_buf.at(8));
+    geo->set_type(IP_ADDRESS);
+
+    device->set_ip(mobile_request.dnsip());
+    device->set_devicetype(MOBILE);
+    device->set_language(str_buf.at(1));
+    device->set_make(str_buf.at(2));
+    device->set_model(str_buf.at(3));
+    device->set_os(str_buf.at(4));
+    device->set_osv(str_buf.at(5));
+    device->set_w(atoi(request_dev.screenwidth().c_str()));
+    device->set_h(atoi(request_dev.screenheight().c_str()));
+    device->set_idfa(request_dev.udid());
+
+    return true;
+    
+}
+bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest& mobile_request)
+{
+    MobileAdRequest_Device dev = mobile_request.device();
+    
+    BidRequest bidRequest;
+    bidRequest.set_id(mobile_request.id());
+    bidRequest.set_tmax(80);    //80ms
+    bidRequest.set_at(2);
+    
+    bool test = m_dspManager.getGuangYinObject()->getTestValue();
+    if(test)
+        bidRequest.set_test(1);
+    else
+        bidRequest.set_test(0);
+
+    //Imp
+    Imp *imp;
+    imp = bidRequest.add_imp();
+    imp->set_id("1");
+    imp->set_bidfloor(5.0); 
+    
+    Banner *banner = imp->mutable_banner();
+    banner->set_id("1");
+    banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
+    banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
+    
+    //btype : not support adtype
+    banner->add_btype(IFRAME); 
+    banner->add_btype(JS);
+
+    //App
+    App *app;    
+    app = bidRequest.mutable_app();
+    if(!GYin_AdReqProtoMutableApp(app,mobile_request))
+        return false;
+    
+
+    //User
+    User *user;
+    user = bidRequest.mutable_user();
+    if(dev.has_udid())
+    {
+        user->set_id(dev.udid());
+    }
+    else 
+    {
+        string tempid = dev.hidmd5() + "-" + dev.hidsha1();
+        user->set_id(tempid);
+    }   
+
+    //Device
+    Device *device;
+    device = bidRequest.mutable_device();
+    if(!GYin_AdReqProtoMutableDev(device,mobile_request)) 
+        return false;
+
+    //Scenario
+    Scenario *scenario;
+    scenario = bidRequest.mutable_scenario();
+    scenario->set_type(APP);
+
+    int length = bidRequest.ByteSize();
+    bidRequest.SerializeToArray(dataBuf,length);
+    
+}
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {
     try
@@ -1569,65 +1914,36 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         MobileAdRequest mobile_request;
         mobile_request.ParseFromString(commMsg_data);
 
-        string id = mobile_request.id();                           
-        
-        Json::Value root;            
-        Json::Value app;        
-        Json::Value device;
-        Json::Value impArray;     
-        Json::Value curArray;
-        if(!AdReqJsonAddDevice(device,mobile_request))
-            return ;
-        AdReqJsonAddApp(app,mobile_request);
-        AdReqJsonAddImp(impArray,mobile_request);
+        string uuid = mobile_request.id();
 
-        curArray.append("CNY");
-        curArray.append("EUR");
-        curArray.append("HKD");
-        curArray.append("CHF");
-        curArray.append("USD");
-        curArray.append("CAD");
-        curArray.append("GBP");
-        curArray.append("JPY");
-        curArray.append("AUD");
-        curArray.append("TWD");
-
-        root["at"]      = 1;
-        root["id"]      = id;
-        root["imp"]     = impArray;
-        root["app"]     = app;
-        root["device"]  = device;
-        root["allimps"] = 1;
-        root["tmax"]    = 80;
-        root["cur"]     = curArray;
-
-        root.toStyledString();
-        string out = root.toStyledString();
-        g_worker_logger->debug("adRequest.proto->BidRequest.json success");
-        //cout << out << endl; 
-        ofstream outfile;
-        outfile.open("BidRequest.json",ios::out | ios::binary);        
-        outfile.write(out.c_str(),strlen(out.c_str()));
-        outfile.close();
-        #if 1
-        if(m_dspManager.isChinaTelecomObjectCeritifyCodeEmpty())
+        string reqTeleJsonData;
+        if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
         {
-            if(!m_dspManager.getCeritifyCodeFromChinaTelecomDSP())
+             //callback func: handle_recvAdResponseTele active by socket EV_READ event
+            if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), handle_recvAdResponseTele, this))
             {
-                g_worker_logger->error("GET DSP PASSWORD FAIL ... ");
-                throw -1;
+                g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
             }
+            g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
         }
-        #endif
-        //callback func: handle_recvAdResponse active by socket EV_READ event
-        if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, out.c_str(), strlen(out.c_str()), handle_recvAdResponse, this))
-        {
-            g_worker_logger->debug("POST uuid fail: {0}",id);
-            throw -1;
-        }
-        g_worker_logger->debug("POST uuid success: {0} \r\n",id);  
+        else
+             g_worker_logger->debug("convertProtoToTeleJson Failed ");  
         
-       
+        char *reqGYinProtoData = new char[4048];
+        memset(reqGYinProtoData,0,4048*sizeof(char));
+        if(convertProtoToGYinProto(reqGYinProtoData, mobile_request))
+        {
+            if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,reqGYinProtoData,strlen(reqGYinProtoData),handle_recvAdResponseGYin,this))
+            {
+                g_worker_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
+            }
+            else
+                g_worker_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
+        }     
+        else
+            g_worker_logger->debug("convertProtoToGYinProto Failed ");
+        delete [] reqGYinProtoData;
+             
     }
     catch(...)
     {
@@ -2095,12 +2411,12 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
         }
     }
 }
-void connectorServ::handle_recvAdResponse(int sock,short event,void *arg)
+void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
 {   
     connectorServ *serv = (connectorServ*)arg;
     if(serv==NULL) 
     {
-        g_worker_logger->emerg("handle_recvAdResponse param is null");
+        g_worker_logger->emerg("handle_recvAdResponseTele param is null");
         return;
     }
    
@@ -2111,7 +2427,7 @@ void connectorServ::handle_recvAdResponse(int sock,short event,void *arg)
     int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
     if (ret == 0)
     {
-        g_worker_logger->debug("server CLOSE_WAIT ...");
+        g_worker_logger->debug("server TELE CLOSE_WAIT ...");
         serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
         close(sock);
         event_del(listenEvent);
@@ -2129,7 +2445,7 @@ void connectorServ::handle_recvAdResponse(int sock,short event,void *arg)
     }
     
     //cout << "##### This msg recv by PID: " << getpid() << endl;
-    g_worker_logger->debug("RECV HTTP RSP !");
+    g_worker_logger->debug("RECV TELE HTTP RSP !");
     g_worker_logger->debug("\r\n{0}",recv_str);	
     char * jsonData = new char[4048];
     memset(jsonData,0,4048*sizeof(char));
@@ -2143,11 +2459,65 @@ void connectorServ::handle_recvAdResponse(int sock,short event,void *arg)
     }   
     g_worker_logger->debug("BidRsponse : {0}",jsonData);
     int dataLen = strlen(jsonData);
-    serv->handle_BidResponseFromDSP(jsonData,dataLen);   
+    serv->handle_BidResponseFromDSP(DATA_JSON,jsonData,dataLen);   
     delete [] jsonData;
     
 }
 
+void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
+{   
+    connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+    {
+        g_worker_logger->emerg("handle_recvAdResponseGYin param is null");
+        return;
+    }
+   
+    struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+    char *recv_str = new char[4096];
+    memset(recv_str,0,4096*sizeof(char));    
+    
+    int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
+    if (ret == 0)
+    {
+        g_worker_logger->debug("server GYIN CLOSE_WAIT ...");
+        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        close(sock);
+        event_del(listenEvent);
+        delete [] recv_str;
+        return;
+    }
+    if (ret == -1)
+    {
+        g_worker_logger->emerg("recv AdResponse fail !");
+        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        close(sock);
+        event_del(listenEvent);
+        delete [] recv_str;
+        return;
+    }
+    
+    //cout << "##### This msg recv by PID: " << getpid() << endl;
+    g_worker_logger->debug("RECV GYIN HTTP RSP !");
+    g_worker_logger->debug("\r\n{0}",recv_str);	
+    #if 0
+    char * protoData = new char[4048];
+    memset(protoData,0,4048*sizeof(char));
+    //serv->getprotoData(jsonData, recv_str);       
+    delete [] recv_str;
+	if(!strlen(protoData))
+    {
+        g_worker_logger->error("Get proto data from HTTP response failed !");
+        delete [] protoData;
+        return;
+    }   
+    //g_worker_logger->debug("BidRsponse : {0}",jsonData);
+    int dataLen = strlen(protoData);
+    serv->handle_BidResponseFromDSP(DATA_PROTOBUF,protoData,dataLen);   
+    delete [] protoData;
+    #endif
+    
+}
 
 void *connectorServ::connectToOther(void *arg)
 {

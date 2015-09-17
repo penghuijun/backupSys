@@ -1,0 +1,41 @@
+ {
+    "name":"guangyin dsp",
+
+/*HTTP REQUEST LINE*/
+    "adReqType": "POST ",
+    "adReqIP": "103.249.254.121",
+    "adReqPort": "80",
+    "adReqUrl":"/bidrequest",
+    
+/*HTTP HEADER CONFIG*/
+    "Connection": "Keep-Alive", 
+    "User-Agent": "Apache-HttpAsyncClient/4.1",
+    "Content-Type": "application/x-protobuf",     
+    "Host": "103.249.254.121",    
+
+/*FILTER*/
+    "publisherId":"55ac7e8feeec11ac506c0aea",
+    "extNetId":"102",
+    "intNetId":"5",
+    "test":false,
+    "maxErrMinutes":10,
+    "maxErrs":1000,
+    "appFilter":[
+        "com.rj.rj2048"
+    ],
+    "adTypeFilter":[
+        "banner",
+        "interstitial"
+    ],
+    "paraFilter":[
+        "server16"
+    ],
+    "appTypeFilter":[
+        "app"
+    ],
+    "adSizeFilter":[
+        "320*50",
+        "300*250",
+        "728*90"
+    ]
+}

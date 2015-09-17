@@ -21,8 +21,18 @@ struct listenObject
 	int sock;
 	struct event *_event;
 };
-
-class chinaTelecomObject
+class dspObject
+{
+public:
+	dspObject(){}
+	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
+	struct listenObject* findListenObject(int sock);
+	void eraseListenObject(int sock);	
+	~dspObject(){}
+private:
+	list<listenObject *> m_listenObjectList;
+};
+class chinaTelecomObject : public dspObject
 {
 public:
 	chinaTelecomObject()
@@ -49,9 +59,9 @@ public:
 	string& getCeritifyCode(){return CeritifyCode;}	
 	string& getExtNetId(){return extNetId;}
 	string& getIntNetId(){return intNetId;}
-	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
-	struct listenObject* findListenObject(int sock);
-	void eraseListenObject(int sock);	
+	//list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
+	//struct listenObject* findListenObject(int sock);
+	//void eraseListenObject(int sock);	
 	bool parseCertifyStr(char * Src);
 	bool getCeritifyCodeFromChinaTelecomDSP();	
 	
@@ -88,5 +98,40 @@ private:
 	string intNetId;
 		
 	list<listenObject *> m_listenObjectList;
+};
+
+class guangYinObject : public dspObject
+{
+public:
+	guangYinObject()
+	{
+		readGuangYinConfig();
+	}
+	void readGuangYinConfig();
+	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	bool getTestValue(){return test;}
+	~guangYinObject(){}
+private:
+	string name;
+	string adReqType;
+	string adReqIP;
+	string adReqPort;
+	string adReqUrl;
+
+	string httpVersion;
+
+	//HTTP header
+	string Connection;
+	string UserAgent;
+	string ContentType;
+	string Host;
+
+	//FILTER
+	string publisherId;
+	string extNetId;
+	string intNetId;
+	bool test;
+
+	list<listenObject *> m_listenObjectList;	
 };
 #endif

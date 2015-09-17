@@ -1788,7 +1788,7 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
     {
         app->add_keywords(aid.appkeywords(i));
     }
-
+    return true;
 }
 bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request)
 {
@@ -1884,6 +1884,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     banner->set_id("1");
     banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
     banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
+    g_worker_logger->debug("GYin Imp Finish");
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 
@@ -1894,7 +1895,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     app = bidRequest.mutable_app();
     if(!GYin_AdReqProtoMutableApp(app,mobile_request))
         return false;
-    
+    g_worker_logger->debug("GYin App Finish");
 
     //User
     User *user;
@@ -1908,21 +1909,25 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
         string tempid = dev.hidmd5() + "-" + dev.hidsha1();
         user->set_id(tempid);
     }   
-
+    g_worker_logger->debug("GYin App Finish");
+    
     //Device
     Device *device;
     device = bidRequest.mutable_device();
     if(!GYin_AdReqProtoMutableDev(device,mobile_request)) 
         return false;
+    g_worker_logger->debug("GYin Device Finish");
 
     //Scenario
     Scenario *scenario;
     scenario = bidRequest.mutable_scenario();
     scenario->set_type(APP);
+    g_worker_logger->debug("GYin Scenario Finish");
 
     int length = bidRequest.ByteSize();
     bidRequest.SerializeToArray(dataBuf,length);
-    
+
+    return true;    
 }
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {

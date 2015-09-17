@@ -29,6 +29,7 @@ sig_atomic_t sigusr1_recved = 0;
 extern shared_ptr<spdlog::logger> g_master_logger;
 extern shared_ptr<spdlog::logger> g_manager_logger;
 extern shared_ptr<spdlog::logger> g_worker_logger;
+extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 
 vector<map<int,string>> SQL_MAP;
 map<int,string> Creative_template;
@@ -1312,6 +1313,91 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
     g_worker_logger->debug("**********************display end************************************");
 
 }
+void connectorServ::displayGYinBidRequest(char *data,int dataLen)
+{
+    BidRequest bidrequest;
+    bidrequest.ParseFromArray(data,dataLen);
+    g_workerGYIN_logger->debug("BidRequest {");
+    g_workerGYIN_logger->debug("    id: {0}",bidrequest.id());
+
+    Imp imp;
+    g_workerGYIN_logger->debug("    Imp {");
+    for(int i=0; i<bidrequest.imp_size(); i++)
+    {
+        imp = bidrequest.imp(i);
+        g_workerGYIN_logger->debug("        id: {0}",imp.id());
+        Banner banner = imp.banner();
+        g_workerGYIN_logger->debug("        Banner {");
+        g_workerGYIN_logger->debug("            id: {0}",banner.id());
+        g_workerGYIN_logger->debug("            w: {0:d}",banner.w());
+        g_workerGYIN_logger->debug("            h: {0:d}",banner.h());
+        for(int j=0; j<banner.btype_size(); j++)
+        {
+            if(banner.btype(j) == IFRAME)
+                g_workerGYIN_logger->debug("            btype{0:d}: IFRAME ",j);
+            else if(banner.btype(j) == JS)
+                g_workerGYIN_logger->debug("            btype{0:d}: JS",j);
+        }
+        g_workerGYIN_logger->debug("        }");//banner end
+        g_workerGYIN_logger->debug("        bidfloor: {0:f}",imp.bidfloor());
+        
+    }
+    g_workerGYIN_logger->debug("    }");//imp end
+
+    App app = bidrequest.app();
+    g_workerGYIN_logger->debug("    App {");
+    g_workerGYIN_logger->debug("        id: {0}",app.id());
+    g_workerGYIN_logger->debug("        name: {0}",app.name());
+    g_workerGYIN_logger->debug("        bundle: {0}",app.bundle());
+    g_workerGYIN_logger->debug("        domain: {0}",app.domain());
+    g_workerGYIN_logger->debug("        storeurl: {0}",app.storeurl());
+    g_workerGYIN_logger->debug("        cat: {0}",app.cat());
+    g_workerGYIN_logger->debug("        paid: {0:d}",app.paid());
+    g_workerGYIN_logger->debug("        Publisher {");
+    Publisher pub = app.publisher();
+    g_workerGYIN_logger->debug("            id: {0}",pub.id());
+    g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
+    g_workerGYIN_logger->debug("        }");//publisher end
+    for(int i=0; i<app.keywords_size(); i++)
+    {
+        g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,app.keywords(i));
+    }
+    g_workerGYIN_logger->debug("    }");//app end
+
+    User user = bidrequest.user();
+    g_workerGYIN_logger->debug("    User {");
+    g_workerGYIN_logger->debug("        id: {0}",user.id());
+    g_workerGYIN_logger->debug("    }");//user end
+
+    Device dev = bidrequest.device();
+    g_workerGYIN_logger->debug("    Device {");
+    g_workerGYIN_logger->debug("        ua: {0}",dev.ua());
+    Geo geo = dev.geo();
+    g_workerGYIN_logger->debug("        Geo {");
+    g_workerGYIN_logger->debug("            lat: {0:f}",geo.lat());
+    g_workerGYIN_logger->debug("            lon: {0:f}",geo.lon());
+    g_workerGYIN_logger->debug("            type: {0:d}",geo.type());
+    g_workerGYIN_logger->debug("            country: {0}",geo.country());
+    g_workerGYIN_logger->debug("            province: {0}",geo.province());
+    g_workerGYIN_logger->debug("            city: {0}",geo.city());
+    g_workerGYIN_logger->debug("        }");//geo end
+    g_workerGYIN_logger->debug("        ip: {0}",dev.ip());
+    g_workerGYIN_logger->debug("        devicetype: {0:d}",dev.devicetype());
+    g_workerGYIN_logger->debug("        make: {0}",dev.make());
+    g_workerGYIN_logger->debug("        model: {0}",dev.model());
+    g_workerGYIN_logger->debug("        os: {0}",dev.os());
+    g_workerGYIN_logger->debug("        osv: {0}",dev.osv());
+    g_workerGYIN_logger->debug("        w: {0}",dev.w());
+    g_workerGYIN_logger->debug("        h: {0}",dev.h());
+    g_workerGYIN_logger->debug("        language: {0}",dev.language());
+    g_workerGYIN_logger->debug("        connectiontype: {0}",dev.connectiontype());
+    g_workerGYIN_logger->debug("        imei: {0}",dev.imei());
+    g_workerGYIN_logger->debug("        idfa: {0}",dev.idfa());
+    g_workerGYIN_logger->debug("    }");//device end
+    
+    g_workerGYIN_logger->debug("}");//bidrequest end
+}
+
 char* memstr(char* full_data, int full_data_len, char* substr)  
 {  
     if (full_data == NULL || full_data_len <= 0 || substr == NULL) {  
@@ -1798,11 +1884,11 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     vector<string> str_buf;
     if(getStringFromSQLMAP(str_buf,request_dev,request_geo))
     {
-        g_worker_logger->debug("get string from SQLMAP success!");
+        g_workerGYIN_logger->debug("get string from SQLMAP success!");
     }
     else
     {
-        g_worker_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
+        g_workerGYIN_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
         return false;
     }           
     
@@ -1895,7 +1981,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     app = bidRequest.mutable_app();
     if(!GYin_AdReqProtoMutableApp(app,mobile_request))
         return false;
-    g_worker_logger->debug("GYin App Finish");
+    g_workerGYIN_logger->debug("GYin App Finish");
 
     //User
     User *user;
@@ -1907,27 +1993,27 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     else 
     {
         string tempid = dev.hidmd5() + "-" + dev.hidsha1();
-        g_worker_logger->debug("user id: {0}",tempid);
+        g_workerGYIN_logger->debug("user id: {0}",tempid);
         user->set_id(tempid);
     }   
-    g_worker_logger->debug("GYin User Finish");
+    g_workerGYIN_logger->debug("GYin User Finish");
     
     //Device
     Device *device;
     device = bidRequest.mutable_device();
     if(!GYin_AdReqProtoMutableDev(device,mobile_request)) 
         return false;
-    g_worker_logger->debug("GYin Device Finish");
+    g_workerGYIN_logger->debug("GYin Device Finish");
 
     //Scenario
     Scenario *scenario;
     scenario = bidRequest.mutable_scenario();
     scenario->set_type(APP);
-    g_worker_logger->debug("GYin Scenario Finish");
+    g_workerGYIN_logger->debug("GYin Scenario Finish");
 
     int length = bidRequest.ByteSize();
     bidRequest.SerializeToArray(dataBuf,length);
-    g_worker_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success");
+    g_workerGYIN_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success , Length : {0:d}",length);
 
     return true;    
 }
@@ -1958,15 +2044,16 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         memset(reqGYinProtoData,0,4048*sizeof(char));
         if(convertProtoToGYinProto(reqGYinProtoData, mobile_request))
         {
+            displayGYinBidRequest(reqGYinProtoData,strlen(reqGYinProtoData));
             if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,reqGYinProtoData,strlen(reqGYinProtoData),handle_recvAdResponseGYin,this))
             {
-                g_worker_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
+                g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
             }
             else
-                g_worker_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
+                g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
         }     
         else
-            g_worker_logger->debug("convertProtoToGYinProto Failed ");
+            g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");
         delete [] reqGYinProtoData;
              
     }
@@ -2494,7 +2581,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     connectorServ *serv = (connectorServ*)arg;
     if(serv==NULL) 
     {
-        g_worker_logger->emerg("handle_recvAdResponseGYin param is null");
+        g_workerGYIN_logger->emerg("handle_recvAdResponseGYin param is null");
         return;
     }
    
@@ -2505,7 +2592,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
     if (ret == 0)
     {
-        g_worker_logger->debug("server GYIN CLOSE_WAIT ...");
+        g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");
         serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
         close(sock);
         event_del(listenEvent);
@@ -2514,7 +2601,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     }
     if (ret == -1)
     {
-        g_worker_logger->emerg("recv AdResponse fail !");
+        g_workerGYIN_logger->emerg("recv AdResponse fail !");
         serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
         close(sock);
         event_del(listenEvent);
@@ -2523,8 +2610,8 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     }
     
     //cout << "##### This msg recv by PID: " << getpid() << endl;
-    g_worker_logger->debug("RECV GYIN HTTP RSP !");
-    g_worker_logger->debug("\r\n{0}",recv_str);	
+    g_workerGYIN_logger->debug("RECV GYIN HTTP RSP !");
+    g_workerGYIN_logger->debug("\r\n{0}",recv_str);	
     #if 0
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
@@ -2695,6 +2782,8 @@ void connectorServ::workerRun()
     pid_t pid = getpid();
     g_worker_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
     g_worker_logger->set_level(m_logLevel);  
+    g_workerGYIN_logger = spdlog::rotating_logger_mt("worker", "logs/GYINdebugfile", 1048576*500, 3, true); 
+    g_workerGYIN_logger->set_level(m_logLevel);
     g_worker_logger->info("worker start:{0:d}", getpid());
     
     m_zmq_connect.init();

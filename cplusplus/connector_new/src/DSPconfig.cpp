@@ -1,6 +1,7 @@
 #include "DSPconfig.h"
 
 extern shared_ptr<spdlog::logger> g_worker_logger;
+extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 #if 0
 bool chinaTelecomObject::string_find(string& str1, const char* str2)
 {    
@@ -583,7 +584,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     
     //cout << "send_str : " << send_str << endl;
-    g_worker_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
+    g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
     
     
     sockaddr_in sin;
@@ -596,18 +597,18 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
-        g_worker_logger->error("adReqSock create failed ...");
+        g_workerGYIN_logger->error("adReqSock create failed ...");
         return false;
     }   
     g_worker_logger->debug("adReqSock create success ");
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
-        g_worker_logger->error("adReqSock connect failed ...");      
+        g_workerGYIN_logger->error("adReqSock connect failed ...");      
         close(sock);
         return false;
     }
-    g_worker_logger->debug("adReqSock connect success ");
+    g_workerGYIN_logger->debug("adReqSock connect success ");
     
     //add this socket to event listen queue
     struct event *sock_event;
@@ -623,11 +624,11 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     if (send(sock, send_str, strlen(send_str),0) == -1)
     {        
-        g_worker_logger->error("adReqSock send failed ...");
+        g_workerGYIN_logger->error("adReqSock send failed ...");
         delete [] send_str;
         return false;
     }         
-    g_worker_logger->debug("adReqSock send success ");
+    g_workerGYIN_logger->debug("adReqSock send success ");
     delete [] send_str;
     return true;
 }

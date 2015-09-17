@@ -200,6 +200,7 @@ public:
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(char *data,int dataLen);
+	void displayGYinBidRequest(char *data,int dataLen);
 	void getJsonData(char *Dest, char *Src);
 	void hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDataPort);
 	void genFundaCommands(vector<string>& sql_commands);

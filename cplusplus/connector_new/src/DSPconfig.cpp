@@ -468,7 +468,8 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     struct listenObject *listen = new listenObject();    
     listen->sock = sock;
     listen->_event = sock_event;
-    m_listenObjectList.push_back(listen);
+    //m_listenObjectList.push_back(listen);
+    getListenObjectList().push_back(listen);
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     if (send(sock, send_str, strlen(send_str),0) == -1)
@@ -614,7 +615,8 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     struct listenObject *listen = new listenObject();    
     listen->sock = sock;
     listen->_event = sock_event;
-    m_listenObjectList.push_back(listen);
+    //listenObjectList.push_back(listen);
+    getListenObjectList().push_back(listen);
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     if (send(sock, send_str, strlen(send_str),0) == -1)

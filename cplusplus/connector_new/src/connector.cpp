@@ -1315,7 +1315,7 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
 }
 void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
 {
-    BidRequest bidrequest;
+    BidRequest bidrequest;    
     bidrequest.ParseFromArray(data,dataLen);
     g_workerGYIN_logger->debug("BidRequest {");
     g_workerGYIN_logger->debug("    id: {0}",bidrequest.id());
@@ -2147,7 +2147,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             //string str;
             //bidRequest.SerializeToString(&str);
             //g_workerGYIN_logger->debug("{0}",str);
-            displayGYinBidRequest(buf,length);            
+            displayGYinBidRequest(buf,length);                
             if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
             {
                 g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 

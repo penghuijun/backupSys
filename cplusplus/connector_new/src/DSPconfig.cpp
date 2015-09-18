@@ -580,8 +580,10 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     //ÄÚÈİĞÅÏ¢
     
     strcat(send_str, "\r\n");    
-    strcat(send_str, data);
+    int headerLen = strlen(send_str);
     
+    strcat(send_str, data);
+    int wholeLen = headerLen + dataLen;
     
     //cout << "send_str : " << send_str << endl;
     g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
@@ -598,6 +600,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     if (sock == -1)
     {
         g_workerGYIN_logger->error("adReqSock create failed ...");
+        delete [] send_str;
         return false;
     }   
     g_worker_logger->debug("adReqSock create success ");
@@ -606,6 +609,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     {
         g_workerGYIN_logger->error("adReqSock connect failed ...");      
         close(sock);
+        delete [] send_str;
         return false;
     }
     g_workerGYIN_logger->debug("adReqSock connect success ");
@@ -622,7 +626,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     getListenObjectList().push_back(listen);
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
-    if (send(sock, send_str, strlen(send_str),0) == -1)
+    if (send(sock, send_str, wholeLen,0) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
         delete [] send_str;

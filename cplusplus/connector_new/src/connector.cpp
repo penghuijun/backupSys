@@ -1959,8 +1959,9 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
     app->set_cat(targetCat);
     
     Publisher *publisher;
+    string pubID = m_dspManager.getGuangYinObject()->getPublisherID();
     publisher = app->mutable_publisher();
-    publisher->set_id(aid.publisherid());
+    publisher->set_id(pubID);
     publisher->set_domain("www.reachjunction.com");
     
     for(int i=0; i<aid.appkeywords_size(); i++)

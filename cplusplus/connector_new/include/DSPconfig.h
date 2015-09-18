@@ -110,6 +110,7 @@ public:
 	void readGuangYinConfig();
 	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	bool getTestValue(){return test;}
+	string& getPublisherID(){return publisherId;}
 	~guangYinObject(){}
 private:
 	string name;

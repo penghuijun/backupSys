@@ -28,10 +28,10 @@ char* mem_ncat(char *strDest,const char* strSrc,int size)
     while(*strDest)
         strDest++;
     while(size)
-    {
+    {        
         *strDest++ = *strSrc++;
         size--;
-    }
+    } 
     return address;
 }   
 
@@ -595,6 +595,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     strcat(send_str, "\r\n");    
     int headerLen = strlen(send_str);
+    send_str[headerLen] = '\0';
     
     //strcat(send_str, data);
     mem_ncat(send_str,data,dataLen);

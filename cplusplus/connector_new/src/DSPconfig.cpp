@@ -21,6 +21,20 @@ void chinaTelecomObject::strGet(string& Dest,const char* Src)
 }
 #endif
 
+char* mem_ncat(char *strDest,const char* strSrc,int size)
+{
+    char* address = strDest;
+    assert((strDest != NULL)&&(strSrc != NULL));
+    while(*strDest)
+        strDest++;
+    while(size)
+    {
+        *strDest++ = *strSrc++;
+        size--;
+    }
+    return address;
+}   
+
 struct listenObject* dspObject::findListenObject(int sock)
 {
     list<listenObject *>::iterator it = m_listenObjectList.begin();
@@ -582,7 +596,8 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     strcat(send_str, "\r\n");    
     int headerLen = strlen(send_str);
     
-    strcat(send_str, data);
+    //strcat(send_str, data);
+    mem_ncat(send_str,data,dataLen);
     int wholeLen = headerLen + dataLen;
     
     //cout << "send_str : " << send_str << endl;

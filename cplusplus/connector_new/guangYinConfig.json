@@ -13,6 +13,8 @@
     "Content-Type": "application/x-protobuf",     
     "Host": "103.249.254.121",    
 
+    "httpVersion": " HTTP/1.1",
+
 /*FILTER*/
     "publisherId":"55ac7e8feeec11ac506c0aea",
     "extNetId":"102",

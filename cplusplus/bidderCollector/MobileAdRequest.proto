@@ -133,6 +133,7 @@ message MobileAdRequest {
         optional string screenWidth = 14;
         optional string screenHeight = 15;
         optional string density = 16;
+		optional string browser = 17;
     }
 
     message GeoInfo {

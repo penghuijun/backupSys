@@ -480,6 +480,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
   
 
     target_operation_set.add_target_signal("lang", dev.language());
+    target_operation_set.add_target_signal("browser", dev.browser());
     target_operation_set.add_target_signal("carrier", geo_info.carrier());
     target_operation_set.add_target_signal("conn.type", dev.connectiontype());
     target_operation_set.add_target_signal("day.part", daypart);

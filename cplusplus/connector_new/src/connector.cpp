@@ -1313,7 +1313,7 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
     g_worker_logger->debug("**********************display end************************************");
 
 }
-void connectorServ::displayGYinBidRequest(char *data,int dataLen)
+void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
 {
     BidRequest bidrequest;
     bidrequest.ParseFromArray(data,dataLen);
@@ -1339,7 +1339,7 @@ void connectorServ::displayGYinBidRequest(char *data,int dataLen)
                 g_workerGYIN_logger->debug("            btype{0:d}: JS",j);
         }
         g_workerGYIN_logger->debug("        }");//banner end
-        g_workerGYIN_logger->debug("        bidfloor: {0:f}",imp.bidfloor());
+        g_workerGYIN_logger->debug("        bidfloor: {0}",imp.bidfloor());
         
     }
     g_workerGYIN_logger->debug("    }");//imp end
@@ -1376,13 +1376,13 @@ void connectorServ::displayGYinBidRequest(char *data,int dataLen)
     g_workerGYIN_logger->debug("        Geo {");
     g_workerGYIN_logger->debug("            lat: {0:f}",geo.lat());
     g_workerGYIN_logger->debug("            lon: {0:f}",geo.lon());
-    g_workerGYIN_logger->debug("            type: {0:d}",geo.type());
+    g_workerGYIN_logger->debug("            type: {0}",geo.type());
     g_workerGYIN_logger->debug("            country: {0}",geo.country());
     g_workerGYIN_logger->debug("            province: {0}",geo.province());
     g_workerGYIN_logger->debug("            city: {0}",geo.city());
     g_workerGYIN_logger->debug("        }");//geo end
     g_workerGYIN_logger->debug("        ip: {0}",dev.ip());
-    g_workerGYIN_logger->debug("        devicetype: {0:d}",dev.devicetype());
+    g_workerGYIN_logger->debug("        devicetype: {0}",dev.devicetype());
     g_workerGYIN_logger->debug("        make: {0}",dev.make());
     g_workerGYIN_logger->debug("        model: {0}",dev.model());
     g_workerGYIN_logger->debug("        os: {0}",dev.os());
@@ -1397,6 +1397,89 @@ void connectorServ::displayGYinBidRequest(char *data,int dataLen)
     
     g_workerGYIN_logger->debug("}");//bidrequest end
 }
+void connectorServ::displayGYinBidRequestSS(BidRequest &bidrequest)
+{    
+    g_workerGYIN_logger->debug("BidRequest {");
+    g_workerGYIN_logger->debug("    id: {0}",bidrequest.id());
+
+    Imp imp;
+    g_workerGYIN_logger->debug("    Imp {");
+    for(int i=0; i<bidrequest.imp_size(); i++)
+    {
+        imp = bidrequest.imp(i);
+        g_workerGYIN_logger->debug("        id: {0}",imp.id());
+        Banner banner = imp.banner();
+        g_workerGYIN_logger->debug("        Banner {");
+        g_workerGYIN_logger->debug("            id: {0}",banner.id());
+        g_workerGYIN_logger->debug("            w: {0:d}",banner.w());
+        g_workerGYIN_logger->debug("            h: {0:d}",banner.h());
+        for(int j=0; j<banner.btype_size(); j++)
+        {
+            if(banner.btype(j) == IFRAME)
+                g_workerGYIN_logger->debug("            btype{0:d}: IFRAME ",j);
+            else if(banner.btype(j) == JS)
+                g_workerGYIN_logger->debug("            btype{0:d}: JS",j);
+        }
+        g_workerGYIN_logger->debug("        }");//banner end
+        g_workerGYIN_logger->debug("        bidfloor: {0}",imp.bidfloor());
+        
+    }
+    g_workerGYIN_logger->debug("    }");//imp end
+
+    App app = bidrequest.app();
+    g_workerGYIN_logger->debug("    App {");
+    g_workerGYIN_logger->debug("        id: {0}",app.id());
+    g_workerGYIN_logger->debug("        name: {0}",app.name());
+    g_workerGYIN_logger->debug("        bundle: {0}",app.bundle());
+    g_workerGYIN_logger->debug("        domain: {0}",app.domain());
+    g_workerGYIN_logger->debug("        storeurl: {0}",app.storeurl());
+    g_workerGYIN_logger->debug("        cat: {0}",app.cat());
+    g_workerGYIN_logger->debug("        paid: {0:d}",app.paid());
+    g_workerGYIN_logger->debug("        Publisher {");
+    Publisher pub = app.publisher();
+    g_workerGYIN_logger->debug("            id: {0}",pub.id());
+    g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
+    g_workerGYIN_logger->debug("        }");//publisher end
+    for(int i=0; i<app.keywords_size(); i++)
+    {
+        g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,app.keywords(i));
+    }
+    g_workerGYIN_logger->debug("    }");//app end
+
+    User user = bidrequest.user();
+    g_workerGYIN_logger->debug("    User {");
+    g_workerGYIN_logger->debug("        id: {0}",user.id());
+    g_workerGYIN_logger->debug("    }");//user end
+
+    Device dev = bidrequest.device();
+    g_workerGYIN_logger->debug("    Device {");
+    g_workerGYIN_logger->debug("        ua: {0}",dev.ua());
+    Geo geo = dev.geo();
+    g_workerGYIN_logger->debug("        Geo {");
+    g_workerGYIN_logger->debug("            lat: {0:f}",geo.lat());
+    g_workerGYIN_logger->debug("            lon: {0:f}",geo.lon());
+    g_workerGYIN_logger->debug("            type: {0}",geo.type());
+    g_workerGYIN_logger->debug("            country: {0}",geo.country());
+    g_workerGYIN_logger->debug("            province: {0}",geo.province());
+    g_workerGYIN_logger->debug("            city: {0}",geo.city());
+    g_workerGYIN_logger->debug("        }");//geo end
+    g_workerGYIN_logger->debug("        ip: {0}",dev.ip());
+    g_workerGYIN_logger->debug("        devicetype: {0}",dev.devicetype());
+    g_workerGYIN_logger->debug("        make: {0}",dev.make());
+    g_workerGYIN_logger->debug("        model: {0}",dev.model());
+    g_workerGYIN_logger->debug("        os: {0}",dev.os());
+    g_workerGYIN_logger->debug("        osv: {0}",dev.osv());
+    g_workerGYIN_logger->debug("        w: {0}",dev.w());
+    g_workerGYIN_logger->debug("        h: {0}",dev.h());
+    g_workerGYIN_logger->debug("        language: {0}",dev.language());
+    g_workerGYIN_logger->debug("        connectiontype: {0}",dev.connectiontype());
+    g_workerGYIN_logger->debug("        imei: {0}",dev.imei());
+    g_workerGYIN_logger->debug("        idfa: {0}",dev.idfa());
+    g_workerGYIN_logger->debug("    }");//device end
+    
+    g_workerGYIN_logger->debug("}");//bidrequest end
+}
+
 
 char* memstr(char* full_data, int full_data_len, char* substr)  
 {  
@@ -1829,6 +1912,7 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
 {
     MobileAdRequest_Aid aid = mobile_request.aid();
     app->set_id(aid.id());
+    g_workerGYIN_logger->debug("aid.id : {0}",aid.id());
     app->set_name(aid.appname());
     app->set_bundle(aid.apppackagename());
     app->set_storeurl(aid.appstoreurl(0));
@@ -1945,11 +2029,12 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     return true;
     
 }
-bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest& mobile_request)
+
+bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request)
 {
     MobileAdRequest_Device dev = mobile_request.device();
     
-    BidRequest bidRequest;
+    //BidRequest bidRequest;
     bidRequest.set_id(mobile_request.id());
     bidRequest.set_tmax(80);    //80ms
     bidRequest.set_at(2);
@@ -1965,6 +2050,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     imp = bidRequest.add_imp();
     imp->set_id("1");
     imp->set_bidfloor(5.0); 
+    g_workerGYIN_logger->debug("imp bidfloor: {0:f}",imp->bidfloor());
     
     Banner *banner = imp->mutable_banner();
     banner->set_id("1");
@@ -2011,8 +2097,7 @@ bool connectorServ::convertProtoToGYinProto(char *dataBuf,const MobileAdRequest&
     scenario->set_type(APP);
     g_workerGYIN_logger->debug("GYin Scenario Finish");
 
-    int length = bidRequest.ByteSize();
-    bidRequest.SerializeToArray(dataBuf,length);
+    int length = bidRequest.ByteSize();    
     g_workerGYIN_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success , Length : {0:d}",length);
 
     return true;    
@@ -2026,7 +2111,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
-
+        #if 1
         string reqTeleJsonData;
         if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
         {
@@ -2039,22 +2124,25 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         }
         else
              g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+        #endif
         
-        char *reqGYinProtoData = new char[4048];
-        memset(reqGYinProtoData,0,4048*sizeof(char));
-        if(convertProtoToGYinProto(reqGYinProtoData, mobile_request))
-        {
-            displayGYinBidRequest(reqGYinProtoData,strlen(reqGYinProtoData));
-            if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,reqGYinProtoData,strlen(reqGYinProtoData),handle_recvAdResponseGYin,this))
+        BidRequest bidRequest;        
+        if(convertProtoToGYinProto(bidRequest,mobile_request))
+        {            
+            int length = bidRequest.ByteSize();
+            char* buf = new char[length];
+            bidRequest.SerializeToArray(buf,length);
+            displayGYinBidRequest(buf,length);            
+            if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
             {
                 g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
             }
             else
                 g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
+            delete [] buf;
         }     
         else
-            g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");
-        delete [] reqGYinProtoData;
+            g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");        
              
     }
     catch(...)

@@ -1562,9 +1562,9 @@ int connectorServ::getHttpRspData(char *Dest,char *Src)
         }
         return strlen(Dest);
     }
-    else if((temp.find("200 OK") != temp.npos) && (temp.find("content-length") != temp.npos))  //GYIN : protobuf
+    else if((temp.find("200 OK") != temp.npos) && (temp.find("Content-Length") != temp.npos))  //GYIN : protobuf
     {
-        int pos = temp.find("content-length");
+        int pos = temp.find("Content-Length");
     	if(!(pos>=0))
         {        
             g_workerGYIN_logger->debug("GYIN HTTP RSP : Find proto data Failed !");
@@ -1578,13 +1578,15 @@ int connectorServ::getHttpRspData(char *Dest,char *Src)
     		len++;		    		
     	}
     	char *con_len_str = new char[len+1];
+    	g_workerGYIN_logger->debug("len: {0:d}",len);
     	strncpy(con_len_str,Src+pos+15,len);
         con_len_str[len] = '\0';    	
-    	int content_len = atoi(con_len_str);    	
-        delete [] con_len_str;	
-    	//len = strlen(Src);
+        g_workerGYIN_logger->debug("con_len_str: {0}",con_len_str);
+    	int content_len = atoi(con_len_str);   
+    	g_workerGYIN_logger->debug("Content-Length: {0:d}",content_len);
+        delete [] con_len_str;	    	
     	char *dataStart = memstr(Src,strlen(Src),"\r\n\r\n");
-    	strncpy(Dest,dataStart+4,content_len); 
+    	memcpy(Dest,dataStart+4,content_len); 
         Dest[content_len] = '\0';
         g_workerGYIN_logger->debug("GYIN HTTP RSP: 200 OK");
         return content_len;
@@ -2698,7 +2700,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     #if 1
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
-    int dataLen = serv->getHttpRspData(protoData, recv_str);       
+    int dataLen = serv->getHttpRspData(protoData, recv_str);        
     delete [] recv_str;
 	if(dataLen == 0)
     {

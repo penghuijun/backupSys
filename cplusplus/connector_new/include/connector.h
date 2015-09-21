@@ -201,8 +201,8 @@ public:
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);
-	void displayGYinBidRequestSS(BidRequest &bidrequest);
-	void getJsonData(char *Dest, char *Src);
+	void displayGYinBidResponse(const char *data,int dataLen);	
+	int getHttpRspData(char *Dest, char *Src);
 	void hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDataPort);
 	void genFundaCommands(vector<string>& sql_commands);
 	void genAppumpCommands(vector<string>& sql_commands);

@@ -833,7 +833,10 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
 }
 char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
 {
-    g_worker_logger->debug("convertGYinBidResponseProtoToProtobuf END...");
+    //BidResponse bidresponse;
+    //bidresponse.ParseFromArray(data, dataLen);
+    displayGYinBidResponse(data, dataLen);
+    g_workerGYIN_logger->debug("convertGYinBidResponseProtoToProtobuf END...");
     return NULL;
 }
 
@@ -1406,87 +1409,55 @@ void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
     
     g_workerGYIN_logger->debug("}");//bidrequest end
 }
-void connectorServ::displayGYinBidRequestSS(BidRequest &bidrequest)
-{    
-    g_workerGYIN_logger->debug("BidRequest {");
-    g_workerGYIN_logger->debug("    id: {0}",bidrequest.id());
+void connectorServ::displayGYinBidResponse(const char *data,int dataLen)
+{
+    BidResponse bidresponse;
+    bidresponse.ParseFromArray(data, dataLen);
 
-    Imp imp;
-    g_workerGYIN_logger->debug("    Imp {");
-    for(int i=0; i<bidrequest.imp_size(); i++)
+    g_workerGYIN_logger->debug("GYin BidResponse {");
+    g_workerGYIN_logger->debug("    id: {0}",bidresponse.id());
+    Seatbid seatbid;
+    for(int i=0; i<bidresponse.seatbid_size(); i++)
     {
-        imp = bidrequest.imp(i);
-        g_workerGYIN_logger->debug("        id: {0}",imp.id());
-        Banner banner = imp.banner();
-        g_workerGYIN_logger->debug("        Banner {");
-        g_workerGYIN_logger->debug("            id: {0}",banner.id());
-        g_workerGYIN_logger->debug("            w: {0:d}",banner.w());
-        g_workerGYIN_logger->debug("            h: {0:d}",banner.h());
-        for(int j=0; j<banner.btype_size(); j++)
+        g_workerGYIN_logger->debug("    seatbid [");
+        seatbid = bidresponse.seatbid(i);
+        Bid bid;
+        for(int j=0; j<seatbid.bid_size(); j++)
         {
-            if(banner.btype(j) == IFRAME)
-                g_workerGYIN_logger->debug("            btype{0:d}: IFRAME ",j);
-            else if(banner.btype(j) == JS)
-                g_workerGYIN_logger->debug("            btype{0:d}: JS",j);
+            g_workerGYIN_logger->debug("        Bid [");
+            bid = seatbid.bid(j);
+            g_workerGYIN_logger->debug("            id: {0}",bid.id());
+            g_workerGYIN_logger->debug("            impid: {0}",bid.impid());
+            g_workerGYIN_logger->debug("            price: {0:f}",bid.price());
+            g_workerGYIN_logger->debug("            adm: {0}",bid.adm());
+            g_workerGYIN_logger->debug("            adomain: {0}",bid.adomain());
+            g_workerGYIN_logger->debug("            bundle: {0}",bid.bundle());
+            g_workerGYIN_logger->debug("            iurl: {0}",bid.iurl());
+            g_workerGYIN_logger->debug("            w: {0:f}",bid.w());
+            g_workerGYIN_logger->debug("            h: {0:f}",bid.h());
+            g_workerGYIN_logger->debug("            adid: {0}",bid.adid());
+            g_workerGYIN_logger->debug("            nurl: {0}",bid.nurl());
+            g_workerGYIN_logger->debug("            cid: {0}",bid.cid());
+            g_workerGYIN_logger->debug("            crid: {0}",bid.crid());
+            g_workerGYIN_logger->debug("            cat: {0}",bid.cat());
+            g_workerGYIN_logger->debug("            attr: {0}",bid.attr());
+            g_workerGYIN_logger->debug("            curl: {0}",bid.curl());
+            g_workerGYIN_logger->debug("            type: {0}",bid.type());
+            for(int z=0; z<bid.extiurl_size(); z++)
+            {
+                g_workerGYIN_logger->debug("            extiurl: {0}",bid.extiurl(z));
+            }
+            g_workerGYIN_logger->debug("            action: {0}",bid.action());
+            g_workerGYIN_logger->debug("            admtype: {0}",bid.admtype());
+            g_workerGYIN_logger->debug("        ]"); //bid end
         }
-        g_workerGYIN_logger->debug("        }");//banner end
-        g_workerGYIN_logger->debug("        bidfloor: {0}",imp.bidfloor());
-        
+        g_workerGYIN_logger->debug("        seat: {0}",seatbid.seat());
+        g_workerGYIN_logger->debug("    ]"); //seatbid end
     }
-    g_workerGYIN_logger->debug("    }");//imp end
-
-    App app = bidrequest.app();
-    g_workerGYIN_logger->debug("    App {");
-    g_workerGYIN_logger->debug("        id: {0}",app.id());
-    g_workerGYIN_logger->debug("        name: {0}",app.name());
-    g_workerGYIN_logger->debug("        bundle: {0}",app.bundle());
-    g_workerGYIN_logger->debug("        domain: {0}",app.domain());
-    g_workerGYIN_logger->debug("        storeurl: {0}",app.storeurl());
-    g_workerGYIN_logger->debug("        cat: {0}",app.cat());
-    g_workerGYIN_logger->debug("        paid: {0:d}",app.paid());
-    g_workerGYIN_logger->debug("        Publisher {");
-    Publisher pub = app.publisher();
-    g_workerGYIN_logger->debug("            id: {0}",pub.id());
-    g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
-    g_workerGYIN_logger->debug("        }");//publisher end
-    for(int i=0; i<app.keywords_size(); i++)
-    {
-        g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,app.keywords(i));
-    }
-    g_workerGYIN_logger->debug("    }");//app end
-
-    User user = bidrequest.user();
-    g_workerGYIN_logger->debug("    User {");
-    g_workerGYIN_logger->debug("        id: {0}",user.id());
-    g_workerGYIN_logger->debug("    }");//user end
-
-    Device dev = bidrequest.device();
-    g_workerGYIN_logger->debug("    Device {");
-    g_workerGYIN_logger->debug("        ua: {0}",dev.ua());
-    Geo geo = dev.geo();
-    g_workerGYIN_logger->debug("        Geo {");
-    g_workerGYIN_logger->debug("            lat: {0:f}",geo.lat());
-    g_workerGYIN_logger->debug("            lon: {0:f}",geo.lon());
-    g_workerGYIN_logger->debug("            type: {0}",geo.type());
-    g_workerGYIN_logger->debug("            country: {0}",geo.country());
-    g_workerGYIN_logger->debug("            province: {0}",geo.province());
-    g_workerGYIN_logger->debug("            city: {0}",geo.city());
-    g_workerGYIN_logger->debug("        }");//geo end
-    g_workerGYIN_logger->debug("        ip: {0}",dev.ip());
-    g_workerGYIN_logger->debug("        devicetype: {0}",dev.devicetype());
-    g_workerGYIN_logger->debug("        make: {0}",dev.make());
-    g_workerGYIN_logger->debug("        model: {0}",dev.model());
-    g_workerGYIN_logger->debug("        os: {0}",dev.os());
-    g_workerGYIN_logger->debug("        osv: {0}",dev.osv());
-    g_workerGYIN_logger->debug("        w: {0}",dev.w());
-    g_workerGYIN_logger->debug("        h: {0}",dev.h());
-    g_workerGYIN_logger->debug("        language: {0}",dev.language());
-    g_workerGYIN_logger->debug("        connectiontype: {0}",dev.connectiontype());
-    g_workerGYIN_logger->debug("        imei: {0}",dev.imei());
-    g_workerGYIN_logger->debug("        idfa: {0}",dev.idfa());
-    g_workerGYIN_logger->debug("    }");//device end
-    
-    g_workerGYIN_logger->debug("}");//bidrequest end
+    g_workerGYIN_logger->debug("    bidid: {0}",bidresponse.bidid());
+    g_workerGYIN_logger->debug("    nobidreasoncodes: {0}",bidresponse.nbr());
+    g_workerGYIN_logger->debug("    process_time: {0:d}",bidresponse.process_time());
+    g_workerGYIN_logger->debug("}"); //bidresponse end
 }
 
 
@@ -1540,43 +1511,43 @@ int getPartData(char *Dest,char *Src)
     return len;
 }
 
-void connectorServ::getJsonData(char *Dest,char *Src)
-{
-    g_worker_logger->debug("##### getJsonData ...");
+int connectorServ::getHttpRspData(char *Dest,char *Src)
+{   
     string temp = Src;
     if(temp.empty())
     {        
-        g_worker_logger->debug("httpRecvData is empty!");
-        return ;
+        g_worker_logger->debug("HTTP RSP DATA is empty");
+        g_workerGYIN_logger->debug("HTTP RSP DATA is empty");
+        return 0;
     }
-    if(temp.find("chunked") != temp.npos)
+    if(temp.find("chunked") != temp.npos)   //China Telecom : JSON
     {
         char *Src_end = Src+strlen(Src); //avoid point overflow
         char *chunked_start = memstr(Src,strlen(Src),"\r\n\r\n");    
         if(chunked_start == NULL)
         {
-            return ;
+            return 0;
         }
         chunked_start += 4; 
         if(chunked_start >= Src_end) //overflow
-            return ;
+            return 0;
         int partLen;
         int len = getPartLen(chunked_start,partLen);   
         if(len == -1)
         {
-            g_worker_logger->debug("getJsonData fail : chunked len novalid");
-            return ;
+            g_worker_logger->debug("TELE HTTP RSP : chunked len novalid");
+            return 0;
         }
         chunked_start = chunked_start+len+2;  
         if(chunked_start >= Src_end) //overflow
-            return ;
+            return 0;
         int tempLen = 0;
         while(partLen)
         {
             tempLen = getPartData(Dest,chunked_start);
             if(tempLen == -1)
             {
-                g_worker_logger->debug("getJsonData fail : jsonData novalid");
+                g_worker_logger->debug("TELE HTTP RSP : jsonData novalid");
                 break;
             }
             chunked_start = chunked_start+tempLen+2;
@@ -1589,14 +1560,15 @@ void connectorServ::getJsonData(char *Dest,char *Src)
             if(chunked_start >= Src_end) //overflow
                 break;
         }
+        return strlen(Dest);
     }
-    else if(temp.find("content-length") != temp.npos)
+    else if((temp.find("200 OK") != temp.npos) && (temp.find("content-length") != temp.npos))  //GYIN : protobuf
     {
         int pos = temp.find("content-length");
     	if(!(pos>=0))
         {        
-            g_worker_logger->debug("httpRecvData : Find json data Failed !");
-            return ;
+            g_workerGYIN_logger->debug("GYIN HTTP RSP : Find proto data Failed !");
+            return 0;
         }   
     	char *ch = Src+pos+15;
     	int len = 0;
@@ -1610,9 +1582,17 @@ void connectorServ::getJsonData(char *Dest,char *Src)
         con_len_str[len] = '\0';    	
     	int content_len = atoi(con_len_str);    	
         delete [] con_len_str;	
-    	len = strlen(Src);
-    	strncpy(Dest,Src+len-content_len,content_len); 
+    	//len = strlen(Src);
+    	char *dataStart = memstr(Src,strlen(Src),"\r\n\r\n");
+    	strncpy(Dest,dataStart+4,content_len); 
         Dest[content_len] = '\0';
+        g_workerGYIN_logger->debug("GYIN HTTP RSP: 200 OK");
+        return content_len;
+    }
+    else if(temp.find("204 No Content") != temp.npos)   //GYIN
+    {
+        g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
+        return 0;
     }
     
     
@@ -2068,7 +2048,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     banner->set_id("1");
     banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
     banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
-    g_worker_logger->debug("GYin Imp Finish");
+    g_workerGYIN_logger->debug("GYin Imp Finish");
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 
@@ -2665,16 +2645,15 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     g_worker_logger->debug("\r\n{0}",recv_str);	
     char * jsonData = new char[4048];
     memset(jsonData,0,4048*sizeof(char));
-    serv->getJsonData(jsonData, recv_str);       
+    int dataLen = serv->getHttpRspData(jsonData, recv_str);       
     delete [] recv_str;
-	if(!strlen(jsonData))
+	if(dataLen == 0)
     {
         g_worker_logger->error("Get json data from HTTP response failed !");
         delete [] jsonData;
         return;
     }   
-    g_worker_logger->debug("BidRsponse : {0}",jsonData);
-    int dataLen = strlen(jsonData);
+    g_worker_logger->debug("BidRsponse : {0}",jsonData);    
     serv->handle_BidResponseFromDSP(DATA_JSON,jsonData,dataLen);   
     delete [] jsonData;
     
@@ -2716,19 +2695,18 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     //cout << "##### This msg recv by PID: " << getpid() << endl;
     g_workerGYIN_logger->debug("RECV GYIN HTTP RSP !");
     g_workerGYIN_logger->debug("\r\n{0}",recv_str);	
-    #if 0
+    #if 1
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
-    //serv->getprotoData(jsonData, recv_str);       
+    int dataLen = serv->getHttpRspData(protoData, recv_str);       
     delete [] recv_str;
-	if(!strlen(protoData))
+	if(dataLen == 0)
     {
-        g_worker_logger->error("Get proto data from HTTP response failed !");
+        g_workerGYIN_logger->error("Get proto data from HTTP response failed !");
         delete [] protoData;
         return;
     }   
-    //g_worker_logger->debug("BidRsponse : {0}",jsonData);
-    int dataLen = strlen(protoData);
+    g_workerGYIN_logger->debug("BidRsponse : {0}",protoData);    
     serv->handle_BidResponseFromDSP(DATA_PROTOBUF,protoData,dataLen);   
     delete [] protoData;
     #endif

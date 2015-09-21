@@ -198,6 +198,7 @@ public:
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
 	bool mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action);
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
+	bool GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

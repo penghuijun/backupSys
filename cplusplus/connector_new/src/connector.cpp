@@ -723,10 +723,11 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 
                        
                 //mobile_bidder->set_campaignid(bid[i]["id"].asString());                
-                mobile_bidder->set_biddingtype("CPM");       
-                if(bid[i]["price"].asInt() == 0)
+                mobile_bidder->set_biddingtype("CPM");      
+                float price = bid[i]["price"].asDouble();
+                if((price >= -EPSINON)&&(price <= EPSINON))
                 {
-                    g_worker_logger->debug("GEN FAILED : bid.price = 0 ");
+                    g_worker_logger->debug("GEN FAILED : bid.price = {0:f} ",price);
                     return NULL;
                 }
                 char *str_price = new char[5];
@@ -735,6 +736,8 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 mobile_bidder->set_expectcpm(str_price);
                 if(root.isMember("cur"))
                     mobile_bidder->set_currency(root["cur"].asString());
+                else
+                    mobile_bidder->set_currency("CNY");
                 delete [] str_price;
                 
 
@@ -833,11 +836,128 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
 }
 char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
 {
-    //BidResponse bidresponse;
-    //bidresponse.ParseFromArray(data, dataLen);
-    displayGYinBidResponse(data, dataLen);
-    g_workerGYIN_logger->debug("convertGYinBidResponseProtoToProtobuf END...");
-    return NULL;
+    //displayGYinBidResponse(data, dataLen);
+    
+    CommonMessage response_commMsg;
+    MobileAdResponse mobile_response;
+
+    commMsgRecord* cmrObj;
+    CommonMessage request_commMsg;
+    MobileAdRequest mobile_request;
+
+    BidResponse bidresponse;
+    bidresponse.ParseFromArray(data, dataLen);
+
+    string str_id = bidresponse.id();
+    
+    cmrObj = checkValidId(str_id);
+    if(!cmrObj)
+        return NULL;
+    request_commMsg = cmrObj->requestCommMsg;
+    const string& commMsg_data = request_commMsg.data();        
+    mobile_request.ParseFromString(commMsg_data);
+
+    bool ret = false;
+    for(int i=0; i<bidresponse.seatbid_size(); i++)
+    {
+        MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();                   
+        //MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();   
+        Seatbid GYIN_seatbid = bidresponse.seatbid(i);
+        string localExtNetId = m_dspManager.getGuangYinObject()->getExtNetId();    
+        if(strcmp(GYIN_seatbid.seat().c_str(),localExtNetId.c_str()) != 0) //netid noequal localextnetid
+        {
+            g_workerGYIN_logger->debug("GYIN GEN FAILED : localExtNetId: {0} noequal gyin.netid: {1}", localExtNetId, GYIN_seatbid.seat());
+            return NULL;
+        }
+        string intNetId = m_dspManager.getGuangYinObject()->getIntNetId();    
+        MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+        bidder_info->set_bidderid(intNetId);
+        
+        map<int,string>::iterator it = CampaignMap.find(atoi(intNetId.c_str()));
+        if(it == CampaignMap.end())
+        {
+            g_workerGYIN_logger->debug("GYIN GEN FAILED : get campainId from CampaignMap fail .  intNetId: {0}",intNetId);
+            return NULL;
+        }
+        string campaignId = it->second;      
+        mobile_bidder->set_campaignid(campaignId);
+
+        Bid GYIN_bid = GYIN_seatbid.bid(0);
+        mobile_bidder->set_biddingtype("CPM");   
+        float GYIN_price = GYIN_bid.price();
+        if((GYIN_price >= -EPSINON)&&(GYIN_price <= EPSINON))  // 0
+        {
+            g_worker_logger->debug("GEN FAILED : bid.price = {0:d} ",GYIN_price);
+            return NULL;
+        }
+        char *str_price = new char[5];
+        sprintf(str_price,"%.1f",GYIN_price);                
+        mobile_bidder->set_biddingvalue(str_price);
+        mobile_bidder->set_expectcpm(str_price);        
+        delete [] str_price;
+        mobile_bidder->set_currency("CNY");
+        
+        MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();   
+        mobile_creative->set_creativeid("0");
+        char *str_w = new char[5];
+        char *str_h = new char[5];
+        sprintf(str_w,"%d",GYIN_bid.w());
+        sprintf(str_h,"%d",GYIN_bid.h());                
+        mobile_creative->set_width(str_w);
+        mobile_creative->set_height(str_h);  
+        delete [] str_w;
+        delete [] str_h;
+
+        
+        if(!GYIN_mutableAction(mobile_request,mobile_action,action))
+            return NULL;
+        //cout << "mutableAction success" << endl;
+        Json::Value temp = ext["temp"];
+        string nurl = bid[i]["nurl"].asString();
+        if(!GYIN_creativeAddEvents(mobile_creative,temp,nurl))
+            return NULL;
+                
+    }    
+    
+    if(ret)
+    {
+        if(bidresponse.has_id())
+            mobile_response.set_id(bidresponse.id());
+        else
+        {
+            g_workerGYIN_logger->debug("GYIN GEN FAILED : no valid id ");
+            return NULL;
+        }
+        uuid = bidresponse.id();
+        if(bidresponse.has_bidid())
+            mobile_response.set_bidid(bidresponse.bidid());
+        else
+            mobile_response.set_bidid("null");
+
+        //MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+        //bidder_info->set_bidderid("1");
+
+        int dataSize = mobile_response.ByteSize();
+        char *dataBuf = new char[dataSize];
+        mobile_response.SerializeToArray(dataBuf, dataSize); 
+        response_commMsg.set_businesscode(request_commMsg.businesscode());
+        response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+        response_commMsg.set_ttl(request_commMsg.ttl());
+        response_commMsg.set_data(dataBuf, dataSize);
+    
+        dataSize = response_commMsg.ByteSize();
+        char* comMessBuf = new char[dataSize];
+        response_commMsg.SerializeToArray(comMessBuf, dataSize);
+        delete[] dataBuf;
+        ret_dataLen = dataSize;
+        g_workerGYIN_logger->debug("GYIN BidResponse.proto->MobileAdResponse.proto convert success !");
+        return comMessBuf;
+    }
+    else
+    {
+        g_workerGYIN_logger->debug("GYIN BidResponse.proto->MobileAdResponse.proto convert failed !");
+        return NULL;
+    }
 }
 
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
@@ -1198,6 +1318,125 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
     }  
     return true;
 }
+bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid)
+{
+    Json::Value content; 
+    Json::Value download;    
+    const char *str_acttype = NULL;    
+    
+    if((!GYIN_bid.has_action())||(GYIN_bid.action().empty())||(GYIN_bid.action() == "click")) // default : webpage
+    {
+        str_acttype = "web_page";   
+        if(GYIN_bid.bundle().empty() == false)
+            content["app_name"] = GYIN_bid.bundle();        
+        if(GYIN_bid.adomain().empty() == false)
+            content["domain_name"] = GYIN_bid.adomain();  
+        content["in_app"] = "1";
+        content["web_url"] = GYIN_bid.curl();
+    }
+    else if(GYIN_bid.action() == "install")    // install 
+    {
+        str_acttype = "app_download";
+        if(GYIN_bid.bundle().empty() == false)
+            content["app_name"] = GYIN_bid.bundle();        
+            
+        MobileAdRequest_Device dev = mobile_request.device();
+        if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
+        {                
+            download["platform"] = "android";                
+        }
+        else if(strcmp("2",dev.platform().c_str()) == 0)    //apple IOS
+        {
+            download["platform"] = "ios";   
+        }
+        else
+        {
+            g_workerGYIN_logger->debug("Get platform from adRequest fail...");
+        }
+        download["url"] = GYIN_bid.curl();
+        download["in_app"] = "1";
+        download["auto_install"] = "1";
+        content["download"] = download;
+    }
+    
+    mobile_action->set_content(content.toStyledString());
+    mobile_action->set_actiontype(str_acttype);
+    mobile_action->set_inapp("1");         
+    return true;
+}
+bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
+{
+    MobileAdRequest_AdType type = mobile_request.type();
+    int id = 0;
+    string RetCode;
+    AdmType GYIN_admtype = GYIN_bid.type();
+    //string adm;
+    
+    switch(type)
+    {
+        case MobileAdRequest_AdType_BANNER:
+            {
+                id = 79;
+                map<int,string>::iterator it = Creative_template.find(id);
+                RetCode = it->second;                
+                if(RetCode.empty() == false)
+                {
+                    string decodeStr;                        
+                    
+                    decodeStr = UrlDecode(RetCode);                        
+                    const char *sSrc = decodeStr.c_str();
+                    const char *sMatchStr = "${MY_THIRD_HTML}";
+                    const char *sReplaceStr = NULL;
+                    switch(GYIN_admtype)
+                    {
+                        case HTML:
+                            {
+                                sReplaceStr = GYIN_bid.adm();                                
+                            }
+                            break;
+                        case JSON:
+                            {
+                                
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    int sDestLen = strlen(sSrc)+strlen(sReplaceStr);
+                    char *sDest = new char[sDestLen];
+                    ReplaceStr(sDest,sSrc,sMatchStr,sReplaceStr);                        
+                    
+                    mobile_creative->set_admarkup(UrlEncode(sDest));
+                    mobile_creative->set_mediatypeid("1");
+                    mobile_creative->set_mediasubtypeid("1");
+                    delete [] sDest;
+                }
+            }
+            break;
+        case MobileAdRequest_AdType_INTERSTITIAL:
+            {
+                id = 80;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if(temp.isMember("imurl"))
+    {
+        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+        creative_event->set_event("IMP");
+        creative_event->set_trackurl(temp["imurl"].asString());
+    }   
+    if(nurl.empty() == false)
+    {
+        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+        creative_event->set_event("IMP");
+        creative_event->set_trackurl(nurl);
+    }  
+    return true;
+}
+
 void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
 {
     CommonMessage response_commMsg;

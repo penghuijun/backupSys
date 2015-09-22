@@ -18,7 +18,7 @@
 /*FILTER*/
     "publisherId":"55ac7e8feeec11ac506c0aea",
     "extNetId":"102",
-    "intNetId":"5",
+    "intNetId":"7",
     "test":false,
     "maxErrMinutes":10,
     "maxErrs":1000,

@@ -908,14 +908,13 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         delete [] str_w;
         delete [] str_h;
 
-        
-        if(!GYIN_mutableAction(mobile_request,mobile_action,action))
+        MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
+        if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
             return NULL;
-        //cout << "mutableAction success" << endl;
-        Json::Value temp = ext["temp"];
-        string nurl = bid[i]["nurl"].asString();
-        if(!GYIN_creativeAddEvents(mobile_creative,temp,nurl))
+        //cout << "mutableAction success" << endl;        
+        if(!GYIN_creativeAddEvents(mobile_request,mobile_creative,GYIN_bid))
             return NULL;
+        ret = true;
                 
     }    
     
@@ -1145,14 +1144,13 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         const char *sSrc = decodeStr.c_str();
                         const char *sMatchStr = "${MY_IMAGE}";
                         const char *sReplaceStr = creurl.c_str();
-                        int sDestLen = strlen(sSrc)+strlen(sReplaceStr);
-                        char *sDest = new char[sDestLen];
-                        ReplaceStr(sDest,sSrc,sMatchStr,sReplaceStr);                        
+                        char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);                        
                         
                         mobile_creative->set_admarkup(UrlEncode(sDest));
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("1");
                         delete [] sDest;
+                        sDest = NULL;
                     }
                 }
                 break;
@@ -1177,16 +1175,17 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         const char *sMatchStr1 = "${MY_TITLE}";
                         const char *sMatchStr2 = "${MY_DESCRIPTION}";
                         const char *sReplaceStr1 = title.c_str();
-                        const char *sReplaceStr2 = desc.c_str();
-                        int sDestLen = strlen(sSrc)+strlen(sReplaceStr1)+strlen(sReplaceStr2);
-                        char *sDest = new char[sDestLen];
-                        ReplaceStr(sDest,sSrc,sMatchStr1,sReplaceStr1); 
-                        ReplaceStr(sDest,sDest,sMatchStr2,sReplaceStr2); 
+                        const char *sReplaceStr2 = desc.c_str();                        
+                        char *sDest1 = ReplaceStr(sSrc,sMatchStr1,sReplaceStr1); 
+                        char *sDest2 = ReplaceStr(sDest1,sMatchStr2,sReplaceStr2); 
                         
-                        mobile_creative->set_admarkup(UrlEncode(sDest));  
+                        mobile_creative->set_admarkup(UrlEncode(sDest2));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("2");
-                        delete [] sDest;
+                        delete [] sDest1;
+                        delete [] sDest2;
+                        sDest1 = sDest2 = NULL;
+                        
                     }                    
                 }
                 break;
@@ -1215,16 +1214,17 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         const char *sReplaceStr1 = icurl.c_str();
                         const char *sReplaceStr2 = title.c_str();
                         const char *sReplaceStr3 = desc.c_str();
-                        int sDestLen = strlen(sSrc)+strlen(sReplaceStr1)+strlen(sReplaceStr2)+strlen(sReplaceStr3);
-                        char *sDest = new char[sDestLen];
-                        ReplaceStr(sDest,sSrc,sMatchStr1,sReplaceStr1); 
-                        ReplaceStr(sDest,sDest,sMatchStr2,sReplaceStr2); 
-                        ReplaceStr(sDest,sDest,sMatchStr3,sReplaceStr3);
+                        char *sDest1 = ReplaceStr(sSrc,sMatchStr1,sReplaceStr1); 
+                        char *sDest2 = ReplaceStr(sDest1,sMatchStr2,sReplaceStr2); 
+                        char *sDest3 = ReplaceStr(sDest2,sMatchStr3,sReplaceStr3);
                         
-                        mobile_creative->set_admarkup(UrlEncode(sDest));    
+                        mobile_creative->set_admarkup(UrlEncode(sDest3));    
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("3");
-                        delete [] sDest;
+                        delete [] sDest1;
+                        delete [] sDest2;
+                        delete [] sDest3;
+                        sDest1 = sDest2 = sDest3 = NULL;
                     }                    
                 }
                 break;
@@ -1250,15 +1250,15 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         const char *sMatchStr2 = "${MY_EXPAND_URL}";
                         const char *sReplaceStr1 = creurl.c_str();
                         const char *sReplaceStr2 = expurl.c_str();
-                        int sDestLen = strlen(sSrc)+strlen(sReplaceStr1)+strlen(sReplaceStr2);
-                        char *sDest = new char[sDestLen];
-                        ReplaceStr(sDest,sSrc,sMatchStr1,sReplaceStr1); 
-                        ReplaceStr(sDest,sDest,sMatchStr2,sReplaceStr2); 
+                        char *sDest1 = ReplaceStr(sSrc,sMatchStr1,sReplaceStr1); 
+                        char *sDest2 = ReplaceStr(sDest1,sMatchStr2,sReplaceStr2); 
                         
-                        mobile_creative->set_admarkup(UrlEncode(sDest));  
+                        mobile_creative->set_admarkup(UrlEncode(sDest2));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("1");
-                        delete [] sDest;
+                        delete [] sDest1;
+                        delete [] sDest2;
+                        sDest1 = sDest2 = NULL;
                     }                    
                 }
                 break;
@@ -1281,14 +1281,13 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         const char *sSrc = decodeStr.c_str();
                         const char *sMatchStr = "${MY_IMAGE}";
                         const char *sReplaceStr = creurl.c_str();
-                        int sDestLen = strlen(sSrc)+strlen(sReplaceStr);
-                        char *sDest = new char[sDestLen];
-                        ReplaceStr(sDest,sSrc,sMatchStr,sReplaceStr);                        
+                        char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);                        
                         
                         mobile_creative->set_admarkup(UrlEncode(sDest));
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("5");
                         delete [] sDest;
+                        sDest = NULL;
                     }
                 }
                 break;
@@ -1369,7 +1368,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     MobileAdRequest_AdType type = mobile_request.type();
     int id = 0;
     string RetCode;
-    AdmType GYIN_admtype = GYIN_bid.type();
+    AdmType GYIN_admtype = GYIN_bid.admtype();
     //string adm;
     
     switch(type)
@@ -1391,20 +1390,44 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     {
                         case HTML:
                             {
-                                sReplaceStr = GYIN_bid.adm();                                
+                                sReplaceStr = GYIN_bid.adm().c_str();                                
                             }
                             break;
                         case JSON:
                             {
+                                const char *img = "<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>";
+                                Json::Reader reader;
+                                Json::Value root;
+                                string adm = GYIN_bid.adm();
+                                reader.parse(adm,root);
+                                string adID = root["adID"].asString();
+                                int width = root["width"].asInt();
+                                int height = root["height"].asInt();
+                                string src = root["src"].asString();
+                                string type = root["type"].asString();
+
+                                char *widthStr = new char[5];
+                                char *heightStr = new char[5];
+                                sprintf(widthStr,"%d",width);
+                                sprintf(heightStr,"%d",height);
+
+                                
+                                char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
+                                char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
+                                char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
+                                
+                                sReplaceStr = destImg3;
+                                delete [] widthStr;
+                                delete [] heightStr;
+                                delete [] destImg1;
+                                delete [] destImg2;
                                 
                             }
                             break;
                         default:
                             break;
                     }
-                    int sDestLen = strlen(sSrc)+strlen(sReplaceStr);
-                    char *sDest = new char[sDestLen];
-                    ReplaceStr(sDest,sSrc,sMatchStr,sReplaceStr);                        
+                    char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);                        
                     
                     mobile_creative->set_admarkup(UrlEncode(sDest));
                     mobile_creative->set_mediatypeid("1");
@@ -1416,24 +1439,31 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         case MobileAdRequest_AdType_INTERSTITIAL:
             {
                 id = 80;
+                g_workerGYIN_logger->debug("MobileAdRequest_AdType_INTERSTITIAL");
             }
             break;
         default:
             break;
     }
 
-    if(temp.isMember("imurl"))
+    if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))
     {
         MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
         creative_event->set_event("IMP");
-        creative_event->set_trackurl(temp["imurl"].asString());
+        creative_event->set_trackurl(GYIN_bid.iurl());
     }   
-    if(nurl.empty() == false)
+    if(GYIN_bid.has_nurl()&&(GYIN_bid.nurl().empty() == false))
     {
         MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
         creative_event->set_event("IMP");
-        creative_event->set_trackurl(nurl);
-    }  
+        creative_event->set_trackurl(GYIN_bid.nurl());
+    }      
+    for(int i=0; i<GYIN_bid.extiurl_size(); i++)
+    {
+        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+        creative_event->set_event("IMP");
+        creative_event->set_trackurl(GYIN_bid.extiurl(i));
+    }
     return true;
 }
 
@@ -2345,7 +2375,8 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
-        #if 1
+        //send to CHINA TELECOM
+        #if 0  
         string reqTeleJsonData;
         if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
         {
@@ -2359,16 +2390,14 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         else
              g_worker_logger->debug("convertProtoToTeleJson Failed ");  
         #endif
-        
+
+        //send to GYIN
         BidRequest bidRequest;        
         if(convertProtoToGYinProto(bidRequest,mobile_request))
         {            
             int length = bidRequest.ByteSize();
             char* buf = new char[length];
-            bidRequest.SerializeToArray(buf,length);
-            //string str;
-            //bidRequest.SerializeToString(&str);
-            //g_workerGYIN_logger->debug("{0}",str);
+            bidRequest.SerializeToArray(buf,length);            
             displayGYinBidRequest(buf,length);                
             if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
             {

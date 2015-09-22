@@ -61,7 +61,7 @@ char *mystrstr(const char*s1,const char*s2)
 {
     const char*p=s1;
     const size_t len=strlen(s2);
-    for(;(p=strchr(p,*s2))!=0;p++)
+    for(;(p=strchr(p,*s2))!=0;p++) //strchr函数原型：extern char *strchr(const char *s,char c);查找字符串s中首次出现字符c的位置。
     {
         if(strncmp(p,s2,len)==0)
             return (char*)p;
@@ -69,32 +69,23 @@ char *mystrstr(const char*s1,const char*s2)
     return(0);
 }
 
-
-// 替换字符串中特征字符串为指定字符串
-void ReplaceStr(char *sDest,const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
+char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
 {
-        int  StringLen;
-        int srcLen = strlen(sSrc);
-        int replaceLen = strlen(sReplaceStr);
-        int caNewStringLen = srcLen + replaceLen;
-        char caNewString[caNewStringLen];          
-
-        char *FindPos = mystrstr(sSrc, sMatchStr);
-        if( (!FindPos) || (!sMatchStr) )
-                return;
-
-        while( FindPos )
-        {
-                memset(caNewString, 0, sizeof(caNewString));
-                StringLen = FindPos - sSrc;
-                strncpy(caNewString, sSrc, StringLen);
-                strcat(caNewString, sReplaceStr);
-                strcat(caNewString, FindPos + strlen(sMatchStr));
-                strcpy(sDest, caNewString);
-
-                FindPos = strstr(sDest, sMatchStr);
-        }        
+	if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
+		return NULL;
+	char *pos = strstr((char *)sSrc,sMatchStr); //first pos sMatchStr appear in sSrc
+	if(pos == NULL) //not found
+		return NULL;
+	int len = strlen(sSrc)+strlen(sReplaceStr)-strlen(sMatchStr);
+	char *destStr = new char[len];
+	memset(destStr, 0, len*sizeof(char));
+	strncpy(destStr,sSrc,pos-sSrc);
+	strcat(destStr,sReplaceStr);
+	pos += strlen(sMatchStr);
+	strcat(destStr,pos);
+	return destStr; 
 }
+
 
 
 

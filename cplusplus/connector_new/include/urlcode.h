@@ -12,8 +12,7 @@ unsigned char FromHex(unsigned char x);
 string UrlEncode(const std::string& str);
 string UrlDecode(const std::string& str);
 char *mystrstr(const char*s1,const char*s2);
-
-void ReplaceStr(char *sDest,const char *sSrc,const char *sMatchStr, const char *sReplaceStr);
+char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr);
 
 
 #endif

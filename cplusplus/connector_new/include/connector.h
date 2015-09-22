@@ -52,6 +52,7 @@ using namespace com::rj::protos;
 using namespace std;
 
 #define PUBLISHKEYLEN_MAX 100
+#define EPSINON 0.000001
 extern vector<map<int,string>> SQL_MAP;
 extern map<int,string> Creative_template;
 
@@ -199,6 +200,7 @@ public:
 	bool mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action);
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
 	bool GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid);
+	bool GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

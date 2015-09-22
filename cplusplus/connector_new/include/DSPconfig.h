@@ -66,7 +66,7 @@ public:
 	bool getCeritifyCodeFromChinaTelecomDSP();	
 	
 	bool isCeritifyCodeEmpty();
-	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg);
 	~chinaTelecomObject(){}
 private:
 	string name;	

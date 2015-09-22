@@ -8,11 +8,13 @@
 configureObject::configureObject(const char* configTxt):m_configName(configTxt)
 {
      readConfig();
+     readLogConfig();
 }
 
 configureObject::configureObject(string &configTxt):m_configName(configTxt)
 {
      readConfig();
+     readLogConfig();
 }
 
 
@@ -858,6 +860,39 @@ void configureObject::readConfig()
         exit(1);
     }    
 }
+
+void configureObject::readLogConfig()
+{
+    ifstream ifile; 
+    ifile.open("runConfig.json",ios::in);
+    if(ifile.is_open() == false)
+    {               
+        g_manager_logger->error("Open runConfig.json failure...");
+        exit(1);    
+    }   
+    
+    Json::Reader reader;
+    Json::Value root;
+    
+    if(reader.parse(ifile, root))
+    {
+        enChinaTelecom = root["enChinaTelecom"].asBool();
+        logTeleReq = root["logTeleReq"].asBool();
+        logTeleHttpRsp = root["logTeleHttpRsp"].asBool();
+        logTeleHttpRsp = root["logTeleHttpRsp"].asBool();
+
+        enGYIN = root["enGYIN"].asBool();
+        logGYINReq = root["logGYINReq"].asBool();
+        logGYINHttpRsp = root["logGYINHttpRsp"].asBool();
+        logGYINRsp = root["logGYINRsp"].asBool();
+    }
+    else
+    {
+        g_manager_logger->error("Parse runConfig.json failure...");
+        exit(1);
+    }
+}
+
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
 void configureObject::display() 

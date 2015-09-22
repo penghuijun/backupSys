@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include "spdlog/spdlog.h"
+#include <json/json.h>
 using namespace std;
 using namespace spdlog;
 
@@ -587,6 +588,7 @@ public:
 		return false;
 	}
 	void readConfig();
+	void readLogConfig();
 	void display() ;
 
 	const string& get_configFlieName() const{return m_configName;}
@@ -620,6 +622,15 @@ public:
 	bool                 get_logRedisState(){return m_logRedisOn;}
 	unsigned short       get_heart_interval(){return m_heartInterval;}
 
+	bool 				 get_enChinaTelecom(){return enChinaTelecom;}
+	bool				 get_logTeleReq(){return logTeleReq;}
+	bool 				 get_logTeleHttpRsp(){return logTeleHttpRsp;}
+	bool				 get_logTeleRsp(){return logTeleRsp;}
+	bool 				 get_enGYIN(){return enGYIN;}
+	bool 				 get_logGYINReq(){return logGYINReq;}
+	bool				 get_logGYINHttpRsp(){return logGYINHttpRsp;}
+	bool				 get_logGYINRsp(){return logGYINRsp;}
+
 	void clear()
 	{
 		m_throttle_info.throttleInformation_erase();
@@ -650,6 +661,16 @@ private:
 	unsigned short       m_logRedisPort = 0;
 	
     const unsigned short short_max = 0xFFFF;	
+
+	bool 				 enChinaTelecom;
+	bool				 logTeleReq;
+	bool 				 logTeleHttpRsp;
+	bool 			     logTeleRsp;
+
+	bool 				 enGYIN;
+	bool 			     logGYINReq;
+	bool 				 logGYINHttpRsp;
+	bool                 logGYINRsp;
 };
 
 #endif

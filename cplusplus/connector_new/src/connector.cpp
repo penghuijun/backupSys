@@ -836,7 +836,6 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
 }
 char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
 {
-    //displayGYinBidResponse(data, dataLen);
     
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
@@ -1467,7 +1466,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     return true;
 }
 
-void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
+void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen)
 {
     CommonMessage response_commMsg;
     response_commMsg.ParseFromArray(data,dataLen);
@@ -1476,62 +1475,62 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
     const string& commMsg_data = response_commMsg.data();        
     mobile_response.ParseFromString(commMsg_data);
 
-    g_worker_logger->debug("**********************display commonMsgResponseProtobuf**************");
-    g_worker_logger->debug("businessCode : {0}",response_commMsg.businesscode());
-    g_worker_logger->debug("dataCodingType : {0}",response_commMsg.datacodingtype());
-    g_worker_logger->debug("ttl : {0}",response_commMsg.ttl());
+    logger->debug("**********************display commonMsgResponseProtobuf**************");
+    logger->debug("businessCode : {0}",response_commMsg.businesscode());
+    logger->debug("dataCodingType : {0}",response_commMsg.datacodingtype());
+    logger->debug("ttl : {0}",response_commMsg.ttl());
 
-    g_worker_logger->debug("MobileAdResponse:{");
-    g_worker_logger->debug("   id : {0}",mobile_response.id());
+    logger->debug("MobileAdResponse:{");
+    logger->debug("   id : {0}",mobile_response.id());
     
     MobileAdResponse_Bidder bidder = mobile_response.bidder();
-    g_worker_logger->debug("   Bidder {");
-    g_worker_logger->debug("       bidderId : {0}",bidder.bidderid());
-    g_worker_logger->debug("   }");
+    logger->debug("   Bidder {");
+    logger->debug("       bidderId : {0}",bidder.bidderid());
+    logger->debug("   }");
     
-    g_worker_logger->debug("   bidId : {0}",mobile_response.bidid());
+    logger->debug("   bidId : {0}",mobile_response.bidid());
 
     
 
     int bidcontentCnt = mobile_response.bidcontent_size();
     for(int n=0; n<bidcontentCnt; n++)
     {
-        g_worker_logger->debug("   mobileBid {");
+        logger->debug("   mobileBid {");
         MobileAdResponse_mobileBid bidContent = mobile_response.bidcontent(n);
-        g_worker_logger->debug("       campaignId : {0}",bidContent.campaignid());
-        g_worker_logger->debug("       biddingType : {0}",bidContent.biddingtype());
-        g_worker_logger->debug("       biddingvalue : {0}",bidContent.biddingvalue());
-        g_worker_logger->debug("       currency : {0}",bidContent.currency());
-        g_worker_logger->debug("       expectCpm : {0}",bidContent.expectcpm());
+        logger->debug("       campaignId : {0}",bidContent.campaignid());
+        logger->debug("       biddingType : {0}",bidContent.biddingtype());
+        logger->debug("       biddingvalue : {0}",bidContent.biddingvalue());
+        logger->debug("       currency : {0}",bidContent.currency());
+        logger->debug("       expectCpm : {0}",bidContent.expectcpm());
 
         int creativeCnt = bidContent.creative_size();
         for(int i=0; i<creativeCnt; i++)
         {
-            g_worker_logger->debug("       Creative : [");
+            logger->debug("       Creative : [");
             MobileAdResponse_Creative creative = bidContent.creative(i);
-            g_worker_logger->debug("           creativeid : {0}",creative.creativeid());
-            g_worker_logger->debug("           admarkup : {0}",creative.admarkup());
-            g_worker_logger->debug("           width : {0}",creative.width());
-            g_worker_logger->debug("           height : {0}",creative.height());
-            g_worker_logger->debug("           macro : {0}",creative.macro());
-            g_worker_logger->debug("           mediaTypeId : {0}",creative.mediatypeid());
-            g_worker_logger->debug("           mediasubtypeid : {0}",creative.mediasubtypeid());
-            g_worker_logger->debug("           CTR : {0}",creative.ctr());
+            logger->debug("           creativeid : {0}",creative.creativeid());
+            logger->debug("           admarkup : {0}",creative.admarkup());
+            logger->debug("           width : {0}",creative.width());
+            logger->debug("           height : {0}",creative.height());
+            logger->debug("           macro : {0}",creative.macro());
+            logger->debug("           mediaTypeId : {0}",creative.mediatypeid());
+            logger->debug("           mediasubtypeid : {0}",creative.mediasubtypeid());
+            logger->debug("           CTR : {0}",creative.ctr());
 
             int eventCnt = creative.events_size();
             for(int j=0; j<eventCnt; j++)
             {
-                g_worker_logger->debug("           TrackingEvents : [");
+                logger->debug("           TrackingEvents : [");
                 MobileAdResponse_TrackingEvents event = creative.events(j);
-                g_worker_logger->debug("               event : {0}",event.event());
-                g_worker_logger->debug("               trackUrl : {0}",event.trackurl());
-                g_worker_logger->debug("           ]");// TrackingEvents end
+                logger->debug("               event : {0}",event.event());
+                logger->debug("               trackUrl : {0}",event.trackurl());
+                logger->debug("           ]");// TrackingEvents end
             }
 
             MobileAdResponse_CreativeSession session = creative.session();
-            g_worker_logger->debug("           CreativeSession {");
-            g_worker_logger->debug("               sessionLimit : {0}",session.sessionlimit());
-            g_worker_logger->debug("           }");//CreativeSession endl
+            logger->debug("           CreativeSession {");
+            logger->debug("               sessionLimit : {0}",session.sessionlimit());
+            logger->debug("           }");//CreativeSession endl
 
             MobileAdResponse_UUID uuid = creative.uuid();
             int uuidtypeCnt = uuid.uuidtype_size();
@@ -1541,25 +1540,25 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
                 switch(uuidtpye)
                 {
                     case MobileAdResponse_UuidType_FRE:
-                        g_worker_logger->debug("           uuidType : MobileAdResponse_UuidType_FRE");
+                        logger->debug("           uuidType : MobileAdResponse_UuidType_FRE");
                         break;
                     case MobileAdResponse_UuidType_SESSION:
-                        g_worker_logger->debug("           uuidType : MobileAdResponse_UuidType_SESSION");
+                        logger->debug("           uuidType : MobileAdResponse_UuidType_SESSION");
                         break;
                     default:
                         break;
                 }            
             }
-            g_worker_logger->debug("       ]"); // creative end
+            logger->debug("       ]"); // creative end
         }
         
         MobileAdResponse_Action action = bidContent.action();
-        g_worker_logger->debug("       action :{");
-        g_worker_logger->debug("           name : {0}",action.name());
-        g_worker_logger->debug("           inApp : {0}",action.inapp());
-        g_worker_logger->debug("           content : {0}",action.content());
-        g_worker_logger->debug("           actionType : {0}",action.actiontype());
-        g_worker_logger->debug("       }");
+        logger->debug("       action :{");
+        logger->debug("           name : {0}",action.name());
+        logger->debug("           inApp : {0}",action.inapp());
+        logger->debug("           content : {0}",action.content());
+        logger->debug("           actionType : {0}",action.actiontype());
+        logger->debug("       }");
 
         MobileAdResponse_UUID uuid = bidContent.uuid();
         int uuidtypeCnt = uuid.uuidtype_size();
@@ -1569,20 +1568,20 @@ void connectorServ::displayCommonMsgResponse(char *data,int dataLen)
             switch(uuidtpye)
             {
                 case MobileAdResponse_UuidType_FRE:
-                    g_worker_logger->debug("       uuidType : MobileAdResponse_UuidType_FRE");
+                    logger->debug("       uuidType : MobileAdResponse_UuidType_FRE");
                     break;
                 case MobileAdResponse_UuidType_SESSION:
-                    g_worker_logger->debug("       uuidType : MobileAdResponse_UuidType_SESSION");
+                    logger->debug("       uuidType : MobileAdResponse_UuidType_SESSION");
                     break;
                 default:
                     break;
             }            
         }         
-        g_worker_logger->debug("   }"); //mobileBid end
+        logger->debug("   }"); //mobileBid end
     }
-    g_worker_logger->debug("}"); //     MobileAdResponse end
+    logger->debug("}"); //     MobileAdResponse end
     
-    g_worker_logger->debug("**********************display end************************************");
+    logger->debug("**********************display end************************************");
 
 }
 void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
@@ -1730,7 +1729,7 @@ void connectorServ::displayGYinBidResponse(const char *data,int dataLen)
 }
 
 
-char* memstr(char* full_data, int full_data_len, char* substr)  
+char* memstr(char* full_data, int full_data_len, const char* substr)  
 {  
     if (full_data == NULL || full_data_len <= 0 || substr == NULL) {  
         return NULL;  
@@ -1919,7 +1918,23 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
     
     if(responseDataStr && (responseDataLen > 0))
     {
-        displayCommonMsgResponse(responseDataStr,responseDataLen);   
+        switch(type)
+        {
+            case DATA_JSON:      
+                if(m_config.get_logTeleRsp())
+                {
+                    displayCommonMsgResponse(g_worker_logger,responseDataStr,responseDataLen);   
+                }                
+                break;
+            case DATA_PROTOBUF:         
+                if(m_config.get_logGYINRsp())
+                {
+                    displayCommonMsgResponse(g_workerGYIN_logger,responseDataStr,responseDataLen); 
+                }                  
+                break;
+            default:
+                break; 
+        }
         string bcIP;
         unsigned short bcDataPort;
         hashGetBCinfo(uuid,bcIP,bcDataPort);   
@@ -2313,13 +2328,11 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     imp = bidRequest.add_imp();
     imp->set_id("1");
     imp->set_bidfloor(5.0); 
-    g_workerGYIN_logger->debug("imp bidfloor: {0:f}",imp->bidfloor());
     
     Banner *banner = imp->mutable_banner();
     banner->set_id("1");
     banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
     banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
-    g_workerGYIN_logger->debug("GYin Imp Finish");
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 
@@ -2330,7 +2343,6 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     app = bidRequest.mutable_app();
     if(!GYin_AdReqProtoMutableApp(app,mobile_request))
         return false;
-    g_workerGYIN_logger->debug("GYin App Finish");
 
     //User
     User *user;
@@ -2338,28 +2350,23 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     if((dev.has_udid())&&(dev.udid().empty() == false))
     {
         user->set_id(dev.udid());
-        g_workerGYIN_logger->debug("user dev udid id: {0}",dev.udid());
     }
     else 
     {
         string tempid = dev.hidmd5() + "-" + dev.hidsha1();
-        g_workerGYIN_logger->debug("user dev hid id: {0}",tempid);
         user->set_id(tempid);
     }   
-    g_workerGYIN_logger->debug("GYin User Finish");
     
     //Device
     Device *device;
     device = bidRequest.mutable_device();
     if(!GYin_AdReqProtoMutableDev(device,mobile_request)) 
         return false;
-    g_workerGYIN_logger->debug("GYin Device Finish");
 
     //Scenario
     Scenario *scenario;
     scenario = bidRequest.mutable_scenario();
     scenario->set_type(APP);
-    g_workerGYIN_logger->debug("GYin Scenario Finish");
 
     int length = bidRequest.ByteSize();    
     g_workerGYIN_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success , Length : {0:d}",length);
@@ -2375,40 +2382,53 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
-        //send to CHINA TELECOM
-        #if 0  
-        string reqTeleJsonData;
-        if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
+        
+        /*
+                *send to CHINA TELECOM
+                */                
+        if(m_config.get_enChinaTelecom()) 
         {
-             //callback func: handle_recvAdResponseTele active by socket EV_READ event
-            if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), handle_recvAdResponseTele, this))
+            string reqTeleJsonData;
+            if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
             {
-                g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
-            }
-            g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
-        }
-        else
-             g_worker_logger->debug("convertProtoToTeleJson Failed ");  
-        #endif
-
-        //send to GYIN
-        BidRequest bidRequest;        
-        if(convertProtoToGYinProto(bidRequest,mobile_request))
-        {            
-            int length = bidRequest.ByteSize();
-            char* buf = new char[length];
-            bidRequest.SerializeToArray(buf,length);            
-            displayGYinBidRequest(buf,length);                
-            if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
-            {
-                g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
+                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
+                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(),handle_recvAdResponseTele, this))
+                {
+                    g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
+                }
+                g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
             }
             else
-                g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
-            delete [] buf;
-        }     
-        else
-            g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");        
+                 g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+        }
+        
+        
+        /*
+                *send to GYIN
+                */
+        if(m_config.get_enGYIN())
+        {
+            BidRequest bidRequest;        
+            if(convertProtoToGYinProto(bidRequest,mobile_request))
+            {            
+                int length = bidRequest.ByteSize();
+                char* buf = new char[length];
+                bidRequest.SerializeToArray(buf,length);        
+                if(m_config.get_logGYINReq())
+                {                    
+                    displayGYinBidRequest(buf,length);                
+                }
+                if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
+                {
+                    g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
+                }
+                else
+                    g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
+                delete [] buf;
+            }     
+            else
+                g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
+        }              
              
     }
     catch(...)
@@ -2912,7 +2932,10 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     
     //cout << "##### This msg recv by PID: " << getpid() << endl;
     g_worker_logger->debug("RECV TELE HTTP RSP !");
-    g_worker_logger->debug("\r\n{0}",recv_str);	
+    if(serv->m_config.get_logTeleHttpRsp())
+    {
+        g_worker_logger->debug("\r\n{0}",recv_str);	
+    }        
     char * jsonData = new char[4048];
     memset(jsonData,0,4048*sizeof(char));
     int dataLen = serv->getHttpRspData(jsonData, recv_str);       
@@ -2963,9 +2986,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     }
     
     //cout << "##### This msg recv by PID: " << getpid() << endl;
-    g_workerGYIN_logger->debug("RECV GYIN HTTP RSP !");
-    g_workerGYIN_logger->debug("\r\n{0}",recv_str);	
-    #if 1
+    g_workerGYIN_logger->debug("RECV GYIN HTTP RSP !");    
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
     int dataLen = serv->getHttpRspData(protoData, recv_str);        
@@ -2976,10 +2997,12 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         delete [] protoData;
         return;
     }   
-    g_workerGYIN_logger->debug("BidRsponse : {0}",protoData);    
+    if(serv->m_config.get_logGYINHttpRsp())
+    {
+        serv->displayGYinBidResponse(protoData, dataLen);
+    }    
     serv->handle_BidResponseFromDSP(DATA_PROTOBUF,protoData,dataLen);   
-    delete [] protoData;
-    #endif
+    delete [] protoData;    
     
 }
 

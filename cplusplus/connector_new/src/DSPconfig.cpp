@@ -374,7 +374,7 @@ bool chinaTelecomObject::isCeritifyCodeEmpty()
     else
         return false;
 }
-bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg)
 {
     //初始化发送信息
     //char send_str[2048] = {0};
@@ -449,9 +449,10 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     strcat(send_str, "\r\n");    
     strcat(send_str, data);
     
-    
-    //cout << "send_str : " << send_str << endl;
-    //g_worker_logger->debug("ADREQ DATA : ",data);
+    if(enLogRsq)
+    {
+        g_worker_logger->debug("\r\n{0}",send_str);
+    }   
     
     
     sockaddr_in sin;
@@ -601,8 +602,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     mem_ncat(send_str,data,dataLen);
     int wholeLen = headerLen + dataLen;
     
-    //cout << "send_str : " << send_str << endl;
-    g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
+    //g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
     
     
     sockaddr_in sin;

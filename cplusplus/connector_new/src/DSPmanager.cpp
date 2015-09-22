@@ -17,9 +17,9 @@ bool dspManager::getCeritifyCodeFromChinaTelecomDSP()
 {
     return m_chinaTelecomObject->getCeritifyCodeFromChinaTelecomDSP();
 }
-bool dspManager::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+bool dspManager::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq,event_callback_fn fn, void *arg)
 {
-    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(base, data, dataLen, fn, arg);
+    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(base, data, dataLen, enLogRsq, fn, arg);
 }
 bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
 {

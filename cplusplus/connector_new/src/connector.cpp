@@ -900,8 +900,8 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         mobile_creative->set_creativeid("0");
         char *str_w = new char[5];
         char *str_h = new char[5];
-        sprintf(str_w,"%d",GYIN_bid.w());
-        sprintf(str_h,"%d",GYIN_bid.h());                
+        sprintf(str_w,"%f",GYIN_bid.w());
+        sprintf(str_h,"%f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
         mobile_creative->set_height(str_h);  
         delete [] str_w;
@@ -1846,17 +1846,15 @@ int connectorServ::getHttpRspData(char *Dest,char *Src)
     		len++;		    		
     	}
     	char *con_len_str = new char[len+1];
-    	g_workerGYIN_logger->debug("len: {0:d}",len);
     	strncpy(con_len_str,Src+pos+15,len);
         con_len_str[len] = '\0';    	
-        g_workerGYIN_logger->debug("con_len_str: {0}",con_len_str);
-    	int content_len = atoi(con_len_str);   
-    	g_workerGYIN_logger->debug("Content-Length: {0:d}",content_len);
+    	int content_len = atoi(con_len_str);       	
         delete [] con_len_str;	    	
     	char *dataStart = memstr(Src,strlen(Src),"\r\n\r\n");
     	memcpy(Dest,dataStart+4,content_len); 
         Dest[content_len] = '\0';
         g_workerGYIN_logger->debug("GYIN HTTP RSP: 200 OK");
+        g_workerGYIN_logger->debug("Content-Length: {0:d}",content_len);
         return content_len;
     }
     else if(temp.find("204 No Content") != temp.npos)   //GYIN
@@ -2187,7 +2185,7 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
 {
     MobileAdRequest_Aid aid = mobile_request.aid();
     app->set_id(aid.id());
-    g_workerGYIN_logger->debug("aid.id : {0}",aid.id());
+    //g_workerGYIN_logger->debug("aid.id : {0}",aid.id());
     app->set_name(aid.appname());
     app->set_bundle(aid.apppackagename());
     app->set_storeurl(aid.appstoreurl(0));
@@ -2284,10 +2282,12 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     Geo *geo;
     MobileAdRequest_GeoInfo geoinfo = mobile_request.geoinfo();
     geo = device->mutable_geo();
-    geo->set_lat(atof(geoinfo.latitude().c_str()));
-    g_workerGYIN_logger->debug("geo lat: {0}",geoinfo.latitude());
-    geo->set_lon(atof(geoinfo.longitude().c_str()));
-    g_workerGYIN_logger->debug("geo lon: {0}",geoinfo.longitude());
+    
+    if(geoinfo.latitude().empty() == false)
+        geo->set_lat(atof(geoinfo.latitude().c_str()));    
+    if(geoinfo.longitude().empty() == false)
+        geo->set_lon(atof(geoinfo.longitude().c_str()));
+    
     geo->set_country(str_buf.at(6));
     geo->set_province(str_buf.at(7));
     geo->set_city(str_buf.at(8));
@@ -2992,8 +2992,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     int dataLen = serv->getHttpRspData(protoData, recv_str);        
     delete [] recv_str;
 	if(dataLen == 0)
-    {
-        g_workerGYIN_logger->error("Get proto data from HTTP response failed !");
+    {        
         delete [] protoData;
         return;
     }   

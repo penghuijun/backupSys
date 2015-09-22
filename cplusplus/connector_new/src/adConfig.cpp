@@ -879,7 +879,7 @@ void configureObject::readLogConfig()
         enChinaTelecom = root["enChinaTelecom"].asBool();
         logTeleReq = root["logTeleReq"].asBool();
         logTeleHttpRsp = root["logTeleHttpRsp"].asBool();
-        logTeleHttpRsp = root["logTeleHttpRsp"].asBool();
+        logTeleRsp = root["logTeleRsp"].asBool();
 
         enGYIN = root["enGYIN"].asBool();
         logGYINReq = root["logGYINReq"].asBool();

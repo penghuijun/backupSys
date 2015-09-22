@@ -619,7 +619,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         delete [] send_str;
         return false;
     }   
-    g_worker_logger->debug("adReqSock create success ");
+    
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
@@ -628,7 +628,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         delete [] send_str;
         return false;
     }
-    g_workerGYIN_logger->debug("adReqSock connect success ");
     
     //add this socket to event listen queue
     struct event *sock_event;
@@ -648,7 +647,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         delete [] send_str;
         return false;
     }         
-    g_workerGYIN_logger->debug("adReqSock send success ");
     delete [] send_str;
     return true;
 }

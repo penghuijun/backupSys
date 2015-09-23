@@ -1381,79 +1381,79 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     {
         case MobileAdRequest_AdType_BANNER:
             {
-                id = 79;
-                map<int,string>::iterator it = Creative_template.find(id);
-                RetCode = it->second;                
-                if(RetCode.empty() == false)
-                {
-                    string decodeStr;    
-                    bool deleteMem = false;
-                    
-                    decodeStr = UrlDecode(RetCode);                        
-                    const char *sSrc = decodeStr.c_str();
-                    const char *sMatchStr = "${MY_THIRD_HTML}";
-                    const char *sReplaceStr = NULL;
-                    switch(GYIN_admtype)
-                    {
-                        case HTML:
-                            {
-                                sReplaceStr = GYIN_bid.adm().c_str();                                
-                            }
-                            break;
-                        case JSON:
-                            {
-                                const char *img = "<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>";
-                                Json::Reader reader;
-                                Json::Value root;
-                                string adm = GYIN_bid.adm();
-                                reader.parse(adm,root);
-                                string adID = root["adID"].asString();
-                                int width = root["width"].asInt();
-                                int height = root["height"].asInt();
-                                string src = root["src"].asString();
-                                string type = root["type"].asString();
-
-                                char widthStr[16] = {0};
-                                char heightStr[16] = {0};
-                                sprintf(widthStr,"%d",width);
-                                sprintf(heightStr,"%d",height);
-
-                                
-                                char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
-                                char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
-                                char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
-                                
-                                sReplaceStr = destImg3;
-                                deleteMem = true;
-                                
-                                delete [] destImg1;
-                                delete [] destImg2;
-                                
-                            }
-                            break;
-                        default:
-                            break;
-                    }                    
-                    char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
-
-                    if(deleteMem)
-                        delete [] sReplaceStr;
-                    
-                    mobile_creative->set_admarkup(UrlEncode(sDest));
-                    mobile_creative->set_mediatypeid("1");
-                    mobile_creative->set_mediasubtypeid("1");
-                    delete [] sDest;
-                }
+                id = 79;                
             }
             break;
         case MobileAdRequest_AdType_INTERSTITIAL:
             {
                 id = 80;
-                g_workerGYIN_logger->debug("MobileAdRequest_AdType_INTERSTITIAL");
             }
             break;
         default:
             break;
+    }
+
+    map<int,string>::iterator it = Creative_template.find(id);
+    RetCode = it->second;                
+    if(RetCode.empty() == false)
+    {
+        string decodeStr;    
+        bool deleteMem = false;
+        
+        decodeStr = UrlDecode(RetCode);                        
+        const char *sSrc = decodeStr.c_str();
+        const char *sMatchStr = "${MY_THIRD_HTML}";
+        const char *sReplaceStr = NULL;
+        switch(GYIN_admtype)
+        {
+            case HTML:
+                {
+                    sReplaceStr = GYIN_bid.adm().c_str();                                
+                }
+                break;
+            case JSON:
+                {
+                    const char *img = "<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>";
+                    Json::Reader reader;
+                    Json::Value root;
+                    string adm = GYIN_bid.adm();
+                    reader.parse(adm,root);
+                    string adID = root["adID"].asString();
+                    int width = root["width"].asInt();
+                    int height = root["height"].asInt();
+                    string src = root["src"].asString();
+                    string type = root["type"].asString();
+
+                    char widthStr[16] = {0};
+                    char heightStr[16] = {0};
+                    sprintf(widthStr,"%d",width);
+                    sprintf(heightStr,"%d",height);
+
+            
+                    char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
+                    char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
+                    char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
+                   
+                    sReplaceStr = destImg3;
+                    deleteMem = true;
+                   
+                    delete [] destImg1;
+                    delete [] destImg2;
+                   
+                }
+                break;
+            default:
+                break;
+        }                    
+        char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
+
+        if(deleteMem)
+            delete [] sReplaceStr;
+       
+        mobile_creative->set_admarkup(UrlEncode(sDest));
+        mobile_creative->set_mediatypeid("1");
+        mobile_creative->set_mediasubtypeid("1");
+        delete [] sDest;
     }
 
     if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))

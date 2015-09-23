@@ -675,7 +675,11 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
         //cout << "id = " << root["id"].asString() << endl;
         cmrObj = checkValidId(str_id);
         if(!cmrObj)
+        {
+            g_worker_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
             return NULL;
+        }
+        g_worker_logger->debug("Find BidRespnse id in commMsgRecordList success ");
         request_commMsg = cmrObj->requestCommMsg;
         const string& commMsg_data = request_commMsg.data();        
         mobile_request.ParseFromString(commMsg_data);
@@ -855,7 +859,12 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     
     cmrObj = checkValidId(str_id);
     if(!cmrObj)
+    {
+        g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
         return NULL;
+    }
+    g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList success ");
+        
     request_commMsg = cmrObj->requestCommMsg;
     const string& commMsg_data = request_commMsg.data();        
     mobile_request.ParseFromString(commMsg_data);
@@ -975,11 +984,9 @@ commMsgRecord* connectorServ::checkValidId(const string& str_id)
 
         if(!strcmp(str_id.c_str(),mobile_request.id().c_str()))
         {
-            g_worker_logger->debug("Find BidRespnse id in commMsgRecordList success ");
             return cmrObj;            
         }        
     }
-    g_worker_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
     return NULL;        
 }
 bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action)

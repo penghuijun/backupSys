@@ -2976,8 +2976,7 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
         return;
     }
     
-    //cout << "##### This msg recv by PID: " << getpid() << endl;
-    g_worker_logger->debug("RECV TELE HTTP RSP !");
+    g_worker_logger->debug("RECV TELE HTTP RSP by PID: {0:d}",getpid());
     if(serv->m_config.get_logTeleHttpRsp())
     {
         g_worker_logger->debug("\r\n{0}",recv_str);	
@@ -3031,8 +3030,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         return;
     }
     
-    //cout << "##### This msg recv by PID: " << getpid() << endl;
-    g_workerGYIN_logger->debug("RECV GYIN HTTP RSP !");    
+    g_workerGYIN_logger->debug("RECV GYIN HTTP RSP by PID: {0:d}",getpid());    
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
     int dataLen = serv->getHttpRspData(protoData, recv_str);        

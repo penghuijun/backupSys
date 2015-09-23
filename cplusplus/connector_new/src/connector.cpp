@@ -712,8 +712,8 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 //cout << "impid : "<< bid[i]["impid"].asString() << endl;
                 //mobile_creative->set_creativeid(bid[i]["impid"].asString());
                 mobile_creative->set_creativeid("0");
-                char *str_w = new char[5];
-                char *str_h = new char[5];
+                char *str_w = new char[15];
+                char *str_h = new char[15];
                 sprintf(str_w,"%d",bid[i]["w"].asInt());
                 sprintf(str_h,"%d",bid[i]["h"].asInt());                
                 mobile_creative->set_width(str_w);
@@ -734,7 +734,7 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                     g_worker_logger->debug("GEN FAILED : bid.price = {0:f} ",price);
                     return NULL;
                 }
-                char *str_price = new char[5];
+                char *str_price = new char[15];
                 sprintf(str_price,"%.1f",bid[i]["price"].asDouble());                
                 mobile_bidder->set_biddingvalue(str_price);
                 mobile_bidder->set_expectcpm(str_price);
@@ -907,7 +907,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
             g_worker_logger->debug("GYIN GEN FAILED : bid.price = {0:d} ",GYIN_price);
             return NULL;
         }
-        char *str_price = new char[5];
+        char *str_price = new char[15];
         sprintf(str_price,"%.1f",GYIN_price);                
         mobile_bidder->set_biddingvalue(str_price);
         mobile_bidder->set_expectcpm(str_price);        
@@ -1007,7 +1007,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     Json::Value download;
     //char *str_acttype = new char[5];
     const char *str_acttype = NULL;
-    char *str_inapp = new char[5];
+    char *str_inapp = new char[15];
     
     //sprintf(str_acttype,"%d",acttype);
     sprintf(str_inapp,"%d",inapp); 

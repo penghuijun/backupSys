@@ -1000,11 +1000,9 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     int inapp = action["inapp"].asInt();
     Json::Value content; 
     Json::Value download;
-    //char *str_acttype = new char[5];
     const char *str_acttype = NULL;
     char str_inapp[16] = {0};
     
-    //sprintf(str_acttype,"%d",acttype);
     sprintf(str_inapp,"%d",inapp); 
 
     int autoin = 1;
@@ -1976,6 +1974,7 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
             g_worker_logger->error("send AdResponse to BC:{0}, {1:d} failed \r\n",bcIP, bcDataPort);
         }
         #endif
+        delete [] responseDataStr;
     }
     else
     {

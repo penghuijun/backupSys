@@ -260,7 +260,7 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     sockaddr_in sin;
     unsigned short httpPort = atoi(tokenPort.c_str());    
 
-    char *Url = new char[100];
+    char Url[100] = {0};
     strcpy(Url,tokenUrl.c_str());        
     string str = "?username="+user+"&password="+passwd;
     strcat(Url,str.c_str());    
@@ -340,7 +340,7 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     //内容信息
     strcat(send_str, "\r\n");
     //cout << "send_str: " << send_str << endl;
-	delete [] Url;
+	
 	if (send(sock, send_str, strlen(send_str),0) == -1)
     {   
         g_worker_logger->error("tokenSock send failed ...");
@@ -381,7 +381,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     char *send_str = new char[4096];
     memset(send_str,0,4096*sizeof(char));  
 
-    char *Url = new char[100];
+    char Url[100] = {0};
     strcpy(Url,adReqUrl.c_str());        
     string str = "?username="+user+"&password="+CeritifyCode;
     strcat(Url,str.c_str());    
@@ -393,7 +393,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     //头信息
     strcat(send_str, adReqType.c_str());
     strcat(send_str, Url);
-    delete [] Url;
+   
     strcat(send_str, httpVersion.c_str());    
     strcat(send_str, "\r\n");             
     

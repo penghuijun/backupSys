@@ -2803,7 +2803,7 @@ void connectorServ::handle_recvLoginHeartReq(int fd,short event,void *arg)
            if(msg_data)
            {                
                 managerProtocol manager_pro;
-                if(manager_pro.ParseFromArray(msg_data, recvLen))
+                if(!manager_pro.ParseFromArray(msg_data, recvLen))
                 {
                     g_manager_logger->error("adREQ managerProtocol.proto Parse Fail,check required fields");                    
                 }

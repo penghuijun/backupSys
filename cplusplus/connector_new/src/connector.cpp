@@ -920,10 +920,10 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         
         MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();   
         mobile_creative->set_creativeid("0");
-        char *str_w = new char[5];
-        char *str_h = new char[5];
-        sprintf(str_w,"%f",GYIN_bid.w());
-        sprintf(str_h,"%f",GYIN_bid.h());                
+        char *str_w = new char[15];
+        char *str_h = new char[15];
+        sprintf(str_w,"%.2f",GYIN_bid.w());
+        sprintf(str_h,"%.2f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
         mobile_creative->set_height(str_h);  
         delete [] str_w;
@@ -1426,8 +1426,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                                 string src = root["src"].asString();
                                 string type = root["type"].asString();
 
-                                char *widthStr = new char[5];
-                                char *heightStr = new char[5];
+                                char *widthStr = new char[15];
+                                char *heightStr = new char[15];
                                 sprintf(widthStr,"%d",width);
                                 sprintf(heightStr,"%d",height);
 
@@ -1446,7 +1446,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                             break;
                         default:
                             break;
-                    }
+                    }                    
                     char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);                        
                     
                     mobile_creative->set_admarkup(UrlEncode(sDest));

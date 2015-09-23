@@ -864,12 +864,14 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         return NULL;
     }
     g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList success ");
+    cout << "Find BidRespnse id in commMsgRecordList success" << endl;
         
     request_commMsg = cmrObj->requestCommMsg;
     const string& commMsg_data = request_commMsg.data();        
     mobile_request.ParseFromString(commMsg_data);
 
     bool ret = false;
+    cout << "bidresponse.seatbid_size() = " << bidresponse.seatbid_size() << endl;
     for(int i=0; i<bidresponse.seatbid_size(); i++)
     {
         MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();                   
@@ -893,13 +895,20 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         }
         string campaignId = it->second;      
         mobile_bidder->set_campaignid(campaignId);
+        cout << "campaignId : " << campaignId << endl;
 
+        cout << "GYIN_seatbid.bid_size() = " << GYIN_seatbid.bid_size() << endl;
+        if(GYIN_seatbid.bid_size()==0)
+        {
+            g_workerGYIN_logger->debug("GYIN GEN FAILED : novalid bid, bid_size(): {0:d}",GYIN_seatbid.bid_size());
+            return NULL;
+        }
         Bid GYIN_bid = GYIN_seatbid.bid(0);
         mobile_bidder->set_biddingtype("CPM");   
         float GYIN_price = GYIN_bid.price();
         if((GYIN_price >= -EPSINON)&&(GYIN_price <= EPSINON))  // 0
         {
-            g_worker_logger->debug("GEN FAILED : bid.price = {0:d} ",GYIN_price);
+            g_worker_logger->debug("GYIN GEN FAILED : bid.price = {0:d} ",GYIN_price);
             return NULL;
         }
         char *str_price = new char[5];
@@ -923,9 +932,10 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
         if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
             return NULL;
-        //cout << "mutableAction success" << endl;        
+        cout << "mutableAction success" << endl;        
         if(!GYIN_creativeAddEvents(mobile_request,mobile_creative,GYIN_bid))
             return NULL;
+        cout << "creativeAddEvents success" << endl; 
         ret = true;
                 
     }    

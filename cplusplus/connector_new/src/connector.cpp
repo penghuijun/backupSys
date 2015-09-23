@@ -845,7 +845,11 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     MobileAdRequest mobile_request;
 
     BidResponse bidresponse;
-    bidresponse.ParseFromArray(data, dataLen);
+    if(!bidresponse.ParseFromArray(data, dataLen))
+    {
+        g_workerGYIN_logger->error("GYIN BidResponse.proto Parse Fail,check required fields");
+        return NULL;
+    }
 
     string str_id = bidresponse.id();
     
@@ -1469,11 +1473,19 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
 void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen)
 {
     CommonMessage response_commMsg;
-    response_commMsg.ParseFromArray(data,dataLen);
+    if(!response_commMsg.ParseFromArray(data,dataLen))
+    {
+        logger->error("display CommonMessage.proto Parse Fail,check required fields");
+        return ;
+    }
     
     MobileAdResponse mobile_response;
     const string& commMsg_data = response_commMsg.data();        
-    mobile_response.ParseFromString(commMsg_data);
+    if(mobile_response.ParseFromString(commMsg_data))
+    {
+        logger->error("display MobileAdResponse.proto Parse Fail,check required fields");
+        return ;
+    }
 
     logger->debug("**********************display commonMsgResponseProtobuf**************");
     logger->debug("businessCode : {0}",response_commMsg.businesscode());
@@ -1587,7 +1599,11 @@ void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,
 void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
 {
     BidRequest bidrequest;    
-    bidrequest.ParseFromArray(data,dataLen);
+    if(!bidrequest.ParseFromArray(data,dataLen))
+    {
+        g_workerGYIN_logger->error("display GYIN BidRequest.proto Parse Fail,check required fields ");
+        return ;
+    }
     g_workerGYIN_logger->debug("BidRequest {");
     g_workerGYIN_logger->debug("    id: {0}",bidrequest.id());
 
@@ -1680,7 +1696,11 @@ void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
 void connectorServ::displayGYinBidResponse(const char *data,int dataLen)
 {
     BidResponse bidresponse;
-    bidresponse.ParseFromArray(data, dataLen);
+    if(!bidresponse.ParseFromArray(data, dataLen))
+    {
+        g_workerGYIN_logger->error("display GYIN BidResponse.proto Parse Fail,check required fields");
+        return ;
+    }
 
     g_workerGYIN_logger->debug("GYin BidResponse {");
     g_workerGYIN_logger->debug("    id: {0}",bidresponse.id());
@@ -2451,7 +2471,11 @@ void connectorServ::thread_handleAdRequest(void *arg)
         if(!buf||!serv) throw;
 
         CommonMessage request_commMsg;
-        request_commMsg.ParseFromArray(buf+PUBLISHKEYLEN_MAX, dataLen-PUBLISHKEYLEN_MAX);
+        if(!request_commMsg.ParseFromArray(buf+PUBLISHKEYLEN_MAX, dataLen-PUBLISHKEYLEN_MAX))
+        {
+            g_worker_logger->error("adREQ CommonMessage.proto Parse Fail,check required fields");
+            throw -1;
+        }
         timeval tv;
         memset(&tv,0,sizeof(struct timeval));
         gettimeofday(&tv,NULL);
@@ -2779,11 +2803,18 @@ void connectorServ::handle_recvLoginHeartReq(int fd,short event,void *arg)
            if(msg_data)
            {                
                 managerProtocol manager_pro;
-                manager_pro.ParseFromArray(msg_data, recvLen);  
-                const managerProtocol_messageTrans &from = manager_pro.messagefrom();
-                const managerProtocol_messageType &type = manager_pro.messagetype();
-                const managerProtocol_messageValue &value = manager_pro.messagevalue();
-                serv->manager_handler(handler, identify, from, type, value, argment->get_base(), serv);           
+                if(manager_pro.ParseFromArray(msg_data, recvLen))
+                {
+                    g_manager_logger->error("adREQ managerProtocol.proto Parse Fail,check required fields");                    
+                }
+                else
+                {
+                    const managerProtocol_messageTrans &from = manager_pro.messagefrom();
+                    const managerProtocol_messageType &type = manager_pro.messagetype();
+                    const managerProtocol_messageValue &value = manager_pro.messagevalue();
+                    serv->manager_handler(handler, identify, from, type, value, argment->get_base(), serv);    
+                }
+                       
            }            
            zmq_msg_close(&part);
         }
@@ -2832,12 +2863,19 @@ void connectorServ::handle_recvLoginHeartRsp(int fd,short event,void *arg)
            {
                 //cout << "<<<<< recv login rsp !!" << endl;
                managerProtocol manager_pro;
-               manager_pro.ParseFromArray(msg_data, recvLen);  
-               const managerProtocol_messageTrans &from  =  manager_pro.messagefrom();
-               const managerProtocol_messageType  &type   =  manager_pro.messagetype();
-               const managerProtocol_messageValue &value =  manager_pro.messagevalue();
-               managerProtocol_messageType responseType;
-               serv->manager_handler(from, type, value, responseType);
+               if(!manager_pro.ParseFromArray(msg_data, recvLen))  
+               {
+                    g_manager_logger->error("RSP managerProtocol.proto Parse Fail,check required fields");
+               }
+               else
+               {
+                    const managerProtocol_messageTrans &from  =  manager_pro.messagefrom();
+                    const managerProtocol_messageType  &type   =  manager_pro.messagetype();
+                    const managerProtocol_messageValue &value =  manager_pro.messagevalue();
+                    managerProtocol_messageType responseType;
+                    serv->manager_handler(from, type, value, responseType);
+               }
+               
            }
            zmq_msg_close(&part);
         }

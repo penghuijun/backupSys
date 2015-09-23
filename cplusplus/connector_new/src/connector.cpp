@@ -712,14 +712,12 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 //cout << "impid : "<< bid[i]["impid"].asString() << endl;
                 //mobile_creative->set_creativeid(bid[i]["impid"].asString());
                 mobile_creative->set_creativeid("0");
-                char *str_w = new char[15];
-                char *str_h = new char[15];
+                char str_w[16] = {0};
+                char str_h[16] = {0};
                 sprintf(str_w,"%d",bid[i]["w"].asInt());
                 sprintf(str_h,"%d",bid[i]["h"].asInt());                
                 mobile_creative->set_width(str_w);
-                mobile_creative->set_height(str_h);  
-                delete [] str_w;
-                delete [] str_h;
+                mobile_creative->set_height(str_h);                  
                 
 
                 //MobileAdResponse_UUID *creative_uuid = mobile_creative->mutable_uuid();
@@ -734,7 +732,7 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                     g_worker_logger->debug("GEN FAILED : bid.price = {0:f} ",price);
                     return NULL;
                 }
-                char *str_price = new char[15];
+                char str_price[16] = {0};
                 sprintf(str_price,"%.1f",bid[i]["price"].asDouble());                
                 mobile_bidder->set_biddingvalue(str_price);
                 mobile_bidder->set_expectcpm(str_price);
@@ -742,7 +740,6 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                     mobile_bidder->set_currency(root["cur"].asString());
                 else
                     mobile_bidder->set_currency("CNY");
-                delete [] str_price;
                 
 
                 //MobileAdResponse_UUID *mobileUuid = mobile_bidder->mutable_uuid();
@@ -907,23 +904,21 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
             g_worker_logger->debug("GYIN GEN FAILED : bid.price = {0:d} ",GYIN_price);
             return NULL;
         }
-        char *str_price = new char[15];
+        char str_price[16] = {0};
         sprintf(str_price,"%.1f",GYIN_price);                
         mobile_bidder->set_biddingvalue(str_price);
         mobile_bidder->set_expectcpm(str_price);        
-        delete [] str_price;
+        
         mobile_bidder->set_currency("CNY");
         
         MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();   
         mobile_creative->set_creativeid("0");
-        char *str_w = new char[15];
-        char *str_h = new char[15];
+        char str_w[16] = {0};
+        char str_h[16] = {0};
         sprintf(str_w,"%.2f",GYIN_bid.w());
         sprintf(str_h,"%.2f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
-        mobile_creative->set_height(str_h);  
-        delete [] str_w;
-        delete [] str_h;
+        mobile_creative->set_height(str_h);          
 
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
         if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
@@ -1007,7 +1002,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     Json::Value download;
     //char *str_acttype = new char[5];
     const char *str_acttype = NULL;
-    char *str_inapp = new char[15];
+    char str_inapp[16] = {0};
     
     //sprintf(str_acttype,"%d",acttype);
     sprintf(str_inapp,"%d",inapp); 
@@ -1015,7 +1010,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     int autoin = 1;
     if(action.isMember("autoin"))    
         autoin = action["autoin"].asInt();       
-    char *str_autoin = new char[5];
+    char str_autoin[4] = {0};
     sprintf(str_autoin,"%d",autoin); 
 
     MobileAdRequest_Device dev = mobile_request.device();    
@@ -1123,9 +1118,8 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
         mobile_action->set_name(action["name"].asString());
     mobile_action->set_content(content.toStyledString());
     mobile_action->set_actiontype(str_acttype);
-    mobile_action->set_inapp(str_inapp);     
-    delete [] str_inapp;
-    delete [] str_autoin;
+    mobile_action->set_inapp(str_inapp);       
+    
     return true;
     
 }
@@ -1394,7 +1388,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 RetCode = it->second;                
                 if(RetCode.empty() == false)
                 {
-                    string decodeStr;                        
+                    string decodeStr;    
+                    bool deleteMem = false;
                     
                     decodeStr = UrlDecode(RetCode);                        
                     const char *sSrc = decodeStr.c_str();
@@ -1420,8 +1415,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                                 string src = root["src"].asString();
                                 string type = root["type"].asString();
 
-                                char *widthStr = new char[15];
-                                char *heightStr = new char[15];
+                                char widthStr[16] = {0};
+                                char heightStr[16] = {0};
                                 sprintf(widthStr,"%d",width);
                                 sprintf(heightStr,"%d",height);
 
@@ -1431,8 +1426,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                                 char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
                                 
                                 sReplaceStr = destImg3;
-                                delete [] widthStr;
-                                delete [] heightStr;
+                                deleteMem = true;
+                                
                                 delete [] destImg1;
                                 delete [] destImg2;
                                 
@@ -1441,7 +1436,10 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                         default:
                             break;
                     }                    
-                    char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);                        
+                    char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
+
+                    if(deleteMem)
+                        delete [] sReplaceStr;
                     
                     mobile_creative->set_admarkup(UrlEncode(sDest));
                     mobile_creative->set_mediatypeid("1");

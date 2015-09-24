@@ -1123,6 +1123,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     mobile_action->set_inapp(str_inapp);       
 
     delete [] destContent;
+    destContent = NULL;
     return true;
     
 }
@@ -1375,6 +1376,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     mobile_action->set_inapp("1");         
 
     delete [] destContent;
+    destContent = NULL;
     return true;
 }
 bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
@@ -1447,8 +1449,11 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     delete [] destImg3;
                     char *destImg5 = ReplaceStr(destImg4,"/","\\/"); 
                     delete [] destImg4;
+                    destImg1 = destImg2 = destImg3 = destImg4 = NULL;
                    
                     sReplaceStr = destImg5;
+                    destImg5 = NULL;
+                    
                     deleteMem = true;                                    
                    
                 }
@@ -1459,12 +1464,16 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
 
         if(deleteMem)
+        {
             delete [] sReplaceStr;
+            sReplaceStr = NULL;
+        }            
        
         mobile_creative->set_admarkup(UrlEncode(sDest));
         mobile_creative->set_mediatypeid("1");
         mobile_creative->set_mediasubtypeid("1");
         delete [] sDest;
+        sDest = NULL;
     }
 
     if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))

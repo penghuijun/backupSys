@@ -99,10 +99,12 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
 	strcpy(destStr,sSrc);
 
 	char *pos = strstr(destStr, sMatchStr);	
+	list<char *> pList;
 	
 	while(pos)
 	{		
 		char *temp = destStr;
+		pList.push_back(temp);
 		len = strlen(temp)+strlen(sReplaceStr)-strlen(sMatchStr);
 		destStr = new char[len];
 		memset(destStr, 0, len*sizeof(char));
@@ -113,10 +115,15 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
 		pos += strlen(sMatchStr);
 		strcat(destStr,pos);		
 
-        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,temp);
-		delete [] temp;		
+        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,temp);
+		//delete [] temp;		
 		temp = destStr+len+strlen(sReplaceStr);		
 		pos = strstr(temp,sMatchStr);
+	}
+	list<char *>::iterator it = pList.begin();
+	for(;it != pList.end();it++)
+	{
+        delete [] *it;
 	}
 	return destStr;
 }

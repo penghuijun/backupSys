@@ -34,7 +34,14 @@ message Creative {
     optional CreativeSession session =9; // creative session setting
     optional UUID uuid = 10; //uuid update or anything
     optional string CTR = 11;
+	optional AdChannelType adChannelType = 12;
 }
+
+enum AdChannelType {
+    MOBILE_APP = 0;
+    MOBILE_WEB = 1;
+    PC_WEB = 2;
+}	
 
 message CreativeSession{
     optional string sessionLimit = 1;

@@ -717,7 +717,8 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 sprintf(str_w,"%d",bid[i]["w"].asInt());
                 sprintf(str_h,"%d",bid[i]["h"].asInt());                
                 mobile_creative->set_width(str_w);
-                mobile_creative->set_height(str_h);                  
+                mobile_creative->set_height(str_h);    
+                mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
                 
 
                 //MobileAdResponse_UUID *creative_uuid = mobile_creative->mutable_uuid();
@@ -915,10 +916,11 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         mobile_creative->set_creativeid("0");
         char str_w[16] = {0};
         char str_h[16] = {0};
-        sprintf(str_w,"%.2f",GYIN_bid.w());
-        sprintf(str_h,"%.2f",GYIN_bid.h());                
+        sprintf(str_w,"%.1f",GYIN_bid.w());
+        sprintf(str_h,"%.1f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
-        mobile_creative->set_height(str_h);          
+        mobile_creative->set_height(str_h);
+        mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
 
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
         if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
@@ -1334,8 +1336,8 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
         str_acttype = "web_page";   
         if(GYIN_bid.bundle().empty() == false)
             content["app_name"] = GYIN_bid.bundle();        
-        if(GYIN_bid.adomain().empty() == false)
-            content["domain_name"] = GYIN_bid.adomain();  
+        //if(GYIN_bid.adomain().empty() == false)
+        //    content["domain_name"] = GYIN_bid.adomain();  
         content["in_app"] = "1";
         content["web_url"] = GYIN_bid.curl();
     }
@@ -1535,6 +1537,7 @@ void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,
             logger->debug("           mediaTypeId : {0}",creative.mediatypeid());
             logger->debug("           mediasubtypeid : {0}",creative.mediasubtypeid());
             logger->debug("           CTR : {0}",creative.ctr());
+            logger->debug("           adChannelType: {0}",creative.adchanneltype());
 
             int eventCnt = creative.events_size();
             for(int j=0; j<eventCnt; j++)

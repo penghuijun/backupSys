@@ -113,6 +113,7 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
 		pos += strlen(sMatchStr);
 		strcat(destStr,pos);		
 
+        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,temp);
 		delete [] temp;		
 		temp = destStr+len+strlen(sReplaceStr);		
 		pos = strstr(temp,sMatchStr);

@@ -1024,7 +1024,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                     content["page_title"] = action["page_title"].asString();
                 if(action.isMember("domain_name"))
                     content["domain_name"] = action["domain_name"].asString();  
-                content["in_app"] = str_inapp;
+                content["in_app"] = inapp;
                 content["web_url"] = action["acturl"].asString();    
             }
             break;
@@ -1048,8 +1048,8 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                     g_worker_logger->debug("Get platform from adRequest fail...");
                 }
                 download["url"] = action["acturl"].asString();
-                download["in_app"] = str_inapp;
-                download["auto_install"] = str_autoin;
+                download["in_app"] = inapp;
+                download["auto_install"] = autoin;
                 content["download"] = download;
             }
             break;
@@ -1075,12 +1075,12 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                     if(action["fbtype"].asInt() == 1)   //app installs
                     {
                         android["fallback_type"] = "app_install";
-                        fallback_url["auto_install"] = str_autoin;
+                        fallback_url["auto_install"] = autoin;
                     }
                     else if(action["fbtype"].asInt() == 2)  //website
                     {
                         android["fallback_type"] = "web_site";
-                        fallback_url["in_app"] = str_inapp;
+                        fallback_url["in_app"] = inapp;
                     }
                     android["fallback_url"] = fallback_url;
                     urls["android"] = android;
@@ -1096,12 +1096,12 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                     if(action["fbtype"].asInt() == 1)   //app install
                     {
                         apple["fallback_type"] = "app_install";
-                        fallback_url["auto_install"] = str_autoin;
+                        fallback_url["auto_install"] = autoin;
                     }
                     else if(action["fbtype"].asInt() == 2)  //website
                     {
                         apple["fallback_type"] = "web_site";
-                        fallback_url["in_app"] = str_inapp;
+                        fallback_url["in_app"] = inapp;
                     }
                     apple["fallback_url"] = fallback_url;
                     urls["android"] = apple;
@@ -1341,7 +1341,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
             content["app_name"] = GYIN_bid.bundle();        
         //if(GYIN_bid.adomain().empty() == false)
         //    content["domain_name"] = GYIN_bid.adomain();  
-        content["in_app"] = "1";
+        content["in_app"] = 1;
         content["web_url"] = GYIN_bid.curl();
     }
     else if(GYIN_bid.action() == "install")    // install 
@@ -1364,8 +1364,8 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
             g_workerGYIN_logger->debug("Get platform from adRequest fail...");
         }
         download["url"] = GYIN_bid.curl();
-        download["in_app"] = "1";
-        download["auto_install"] = "1";
+        download["in_app"] = 1;
+        download["auto_install"] = 1;
         content["download"] = download;
     }
     

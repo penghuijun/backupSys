@@ -1122,6 +1122,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp(str_inapp);       
 
+    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destContent);
     delete [] destContent;
     destContent = NULL;
     return true;
@@ -1161,6 +1162,8 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         mobile_creative->set_admarkup(UrlEncode(sDest));
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("1");
+                        
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
                         delete [] sDest;
                         sDest = NULL;
                     }
@@ -1194,6 +1197,8 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         mobile_creative->set_admarkup(UrlEncode(sDest2));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("2");
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest1);
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest2);
                         delete [] sDest1;
                         delete [] sDest2;
                         sDest1 = sDest2 = NULL;
@@ -1233,6 +1238,9 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         mobile_creative->set_admarkup(UrlEncode(sDest3));    
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("3");
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest1);
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest2);
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest3);
                         delete [] sDest1;
                         delete [] sDest2;
                         delete [] sDest3;
@@ -1268,6 +1276,8 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         mobile_creative->set_admarkup(UrlEncode(sDest2));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("1");
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest1);
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest2);
                         delete [] sDest1;
                         delete [] sDest2;
                         sDest1 = sDest2 = NULL;
@@ -1298,6 +1308,7 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         mobile_creative->set_admarkup(UrlEncode(sDest));
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("5");
+                        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
                         delete [] sDest;
                         sDest = NULL;
                     }
@@ -1375,6 +1386,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp("1");         
 
+    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destContent);
     delete [] destContent;
     destContent = NULL;
     return true;
@@ -1442,12 +1454,16 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
             
                     char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
                     char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
+                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg1);
                     delete [] destImg1;
                     char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
+                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg2);
                     delete [] destImg2;
                     char *destImg4 = ReplaceStr(destImg3,"\"","\\\"");
+                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg3);
                     delete [] destImg3;
                     char *destImg5 = ReplaceStr(destImg4,"/","\\/"); 
+                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg4);
                     delete [] destImg4;
                     destImg1 = destImg2 = destImg3 = destImg4 = NULL;
                    
@@ -1466,12 +1482,14 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         if(deleteMem)
         {
             delete [] sReplaceStr;
+            printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sReplaceStr);
             sReplaceStr = NULL;
         }            
        
         mobile_creative->set_admarkup(UrlEncode(sDest));
         mobile_creative->set_mediatypeid("1");
         mobile_creative->set_mediasubtypeid("1");
+        printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
         delete [] sDest;
         sDest = NULL;
     }

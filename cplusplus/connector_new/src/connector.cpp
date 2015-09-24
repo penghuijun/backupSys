@@ -1116,10 +1116,13 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                
     if(action.isMember("name"))
         mobile_action->set_name(action["name"].asString());
-    mobile_action->set_content(content.toStyledString());
+        
+    char *destContent = ReplaceStr(content.toStyledString().c_str(),"\"","\\\"");
+    mobile_action->set_content(destContent);    
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp(str_inapp);       
-    
+
+    delete [] destContent;
     return true;
     
 }
@@ -1366,9 +1369,12 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
         content["download"] = download;
     }
     
-    mobile_action->set_content(content.toStyledString());
+    char *destContent = ReplaceStr(content.toStyledString().c_str(),"\"","\\\"");
+    mobile_action->set_content(destContent);
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp("1");         
+
+    delete [] destContent;
     return true;
 }
 bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
@@ -1415,7 +1421,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 break;
             case JSON:
                 {
-                    const char *img = "<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>";
+                    const char *img = "\"<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>\"";
                     Json::Reader reader;
                     Json::Value root;
                     string adm = GYIN_bid.adm();
@@ -1434,13 +1440,16 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
             
                     char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
                     char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
-                    char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
-                   
-                    sReplaceStr = destImg3;
-                    deleteMem = true;
-                   
                     delete [] destImg1;
+                    char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
                     delete [] destImg2;
+                    char *destImg4 = ReplaceStr(destImg3,"\"","\\\"");
+                    delete [] destImg3;
+                    char *destImg5 = ReplaceStr(destImg4,"/","\\/"); 
+                    delete [] destImg4;
+                   
+                    sReplaceStr = destImg5;
+                    deleteMem = true;                                    
                    
                 }
                 break;
@@ -1467,7 +1476,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     if(GYIN_bid.has_nurl()&&(GYIN_bid.nurl().empty() == false))
     {
         MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
+        creative_event->set_event("WIN");
         creative_event->set_trackurl(GYIN_bid.nurl());
     }      
     for(int i=0; i<GYIN_bid.extiurl_size(); i++)

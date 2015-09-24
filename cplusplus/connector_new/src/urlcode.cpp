@@ -69,6 +69,7 @@ char *mystrstr(const char*s1,const char*s2)
     return(0);
 }
 
+#if 0
 char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
 {
 	if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
@@ -85,6 +86,40 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
 	strcat(destStr,pos);
 	return destStr; 
 }
+#endif
+
+char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
+{
+	if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
+		return (char *)sSrc;
+
+	int len = strlen(sSrc);
+	char *destStr = new char[len];
+	memset(destStr, 0, len*sizeof(char));
+	strcpy(destStr,sSrc);
+
+	char *pos = strstr(destStr, sMatchStr);	
+	
+	while(pos)
+	{		
+		char *temp = destStr;
+		len = strlen(temp)+strlen(sReplaceStr)-strlen(sMatchStr);
+		destStr = new char[len];
+		memset(destStr, 0, len*sizeof(char));
+		
+		len = pos-temp;
+		strncpy(destStr,temp,len);
+		strcat(destStr,sReplaceStr);
+		pos += strlen(sMatchStr);
+		strcat(destStr,pos);		
+
+		delete [] temp;		
+		temp = destStr+len+strlen(sReplaceStr);		
+		pos = strstr(temp,sMatchStr);
+	}
+	return destStr;
+}
+
 
 
 

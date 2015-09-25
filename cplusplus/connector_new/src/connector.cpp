@@ -712,12 +712,21 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
                 //cout << "impid : "<< bid[i]["impid"].asString() << endl;
                 //mobile_creative->set_creativeid(bid[i]["impid"].asString());
                 mobile_creative->set_creativeid("0");
-                char str_w[16] = {0};
-                char str_h[16] = {0};
-                sprintf(str_w,"%d",bid[i]["w"].asInt());
-                sprintf(str_h,"%d",bid[i]["h"].asInt());                
-                mobile_creative->set_width(str_w);
-                mobile_creative->set_height(str_h);    
+                if(bid[i].isMember("w") && bid[i].isMember("h") && (bid[i]["w"].asInt() != 0) && (bid[i]["w"].asInt() != 0))
+                {
+                    char str_w[16] = {0};
+                    char str_h[16] = {0};
+                    sprintf(str_w,"%d",bid[i]["w"].asInt());
+                    sprintf(str_h,"%d",bid[i]["h"].asInt());                
+                    mobile_creative->set_width(str_w);
+                    mobile_creative->set_height(str_h); 
+                }
+                else
+                {
+                    mobile_creative->set_width("null");
+                    mobile_creative->set_height("null"); 
+                }
+                   
                 mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
                 
 
@@ -1014,6 +1023,15 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     sprintf(str_autoin,"%d",autoin); 
 
     MobileAdRequest_Device dev = mobile_request.device();    
+
+    /**
+         *  
+         * ActionType:         
+         *          WEB_PAGE(1), APP_DOWNLOAD(2), WEB_PAGE(3),
+         *          ENGAGMENT(4), PHONE_CALL(5), SMS(6), EMAIL(7),
+         *          TWITIER(8)
+         *          
+         */
     
     switch(acttype)
     {
@@ -1146,7 +1164,17 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
     int temptype = temp["temtype"].asInt();                
     
     int id = 0;
-    string RetCode;                            
+    string RetCode;           
+
+    /**
+         *  MediaType: 
+         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
+         *
+         *  MediaSubType:  
+         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
+         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
+         */
+         
     switch(temptype)
         {
             case 1:         //normal banner with image
@@ -1311,7 +1339,7 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         replace(decodeStr,"${MY_IMAGE}",creurl);
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));
-                        mobile_creative->set_mediatypeid("1");
+                        mobile_creative->set_mediatypeid("2");
                         mobile_creative->set_mediasubtypeid("5");
                         //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
                         //delete [] sDest;
@@ -1331,7 +1359,7 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
         creative_event->set_trackurl(temp["curl"].asString());
     }
     #endif
-    if(temp.isMember("imurl"))
+    if(temp.isMember("imurl")&&(temp["imurl"].asString().empty() == false))
     {
         MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
         creative_event->set_event("IMP");

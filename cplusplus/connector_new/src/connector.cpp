@@ -1139,12 +1139,14 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
         
     
     string str_content = content.toStyledString();
+    #if 0
     replace(str_content,"\"","\\\"");
     replace(str_content,"'","\\'");
     replace(str_content,"\t"," ");
     replace(str_content,"\n","");
     replace(str_content,"\r","");
     replace(str_content,"/","\\/");
+    #endif
     //cout << "str_content" << str_content << endl;
     mobile_action->set_content(str_content);    
     mobile_action->set_actiontype(str_acttype);
@@ -1375,6 +1377,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     }
     
     string str_content = content.toStyledString();
+    #if 0
     replace(str_content,"\"","\\\"");
     replace(str_content,"'","\\'");
     replace(str_content,"\t"," ");
@@ -1382,6 +1385,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     replace(str_content,"\r","");
     replace(str_content,"/","\\/");
     //cout << "str_content" << str_content << endl;
+    #endif
     
     mobile_action->set_content(str_content);
     mobile_action->set_actiontype(str_acttype);

@@ -1001,7 +1001,6 @@ commMsgRecord* connectorServ::checkValidId(const string& str_id)
 }
 bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action)
 {
-    //cout << "##### mutableAction !" << endl;
     if(!action.isMember("acturl"))
     {
         g_worker_logger->debug("GEN FAILED : no valid acturl ");
@@ -1138,7 +1137,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     if(action.isMember("name"))
         mobile_action->set_name(action["name"].asString());
         
-    //char *destContent = ReplaceStr(content.toStyledString().c_str(),"\"","\\\"");
+    
     string str_content = content.toStyledString();
     replace(str_content,"\"","\\\"");
     replace(str_content,"'","\\'");
@@ -1146,21 +1145,17 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
     replace(str_content,"\n","");
     replace(str_content,"\r","");
     replace(str_content,"/","\\/");
-    cout << "str_content" << str_content << endl;
+    //cout << "str_content" << str_content << endl;
     mobile_action->set_content(str_content);    
     mobile_action->set_actiontype(str_acttype);
-    mobile_action->set_inapp(str_inapp);       
-
-    //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destContent);
-    //delete [] destContent;
-    //destContent = NULL;
+    mobile_action->set_inapp(str_inapp);      
+   
     return true;
     
 }
 
 bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl)
 {
-    //cout << "##### creativeAddEvents !" << endl;
     int temptype = temp["temtype"].asInt();                
     
     int id = 0;
@@ -1192,20 +1187,12 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                     {
                         string decodeStr;                        
                         
-                        decodeStr = UrlDecode(RetCode);                        
-                        //const char *sSrc = decodeStr.c_str();
-                        //string sMatchStr = "${MY_IMAGE}";
-                        //const char *sReplaceStr = creurl.c_str();
-                        //char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);    
+                        decodeStr = UrlDecode(RetCode);                       
                         replace(decodeStr,"${MY_IMAGE}",creurl); 
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));
                         mobile_creative->set_mediatypeid("1");
-                        mobile_creative->set_mediasubtypeid("1");
-                        
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
-                        //delete [] sDest;
-                        //sDest = NULL;
+                        mobile_creative->set_mediasubtypeid("1");                        
                     }
                 }
                 break;
@@ -1226,25 +1213,13 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         string decodeStr;                        
                         
                         decodeStr = UrlDecode(RetCode);                        
-                        //const char *sSrc = decodeStr.c_str();
-                        //const char *sMatchStr1 = "${MY_TITLE}";
-                        //const char *sMatchStr2 = "${MY_DESCRIPTION}";
-                        //const char *sReplaceStr1 = title.c_str();
-                        //const char *sReplaceStr2 = desc.c_str();                        
-                        //char *sDest1 = ReplaceStr(sSrc,sMatchStr1,sReplaceStr1); 
-                        //char *sDest2 = ReplaceStr(sDest1,sMatchStr2,sReplaceStr2); 
+                        
                         replace(decodeStr,"${MY_TITLE}",title);
                         replace(decodeStr,"${MY_DESCRIPTION}",desc);
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("2");
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest1);
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest2);
-                        //delete [] sDest1;
-                        //delete [] sDest2;
-                        //sDest1 = sDest2 = NULL;
-                        
                     }                    
                 }
                 break;
@@ -1295,24 +1270,13 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         string decodeStr;                        
                         
                         decodeStr = UrlDecode(RetCode);                        
-                        //const char *sSrc = decodeStr.c_str();
-                        //const char *sMatchStr1 = "${MY_IMAGE}";
-                        //const char *sMatchStr2 = "${MY_EXPAND_URL}";
-                        //const char *sReplaceStr1 = creurl.c_str();
-                        //const char *sReplaceStr2 = expurl.c_str();
-                        //char *sDest1 = ReplaceStr(sSrc,sMatchStr1,sReplaceStr1); 
-                        //char *sDest2 = ReplaceStr(sDest1,sMatchStr2,sReplaceStr2); 
+                        
                         replace(decodeStr,"${MY_IMAGE}",creurl);
                         replace(decodeStr,"${MY_EXPAND_URL}",expurl);
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));  
                         mobile_creative->set_mediatypeid("1");
                         mobile_creative->set_mediasubtypeid("1");
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest1);
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest2);
-                        //delete [] sDest1;
-                        //delete [] sDest2;
-                        //sDest1 = sDest2 = NULL;
                     }                    
                 }
                 break;
@@ -1332,18 +1296,11 @@ bool connectorServ::creativeAddEvents(MobileAdResponse_Creative  *mobile_creativ
                         string decodeStr;                        
                         
                         decodeStr = UrlDecode(RetCode);                        
-                        //const char *sSrc = decodeStr.c_str();
-                        //const char *sMatchStr = "${MY_IMAGE}";
-                        //const char *sReplaceStr = creurl.c_str();
-                        //char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);         
                         replace(decodeStr,"${MY_IMAGE}",creurl);
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));
                         mobile_creative->set_mediatypeid("2");
                         mobile_creative->set_mediasubtypeid("5");
-                        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
-                        //delete [] sDest;
-                        //sDest = NULL;
                     }
                 }
                 break;
@@ -1417,7 +1374,6 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
         content["download"] = download;
     }
     
-    //char *destContent = ReplaceStr(content.toStyledString().c_str(),"\"","\\\"");
     string str_content = content.toStyledString();
     replace(str_content,"\"","\\\"");
     replace(str_content,"'","\\'");
@@ -1425,15 +1381,12 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     replace(str_content,"\n","");
     replace(str_content,"\r","");
     replace(str_content,"/","\\/");
-    cout << "str_content" << str_content << endl;
+    //cout << "str_content" << str_content << endl;
     
     mobile_action->set_content(str_content);
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp("1");         
 
-    //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destContent);
-    //delete [] destContent;
-    //destContent = NULL;
     return true;
 }
 bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
@@ -1465,12 +1418,9 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     if(RetCode.empty() == false)
     {
         string decodeStr;    
-        //bool deleteMem = false;
         
-        decodeStr = UrlDecode(RetCode);                        
-        //const char *sSrc = decodeStr.c_str();
-        //const char *sMatchStr = "${MY_THIRD_HTML}";
-        //const char *sReplaceStr = NULL;
+        decodeStr = UrlDecode(RetCode);      
+        
         string sReplaceStr;
         string third_html;
         switch(GYIN_admtype)
@@ -1501,37 +1451,12 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     replace(third_html,"${SRC_URL}",src);
                     replace(third_html,"${W}",widthStr);
                     replace(third_html,"${H}",heightStr);
-                    
-
-                    #if 0
-                    char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
-                    char *destImg2 = ReplaceStr(destImg1,"${W}",widthStr);
-                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg1);
-                    delete [] destImg1;
-                    char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
-                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg2);
-                    delete [] destImg2;
-                    char *destImg4 = ReplaceStr(destImg3,"'","\\\'");
-                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg3);
-                    delete [] destImg3;
-                    char *destImg5 = ReplaceStr(destImg4,"/","\\/"); 
-                    printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg4);
-                    delete [] destImg4;
-                    destImg1 = destImg2 = destImg3 = destImg4 = NULL;
-                   
-                    sReplaceStr = destImg5;
-                    cout << sReplaceStr << endl;
-                    destImg5 = NULL;
-                    
-                    deleteMem = true;    
-                    #endif
-                   
                 }
                 break;
             default:
                 break;
         }                    
-        //char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
+        
         replace(third_html,"\"","\\\"");
         replace(third_html,"'","\\'");
         replace(third_html,"\t"," ");
@@ -1543,20 +1468,11 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         cout << sReplaceStr << endl;
                     
         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
-        #if 0
-        if(deleteMem)
-        {
-            printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sReplaceStr);
-            delete [] sReplaceStr;            
-            sReplaceStr = NULL;
-        }            
-        #endif
+        
         mobile_creative->set_admarkup(UrlEncode(decodeStr));
         mobile_creative->set_mediatypeid("1");
         mobile_creative->set_mediasubtypeid("1");
-        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sDest);
-        //delete [] sDest;
-        //sDest = NULL;
+        
     }
 
     if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))
@@ -2067,17 +1983,37 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
         string bcIP;
         unsigned short bcDataPort;
         hashGetBCinfo(uuid,bcIP,bcDataPort);   
-        #if 0
+        
         int ssize = m_bc_manager.sendAdRspToBC(bcIP, bcDataPort, responseDataStr, responseDataLen, ZMQ_NOBLOCK);
         if(ssize > 0)
         {
-            g_worker_logger->debug("send AdResponse to BC: {0:d}, {1}, {2}, {3:d} success \r\n",ssize, uuid, bcIP, bcDataPort);
+            switch(type)
+            {
+                 case DATA_JSON: 
+                    g_worker_logger->debug("TELE send AdResponse to BC success: {0} \r\n", uuid);
+                    break;
+                 case DATA_PROTOBUF:
+                    g_workerGYIN_logger->debug("GYIN send AdResponse to BC success: {0} \r\n", uuid);
+                    break;
+                 default:
+                    break;
+            }            
         }
         else
         {
-            g_worker_logger->error("send AdResponse to BC:{0}, {1:d} failed \r\n",bcIP, bcDataPort);
+            switch(type)
+            {
+                 case DATA_JSON: 
+                    g_worker_logger->debug("TELE send AdResponse to BC fail: {0} \r\n", uuid);
+                    break;
+                 case DATA_PROTOBUF:
+                    g_workerGYIN_logger->debug("GYIN send AdResponse to BC fail: {0} \r\n", uuid);
+                    break;
+                 default:
+                    break;
+            }
         }
-        #endif
+        
         delete [] responseDataStr;
     }
     else

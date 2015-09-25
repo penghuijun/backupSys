@@ -69,25 +69,6 @@ char *mystrstr(const char*s1,const char*s2)
     return(0);
 }
 
-#if 0
-char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
-{
-	if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
-		return NULL;
-	char *pos = strstr((char *)sSrc,sMatchStr); //first pos sMatchStr appear in sSrc
-	if(pos == NULL) //not found
-		return NULL;
-	int len = strlen(sSrc)+strlen(sReplaceStr)-strlen(sMatchStr);
-	char *destStr = new char[len];
-	memset(destStr, 0, len*sizeof(char));
-	strncpy(destStr,sSrc,pos-sSrc);
-	strcat(destStr,sReplaceStr);
-	pos += strlen(sMatchStr);
-	strcat(destStr,pos);
-	return destStr; 
-}
-#endif
-
 char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
 {
     if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))

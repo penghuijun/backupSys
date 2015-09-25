@@ -1435,7 +1435,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 break;
             case JSON:
                 {
-                    const char *img = "\"<img src=\"${SRC_URL}\" width=\"${W}\" height=\"${H}\"></img>\"";
+                    const char *img = "\"<img src='${SRC_URL}' width='${W}' height='${H}'></img>\"";
                     Json::Reader reader;
                     Json::Value root;
                     string adm = GYIN_bid.adm();
@@ -1459,7 +1459,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     char *destImg3 = ReplaceStr(destImg2,"${H}",heightStr);
                     printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg2);
                     delete [] destImg2;
-                    char *destImg4 = ReplaceStr(destImg3,"\"","\\\"");
+                    char *destImg4 = ReplaceStr(destImg3,"'","\\\'");
                     printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,destImg3);
                     delete [] destImg3;
                     char *destImg5 = ReplaceStr(destImg4,"/","\\/"); 

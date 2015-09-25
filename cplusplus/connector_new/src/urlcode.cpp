@@ -122,6 +122,34 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
     return destStr;
 }
 
+/**
+  * like "12" -> "21"  :  "21212" -> "22211"
+  */
+string&   replace_all(string&   str,const   string&   old_value,const   string&   new_value)   
+{   
+    while(true)   {   
+        string::size_type   pos(0);   
+        if(   (pos=str.find(old_value))!=string::npos   )   
+            str.replace(pos,old_value.length(),new_value);   
+        else   break;   
+    }   
+    return   str;   
+}   
+
+/**
+  * like "12" -> "21"  :  "21212" -> "22121"
+  */
+
+string&   replace(string&   str,const   string&   old_value,const   string&   new_value)   
+{   
+    for(string::size_type   pos(0);   pos!=string::npos;   pos+=new_value.length())   {   
+        if(   (pos=str.find(old_value,pos))!=string::npos   )   
+            str.replace(pos,old_value.length(),new_value);   
+        else   break;   
+    }   
+    return   str;   
+}   
+
 
 
 

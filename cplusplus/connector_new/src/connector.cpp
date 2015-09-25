@@ -1035,21 +1035,24 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
                     content["app_name"] = action["app_name"].asString();
                 if(action.isMember("category"))
                     content["category"] = action["category"].asString();
+                Json::Value item;
                 if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
                 {                
-                    download["platform"] = "android";                
+                    item["platform"] = "android";                
                 }
                 else if(strcmp("2",dev.platform().c_str()) == 0)    //apple IOS
                 {
-                    download["platform"] = "ios";   
+                    item["platform"] = "ios";   
                 }
                 else
                 {
                     g_worker_logger->debug("Get platform from adRequest fail...");
                 }
-                download["url"] = action["acturl"].asString();
-                download["in_app"] = inapp;
-                download["auto_install"] = autoin;
+                //item["in_app"] = inapp;     
+                item["auto_install"] = autoin;
+                item["url"] = action["acturl"].asString();
+                           
+                download.append(item);
                 content["download"] = download;
             }
             break;
@@ -1365,21 +1368,24 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
             content["app_name"] = GYIN_bid.bundle();        
             
         MobileAdRequest_Device dev = mobile_request.device();
+        Json::Value item;
         if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
         {                
-            download["platform"] = "android";                
+            item["platform"] = "android";                
         }
         else if(strcmp("2",dev.platform().c_str()) == 0)    //apple IOS
         {
-            download["platform"] = "ios";   
+            item["platform"] = "ios";   
         }
         else
         {
             g_workerGYIN_logger->debug("Get platform from adRequest fail...");
         }
-        download["url"] = GYIN_bid.curl();
-        download["in_app"] = 1;
-        download["auto_install"] = 1;
+        //item["in_app"] = 1;
+        item["auto_install"] = 1;
+        item["url"] = GYIN_bid.curl();        
+        
+        download.append(item);
         content["download"] = download;
     }
     

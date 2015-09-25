@@ -8,3 +8,5 @@ logs
 *.pb.cc
 *.pb.h
 cplusplus/adManagerConfig.txt
+cplusplus/connector_new/TeleBidResponse.json
+cplusplus/connector_new/TeleBidRequest.json

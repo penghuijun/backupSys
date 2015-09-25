@@ -9,7 +9,7 @@ INCLUDES	:= -I./include
 CPPFLAGS  	:= -g -DTIMELOG  -L/usr/local/zeromq-4.0.4/lib -L/usr/lib/mysql -I/usr/local/zeromq-4.0.4/include -I/usr/include/mysql
 CPPFLAGS  	+= `pkg-config --cflags --libs protobuf`  
 
-LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lmysqlclient
+LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lmysqlclient -lstdc++
 
 SRCDIRS		:= src src/json src/thread src/redis
 SRCTYPES   	:= .cpp .cc

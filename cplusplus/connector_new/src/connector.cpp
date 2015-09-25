@@ -1465,7 +1465,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         replace(third_html,"/","\\/");
         
         sReplaceStr.append("\"").append(third_html).append("\"");
-        cout << sReplaceStr << endl;
+        //cout << sReplaceStr << endl;
                     
         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
         

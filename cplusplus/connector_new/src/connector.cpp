@@ -1438,16 +1438,17 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         //const char *sMatchStr = "${MY_THIRD_HTML}";
         //const char *sReplaceStr = NULL;
         string sReplaceStr;
+        string third_html;
         switch(GYIN_admtype)
         {
             case HTML:
                 {
-                    sReplaceStr = GYIN_bid.adm();                                
+                    third_html = GYIN_bid.adm();                                
                 }
                 break;
             case JSON:
                 {
-                    string img = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
+                    third_html = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
                     Json::Reader reader;
                     Json::Value root;
                     string adm = GYIN_bid.adm();
@@ -1463,18 +1464,10 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     sprintf(widthStr,"%d",width);
                     sprintf(heightStr,"%d",height);
 
-                    replace(img,"${SRC_URL}",src);
-                    replace(img,"${W}",widthStr);
-                    replace(img,"${H}",heightStr);
-                    replace(img,"\"","\\\"");
-                    replace(img,"'","\\'");
-                    replace(img,"\t"," ");
-                    replace(img,"\n","");
-                    replace(img,"\r","");
-                    replace(img,"/","\\/");
-                     
-                    sReplaceStr.append("\"").append(img).append("\"");
-                    cout << sReplaceStr << endl;
+                    replace(third_html,"${SRC_URL}",src);
+                    replace(third_html,"${W}",widthStr);
+                    replace(third_html,"${H}",heightStr);
+                    
 
                     #if 0
                     char *destImg1 = ReplaceStr(img,"${SRC_URL}",src.c_str());
@@ -1505,6 +1498,16 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 break;
         }                    
         //char *sDest = ReplaceStr(sSrc,sMatchStr,sReplaceStr);  
+        replace(third_html,"\"","\\\"");
+        replace(third_html,"'","\\'");
+        replace(third_html,"\t"," ");
+        replace(third_html,"\n","");
+        replace(third_html,"\r","");
+        replace(third_html,"/","\\/");
+        
+        sReplaceStr.append("\"").append(third_html).append("\"");
+        cout << sReplaceStr << endl;
+                    
         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
         #if 0
         if(deleteMem)

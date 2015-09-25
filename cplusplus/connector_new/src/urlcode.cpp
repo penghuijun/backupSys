@@ -90,43 +90,38 @@ char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr
 
 char *ReplaceStr(const char *sSrc,const char *sMatchStr, const char *sReplaceStr)
 {
-	if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
-		return (char *)sSrc;
+    if((sSrc == NULL)||(sMatchStr == NULL)||(sReplaceStr == NULL))
+        return (char *)sSrc;
 
-	int len = strlen(sSrc);
-	char *destStr = new char[len];
-	memset(destStr, 0, len*sizeof(char));
-	strcpy(destStr,sSrc);
+    int count = 0;
+    char *pos = strstr((char *)sSrc,sMatchStr);
 
-	char *pos = strstr(destStr, sMatchStr);	
-	list<char *> pList;
-	
-	while(pos)
-	{		
-		char *temp = destStr;
-		pList.push_back(temp);
-		len = strlen(temp)+strlen(sReplaceStr)-strlen(sMatchStr);
-		destStr = new char[len];
-		memset(destStr, 0, len*sizeof(char));
-		
-		len = pos-temp;
-		strncpy(destStr,temp,len);
-		strcat(destStr,sReplaceStr);
-		pos += strlen(sMatchStr);
-		strcat(destStr,pos);		
+    while(pos)
+    {
+        count++;
+        pos += strlen(sMatchStr);
+        pos = strstr(pos,sMatchStr);
+    }
 
-        //printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,temp);
-		//delete [] temp;		
-		temp = destStr+len+strlen(sReplaceStr);		
-		pos = strstr(temp,sMatchStr);
-	}
-	list<char *>::iterator it = pList.begin();
-	for(;it != pList.end();it++)
-	{
-        delete [] *it;
-	}
-	return destStr;
+    int len = strlen(sSrc)+count*(strlen(sReplaceStr)-strlen(sMatchStr));
+    char *destStr = new char[len];
+    memset(destStr, 0, len*sizeof(char));
+
+    if(count == 0)
+        strcpy(destStr, sSrc);
+    else
+    {
+        char *next = (char *)sSrc;
+        while((pos = strstr(next, sMatchStr)) != NULL)
+        {
+            strncat(destStr, next, pos-next);
+            strcat(destStr, sReplaceStr);
+            next = pos + strlen(sMatchStr);
+        }
+    }
+    return destStr;
 }
+
 
 
 

@@ -1444,7 +1444,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     int width = root["width"].asInt();
                     int height = root["height"].asInt();
                     string src = root["src"].asString();
-                    string type = root["type"].asString();
+                    //string type = root["type"].asString();
 
                     char widthStr[16] = {0};
                     char heightStr[16] = {0};
@@ -1468,6 +1468,7 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                     destImg1 = destImg2 = destImg3 = destImg4 = NULL;
                    
                     sReplaceStr = destImg5;
+                    cout << sReplaceStr << endl;
                     destImg5 = NULL;
                     
                     deleteMem = true;                                    
@@ -1481,8 +1482,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
 
         if(deleteMem)
         {
-            delete [] sReplaceStr;
             printf("%s:%d:%s: delete(0x%x)\n",__FILE__,__LINE__,__func__,sReplaceStr);
+            delete [] sReplaceStr;            
             sReplaceStr = NULL;
         }            
        

@@ -123,7 +123,7 @@ bcServ::bcServ(configureObject &config):m_config(config)
         m_logRedisOn = m_config.get_logRedisOn();
         m_logRedisIP  = m_config.get_logRedisIP();
         m_logRedisPort = m_config.get_logRedisPort();
-        m_bc_manager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_bidder_info(), m_config.get_bc_info());
+        m_bc_manager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_bidder_info(), m_config.get_connector_info(), m_config.get_bc_info());
         const int tastPoolSize = 10000;
 		int threadPoolSize = m_bc_manager.get_bc_config().get_bcThreadPoolSize();
 		m_redisPoolManager.connectorPool_init(m_bc_manager.get_redis_ip(), m_bc_manager.get_redis_port(), threadPoolSize+10);
@@ -231,7 +231,8 @@ void bcServ::check_data_record()
         mircotime_t tm= bcData->get_microtime();
         mircotime_t diff = micro - tm;
         if(diff>=overTime)//if have overtime, then user overtime, if not use default overtime
-        {
+        {            
+            g_file_logger->debug("overtime : delete uuid: {0}",bcDataIt->first);
             delete bcData;  
             m_bcDataRecList.erase(bcDataIt++);
         }
@@ -328,6 +329,7 @@ void bcServ::bidderHandler(char * pbuf,int size)
     string uuid;
     string bidID;
     string sockID;
+    string campaignId;
 
     commMsg.ParseFromArray(pbuf, size);  
     const string &busiCode=commMsg.businesscode();
@@ -350,7 +352,10 @@ void bcServ::bidderHandler(char * pbuf,int size)
         MobileAdResponse mobile_rsp;
         mobile_rsp.ParseFromString(rsp);
         uuid=mobile_rsp.id();
-        bidID=mobile_rsp.bidid();      
+        bidID=mobile_rsp.bidid(); 
+        MobileAdResponse_mobileBid mobileBid;
+        mobileBid=mobile_rsp.bidcontent(0);
+        campaignId = mobileBid.campaignid();
     }
     else
     {
@@ -405,6 +410,7 @@ void bcServ::bidderHandler(char * pbuf,int size)
                }
                else//have not recv throttle, so record the bidder response data;
                {
+                  g_file_logger->debug("have not recv throttle!");
                   if(bcData)
                   {
                        bcData->add_bidder_buf(pbuf, size, bidIDandTime);
@@ -415,12 +421,14 @@ void bcServ::bidderHandler(char * pbuf,int size)
           }
           else//invalid bcData ,assert , throw error
           {
+              g_file_logger->debug("invalid bcData !");
               m_bcDataRecList.erase(bcDataIt);
               m_bcDataMutex.unlock();
           }
      }
      else// can not find uuid,represent throttle info have not recved
      {
+           g_file_logger->debug("DataRecList can not find uuid:{0} && campaignId:{1}",uuid,campaignId);
            bcDataRec *bData = new bcDataRec(recvBidTime, overTime, false);
            bData->add_bidder_buf(pbuf, size, bidIDandTime);
            m_bcDataRecList.insert(pair<string, bcDataRec*>(uuid, bData)); 
@@ -613,7 +621,7 @@ int bcServ::zmq_get_message(void* socket, zmq_msg_t &part, int flags)
 
 //recv bidder callback
 void bcServ::recvBidder_callback(int fd, short __, void *pair)
-{
+{    
     zmq_msg_t msg;
     uint32_t events;
     size_t len=sizeof(int);
@@ -642,9 +650,9 @@ void bcServ::recvBidder_callback(int fd, short __, void *pair)
            int recvLen = serv->zmq_get_message(handler, first_part, ZMQ_NOBLOCK);
            if ( recvLen == -1 )
            {
-               zmq_msg_close (&first_part);
+               zmq_msg_close (&first_part);                            
                break;
-           }
+           }          
            zmq_msg_close(&first_part);
 
            zmq_msg_t part;
@@ -938,7 +946,7 @@ void bcServ::managerEventHandler(int fd, short __, void *pair)
                    break;
                }
                char *id_str=(char *)zmq_msg_data(&id_part);
-               string identify(id_str, id_len);
+               string identify(id_str, id_len);               
                zmq_msg_close(&id_part);
  
                zmq_msg_t data_part;

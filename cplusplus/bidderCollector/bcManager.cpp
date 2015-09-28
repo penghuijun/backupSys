@@ -5,14 +5,13 @@ using namespace com::rj::protos::manager;
 bcManager::bcManager()
 {
 }
-void bcManager::init(zeromqConnect &connector, throttleInformation& throttle_info, bidderInformation& bidder_info, connectorInformation& connector_info, bcInformation& bc_info)
+void bcManager::init(zeromqConnect &connector, throttleInformation& throttle_info, bidderInformation& bidder_info, bcInformation& bc_info)
 {
 	determine_bc_address(connector, bc_info);
 	ostringstream os;
     auto bidderConfigList = bidder_info.get_bidderConfigList();
     m_throttle_manager.init(throttle_info.get_throttleConfigList());
     m_bidder_manager.init(bidder_info.get_bidderConfigList());
-    m_connector_manager.init(connector_info.get_connectorConfigList());
 
     os.str("");
 	os<<m_bcConfig.get_bcIP()<<":"<<m_bcConfig.get_bcMangerPort()<<":"<<m_bcConfig.get_bcDataPort();

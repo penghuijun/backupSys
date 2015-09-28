@@ -11,7 +11,7 @@ class bcManager
 {
 public:
 	bcManager();
-	void init(zeromqConnect &connector, throttleInformation& throttle_info, bidderInformation& bidder_info, connectorInformation& connector_info, bcInformation& bc_info);
+	void init(zeromqConnect &connector, throttleInformation& throttle_info, bidderInformation& bidder_info, bcInformation& bc_info);
 	void determine_bc_address(zeromqConnect &connector, bcInformation& bc_info);
 	void AdRsp_event_new(struct event_base * base, event_callback_fn fn, void * arg);
 	void manager_event_new(struct event_base * base, event_callback_fn fn, void * arg);

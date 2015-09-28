@@ -123,7 +123,7 @@ bcServ::bcServ(configureObject &config):m_config(config)
         m_logRedisOn = m_config.get_logRedisOn();
         m_logRedisIP  = m_config.get_logRedisIP();
         m_logRedisPort = m_config.get_logRedisPort();
-        m_bc_manager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_bidder_info(), m_config.get_connector_info(), m_config.get_bc_info());
+        m_bc_manager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_bidder_info(), m_config.get_bc_info());
         const int tastPoolSize = 10000;
 		int threadPoolSize = m_bc_manager.get_bc_config().get_bcThreadPoolSize();
 		m_redisPoolManager.connectorPool_init(m_bc_manager.get_redis_ip(), m_bc_manager.get_redis_port(), threadPoolSize+10);

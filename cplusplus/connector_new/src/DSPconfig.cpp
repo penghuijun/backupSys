@@ -542,7 +542,7 @@ void guangYinObject::readGuangYinConfig()
         g_worker_logger->error("Parse guangYinConfig.json failure...");
         ifile.close();
         exit(1);
-    }
+    }    
 
 }
 
@@ -604,7 +604,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     //g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
     
-    
+    #if 0
     sockaddr_in sin;
     unsigned short httpPort = atoi(adReqPort.c_str());      
     
@@ -639,9 +639,10 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     listen->_event = sock_event;
     //listenObjectList.push_back(listen);
     getListenObjectList().push_back(listen);
+    #endif
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
-    if (send(sock, send_str, wholeLen,0) == -1)
+    if (send(GYINsocket, send_str, wholeLen,0) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
         delete [] send_str;
@@ -651,5 +652,31 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     return true;
 }
 
+
+bool guangYinObject::ConnectToGYIN()
+{
+    sockaddr_in sin;
+    unsigned short httpPort = atoi(adReqPort.c_str());      
+    
+    sin.sin_family = AF_INET;    
+    sin.sin_port = htons(httpPort);    
+    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
+
+    GYINsocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (GYINsocket == -1)
+    {
+        g_workerGYIN_logger->error("adReqSock create failed ...");
+        return false;
+    }   
+    
+    //建立连接
+    if (connect(GYINsocket, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
+    {
+        g_workerGYIN_logger->error("adReqSock connect failed ...");      
+        close(GYINsocket);
+        return false;
+    }
+    
+}
 
 

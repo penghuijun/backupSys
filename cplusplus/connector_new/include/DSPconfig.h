@@ -106,13 +106,16 @@ public:
 	guangYinObject()
 	{
 		readGuangYinConfig();
+		ConnectToGYIN();
 	}
 	void readGuangYinConfig();
+	bool ConnectToGYIN();
 	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	bool getTestValue(){return test;}
 	string& getPublisherID(){return publisherId;}
 	string& getExtNetId(){return extNetId;}
 	string& getIntNetId(){return intNetId;}
+	int getGYINsocket(){return GYINsocket;}
 	~guangYinObject(){}
 private:
 	string name;
@@ -136,5 +139,7 @@ private:
 	bool test;
 
 	//list<listenObject *> m_listenObjectList;	
+
+	int GYINsocket;
 };
 #endif

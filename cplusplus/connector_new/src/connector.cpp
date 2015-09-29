@@ -3033,7 +3033,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         return;
     }
    
-    struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+    //struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
     char *recv_str = new char[4096];
     memset(recv_str,0,4096*sizeof(char));    
     
@@ -3041,18 +3041,18 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     if (ret == 0)
     {
         g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");
-        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
+        //serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        //close(sock);
+        //event_del(listenEvent);
         delete [] recv_str;
         return;
     }
     if (ret == -1)
     {
         g_workerGYIN_logger->emerg("recv AdResponse fail !");
-        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
+        //serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        //close(sock);
+        //event_del(listenEvent);
         delete [] recv_str;
         return;
     }
@@ -3260,6 +3260,10 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
     m_dspManager.init();
+
+    struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
+    event_add(recvGYINrspEvent, NULL);
+    
     
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 

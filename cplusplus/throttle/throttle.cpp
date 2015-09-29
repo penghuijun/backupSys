@@ -739,13 +739,13 @@ void throttleServ::publishData(char *msgData, int msgLen)
         {
             if(bidderKey.empty()==false)
             {
-                //publish data to bidder
+                //publish data to bidder and BC
                 zmq_send(pubVastHandler, bidderKey.c_str(), bidderKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
                 zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
             }
             if(connectorKey.empty()==false)
             {
-                //publish data to connector
+                //publish data to connector and BC
                 zmq_send(pubVastHandler, connectorKey.c_str(), connectorKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
                 zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
             }

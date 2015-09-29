@@ -481,9 +481,9 @@ connectorServ::connectorServ(configureObject& config):m_config(config)
 
 void connectorServ::signal_handler(int signo)
 {
-    time_t timep;
-    time(&timep);
-    char *timeStr = ctime(&timep);
+    time_t timep;   //typedef long int time_t;
+    time(&timep);   //get time put in timep
+    char *timeStr = ctime(&timep);  //transform time_t -> char 
     switch (signo)
     {
         case SIGTERM:
@@ -1139,15 +1139,7 @@ bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdRespon
         
     
     string str_content = content.toStyledString();
-    #if 0
-    replace(str_content,"\"","\\\"");
-    replace(str_content,"'","\\'");
-    replace(str_content,"\t"," ");
-    replace(str_content,"\n","");
-    replace(str_content,"\r","");
-    replace(str_content,"/","\\/");
-    #endif
-    //cout << "str_content" << str_content << endl;
+    
     mobile_action->set_content(str_content);    
     mobile_action->set_actiontype(str_acttype);
     mobile_action->set_inapp(str_inapp);      
@@ -1377,15 +1369,6 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
     }
     
     string str_content = content.toStyledString();
-    #if 0
-    replace(str_content,"\"","\\\"");
-    replace(str_content,"'","\\'");
-    replace(str_content,"\t"," ");
-    replace(str_content,"\n","");
-    replace(str_content,"\r","");
-    replace(str_content,"/","\\/");
-    //cout << "str_content" << str_content << endl;
-    #endif
     
     mobile_action->set_content(str_content);
     mobile_action->set_actiontype(str_acttype);
@@ -3242,9 +3225,9 @@ void connectorServ::masterRun()
 void connectorServ::workerRun()
 {
     pid_t pid = getpid();
-    g_worker_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
+    g_worker_logger = spdlog::daily_logger_mt("worker", "logs/debugfile", true); 
     g_worker_logger->set_level(m_logLevel);  
-    g_workerGYIN_logger = spdlog::rotating_logger_mt("GYIN", "logs/GYINdebugfile", 1048576*500, 3, true); 
+    g_workerGYIN_logger = spdlog::daily_logger_mt("GYIN", "logs/GYINdebugfile", true); 
     g_workerGYIN_logger->set_level(m_logLevel);
     g_worker_logger->info("worker start:{0:d}", getpid());
     
@@ -3314,7 +3297,7 @@ void connectorServ::run()
     sigdelset(&set, SIGINT);
     sigdelset(&set, SIGHUP);
     sigdelset(&set, SIGUSR1);
-    sigprocmask(SIG_SETMASK, &set, NULL);
+    sigprocmask(SIG_SETMASK, &set, NULL);   //将set里面的信号阻塞掉，也就是只使能以上5个信号
                   
     struct itimerval timer;
     timer.it_value.tv_sec = 1;
@@ -3332,13 +3315,12 @@ void connectorServ::run()
             if(pid != -1)
             {
                 num_children--;
-                g_manager_logger->info("chil process exit:{0}", pid); 
+                g_manager_logger->info("child process exit:{0}", pid); 
                 updataWorkerList(pid);
             }
 
             if (srv_graceful_end || srv_ungraceful_end)//CTRL+C ,killall throttle
             {
-                cout << "<<<<<<planing to excute kill command !" << endl;
                 g_manager_logger->info("srv_graceful_end"); 
                 if (num_children == 0)
                 {
@@ -3346,7 +3328,7 @@ void connectorServ::run()
                 }
 
                 auto it = m_workerList.begin();
-                for (it = m_workerList.begin(); it != m_workerList.end(); it++)
+                for (; it != m_workerList.end(); it++)
                 {
                     BC_process_t *pro = *it;
                     if(pro&&pro->pid != 0)
@@ -3472,14 +3454,14 @@ void connectorServ::run()
                         g_manager_logger->error("error in fork");
                     }
                     break;
-                    case 0:
+                    case 0:     //child
                     {   
                         close(pro->channel[0]);
                         is_child = 1; 
                         pro->pid = getpid();
                     }
                     break;
-                    default:
+                    default:    //parent
                     {
                         close(pro->channel[1]);
                         pro->pid = pid;

@@ -12,8 +12,9 @@ shared_ptr<spdlog::logger> g_workerGYIN_logger;
 
 int main(int argc,char *argv[])
 {
-    g_master_logger = spdlog::rotating_logger_mt("master", "logs/debugfile", 1048576*500, 3, true); 
-    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
+    //g_master_logger = spdlog::rotating_logger_mt("master", "logs/debugfile", 1048576*500, 3, true);
+    g_master_logger = spdlog::daily_logger_mt("master", "logs/debugfile", true); 
+    g_manager_logger = spdlog::daily_logger_mt("manager", "logs/managerfile", true); 
 #ifdef DEBUG
     g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
 #else
@@ -31,6 +32,5 @@ int main(int argc,char *argv[])
     connectorServ connector(configure);
     connector.run();
 
-    cout<<"hello world!"<<endl;
     return 0;
 }

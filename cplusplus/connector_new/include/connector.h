@@ -161,6 +161,7 @@ public:
 	static void *recvAdRequestFromThrottle(void *arg);
 	static void *getTime(void *arg);
 	static void *checkTimeOutCommMsg(void *arg);
+	static void *checkConnectNum(void *arg);
 	
 	int zmq_get_message(void* socket, zmq_msg_t &part, int flags);
 	void updataWorkerList(pid_t pid);

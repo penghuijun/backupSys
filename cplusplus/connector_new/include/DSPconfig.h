@@ -8,10 +8,13 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "spdlog/spdlog.h"
-#include "json/json.h"
 #include <event.h>
 #include <list>
+
+#include "spdlog/spdlog.h"
+#include "json/json.h"
+#include "lock.h"
+
 
 
 using namespace std;
@@ -24,12 +27,32 @@ struct listenObject
 class dspObject
 {
 public:
-	dspObject(){}
+	dspObject():curConnectNum(0)
+	{
+		m_listenObjectListLock.init();
+	}
 	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
 	struct listenObject* findListenObject(int sock);
 	void eraseListenObject(int sock);	
+	void setMaxConnectNum(int num){maxConnectNum = num;}
+	int getCurConnectNum(){return curConnectNum;}
+	int getMaxConnectNum(){return maxConnectNum;}
+	void connectNumReduce(){curConnectNum--;}
+	void connectNumIncrease(){curConnectNum++;}
+	void listenObjectList_Lock()
+	{
+		m_listenObjectListLock.lock();
+	}
+	void listenObjectList_unLock()
+	{
+		m_listenObjectListLock.unlock();
+	}
+	
 	~dspObject(){}
 private:
+	int curConnectNum;
+	int maxConnectNum;
+	mutex_lock			 m_listenObjectListLock;
 	list<listenObject *> m_listenObjectList;
 };
 class chinaTelecomObject : public dspObject
@@ -106,16 +129,15 @@ public:
 	guangYinObject()
 	{
 		readGuangYinConfig();
-		ConnectToGYIN();
 	}
-	void readGuangYinConfig();
-	bool ConnectToGYIN();
+	void readGuangYinConfig();	
+	void creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg);	
+	bool addConnectToGYIN(struct event_base * base, event_callback_fn fn, void *arg);
 	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	bool getTestValue(){return test;}
 	string& getPublisherID(){return publisherId;}
 	string& getExtNetId(){return extNetId;}
-	string& getIntNetId(){return intNetId;}
-	int getGYINsocket(){return GYINsocket;}
+	string& getIntNetId(){return intNetId;}	
 	~guangYinObject(){}
 private:
 	string name;
@@ -138,8 +160,9 @@ private:
 	string intNetId;
 	bool test;
 
+	
 	//list<listenObject *> m_listenObjectList;	
-
-	int GYINsocket;
+	
+	//int GYINsocket;
 };
 #endif

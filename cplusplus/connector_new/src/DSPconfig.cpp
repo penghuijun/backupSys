@@ -37,28 +37,39 @@ char* mem_ncat(char *strDest,const char* strSrc,int size)
 
 struct listenObject* dspObject::findListenObject(int sock)
 {
-    list<listenObject *>::iterator it = m_listenObjectList.begin();
-    for( ; it != m_listenObjectList.end(); it++)
-    {
-        listenObject *object = *it;
-        if(object->sock == sock)
-            return object;
-    }
-    return NULL;
-}
-
-void dspObject::eraseListenObject(int sock)
-{
+    m_listenObjectListLock.lock();
     list<listenObject *>::iterator it = m_listenObjectList.begin();
     for( ; it != m_listenObjectList.end(); it++)
     {
         listenObject *object = *it;
         if(object->sock == sock)
         {
-            m_listenObjectList.erase(it);
+            m_listenObjectListLock.unlock();
+            return object;            
+        }
+    }
+    m_listenObjectListLock.unlock();
+    return NULL;
+}
+
+void dspObject::eraseListenObject(int sock)
+{
+    m_listenObjectListLock.lock();
+    
+    list<listenObject *>::iterator it = m_listenObjectList.begin();
+    for( ; it != m_listenObjectList.end(); it++)
+    {
+        listenObject *object = *it;
+        if(object->sock == sock)
+        {
+            m_listenObjectList.erase(it);         
+            curConnectNum--;
+            m_listenObjectListLock.unlock();
             return ;
         }            
     }
+    
+    m_listenObjectListLock.unlock();
 }
 
 void chinaTelecomObject::readChinaTelecomConfig()
@@ -535,6 +546,9 @@ void guangYinObject::readGuangYinConfig()
         extNetId    = root["extNetId"].asString();
         intNetId    = root["intNetId"].asString();     
         test        = root["test"].asBool();
+
+        //Num of connect with GYIN
+        setMaxConnectNum(root["maxConnectNum"].asInt());
         
     }
     else
@@ -640,20 +654,49 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     //listenObjectList.push_back(listen);
     getListenObjectList().push_back(listen);
     #endif
+    if(getCurConnectNum() == 0)
+    {
+        g_workerGYIN_logger->debug("NO CONNECTION TO GYIN");
+        return false;
+    }
     
+    
+    listenObjectList_Lock();
+    int sock;
+    list<listenObject *>::iterator it = getListenObjectList().begin();
+    for(;it != getListenObjectList().end(); it++)
+    {
+        listenObject *obj = *it;
+        if(obj != NULL)
+        {
+            sock = obj->sock;
+            break;
+        }                    
+    }   
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
-    if (send(GYINsocket, send_str, wholeLen,0) == -1)
+    if (send(sock, send_str, wholeLen,0) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
         delete [] send_str;
+        listenObjectList_unLock();  
         return false;
     }         
-    delete [] send_str;
+    delete [] send_str;    
+    listenObjectList_unLock();  
     return true;
 }
 
+void guangYinObject::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
+{
+    int maxNum = getCurConnectNum();
+    for(int i=0; i < maxNum; i++)
+    {
+        if(addConnectToGYIN(base, fn, arg))
+            connectNumIncrease();        
+    }
+}
 
-bool guangYinObject::ConnectToGYIN()
+bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_fn fn, void *arg)
 {
     sockaddr_in sin;
     unsigned short httpPort = atoi(adReqPort.c_str());      
@@ -662,20 +705,32 @@ bool guangYinObject::ConnectToGYIN()
     sin.sin_port = htons(httpPort);    
     sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
 
-    GYINsocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (GYINsocket == -1)
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
     {
-        g_workerGYIN_logger->error("adReqSock create failed ...");
+        g_workerGYIN_logger->error("GYIN SOCK CREATE FAIL ...");
         return false;
     }   
     
     //建立连接
-    if (connect(GYINsocket, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
+    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
     {
-        g_workerGYIN_logger->error("adReqSock connect failed ...");      
-        close(GYINsocket);
+        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        close(sock);
         return false;
     }
+
+    //add this socket to event listen queue
+    struct event *sock_event;
+    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    event_add(sock_event, NULL);
+
+    struct listenObject *listen = new listenObject();    
+    listen->sock = sock;
+    listen->_event = sock_event;
+    getListenObjectList().push_back(listen);
+    g_workerGYIN_logger->debug("GYIN ADD CONNECTION");
+    return true;
     
 }
 

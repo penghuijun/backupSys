@@ -25,7 +25,10 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
-
+void dspManager::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
+{
+    m_guangYinObject->creatConnectGYIN(base, fn, arg);
+}
 
 
 

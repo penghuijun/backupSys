@@ -3033,26 +3033,27 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         return;
     }
    
-    //struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
     char *recv_str = new char[4096];
     memset(recv_str,0,4096*sizeof(char));    
     
     int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
     if (ret == 0)
     {
-        g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");
-        //serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        //close(sock);
-        //event_del(listenEvent);
+        g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");        
+        struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        close(sock);
+        event_del(listenEvent);
         delete [] recv_str;
         return;
     }
     if (ret == -1)
     {
-        g_workerGYIN_logger->emerg("recv AdResponse fail !");
-        //serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        //close(sock);
-        //event_del(listenEvent);
+        g_workerGYIN_logger->emerg("recv AdResponse fail !");        
+        struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+        close(sock);
+        event_del(listenEvent);
         delete [] recv_str;
         return;
     }
@@ -3196,7 +3197,23 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
         sleep(1);
     }
 }
-
+void *connectorServ::checkConnectNum(void *arg)
+{
+    connectorServ *serv = (connectorServ*) arg;   
+    int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();
+    while(1)
+    {
+        serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
+        int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();
+        if(GYIN_curConnectNum < GYIN_maxConnectNum)
+        {
+            if(serv->m_dspManager.getGuangYinObject()->addConnectToGYIN(serv->m_base, handle_recvAdResponseGYin, arg))
+                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
+        }
+        serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+        sleep(1);
+    }
+}
 void connectorServ::masterRun()
 {       
     m_masterPushHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PUSH, "masterworker" , NULL);
@@ -3260,17 +3277,20 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
     m_dspManager.init();
+    m_dspManager.creatConnectGYIN(m_base, handle_recvAdResponseGYin, this);
 
-    struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
-    event_add(recvGYINrspEvent, NULL);
+    //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
+    //event_add(recvGYINrspEvent, NULL);
     
     
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 
         
     commMsgRecordList_lock.init();
-    pthread_t pth;
-    pthread_create(&pth,NULL,checkTimeOutCommMsg,this);       
+    pthread_t pth1;
+    pthread_t pth2;
+    pthread_create(&pth1,NULL,checkTimeOutCommMsg,this);   
+    pthread_create(&pth2,NULL,checkConnectNum,this);
     
     event_base_dispatch(m_base);    
     
@@ -3303,19 +3323,19 @@ void connectorServ::run()
     sigdelset(&set, SIGUSR1);
     sigprocmask(SIG_SETMASK, &set, NULL);   //将set里面的信号阻塞掉，也就是只使能以上5个信号
                   
-    struct itimerval timer;
-    timer.it_value.tv_sec = 1;
+    struct itimerval timer;         //定时器
+    timer.it_value.tv_sec = 1;      // 1 秒后将启动定时器
     timer.it_value.tv_usec = 0;
-    timer.it_interval.tv_sec = 10;
+    timer.it_interval.tv_sec = 10;  // 启动定时器后每隔10秒将执行相应函数
     timer.it_interval.tv_usec = 0;          
-    setitimer(ITIMER_REAL, &timer, NULL);
+    setitimer(ITIMER_REAL, &timer, NULL);   //ITIMER_REAL: 以系统真实的时间来计算，它送出SIGALRM信号
     
     while(true)
     {
         pid_t pid;
         if(num_children != 0)
         {  
-            pid = wait(NULL);
+            pid = wait(NULL);       //wait函数被SIGALRM信号中断返回-1
             if(pid != -1)
             {
                 num_children--;

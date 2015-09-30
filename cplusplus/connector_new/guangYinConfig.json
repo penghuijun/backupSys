@@ -22,7 +22,7 @@
     "test":false,
     "maxErrMinutes":10,
     "maxErrs":1000,
-	"maxConnectNum":10,
+	"maxConnectNum":5,
     "appFilter":[
         "com.rj.rj2048"
     ],

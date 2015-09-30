@@ -661,9 +661,27 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     }
     
     
+    listenObject *obj = NULL;
+    
     listenObjectList_Lock();
-    int sock;
-    list<listenObject *>::iterator it = getListenObjectList().begin();
+    if(!getListenObjectList().empty())
+    {
+        obj = getListenObjectList().front();
+        getListenObjectList().pop_front();
+    }    
+    listenObjectList_unLock();  
+
+    if(!obj)
+    {
+        g_workerGYIN_logger->debug("NO IDLE SOCK ");
+        delete [] send_str;
+        return false;
+    }
+    
+    int sock =  obj->sock;
+    
+    #if 0
+    list<listenObject *>::iterator it = getListenObjectList().begin();    
     for(;it != getListenObjectList().end(); it++)
     {
         listenObject *obj = *it;
@@ -673,17 +691,19 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
             break;
         }                    
     }   
+    #endif
+    bool ret = true;
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     if (send(sock, send_str, wholeLen,0) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
-        delete [] send_str;
-        listenObjectList_unLock();  
-        return false;
+        ret  = false;
     }         
-    delete [] send_str;    
+    listenObjectList_Lock();
+    getListenObjectList().push_back(obj);
     listenObjectList_unLock();  
-    return true;
+    delete [] send_str;    
+    return ret;
 }
 
 void guangYinObject::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)

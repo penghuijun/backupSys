@@ -2275,6 +2275,10 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
         app->set_cat(it->second);
         #endif
     }
+    else                                                                //no platform found in request,it's must,if not process will exit
+    {
+        targetCat = CAT_805;
+    }
     app->set_cat(targetCat);
     
     Publisher *publisher;

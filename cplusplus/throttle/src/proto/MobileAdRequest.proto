@@ -1,0 +1,179 @@
+package com.rj.protos.mobile;
+
+message MobileAdRequest {
+    optional string id = 1;
+    optional string publishId = 2;
+    optional string version = 3; // ad sdk version
+
+    // ad request info
+    optional AdType type = 4; // ad type   banner, vad, native
+    optional string timestamp = 5; // request timestamp
+    optional string adspaceWidth = 6; //ad space width
+    optional string adspaceHeight = 7; //ad space height
+    optional Orientation orientation = 8;
+
+    // app
+    optional string packageName = 9; // package name
+    optional string schema = 10; // the app internal schema
+    optional string section = 11; //section
+    optional string session = 12; //ad session
+
+    optional string dnsIp = 13; // from nginx  <-- server
+    optional Device device = 14;
+    optional User user = 15;
+    optional GeoInfo geoInfo = 16;
+
+    repeated Frequency frequency = 17; // [{"f":22,"e":1415345117737,"t":"d"}],"field":"ca-0"}]  <-- server
+    repeated AppSession appSession = 18;
+    repeated AdInsight adInsight = 19; // [{"f":22,"e":1415345117737,"t":"d"}],"field":"ca-0"}]  <-- server
+    optional string appType = 20; // "app", "web", "all", "none"  <-- server
+    optional string trafficQuality = 21; // default is "0"  <-- server
+    optional string inventoryQuality = 22; // default is "reviewed"  <-- server
+    optional TestFlag test = 23;
+    optional Aid aid = 24;   
+    repeated Paramter paramter = 25;
+
+    //web
+    optional string page = 26;  //web page 
+    optional Wid wid = 27;
+
+    message Wid{
+        optional string id = 1;
+        optional string status = 2;
+        optional string networkid = 3;
+        optional string networkreselling = 4;
+        optional string networkresellingshare = 5;
+        optional string publisherid = 6;
+        optional string currency = 7;
+        optional string resell = 8;
+        optional string directpaymentmodel = 9;
+        optional string directpaymentvalue = 10;
+        optional string indrectpaymentmodel = 11;
+        optional string indrectpaymentvalue = 12;
+        repeated string keywords = 13;
+        repeated string supportlanguage = 14;
+        optional string category = 15;
+        optional string domain = 16;
+        optional string sitename = 17;
+        optional string reviewed = 18;
+        repeated string excludenetwork = 19;
+        repeated string excludeadvertiser = 20;
+        repeated string excludecampaign = 21;
+    }
+
+    message Aid {        
+        optional string id = 1;
+        optional string status = 2;
+        optional string networkid = 3;
+        optional string networkreselling = 4;
+        optional string networkresellingshare = 5;
+        optional string publisherid = 6;
+        optional string appcurrency = 7;
+        optional string appresell = 8;
+        optional string appdirectpaymentmodel = 9;
+        optional string appdirectpaymentvalue = 10;
+        optional string appindrectpaymentmodel = 11;
+        optional string appindrectpaymentvalue = 12;
+        repeated string appkeywords = 13;
+        repeated string appsupportlanguage = 14;
+        optional string appcategory = 15;
+        optional string apppackagename = 16;
+        optional string appname = 17;
+        repeated string appstoreurl = 18;
+        optional string appreviewed = 19;
+        repeated string appexcludenetwork = 20;
+        repeated string appexcludeadvertiser = 21;
+        repeated string appexcludecampaign = 22;
+		repeated string appexcludecreative = 23;
+    }
+
+    message AppSession {
+        optional string property = 1;
+        optional string id = 2;
+        optional string times = 3;
+    }
+
+    message Frequency {
+        optional string property = 1; // it is the group value of property     f
+        optional string id = 2; // it is the group value of id     f
+        repeated FrequencyValue frequencyValue = 3;
+
+        message FrequencyValue {
+            optional string frequencyType = 1; // the type of frequency          t
+            optional string times = 2; // how many times recorded           f
+            optional string dueDate = 3; // the expire time for this frequency     e
+        }
+    }
+
+    message AdInsight {
+        optional string property = 1; // dln - dislikeCampaign, dlr - dislikeAdvertiser, dll - dislikeChannel
+        repeated string ids = 2; // id list
+    }
+
+    message User {
+        optional string uid = 1;
+        optional Gender gender = 2;
+        optional string Age = 3;
+    }
+
+    message Device {
+        optional string ipAddress = 1; //ip address
+        optional string connectionType = 2; //the network
+        optional string ua = 3; //user agent
+        optional string udid = 4; // ios: IDFA, android: google ad id
+        optional string hidMd5 = 5; // android id - md5
+        optional string hidSha1 = 6; // android id - sha1
+        optional string deviceType = 7; // "phone", "tablet"
+        optional string platform = 8; // The platform of the mobile device.
+        optional string platformVersion = 9;
+        optional string language = 10;
+        optional string vender = 11;
+        optional string modelName = 12;
+        optional string marketingName = 13;
+        optional string screenWidth = 14;
+        optional string screenHeight = 15;
+        optional string density = 16;
+		optional string browser = 17;
+    }
+
+    message GeoInfo {
+        optional string country = 1; // country code
+        optional string region = 2;
+        optional string city = 3;
+        optional string latitude = 4;
+        optional string longitude = 5;
+        optional string isp = 6;
+        optional string domain = 7;
+        optional string mcc = 8;
+        optional string mnc = 9;
+        optional string usagetype = 10;
+        optional string carrier = 11; //mobile_brand
+    }
+
+    message Paramter {
+        optional string key = 1;
+        optional string value = 2;
+    }
+
+    enum TestFlag {
+        TRUE = 0;
+        FALSE = 1;
+    }
+    enum Gender {
+        UNKNOWN_GENDER = 0;
+        MALE = 1;
+        FEMALE = 2;
+    }
+    enum Orientation {
+        LANDSCAPE = 0;
+        PORTRAIT = 1;
+    }
+    enum AdType {
+        BANNER = 0;
+        INTERSTITIAL = 1;
+        NATIVE = 2;
+    }
+
+}
+
+

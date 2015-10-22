@@ -17,10 +17,14 @@ SRCTYPES   	:= .cpp .cc
 SOURCES 	= $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCTYPES))))
 OBJS    	= $(foreach x,$(SRCTYPES),$(patsubst %$(x),$(OBJ_PATH)/%.o,$(filter %$(x),$(SOURCES))))
 
+$(OBJ_PATH)/%.o : %.cc
+	$(CC) -c $(CPPFLAGS) $(INCLUDES) $< -o $@  
+$(OBJ_PATH)/%.o : %.cpp
+	$(CC) -c $(CPPFLAGS) $(INCLUDES) $< -o $@  
 
 all: init protobuf compile
 
-init:
+init:	
 	$(foreach d,$(SRCDIRS), mkdir -p $(OBJ_PATH)/$(d);)
 	rm -rf $(LOG_PATH)
 	mkdir $(LOG_PATH)
@@ -28,12 +32,6 @@ init:
 protobuf:
 	protoc -I=./src/proto --cpp_out=./src ./src/proto/*.proto	
 	mv src/*.pb.h  include/
-	
-objs: $(OBJS)
-$(OBJ_PATH)/%.o : %.cc
-	$(CC) -c $(CPPFLAGS) $(INCLUDES) $< -o $@  
-$(OBJ_PATH)/%.o : %.cpp
-	$(CC) -c $(CPPFLAGS) $(INCLUDES) $< -o $@  
 
 compile: $(OBJS)
 	$(CC) -o $(TARGET) $^ $(CPPFLAGS) $(LIBS)	

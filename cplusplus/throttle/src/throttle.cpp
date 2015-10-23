@@ -1049,7 +1049,8 @@ void throttleServ::start_worker()
         pthread_create(&pth3, NULL,  logWrite,  this); 
 
         m_logRedisPoolManger.connectorPool_init(m_logRedisIP, m_logRedisPort, 10);
-        g_file_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
+        //g_file_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
+        g_file_logger = spdlog::daily_logger_mt("worker", "logs/debugfile", true); 
         g_file_logger->set_level(m_logLevel);    
 
         m_workerPullHandler = m_zmq_connect.establishConnect(true, "ipc", ZMQ_PULL,  "masterworker",  &m_workerPullFd);

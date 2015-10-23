@@ -936,7 +936,8 @@ try{
 
     m_zmq_connect.init();
     pid_t pid = getpid();
-    g_worker_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
+    //g_worker_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 
+    g_worker_logger = spdlog::daily_logger_mt("worker", "logs/debugfile", true);
 
     g_worker_logger->set_level(m_logLevel);  
     g_worker_logger->info("worker start:{0:d}", getpid());

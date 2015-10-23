@@ -6,10 +6,10 @@ CC		:= gcc --std=c++11
 INCLUDES	:= -I./include
 
 #CPPFLAGS  	:= -Wall -Werror 						# show all warnings and take them as errors
-CPPFLAGS  	:= -g -DTIMELOG  -L/usr/local/zeromq-4.0.4/lib -L/usr/lib/mysql -I/usr/local/zeromq-4.0.4/include -I/usr/include/mysql
+CPPFLAGS  	:= -g -DTIMELOG  -L/usr/local/zeromq-4.0.4/lib -I/usr/local/zeromq-4.0.4/include
 CPPFLAGS  	+= `pkg-config --cflags --libs protobuf`  
 
-LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lmysqlclient -lstdc++
+LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lstdc++
 
 SRCDIRS		:= src src/json src/thread src/redis
 SRCTYPES   	:= .cpp .cc

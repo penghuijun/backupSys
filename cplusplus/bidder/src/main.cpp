@@ -41,8 +41,10 @@ int main(int argc, char *argv[])
         exit(0);
     }
     
-    g_file_logger = spdlog::rotating_logger_mt("debug", "logs/debugfile", 1048576*500, 3, true); 
-    g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
+    //g_file_logger = spdlog::rotating_logger_mt("debug", "logs/debugfile", 1048576*500, 3, true); 
+    //g_manager_logger = spdlog::rotating_logger_mt("manager", "logs/managerfile", 1048576*500, 3, true); 
+    g_file_logger = spdlog::daily_logger_mt("master", "logs/debugfile", true); 
+    g_manager_logger = spdlog::daily_logger_mt("master", "logs/managerfile", true); 
 #ifdef DEBUG
     g_manager_logger->info("-------------------------------------DEBUG   MODE-------------------------------------");
 #else

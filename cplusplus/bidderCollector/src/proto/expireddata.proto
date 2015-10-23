@@ -1,0 +1,9 @@
+package com.rj.protos;
+
+//option java_package = "com.rj.protos.msg";
+//option java_outer_classname = "ExpiredMessageProto";
+
+message ExpiredMessage{
+    required string uuid = 1;
+    required string status = 2;
+}

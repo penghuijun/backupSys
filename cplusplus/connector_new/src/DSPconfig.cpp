@@ -75,7 +75,7 @@ void dspObject::eraseListenObject(int sock)
 void chinaTelecomObject::readChinaTelecomConfig()
 {
     ifstream ifile;	
-    ifile.open("chinaTelecomConfig.json",ios::in);
+    ifile.open("./conf/chinaTelecomConfig.json",ios::in);
     if(ifile.is_open() == false)
     {		        
         g_worker_logger->error("Open chinaTelecomConfig.json failure...");
@@ -513,7 +513,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
 void guangYinObject::readGuangYinConfig()
 {
     ifstream ifile; 
-    ifile.open("guangYinConfig.json",ios::in);
+    ifile.open("./conf/guangYinConfig.json",ios::in);
     if(ifile.is_open() == false)
     {               
         g_worker_logger->error("Open guangYinConfig.json failure...");

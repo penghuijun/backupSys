@@ -864,7 +864,7 @@ void configureObject::readConfig()
 void configureObject::readLogConfig()
 {
     ifstream ifile; 
-    ifile.open("runConfig.json",ios::in);
+    ifile.open("./conf/runConfig.json",ios::in);
     if(ifile.is_open() == false)
     {               
         g_manager_logger->error("Open runConfig.json failure...");

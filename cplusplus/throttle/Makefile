@@ -1,4 +1,4 @@
-TARGET 		:= connector_mobile
+TARGET 		:= thro_mobile
 OBJ_PATH 	:= objs
 LOG_PATH	:= logs
 
@@ -40,8 +40,8 @@ compile: $(OBJS)
 clean:
 	rm -rf $(OBJ_PATH) $(LOG_PATH)
 	rm -f $(TARGET)
-	rm include/*.pb.h
-	rm src/*.pb.cc
-	rm masterworker workermaster 	
+	rm -f include/*.pb.h
+	rm -f src/*.pb.cc
+	rm -f masterworker workermaster 	
 	
 rebuild: clean all

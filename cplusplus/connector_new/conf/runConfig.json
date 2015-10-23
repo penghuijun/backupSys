@@ -1,0 +1,11 @@
+{
+	"enChinaTelecom":true,
+	"logTeleReq":false,
+	"logTeleHttpRsp":false,
+	"logTeleRsp":false,
+
+	"enGYIN":true,
+	"logGYINReq":false,
+	"logGYINHttpRsp":false,
+	"logGYINRsp":false
+}

@@ -110,7 +110,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                         }
                         else
                         {
-                            break;
+                            continue;
                         }
                     }
                     break;

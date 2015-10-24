@@ -2,6 +2,8 @@
 
 SERVER_NAME=bidder_mobile
 
+MASTER_PID=0
+
 get_master_pid()
 {
 	CHILD_PROCESS=`ps -ef | grep $SERVER_NAME | grep -v "grep" | awk -F ' ' '{print $2}'`
@@ -9,11 +11,12 @@ get_master_pid()
 	for x in $CHILD_PROCESS; do
 		for j in $PARENT_PROCESS; do
 			if [ $x -eq $j ]; then
-				return $x
+				MASTER_PID=$x
+				return
 			fi
 		done
 	done
-	return 0
+	return
 }
 
 check_process_status()
@@ -50,7 +53,6 @@ stop()
 		else			
 			if [ $TRY_TIME -eq 0 ]; then
 				get_master_pid
-				MASTER_PID=$?
 				if [ $MASTER_PID -ne 0 ]; then
 					echo "kill -s SIGINT $MASTER_PID"
 					/bin/bash -c "kill -s SIGINT $MASTER_PID"

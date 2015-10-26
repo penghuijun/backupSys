@@ -37,9 +37,7 @@ int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
     {
         return chData_t->curLen;
     }
-
-    g_worker_logger->debug("\r\n{0}", input);
-
+    
     char *data_start = input;
     int data_len = inLen;
 
@@ -96,5 +94,34 @@ int httpChunkedParse(struct chunkedData_t *chData_t, char *input, int inLen)
         return chunkedbodyParse(chData_t, input, inLen);
     }
     
+}
+
+int httpBodyParse(char *input, int inLen)
+{
+    if(input == NULL || inLen <= 0)
+    {
+        return HTTP_UNKNOW_TYPE;
+    }
+    
+    char *data_start = input;
+    int data_len = inLen;
+
+    if(memstr(data_start, data_len, "204 No Content"))
+    {
+        return HTTP_204_NO_CONTENT;
+    }
+    else if(memstr(data_start, data_len, "200 OK"))
+    {
+        if(memstr(data_start, data_len, "Transfer-Encoding: chunked"))
+        {
+            return HTTP_CHUNKED;
+        }
+        else if(memstr(data_start, data_len, "Content-Length"))
+        {
+            return HTTP_CONTENT_LENGTH;
+        }        
+    }
+    
+    return   HTTP_UNKNOW_TYPE;
 }
 

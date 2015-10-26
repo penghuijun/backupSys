@@ -3027,7 +3027,24 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
             {
                 g_worker_logger->debug("\r\n{0}",recv_str);	
             }                    
-            dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
+            switch(httpBodyParse(recv_str, recv_bytes))
+            {
+                case HTTP_204_NO_CONTENT:
+                    g_worker_logger->debug("GYIN HTTP RSP: 204 No Content");
+                    break;
+                case HTTP_CONTENT_LENGTH:
+                    g_worker_logger->debug("GYIN HTTP RSP: Content-Length");
+                    break;
+                case HTTP_CHUNKED:
+                    dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);                    
+                    g_worker_logger->debug("\r\n{0}", chData_t->data);
+                    break;
+                case HTTP_UNKNOW_TYPE:
+                    g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
+                    break;
+                 default:
+                    break;                    
+            }
         }
     }
         
@@ -3067,7 +3084,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
 
     int dataLen = 0;    
 
-    while(1)
+    //while(1)
     {
         recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
         if (recv_bytes == 0)
@@ -3078,7 +3095,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
             close(sock);
             event_del(listenEvent);
             delete [] recv_str;
-            break;
+            return;
         }
         if (recv_bytes == -1)
         {
@@ -3088,18 +3105,35 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
             close(sock);
             event_del(listenEvent);
             delete [] recv_str;
-            break;
+            return;
         }
         else
         {
             g_workerGYIN_logger->debug("\r\n{0}",recv_str);
-            dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
+            switch(httpBodyParse(recv_str, recv_bytes))
+            {
+                case HTTP_204_NO_CONTENT:
+                    g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
+                    break;
+                case HTTP_CONTENT_LENGTH:
+                    g_workerGYIN_logger->debug("GYIN HTTP RSP: Content-Length");
+                    break;
+                case HTTP_CHUNKED:
+                    dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
+                    g_workerGYIN_logger->debug("\r\n{0}", chData_t->data);
+                    break;
+                case HTTP_UNKNOW_TYPE:
+                    g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
+                    break;
+                 default:
+                    break;                    
+            }
         }
     }
     
      
     //int dataLen = serv->getHttpRspData(protoData, recv_str);        
-    //delete [] recv_str;
+    delete [] recv_str;
     if(dataLen == 0)
     {        
         delete [] protoData;

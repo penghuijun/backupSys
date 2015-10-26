@@ -1762,7 +1762,7 @@ void connectorServ::displayGYinBidResponse(const char *data,int dataLen)
     g_workerGYIN_logger->debug("}"); //bidresponse end
 }
 
-
+#if 0
 char* memstr(char* full_data, int full_data_len, const char* substr)  
 {  
     if (full_data == NULL || full_data_len <= 0 || substr == NULL) {  
@@ -1791,6 +1791,7 @@ char* memstr(char* full_data, int full_data_len, const char* substr)
   
     return NULL;  
 }  
+#endif
 
 int getPartLen(char *Src,int& partLen)
 {    
@@ -2986,37 +2987,51 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     struct event *listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
     char *recv_str = new char[4096];
     memset(recv_str,0,4096*sizeof(char));    
-    
-    int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
-    if (ret == 0)
-    {
-        g_worker_logger->debug("server TELE CLOSE_WAIT ...");
-        serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
-        delete [] recv_str;
-        return;
-    }
-    if (ret == -1)
-    {
-        g_worker_logger->emerg("recv AdResponse fail !");
-        serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
-        delete [] recv_str;
-        return;
-    }
-    
+    int recv_bytes = 0;
     g_worker_logger->debug("RECV TELE HTTP RSP by PID: {0:d}",getpid());
-    if(serv->m_config.get_logTeleHttpRsp())
-    {
-        g_worker_logger->debug("\r\n{0}",recv_str);	
-    }        
     char * jsonData = new char[4048];
+
+    struct chunkedData_t *chData_t = new chunkedData_t();
+    chData_t->data = jsonData;
+    chData_t->curLen = 0;
+
+    int dataLen = 0;
+    
     memset(jsonData,0,4048*sizeof(char));
-    int dataLen = serv->getHttpRspData(jsonData, recv_str);       
+    while(1)
+    {
+        recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
+        if (recv_bytes == 0)    //connect abort
+        {
+            g_worker_logger->debug("server TELE CLOSE_WAIT ...");
+            serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+            close(sock);
+            event_del(listenEvent);
+            delete [] recv_str;
+            break;
+        }
+        else if (recv_bytes == -1)  //SOCKET_ERROR
+        {
+            g_worker_logger->emerg("recv AdResponse fail !");
+            serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+            close(sock);
+            event_del(listenEvent);
+            delete [] recv_str;
+            break;
+        }
+        else    //normal success
+        {
+            if(serv->m_config.get_logTeleHttpRsp())
+            {
+                g_worker_logger->debug("\r\n{0}",recv_str);	
+            }        
+            //int dataLen = serv->getHttpRspData(jsonData, recv_str);  
+            dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
+        }
+    }
+        
     delete [] recv_str;
-	if(dataLen == 0)
+    if(dataLen == 0)
     {
         g_worker_logger->error("Get json data from HTTP response failed !");
         delete [] jsonData;

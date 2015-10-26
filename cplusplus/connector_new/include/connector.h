@@ -45,6 +45,8 @@
 #include "MobileAdResponse.pb.h"
 #include "GMobileAdRequestResponse.pb.h"
 
+#include "http_parse.h"
+
 using namespace com::rj::protos::mobile::request;
 using namespace com::rj::protos::mobile::response;
 using namespace com::rj::adsys::dsp::connector::obj::g::proto;

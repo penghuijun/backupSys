@@ -2985,19 +2985,21 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     }
    
     struct event *listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
+    
     char *recv_str = new char[4096];
     memset(recv_str,0,4096*sizeof(char));    
     int recv_bytes = 0;
+    
     g_worker_logger->debug("RECV TELE HTTP RSP by PID: {0:d}",getpid());
     char * jsonData = new char[4048];
+    memset(jsonData,0,4048*sizeof(char));
 
     struct chunkedData_t *chData_t = new chunkedData_t();
     chData_t->data = jsonData;
     chData_t->curLen = 0;
 
-    int dataLen = 0;
+    int dataLen = 0;    
     
-    memset(jsonData,0,4048*sizeof(char));
     while(1)
     {
         recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
@@ -3024,13 +3026,12 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
             if(serv->m_config.get_logTeleHttpRsp())
             {
                 g_worker_logger->debug("\r\n{0}",recv_str);	
-            }        
-            //int dataLen = serv->getHttpRspData(jsonData, recv_str);  
+            }                    
             dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
         }
     }
         
-    delete [] recv_str;
+    //delete [] recv_str;
     if(dataLen == 0)
     {
         g_worker_logger->error("Get json data from HTTP response failed !");
@@ -3054,36 +3055,52 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
    
     char *recv_str = new char[4096];
     memset(recv_str,0,4096*sizeof(char));    
-    
-    int ret = recv(sock, recv_str, 4096*sizeof(char), 0);
-    if (ret == 0)
-    {
-        g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");        
-        struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
-        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
-        delete [] recv_str;
-        return;
-    }
-    if (ret == -1)
-    {
-        g_workerGYIN_logger->emerg("recv AdResponse fail !");        
-        struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
-        serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-        close(sock);
-        event_del(listenEvent);
-        delete [] recv_str;
-        return;
-    }
-    
+    int recv_bytes = 0;
+
     g_workerGYIN_logger->debug("RECV GYIN HTTP RSP by PID: {0:d}",getpid());    
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
-    g_workerGYIN_logger->debug("\r\n{0}",recv_str);
-    int dataLen = serv->getHttpRspData(protoData, recv_str);        
-    delete [] recv_str;
-	if(dataLen == 0)
+
+    struct chunkedData_t *chData_t = new chunkedData_t();
+    chData_t->data = protoData;
+    chData_t->curLen = 0;
+
+    int dataLen = 0;    
+
+    while(1)
+    {
+        recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
+        if (recv_bytes == 0)
+        {
+            g_workerGYIN_logger->debug("server GYIN CLOSE_WAIT ...");        
+            struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+            serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+            close(sock);
+            event_del(listenEvent);
+            delete [] recv_str;
+            break;
+        }
+        if (recv_bytes == -1)
+        {
+            g_workerGYIN_logger->emerg("recv AdResponse fail !");        
+            struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+            serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+            close(sock);
+            event_del(listenEvent);
+            delete [] recv_str;
+            break;
+        }
+        else
+        {
+            g_workerGYIN_logger->debug("\r\n{0}",recv_str);
+            dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
+        }
+    }
+    
+     
+    //int dataLen = serv->getHttpRspData(protoData, recv_str);        
+    //delete [] recv_str;
+    if(dataLen == 0)
     {        
         delete [] protoData;
         return;

@@ -45,7 +45,7 @@ int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
 
     int tempLen = 0;
     sscanf(data_start, "%x", &tempLen);
-    tempLen = (tempLen > 0 ? tempLen - 2 : tempLen);
+    //tempLen = (tempLen > 0 ? tempLen - 2 : tempLen);
 
     if(tempLen > 0)
     {

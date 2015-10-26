@@ -3080,6 +3080,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     g_workerGYIN_logger->debug("RECV GYIN HTTP RSP by PID: {0:d}",getpid());    
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
+    g_workerGYIN_logger->debug("\r\n{0}",recv_str);
     int dataLen = serv->getHttpRspData(protoData, recv_str);        
     delete [] recv_str;
 	if(dataLen == 0)

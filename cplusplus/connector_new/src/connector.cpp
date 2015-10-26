@@ -41,7 +41,7 @@ map<int,ConnectionType> ConnectionTypeMap;
 #endif
 
 
-const int CHECK_COMMMSG_TIMEOUT = 100; // 100ms
+const int CHECK_COMMMSG_TIMEOUT = 200; // 200ms
 const long long TELECODEUPDATE_TIME = 24*60*60*1000; // 24 hours
 const long long CLOCK_TIME = 17*60*60*1000; //Beijing time : 01:00:00  -> GMT(Greenwich mean time): 17:00:00
 
@@ -3037,7 +3037,7 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
                     break;
                 case HTTP_CHUNKED:
                     dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);                    
-                    g_worker_logger->debug("\r\n{0}", chData_t->data);
+                    //g_worker_logger->debug("\r\n{0}", chData_t->data);
                     break;
                 case HTTP_UNKNOW_TYPE:
                     g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
@@ -3120,7 +3120,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
                     break;
                 case HTTP_CHUNKED:
                     dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
-                    g_workerGYIN_logger->debug("\r\n{0}", chData_t->data);
+                    //g_workerGYIN_logger->debug("\r\n{0}", chData_t->data);
                     break;
                 case HTTP_UNKNOW_TYPE:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");

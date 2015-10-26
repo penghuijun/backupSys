@@ -41,7 +41,7 @@ map<int,ConnectionType> ConnectionTypeMap;
 #endif
 
 
-const int CHECK_COMMMSG_TIMEOUT = 200; // 200ms
+const int CHECK_COMMMSG_TIMEOUT = 2000; // 2000ms
 const long long TELECODEUPDATE_TIME = 24*60*60*1000; // 24 hours
 const long long CLOCK_TIME = 17*60*60*1000; //Beijing time : 01:00:00  -> GMT(Greenwich mean time): 17:00:00
 

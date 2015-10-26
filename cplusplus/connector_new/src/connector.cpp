@@ -3109,7 +3109,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         }
         else
         {
-            g_workerGYIN_logger->debug("\r\n{0}",recv_str);
+            //g_workerGYIN_logger->debug("\r\n{0}",recv_str);
             switch(httpBodyParse(recv_str, recv_bytes))
             {
                 case HTTP_204_NO_CONTENT:

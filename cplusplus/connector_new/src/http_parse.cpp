@@ -53,9 +53,9 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
         char *chunked_end = memstr(data_start, data_len, "\r\n");
         int chunked_len = chunked_end - data_start;
 
-        if(chunked_len < tempLen)
+        if(chunked_len < tempLen)   //compare real len with len field value
         {
-            return HTTP_CHUNKED_DATA_LOSE;
+            return HTTP_BODY_DATA_LOSE;
         }
         
         char *curPos = chData_t->data + chData_t->curLen;
@@ -73,6 +73,45 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
         return chData_t->curLen;
     }
     
+}
+
+int httpContentLengthParse(struct spliceData_t *conData_t, char *input, int inLen)
+{
+    if(input == NULL || inLen <= 0)
+    {
+        return conData_t->curLen;
+    }
+
+    char *data_start = input;
+    int data_len = inLen;
+
+    char *temp = memstr(data_start, data_len, "Content-Length");
+
+    if(temp)
+    {
+        temp += 15;        
+        int tempLen = 0;
+        sscanf(temp, "%d", &tempLen);
+        
+        data_start = memstr(data_start, data_len, "\r\n\r\n");
+
+        if(data_start)
+        {
+            data_start += 4;
+            data_len -= (data_start - input);
+
+            if(data_len < tempLen)  //compare real len with len field value
+            {
+                return HTTP_BODY_DATA_LOSE;
+            }
+
+            char *curPos = conData_t->data + conData_t->curLen;
+            memcpy(curPos, data_start, tempLen);
+            conData_t->curLen += tempLen;
+        }        
+    }
+    
+    return conData_t->curLen;    
 }
 
 int httpChunkedParse(struct spliceData_t *chData_t, char *input, int inLen)
@@ -104,7 +143,7 @@ int httpChunkedParse(struct spliceData_t *chData_t, char *input, int inLen)
     
 }
 
-int httpBodyParse(char *input, int inLen)
+int httpBodyTypeParse(char *input, int inLen)
 {
     if(input == NULL || inLen <= 0)
     {

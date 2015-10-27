@@ -1762,37 +1762,6 @@ void connectorServ::displayGYinBidResponse(const char *data,int dataLen)
     g_workerGYIN_logger->debug("}"); //bidresponse end
 }
 
-#if 0
-char* memstr(char* full_data, int full_data_len, const char* substr)  
-{  
-    if (full_data == NULL || full_data_len <= 0 || substr == NULL) {  
-        return NULL;  
-    }  
-  
-    if (*substr == '\0') {  
-        return NULL;  
-    }  
-  
-    int sublen = strlen(substr);  
-  
-    int i;  
-    char* cur = full_data;  
-    int last_possible = full_data_len - sublen + 1;  
-    for (i = 0; i < last_possible; i++) {  
-        if (*cur == *substr) {  
-            //assert(full_data_len - i >= sublen);  
-            if (memcmp(cur, substr, sublen) == 0) {  
-                //found  
-                return cur;  
-            }  
-        }  
-        cur++;  
-    }  
-  
-    return NULL;  
-}  
-#endif
-
 int getPartLen(char *Src,int& partLen)
 {    
     char *ch = memstr(Src,strlen(Src),"\r\n");
@@ -1812,119 +1781,6 @@ int getPartData(char *Dest,char *Src)
     int len = ch - Src;
     strncat(Dest, Src, len);    
     return len;
-}
-
-int connectorServ::getHttpRspData(char *Dest,char *Src)
-{   
-    string temp = Src;
-    if(temp.empty())
-    {        
-        g_worker_logger->debug("HTTP RSP DATA is empty");
-        g_workerGYIN_logger->debug("HTTP RSP DATA is empty");
-        return 0;
-    }
-    if(temp.find("chunked") != temp.npos)   //China Telecom : JSON
-    {
-        char *Src_end = Src+strlen(Src); //avoid point overflow
-        char *chunked_start = memstr(Src,strlen(Src),"\r\n\r\n");    
-        if(chunked_start == NULL)
-        {
-            return 0;
-        }
-        chunked_start += 4; 
-        if(chunked_start >= Src_end) //overflow
-            return 0;
-        int partLen;
-        int len = getPartLen(chunked_start,partLen);   
-        if(len == -1)
-        {
-            g_worker_logger->debug("TELE HTTP RSP : chunked len novalid");
-            return 0;
-        }
-        chunked_start = chunked_start+len+2;  
-        if(chunked_start >= Src_end) //overflow
-            return 0;
-        int tempLen = 0;
-        while(partLen)
-        {
-            tempLen = getPartData(Dest,chunked_start);
-            if(tempLen == -1)
-            {
-                g_worker_logger->debug("TELE HTTP RSP : jsonData novalid");
-                break;
-            }
-            chunked_start = chunked_start+tempLen+2;
-            if(chunked_start >= Src_end) //overflow
-                break;
-            len = getPartLen(chunked_start,partLen);
-            if(len == -1)
-                break;
-            chunked_start = chunked_start+len+2;     
-            if(chunked_start >= Src_end) //overflow
-                break;
-        }
-        return strlen(Dest);
-    }
-    else if((temp.find("200 OK") != temp.npos) && (temp.find("Content-Length") != temp.npos))  //GYIN : protobuf
-    {
-        int pos = temp.find("Content-Length");
-    	if(!(pos>=0))
-        {        
-            g_workerGYIN_logger->debug("GYIN HTTP RSP : Find proto data Failed !");
-            return 0;
-        }   
-    	char *ch = Src+pos+15;
-    	int len = 0;
-    	while((*ch != '\r')&&(*ch != '\0'))
-    	{
-    		ch++;
-    		len++;		    		
-    	}
-    	char *con_len_str = new char[len+1];
-    	strncpy(con_len_str,Src+pos+15,len);
-        con_len_str[len] = '\0';    	
-    	int content_len = atoi(con_len_str);       	
-        delete [] con_len_str;	    	
-    	char *dataStart = memstr(Src,strlen(Src),"\r\n\r\n");
-    	memcpy(Dest,dataStart+4,content_len); 
-        Dest[content_len] = '\0';
-        g_workerGYIN_logger->debug("GYIN HTTP RSP: 200 OK");
-        g_workerGYIN_logger->debug("Content-Length: {0:d}",content_len);
-        return content_len;
-    }
-    else if(temp.find("204 No Content") != temp.npos)   //GYIN
-    {
-        g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
-        return 0;
-    }
-    
-    
-    #if 0
-    int pos = temp.find("content-length");
-	if(!(pos>=0))
-    {        
-        g_worker_logger->debug("httpRecvData : Find json data Failed !");
-        return NULL;
-    }   
-	char *ch = Src+pos+15;
-	int len = 0;
-	while(*ch != '\r')
-	{
-		ch++;
-		len++;		
-	}
-	char *con_len_str = new char[len+1];
-	strncpy(con_len_str,Src+pos+15,len);
-    con_len_str[len] = '\0';
-	//cout << con_len_str << endl;
-	int content_len = atoi(con_len_str);
-	//cout << content_len << endl;
-    delete [] con_len_str;	
-	len = strlen(Src);
-	strncpy(Src,Src+len-content_len,content_len); 
-    Src[content_len] = '\0';
-    #endif
-    //return Src;
 }
 
 void connectorServ::hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDataPort)
@@ -3001,9 +2857,9 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     char * jsonData = new char[4048];
     memset(jsonData, 0, 4048*sizeof(char));
 
-    struct spliceData_t *chunkedData_t = new spliceData_t();
-    chunkedData_t->data = jsonData;
-    chunkedData_t->curLen = 0;
+    struct spliceData_t *httpBodyData_t = new spliceData_t();
+    httpBodyData_t->data = jsonData;
+    httpBodyData_t->curLen = 0;
 
     int dataLen = 0;    
     int temp = 0;
@@ -3045,18 +2901,19 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     {
         g_worker_logger->debug("\r\n{0}",fullData_t->data);	
     }                    
-    switch(httpBodyParse(fullData_t->data, fullData_t->curLen))
+    switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
     {
         case HTTP_204_NO_CONTENT:
             g_worker_logger->debug("GYIN HTTP RSP: 204 No Content");
             break;
         case HTTP_CONTENT_LENGTH:
             g_worker_logger->debug("GYIN HTTP RSP: Content-Length");
+            dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
             break;
         case HTTP_CHUNKED:
             g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
-            dataLen = httpChunkedParse(chunkedData_t, fullData_t->data, fullData_t->curLen);                    
-            g_worker_logger->debug("\r\nCHUNKED:\r\n{0}", chunkedData_t->data);
+            dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
+            g_worker_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
             g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
@@ -3071,19 +2928,19 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     //delete [] recv_str;
     if(dataLen == 0)
     {
-        g_worker_logger->error("Get json data from HTTP response failed !");
-        delete [] jsonData;
-        return;
+        ; //already printf "GYIN HTTP RSP: 204 No Content"  
     }   
     else if(dataLen == -1)
     {
-        g_worker_logger->error("HTTP CHUNKED DATA INCOMPLETE ");
-        delete [] jsonData;
-        return;
+        g_worker_logger->error("HTTP BODY DATA INCOMPLETE ");
     }
-    g_worker_logger->debug("BidRsponse : {0}",jsonData);    
-    serv->handle_BidResponseFromDSP(DATA_JSON,jsonData,dataLen);   
+    else
+    {
+        g_worker_logger->debug("BidRsponse : {0}",jsonData);    
+        serv->handle_BidResponseFromDSP(DATA_JSON,jsonData,dataLen);   
+    }        
     delete [] jsonData;
+    delete httpBodyData_t;
     
 }
 
@@ -3104,9 +2961,9 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
 
-    struct spliceData_t *chunkedData_t = new spliceData_t();
-    chunkedData_t->data = protoData;
-    chunkedData_t->curLen = 0;
+    struct spliceData_t *httpBodyData_t = new spliceData_t();
+    httpBodyData_t->data = protoData;
+    httpBodyData_t->curLen = 0;
 
     int dataLen = 0;    
 
@@ -3136,18 +2993,19 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         else
         {
             g_workerGYIN_logger->debug("\r\n{0}",recv_str);
-            switch(httpBodyParse(recv_str, recv_bytes))
+            switch(httpBodyTypeParse(recv_str, recv_bytes))
             {
                 case HTTP_204_NO_CONTENT:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
                     break;
                 case HTTP_CONTENT_LENGTH:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: Content-Length");
+                    dataLen = httpContentLengthParse(httpBodyData_t, recv_str, recv_bytes);
                     break;
                 case HTTP_CHUNKED:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
-                    dataLen = httpChunkedParse(chunkedData_t, recv_str, recv_bytes);
-                    g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", chunkedData_t->data);
+                    dataLen = httpChunkedParse(httpBodyData_t, recv_str, recv_bytes);
+                    g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
                     break;
                 case HTTP_UNKNOW_TYPE:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
@@ -3163,15 +3021,22 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     delete [] recv_str;
     if(dataLen == 0)
     {        
-        delete [] protoData;
-        return;
+        ;  //already printf "GYIN HTTP RSP: 204 No Content"
     }   
-    if(serv->m_config.get_logGYINHttpRsp())
+    else if(dataLen == -1)
     {
-        serv->displayGYinBidResponse(protoData, dataLen);
-    }    
-    serv->handle_BidResponseFromDSP(DATA_PROTOBUF,protoData,dataLen);   
+        g_workerGYIN_logger->error("HTTP BODY DATA INCOMPLETE");
+    }
+    else
+    {
+        if(serv->m_config.get_logGYINHttpRsp())
+        {
+            serv->displayGYinBidResponse(protoData, dataLen);
+        }    
+        serv->handle_BidResponseFromDSP(DATA_PROTOBUF,protoData,dataLen);     
+    }      
     delete [] protoData;    
+    delete httpBodyData_t;
     
 }
 

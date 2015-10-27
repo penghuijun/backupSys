@@ -13,7 +13,7 @@ using namespace std;
 #define HTTP_CONTENT_LENGTH	2
 #define HTTP_CHUNKED			3
 #define HTTP_UNKNOW_TYPE		9999
-#define HTTP_CHUNKED_DATA_LOSE	-1
+#define HTTP_BODY_DATA_LOSE	-1
 
 
 struct spliceData_t
@@ -24,7 +24,8 @@ struct spliceData_t
 
 char* memstr(char* full_data, int full_data_len, const char* substr);
 int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen);
-int httpChunkedParse(struct spliceData_t *chData_t, char *data, int dataLen);
-int httpBodyParse(char *input, int inLen);
+int httpContentLengthParse(struct spliceData_t *conData_t, char *input, int inLen);
+int httpChunkedParse(struct spliceData_t *chData_t, char *input, int inLen);
+int httpBodyTypeParse(char *input, int inLen);
 
 #endif

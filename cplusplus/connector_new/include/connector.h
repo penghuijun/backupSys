@@ -208,7 +208,6 @@ public:
 	void displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);
 	void displayGYinBidResponse(const char *data,int dataLen);	
-	int getHttpRspData(char *Dest, char *Src);
 	void hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDataPort);
 	void genFundaCommands(vector<string>& sql_commands);
 	void genAppumpCommands(vector<string>& sql_commands);

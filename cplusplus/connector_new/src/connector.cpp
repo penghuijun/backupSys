@@ -2904,19 +2904,19 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
     {
         case HTTP_204_NO_CONTENT:
-            g_worker_logger->debug("GYIN HTTP RSP: 204 No Content");
+            g_worker_logger->debug("TELE HTTP RSP: 204 No Content");
             break;
         case HTTP_CONTENT_LENGTH:
-            g_worker_logger->debug("GYIN HTTP RSP: Content-Length");
+            g_worker_logger->debug("TELE HTTP RSP: Content-Length");
             dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
             break;
         case HTTP_CHUNKED:
-            g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
+            g_worker_logger->debug("TELE HTTP RSP: Chunked");
             dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
             g_worker_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
-            g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
+            g_worker_logger->debug("TELE HTTP RSP: HTTP UNKNOW TYPE");
             break;
          default:
             break;                    

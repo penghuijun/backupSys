@@ -13,6 +13,7 @@ using namespace std;
 #define HTTP_CONTENT_LENGTH	2
 #define HTTP_CHUNKED			3
 #define HTTP_UNKNOW_TYPE		9999
+#define HTTP_CHUNKED_DATA_LOSE	-1
 
 
 struct chunkedData_t

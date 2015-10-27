@@ -44,11 +44,19 @@ int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
     int tempLen = 0;
     sscanf(data_start, "%x", &tempLen);
     //tempLen = (tempLen > 0 ? tempLen - 2 : tempLen);
-
+   
     if(tempLen > 0)
-    {
+    {    
         data_start = memstr(data_start, data_len, "\r\n");
         data_start += 2;        
+
+        char *chunked_end = memstr(data_start, data_len, "\r\n");
+        int chunked_len = chunked_end - data_start;
+
+        if(chunked_len < tempLen)
+        {
+            return HTTP_CHUNKED_DATA_LOSE;
+        }
         
         char *curPos = chData_t->data + chData_t->curLen;
         memcpy(curPos, data_start, tempLen);
@@ -58,7 +66,7 @@ int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
         data_start += 2;
         data_len -= (data_start - input);
         
-        chunkedbodyParse(chData_t, data_start, data_len);
+        return chunkedbodyParse(chData_t, data_start, data_len);
     }
     else    //end
     {

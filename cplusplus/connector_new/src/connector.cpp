@@ -3056,6 +3056,12 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
         delete [] jsonData;
         return;
     }   
+    else if(dataLen == -1)
+    {
+        g_worker_logger->error("HTTP CHUNKED DATA INCOMPLETE ");
+        delete [] jsonData;
+        return;
+    }
     g_worker_logger->debug("BidRsponse : {0}",jsonData);    
     serv->handle_BidResponseFromDSP(DATA_JSON,jsonData,dataLen);   
     delete [] jsonData;

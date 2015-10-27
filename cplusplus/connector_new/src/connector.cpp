@@ -2987,18 +2987,26 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     struct event *listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
     
     char *recv_str = new char[4096];
-    memset(recv_str,0,4096*sizeof(char));    
+    memset(recv_str, 0, 4096*sizeof(char));    
     int recv_bytes = 0;
+
+    char *fullData = new char[4096];
+    memset(fullData, 0, 4096*sizeof(char));
+
+    struct spliceData_t *fullData_t = new spliceData_t();
+    fullData_t->data = fullData;
+    fullData_t->curLen = 0;
     
     g_worker_logger->debug("RECV TELE HTTP RSP by PID: {0:d}",getpid());
     char * jsonData = new char[4048];
-    memset(jsonData,0,4048*sizeof(char));
+    memset(jsonData, 0, 4048*sizeof(char));
 
-    struct chunkedData_t *chData_t = new chunkedData_t();
-    chData_t->data = jsonData;
-    chData_t->curLen = 0;
+    struct spliceData_t *chunkedData_t = new spliceData_t();
+    chunkedData_t->data = jsonData;
+    chunkedData_t->curLen = 0;
 
     int dataLen = 0;    
+    int temp = 0;
     
     while(1)
     {
@@ -3023,32 +3031,43 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
         }
         else    //normal success
         {
-            if(serv->m_config.get_logTeleHttpRsp())
-            {
-                g_worker_logger->debug("\r\n{0}",recv_str);	
-            }                    
-            switch(httpBodyParse(recv_str, recv_bytes))
-            {
-                case HTTP_204_NO_CONTENT:
-                    g_worker_logger->debug("GYIN HTTP RSP: 204 No Content");
-                    break;
-                case HTTP_CONTENT_LENGTH:
-                    g_worker_logger->debug("GYIN HTTP RSP: Content-Length");
-                    break;
-                case HTTP_CHUNKED:
-                    g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
-                    dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);                    
-                    g_worker_logger->debug("\r\nCHUNKED:\r\n{0}", chData_t->data);
-                    break;
-                case HTTP_UNKNOW_TYPE:
-                    g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
-                    break;
-                 default:
-                    break;                    
-            }
+            if(temp)
+                g_worker_logger->debug("SPLICE HAPPEN");
+            g_worker_logger->debug("\r\n{0}", recv_str);
+            char *curPos = fullData_t->data + fullData_t->curLen;
+            memcpy(curPos, recv_str, recv_bytes);
+            fullData_t->curLen += recv_bytes;
+            temp++;            
         }
     }
-        
+
+    if(serv->m_config.get_logTeleHttpRsp())
+    {
+        g_worker_logger->debug("\r\n{0}",fullData_t->data);	
+    }                    
+    switch(httpBodyParse(fullData_t->data, fullData_t->curLen))
+    {
+        case HTTP_204_NO_CONTENT:
+            g_worker_logger->debug("GYIN HTTP RSP: 204 No Content");
+            break;
+        case HTTP_CONTENT_LENGTH:
+            g_worker_logger->debug("GYIN HTTP RSP: Content-Length");
+            break;
+        case HTTP_CHUNKED:
+            g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
+            dataLen = httpChunkedParse(chunkedData_t, fullData_t->data, fullData_t->curLen);                    
+            g_worker_logger->debug("\r\nCHUNKED:\r\n{0}", chunkedData_t->data);
+            break;
+        case HTTP_UNKNOW_TYPE:
+            g_worker_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
+            break;
+         default:
+            break;                    
+    }
+
+    delete [] fullData;
+    delete [] fullData_t;
+            
     //delete [] recv_str;
     if(dataLen == 0)
     {
@@ -3085,9 +3104,9 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
 
-    struct chunkedData_t *chData_t = new chunkedData_t();
-    chData_t->data = protoData;
-    chData_t->curLen = 0;
+    struct spliceData_t *chunkedData_t = new spliceData_t();
+    chunkedData_t->data = protoData;
+    chunkedData_t->curLen = 0;
 
     int dataLen = 0;    
 
@@ -3127,8 +3146,8 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
                     break;
                 case HTTP_CHUNKED:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
-                    dataLen = httpChunkedParse(chData_t, recv_str, recv_bytes);
-                    g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", chData_t->data);
+                    dataLen = httpChunkedParse(chunkedData_t, recv_str, recv_bytes);
+                    g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", chunkedData_t->data);
                     break;
                 case HTTP_UNKNOW_TYPE:
                     g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");

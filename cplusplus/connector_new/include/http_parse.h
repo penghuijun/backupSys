@@ -16,14 +16,15 @@ using namespace std;
 #define HTTP_CHUNKED_DATA_LOSE	-1
 
 
-struct chunkedData_t
+struct spliceData_t
 {
 	char *data;	
 	int curLen;
 };
+
 char* memstr(char* full_data, int full_data_len, const char* substr);
-int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen);
-int httpChunkedParse(struct chunkedData_t *chData_t, char *data, int dataLen);
+int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen);
+int httpChunkedParse(struct spliceData_t *chData_t, char *data, int dataLen);
 int httpBodyParse(char *input, int inLen);
 
 #endif

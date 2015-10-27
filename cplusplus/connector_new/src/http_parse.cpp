@@ -31,7 +31,7 @@ char* memstr(char* full_data, int full_data_len, const char* substr)
     return NULL;  
 }  
 
-int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
+int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
 {
     if(input == NULL || inLen <= 0)
     {
@@ -75,7 +75,7 @@ int chunkedbodyParse(struct chunkedData_t *chData_t, char *input, int inLen)
     
 }
 
-int httpChunkedParse(struct chunkedData_t *chData_t, char *input, int inLen)
+int httpChunkedParse(struct spliceData_t *chData_t, char *input, int inLen)
 {
     if(input == NULL || inLen <= 0)
     {

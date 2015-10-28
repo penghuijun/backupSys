@@ -85,11 +85,15 @@ enum proStatus
 	PRO_RESTART,
 	PRO_KILLING
 };
+
+#if 0
 enum dataType
 {
 	DATA_JSON,
 	DATA_PROTOBUF
 };
+#endif
+
 enum dspType
 {
 	TELE,	//China telecom
@@ -201,7 +205,7 @@ public:
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
 	void handle_recvAdResponse(int sock, short event, void *arg, dspType type);
-	void handle_BidResponseFromDSP(dataType type,char *data,int dataLen);		
+	void handle_BidResponseFromDSP(dspType type,char *data,int dataLen);		
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	

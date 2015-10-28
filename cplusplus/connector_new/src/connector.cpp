@@ -1788,18 +1788,29 @@ void connectorServ::hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDa
     m_bc_manager.hashGetBCinfo(uuid,bcIP,bcDataPort);
 }
 
-void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataLen)
+void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLen)
 {
     int responseDataLen = 0;    
     string uuid;    //for hash get bc info
     char *responseDataStr;
+
+    shared_ptr<spdlog::logger> g_logger = NULL;
+    string dspName;
+    bool flag_displayCommonMsgResponse = false; 
+    
     switch(type)
     {
-        case DATA_JSON:
+        case TELE:
             responseDataStr = convertTeleBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid);
+            g_logger = g_worker_logger;
+            dspName = "TELE";
+            flag_displayCommonMsgResponse = m_config.get_logTeleRsp();
             break;
-        case DATA_PROTOBUF:
+        case GYIN:
             responseDataStr = convertGYinBidResponseProtoToProtobuf(data,dataLen,responseDataLen,uuid);
+            g_logger = g_workerGYIN_logger;
+            dspName = "GYIN";
+            flag_displayCommonMsgResponse = m_config.get_logGYINRsp();
             break;
         default:
             break;
@@ -1807,15 +1818,19 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
     
     if(responseDataStr && (responseDataLen > 0))
     {
+        if(flag_displayCommonMsgResponse)
+            displayCommonMsgResponse(g_logger, responseDataStr, responseDataLen);  
+            
+        #if 0
         switch(type)
         {
-            case DATA_JSON:      
+            case TELE:      
                 if(m_config.get_logTeleRsp())
                 {
                     displayCommonMsgResponse(g_worker_logger,responseDataStr,responseDataLen);   
                 }                
                 break;
-            case DATA_PROTOBUF:         
+            case GYIN:         
                 if(m_config.get_logGYINRsp())
                 {
                     displayCommonMsgResponse(g_workerGYIN_logger,responseDataStr,responseDataLen); 
@@ -1824,6 +1839,8 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
             default:
                 break; 
         }
+        #endif
+        
         string bcIP;
         unsigned short bcDataPort;
         hashGetBCinfo(uuid,bcIP,bcDataPort);   
@@ -1831,38 +1848,45 @@ void connectorServ::handle_BidResponseFromDSP(dataType type,char *data,int dataL
         int ssize = m_bc_manager.sendAdRspToBC(bcIP, bcDataPort, responseDataStr, responseDataLen, ZMQ_NOBLOCK);
         if(ssize > 0)
         {
+            g_logger->debug("{0} send AdResponse to BC success: {1} \r\n", dspName, uuid);
+            #if 0
             switch(type)
             {
-                 case DATA_JSON: 
+                 case TELE: 
                     g_worker_logger->debug("TELE send AdResponse to BC success: {0} \r\n", uuid);
                     break;
-                 case DATA_PROTOBUF:
+                 case GYIN:
                     g_workerGYIN_logger->debug("GYIN send AdResponse to BC success: {0} \r\n", uuid);
                     break;
                  default:
                     break;
             }            
+            #endif
         }
         else
         {
+            g_logger->debug("{0} send AdResponse to BC failed: {1} \r\n", dspName, uuid);
+            #if 0
             switch(type)
             {
-                 case DATA_JSON: 
+                 case TELE: 
                     g_worker_logger->debug("TELE send AdResponse to BC fail: {0} \r\n", uuid);
                     break;
-                 case DATA_PROTOBUF:
+                 case GYIN:
                     g_workerGYIN_logger->debug("GYIN send AdResponse to BC fail: {0} \r\n", uuid);
                     break;
                  default:
                     break;
             }
+            #endif
         }
         
         delete [] responseDataStr;
     }
     else
     {
-        g_worker_logger->debug("no valid BidResponse generate \r\n");   
+        g_logger->debug("no valid BidResponse generate \r\n");
+        //g_worker_logger->debug("no valid BidResponse generate \r\n");   
     }    
 }
 bool connectorServ::getStringFromSQLMAP(vector<string>& str_buf,const MobileAdRequest_Device& request_dev,const MobileAdRequest_GeoInfo& request_geo)
@@ -2837,7 +2861,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     if(serv==NULL) 
         return;
 
-    shared_ptr<spdlog::logger> *logger_p = NULL;
+    shared_ptr<spdlog::logger> g_logger = NULL;
     string dspName;
     struct event *listenEvent = NULL;
     bool flag_displayBodyData = false; 
@@ -2845,13 +2869,13 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     switch(type)
     {
         case TELE:
-            logger_p = &g_worker_logger;
+            g_logger = g_worker_logger;
             dspName = "TELE";
             listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
             flag_displayBodyData = serv->m_config.get_logTeleHttpRsp();
             break;
         case GYIN:
-            logger_p = &g_workerGYIN_logger;
+            g_logger = g_workerGYIN_logger;
             dspName = "GYIN";
             listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
             flag_displayBodyData = serv->m_config.get_logGYINHttpRsp();
@@ -2871,7 +2895,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     fullData_t->data = fullData;
     fullData_t->curLen = 0;
     
-    (*logger_p)->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
+    g_logger->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
     char * bodyData = new char[4048];
     memset(bodyData, 0, 4048*sizeof(char));
 
@@ -2888,7 +2912,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
         if (recv_bytes == 0)    //connect abort
         {
-            (*logger_p)->debug("server {0} CLOSE_WAIT ...", dspName);
+            g_logger->debug("server {0} CLOSE_WAIT ...", dspName);
             switch(type)
             {
                 case TELE:
@@ -2910,20 +2934,20 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             //socket type: O_NONBLOCK
             if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
             {
-                (*logger_p)->debug("ERRNO EAGAIN: RECV END");
+                g_logger->debug("ERRNO EAGAIN: RECV END");
                 break;
             }
             else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
             {
-                (*logger_p)->debug("ERRNO EINTR: RECV AGAIN");
+                g_logger->debug("ERRNO EINTR: RECV AGAIN");
                 continue;
             }
         }
         else    //normal success
         {
             if(temp)
-                (*logger_p)->debug("SPLICE HAPPEN");
-            (*logger_p)->debug("\r\n{0}", recv_str);
+                g_logger->debug("SPLICE HAPPEN");
+            g_logger->debug("\r\n{0}", recv_str);
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;
@@ -2934,19 +2958,19 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
     {
         case HTTP_204_NO_CONTENT:
-            (*logger_p)->debug("TELE HTTP RSP: 204 No Content");
+            g_logger->debug("{0} HTTP RSP: 204 No Content", dspName);
             break;
         case HTTP_CONTENT_LENGTH:
-            (*logger_p)->debug("TELE HTTP RSP: Content-Length");
+            g_logger->debug("{0} HTTP RSP: Content-Length", dspName);
             dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
             break;
         case HTTP_CHUNKED:
-            (*logger_p)->debug("TELE HTTP RSP: Chunked");
+            g_logger->debug("{0} HTTP RSP: Chunked", dspName);
             dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
-            (*logger_p)->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+            g_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
-            (*logger_p)->debug("TELE HTTP RSP: HTTP UNKNOW TYPE");
+            g_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
             break;
          default:
             break;                    
@@ -2962,7 +2986,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     }   
     else if(dataLen == -1)
     {
-        (*logger_p)->error("HTTP BODY DATA INCOMPLETE ");
+        g_logger->error("HTTP BODY DATA INCOMPLETE ");
     }
     else
     {
@@ -2971,7 +2995,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:
-                    (*logger_p)->debug("BidRsponse : {0}",bodyData);   
+                    g_logger->debug("BidRsponse : {0}",bodyData);   
                     break;
                 case GYIN:
                     serv->displayGYinBidResponse(bodyData, dataLen);
@@ -2981,7 +3005,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             }
         }
          
-        serv->handle_BidResponseFromDSP(DATA_JSON,bodyData,dataLen);   
+        serv->handle_BidResponseFromDSP(type, bodyData, dataLen);   
     }        
     delete [] bodyData;
     delete httpBodyData_t;

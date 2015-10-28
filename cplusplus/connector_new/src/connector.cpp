@@ -3032,8 +3032,8 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         else
         {
             if(temp)
-                g_worker_logger->debug("SPLICE HAPPEN");
-            g_worker_logger->debug("\r\n{0}", recv_str);
+                g_workerGYIN_logger->debug("SPLICE HAPPEN");
+            g_workerGYIN_logger->debug("\r\n{0}", recv_str);
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;

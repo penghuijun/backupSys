@@ -3010,12 +3010,12 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
             //socket type: O_NONBLOCK
             if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
             {
-                g_worker_logger->debug("ERRNO EAGAIN: RECV END");
+                g_workerGYIN_logger->debug("ERRNO EAGAIN: RECV END");
                 break;
             }
             else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
             {
-                g_worker_logger->debug("ERRNO EINTR: RECV AGAIN");
+                g_workerGYIN_logger->debug("ERRNO EINTR: RECV AGAIN");
                 continue;
             }
 

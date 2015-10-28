@@ -2831,9 +2831,174 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
         }
     }
 }
+void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspType type)
+{
+    connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+        return;
+
+    shared_ptr<spdlog::logger> *logger_p = NULL;
+    string dspName;
+    struct event *listenEvent = NULL;
+    bool flag_displayBodyData = false; 
+    
+    switch(type)
+    {
+        case TELE:
+            logger_p = &g_worker_logger;
+            dspName = "TELE";
+            listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
+            flag_displayBodyData = serv->m_config.get_logTeleHttpRsp();
+            break;
+        case GYIN:
+            logger_p = &g_workerGYIN_logger;
+            dspName = "GYIN";
+            listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+            flag_displayBodyData = serv->m_config.get_logGYINHttpRsp();
+            break;
+        default:
+            break;          
+    }    
+    
+    char *recv_str = new char[4096];
+    memset(recv_str, 0, 4096*sizeof(char));    
+    int recv_bytes = 0;
+
+    char *fullData = new char[4096];
+    memset(fullData, 0, 4096*sizeof(char));
+
+    struct spliceData_t *fullData_t = new spliceData_t();
+    fullData_t->data = fullData;
+    fullData_t->curLen = 0;
+    
+    (*logger_p)->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
+    char * bodyData = new char[4048];
+    memset(bodyData, 0, 4048*sizeof(char));
+
+    struct spliceData_t *httpBodyData_t = new spliceData_t();
+    httpBodyData_t->data = bodyData;
+    httpBodyData_t->curLen = 0;
+
+    int dataLen = 0;    
+    int temp = 0;
+    
+    while(1)
+    {
+        memset(recv_str,0,4096*sizeof(char));    
+        recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
+        if (recv_bytes == 0)    //connect abort
+        {
+            (*logger_p)->debug("server {0} CLOSE_WAIT ...", dspName);
+            switch(type)
+            {
+                case TELE:
+                    serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+                    break;
+                case GYIN:
+                    serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+                    break;
+                default:
+                    break;                    
+            }
+            close(sock);
+            event_del(listenEvent);
+            delete [] recv_str;
+            return;
+        }
+        else if (recv_bytes < 0)  //SOCKET_ERROR
+        {
+            //socket type: O_NONBLOCK
+            if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+            {
+                (*logger_p)->debug("ERRNO EAGAIN: RECV END");
+                break;
+            }
+            else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+            {
+                (*logger_p)->debug("ERRNO EINTR: RECV AGAIN");
+                continue;
+            }
+        }
+        else    //normal success
+        {
+            if(temp)
+                (*logger_p)->debug("SPLICE HAPPEN");
+            (*logger_p)->debug("\r\n{0}", recv_str);
+            char *curPos = fullData_t->data + fullData_t->curLen;
+            memcpy(curPos, recv_str, recv_bytes);
+            fullData_t->curLen += recv_bytes;
+            temp++;            
+        }
+    }
+               
+    switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
+    {
+        case HTTP_204_NO_CONTENT:
+            (*logger_p)->debug("TELE HTTP RSP: 204 No Content");
+            break;
+        case HTTP_CONTENT_LENGTH:
+            (*logger_p)->debug("TELE HTTP RSP: Content-Length");
+            dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+            break;
+        case HTTP_CHUNKED:
+            (*logger_p)->debug("TELE HTTP RSP: Chunked");
+            dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
+            (*logger_p)->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+            break;
+        case HTTP_UNKNOW_TYPE:
+            (*logger_p)->debug("TELE HTTP RSP: HTTP UNKNOW TYPE");
+            break;
+         default:
+            break;                    
+    }
+
+    delete [] fullData;
+    delete [] fullData_t;
+            
+    //delete [] recv_str;
+    if(dataLen == 0)
+    {
+        ; //already printf "GYIN HTTP RSP: 204 No Content"  
+    }   
+    else if(dataLen == -1)
+    {
+        (*logger_p)->error("HTTP BODY DATA INCOMPLETE ");
+    }
+    else
+    {
+        if(flag_displayBodyData)
+        {
+            switch(type)
+            {
+                case TELE:
+                    (*logger_p)->debug("BidRsponse : {0}",bodyData);   
+                    break;
+                case GYIN:
+                    serv->displayGYinBidResponse(bodyData, dataLen);
+                    break;
+                default:
+                    break;                              
+            }
+        }
+         
+        serv->handle_BidResponseFromDSP(DATA_JSON,bodyData,dataLen);   
+    }        
+    delete [] bodyData;
+    delete httpBodyData_t;
+    
+}
 void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
 {   
     connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+    {
+        g_worker_logger->emerg("handle_recvAdResponseTele param is null");
+        return;
+    }
+    
+    serv->handle_recvAdResponse(sock, event, arg, TELE);
+
+    #if 0
     if(serv==NULL) 
     {
         g_worker_logger->emerg("handle_recvAdResponseTele param is null");
@@ -2875,7 +3040,7 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
             close(sock);
             event_del(listenEvent);
             delete [] recv_str;
-            break;
+            return;
         }
         else if (recv_bytes < 0)  //SOCKET_ERROR
         {
@@ -2890,15 +3055,6 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
                 g_worker_logger->debug("ERRNO EINTR: RECV AGAIN");
                 continue;
             }
-
-            #if 0
-            g_worker_logger->emerg("recv AdResponse fail !");
-            serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
-            close(sock);
-            event_del(listenEvent);
-            delete [] recv_str;
-            break;
-            #endif
         }
         else    //normal success
         {
@@ -2956,12 +3112,21 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     }        
     delete [] jsonData;
     delete httpBodyData_t;
-    
+    #endif
 }
 
 void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
 {   
     connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+    {
+        g_workerGYIN_logger->emerg("handle_recvAdResponseGYin param is null");
+        return;
+    }
+    
+    serv->handle_recvAdResponse(sock, event, arg, GYIN);
+
+    #if 0
     if(serv==NULL) 
     {
         g_workerGYIN_logger->emerg("handle_recvAdResponseGYin param is null");
@@ -3018,16 +3183,6 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
                 g_workerGYIN_logger->debug("ERRNO EINTR: RECV AGAIN");
                 continue;
             }
-
-            #if 0
-            g_workerGYIN_logger->emerg("recv AdResponse fail !");        
-            struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
-            serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
-            close(sock);
-            event_del(listenEvent);
-            delete [] recv_str;
-            return;
-            #endif
         }
         else
         {
@@ -3085,7 +3240,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     }      
     delete [] protoData;    
     delete httpBodyData_t;
-    
+    #endif
 }
 
 void *connectorServ::connectToOther(void *arg)

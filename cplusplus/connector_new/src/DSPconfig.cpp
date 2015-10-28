@@ -565,21 +565,10 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
         close(sock);
         return false;
     }
-    #if 0
-    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
-    {
-        if(errno == EINPROGRESS)
-        {
-            g_worker_logger->error("TELE CONNECT FAIL ...");      
-            close(sock);
-            return false;
-        }                
-    }
-    #endif
     
     //add this socket to event listen queue
-	struct event *sock_event;
-	sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    struct event *sock_event;
+    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
     event_add(sock_event, NULL);
 
     struct listenObject *listen = new listenObject();    
@@ -595,7 +584,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
         delete [] send_str;
         return false;
     }         
-	delete [] send_str;
+    delete [] send_str;
     return true;
 }
 
@@ -769,18 +758,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     int sock =  obj->sock;
     
-    #if 0
-    list<listenObject *>::iterator it = getListenObjectList().begin();    
-    for(;it != getListenObjectList().end(); it++)
-    {
-        listenObject *obj = *it;
-        if(obj != NULL)
-        {
-            sock = obj->sock;
-            break;
-        }                    
-    }   
-    #endif
     bool ret = true;
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     if (send(sock, send_str, wholeLen,0) == -1)
@@ -833,17 +810,6 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
         close(sock);
         return false;
     }
-    #if 0
-    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
-    {
-        if(errno == EINPROGRESS)
-        {
-            g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
-            close(sock);
-            return false;
-        }        
-    }
-    #endif
 
     //add this socket to event listen queue
     struct event *sock_event;

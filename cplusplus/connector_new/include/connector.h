@@ -81,7 +81,7 @@ private:
 enum proStatus
 {
 	PRO_INIT,
-    PRO_BUSY,
+    	PRO_BUSY,
 	PRO_RESTART,
 	PRO_KILLING
 };
@@ -89,6 +89,11 @@ enum dataType
 {
 	DATA_JSON,
 	DATA_PROTOBUF
+};
+enum dspType
+{
+	TELE,	//China telecom
+	GYIN	//GuangYin
 };
 
 typedef struct BCProessInfo
@@ -195,6 +200,7 @@ public:
 	bool GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request);
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
+	void handle_recvAdResponse(int sock, short event, void *arg, dspType type);
 	void handle_BidResponseFromDSP(dataType type,char *data,int dataLen);		
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
@@ -213,7 +219,7 @@ public:
 	void genAppumpCommands(vector<string>& sql_commands);
 	void versionConvert(string &Dest,const char *Src);
 	int getDataFromMysql_Funda();
-	int getDataFromMysql_Appump();	
+	int getDataFromMysql_Appump();		
 	
 	~connectorServ(){}
 private:

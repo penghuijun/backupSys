@@ -108,6 +108,47 @@ int checkConnect(int fd, int connect_ret)
     return 0;
 }
 
+ssize_t socket_send(int sockfd, const char *buffer, size_t buflen)
+{
+    ssize_t ret = 0;
+    size_t total = buflen;
+    const char *data_start = buffer;
+
+    while(1)
+    {
+        ret = send(sockfd, data_start, total, 0);
+        if(ret < 0)     //SOCKET_ERROR
+        {
+        
+          /**
+            **#define   EINTR       4     //Interrupted system call 
+            **#define   EAGAIN    11    //Try again 
+            **/
+            
+            if(errno == EINTR)      //The call was interrupted by a signal before any data was written
+            {
+                return -1;
+            }
+            else if(errno == EAGAIN)    //send_buf is full,please try again
+            {
+                //usleep(1000);
+                continue;
+            }
+
+            return -1;
+        }
+
+        if((size_t)ret == total)    
+            return buflen;
+
+        //send incomplete
+        total -= ret;
+        data_start +=ret;
+    }
+    
+    return ret;
+}
+
 struct listenObject* dspObject::findListenObject(int sock)
 {
     m_listenObjectListLock.lock();
@@ -578,7 +619,8 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     getListenObjectList().push_back(listen);
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
-    if (send(sock, send_str, strlen(send_str),0) == -1)
+    //if (send(sock, send_str, strlen(send_str),0) == -1)
+    if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_worker_logger->error("adReqSock send failed ...");
         delete [] send_str;
@@ -760,7 +802,8 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     
     bool ret = true;
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
-    if (send(sock, send_str, wholeLen,0) == -1)
+    //if (send(sock, send_str, wholeLen,0) == -1)
+    if(socket_send(sock, send_str, wholeLen) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
         ret  = false;

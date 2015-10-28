@@ -15,6 +15,9 @@ using namespace std;
 #define HTTP_UNKNOW_TYPE		9999
 #define HTTP_BODY_DATA_LOSE	-1
 
+#define RECV_COMPLETE			0
+#define RECV_INCOMPLETE			1
+
 
 struct spliceData_t
 {

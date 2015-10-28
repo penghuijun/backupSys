@@ -2866,6 +2866,7 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
     
     while(1)
     {
+        memset(recv_str,0,4096*sizeof(char));    
         recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
         if (recv_bytes == 0)    //connect abort
         {
@@ -2876,14 +2877,28 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
             delete [] recv_str;
             break;
         }
-        else if (recv_bytes == -1)  //SOCKET_ERROR
+        else if (recv_bytes < 0)  //SOCKET_ERROR
         {
+            //socket type: O_NONBLOCK
+            if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+            {
+                g_worker_logger->debug("ERRNO EAGAIN: RECV END");
+                break;
+            }
+            else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+            {
+                g_worker_logger->debug("ERRNO EINTR: RECV AGAIN");
+                continue;
+            }
+
+            #if 0
             g_worker_logger->emerg("recv AdResponse fail !");
             serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
             close(sock);
             event_del(listenEvent);
             delete [] recv_str;
             break;
+            #endif
         }
         else    //normal success
         {
@@ -2957,6 +2972,14 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     memset(recv_str,0,4096*sizeof(char));    
     int recv_bytes = 0;
 
+    
+    char *fullData = new char[4096];
+    memset(fullData, 0, 4096*sizeof(char));
+
+    struct spliceData_t *fullData_t = new spliceData_t();
+    fullData_t->data = fullData;
+    fullData_t->curLen = 0;
+
     g_workerGYIN_logger->debug("RECV GYIN HTTP RSP by PID: {0:d}",getpid());    
     char * protoData = new char[4048];
     memset(protoData,0,4048*sizeof(char));
@@ -2966,9 +2989,11 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     httpBodyData_t->curLen = 0;
 
     int dataLen = 0;    
+    int temp = 0;
 
-    //while(1)
+    while(1)
     {
+        memset(recv_str,0,4096*sizeof(char));    
         recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
         if (recv_bytes == 0)
         {
@@ -2980,8 +3005,21 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
             delete [] recv_str;
             return;
         }
-        if (recv_bytes == -1)
+       else if (recv_bytes < 0)  //SOCKET_ERROR
         {
+            //socket type: O_NONBLOCK
+            if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+            {
+                g_worker_logger->debug("ERRNO EAGAIN: RECV END");
+                break;
+            }
+            else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+            {
+                g_worker_logger->debug("ERRNO EINTR: RECV AGAIN");
+                continue;
+            }
+
+            #if 0
             g_workerGYIN_logger->emerg("recv AdResponse fail !");        
             struct event *listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
             serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
@@ -2989,34 +3027,44 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
             event_del(listenEvent);
             delete [] recv_str;
             return;
+            #endif
         }
         else
         {
-            g_workerGYIN_logger->debug("\r\n{0}",recv_str);
-            switch(httpBodyTypeParse(recv_str, recv_bytes))
-            {
-                case HTTP_204_NO_CONTENT:
-                    g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
-                    break;
-                case HTTP_CONTENT_LENGTH:
-                    g_workerGYIN_logger->debug("GYIN HTTP RSP: Content-Length");
-                    dataLen = httpContentLengthParse(httpBodyData_t, recv_str, recv_bytes);
-                    break;
-                case HTTP_CHUNKED:
-                    g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
-                    dataLen = httpChunkedParse(httpBodyData_t, recv_str, recv_bytes);
-                    g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
-                    break;
-                case HTTP_UNKNOW_TYPE:
-                    g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
-                    break;
-                 default:
-                    break;                    
-            }
+            if(temp)
+                g_worker_logger->debug("SPLICE HAPPEN");
+            g_worker_logger->debug("\r\n{0}", recv_str);
+            char *curPos = fullData_t->data + fullData_t->curLen;
+            memcpy(curPos, recv_str, recv_bytes);
+            fullData_t->curLen += recv_bytes;
+            temp++;               
         }
     }
+
+    switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
+    {
+        case HTTP_204_NO_CONTENT:
+            g_workerGYIN_logger->debug("GYIN HTTP RSP: 204 No Content");
+            break;
+        case HTTP_CONTENT_LENGTH:
+            g_workerGYIN_logger->debug("GYIN HTTP RSP: Content-Length");
+            dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+            break;
+        case HTTP_CHUNKED:
+            g_workerGYIN_logger->debug("GYIN HTTP RSP: Chunked");
+            dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+            g_workerGYIN_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+            break;
+        case HTTP_UNKNOW_TYPE:
+            g_workerGYIN_logger->debug("GYIN HTTP RSP: HTTP UNKNOW TYPE");
+            break;
+         default:
+            break;                    
+    }
+
+    delete [] fullData;
+    delete [] fullData_t;
     
-     
     //int dataLen = serv->getHttpRspData(protoData, recv_str);        
     delete [] recv_str;
     if(dataLen == 0)
@@ -3165,16 +3213,16 @@ void *connectorServ::checkConnectNum(void *arg)
     connectorServ *serv = (connectorServ*) arg;   
     int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();
     while(1)
-    {
-        serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
+    {        
         int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();
         if(GYIN_curConnectNum < GYIN_maxConnectNum)
         {
+            serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
             if(serv->m_dspManager.getGuangYinObject()->addConnectToGYIN(serv->m_base, handle_recvAdResponseGYin, arg))
                 serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
-        }
-        serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-        sleep(1);
+            serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+        }        
+        //sleep(1);
     }
 }
 void connectorServ::masterRun()

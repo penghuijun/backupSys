@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <event.h>
 #include <list>
+#include <fcntl.h>
 
 #include "spdlog/spdlog.h"
 #include "json/json.h"

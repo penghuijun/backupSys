@@ -49,6 +49,7 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
     {    
         data_start = memstr(data_start, data_len, "\r\n");
         data_start += 2;        
+        //data_len -= (data_start - input); 
 
         char *chunked_end = memstr(data_start, data_len, "\r\n");
         int chunked_len = chunked_end - data_start;

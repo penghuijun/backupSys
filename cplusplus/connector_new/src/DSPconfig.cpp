@@ -473,12 +473,15 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
 	sin.sin_port = htons(httpPort);    
 	sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
 
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    int sock = socket(AF_INET, SOCK_STREAM, 0);  
     if (sock == -1)
     {
         g_worker_logger->error("adReqSock create failed ...");
         return false;
     }	
+
+    //非阻塞
+    fcntl(sock, F_SETFL, O_NONBLOCK);
 
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
@@ -731,6 +734,9 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
         g_workerGYIN_logger->error("GYIN SOCK CREATE FAIL ...");
         return false;
     }   
+
+    //非阻塞
+    fcntl(sock, F_SETFL, O_NONBLOCK);
     
     //建立连接
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)

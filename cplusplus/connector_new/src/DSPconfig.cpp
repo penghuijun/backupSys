@@ -470,8 +470,8 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     unsigned short httpPort = atoi(adReqPort.c_str());      
     
     sin.sin_family = AF_INET;    
-	sin.sin_port = htons(httpPort);    
-	sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
+    sin.sin_port = htons(httpPort);    
+    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);  
     if (sock == -1)
@@ -484,11 +484,14 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     fcntl(sock, F_SETFL, O_NONBLOCK);
 
     //建立连接
-    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
+    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
     {
-        g_worker_logger->error("adReqSock connect failed ...");   
-        close(sock);
-        return false;
+        if(errno == EINPROGRESS)
+        {
+            g_worker_logger->error("TELE CONNECT FAIL ...");      
+            close(sock);
+            return false;
+        }                
     }
     
     //add this socket to event listen queue
@@ -739,11 +742,14 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
     fcntl(sock, F_SETFL, O_NONBLOCK);
     
     //建立连接
-    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
+    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
     {
-        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
-        close(sock);
-        return false;
+        if(errno == EINPROGRESS)
+        {
+            g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+            close(sock);
+            return false;
+        }        
     }
 
     //add this socket to event listen queue

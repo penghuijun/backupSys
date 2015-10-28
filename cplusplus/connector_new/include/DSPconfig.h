@@ -11,6 +11,7 @@
 #include <event.h>
 #include <list>
 #include <fcntl.h>
+#include <sys/epoll.h>
 
 #include "spdlog/spdlog.h"
 #include "json/json.h"

@@ -33,7 +33,80 @@ char* mem_ncat(char *strDest,const char* strSrc,int size)
         size--;
     } 
     return address;
-}   
+}
+
+#define     EPOLL_MAXEVENTS     64
+
+int checkConnect(int fd, int connect_ret)
+{
+    int epfd, nevents, status;
+    struct epoll_event ev, events[EPOLL_MAXEVENTS];
+    socklen_t slen = sizeof(int);
+    
+    if(connect_ret == 0)    //non-blocking connect success, connect complete immediately
+    {
+        close(fd);
+        return -1;
+    }
+
+    if(connect_ret < 0 && errno != EINPROGRESS)     //connect error
+    {
+        return -1;
+    }
+
+    epfd = epoll_create(EPOLL_MAXEVENTS);
+    ev.events = EPOLLOUT;
+    ev.data.fd = fd;
+    if(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)   //epoll_ctl error
+    {
+        goto finish;
+    }
+
+    //add connect fd into epoll
+
+    memset(events, 0, sizeof(events));
+
+    for(;;)
+    {
+        nevents = epoll_wait(epfd, events, EPOLL_MAXEVENTS, -1);
+
+        if(nevents < 0)     //epoll_wait failed
+        {
+            goto finish;
+        }
+
+        for(int i=0; i<nevents; i++)
+        {
+            if(events[i].data.fd == fd)
+            {
+                if(getsockopt(fd, SOL_SOCKET, SO_ERROR, (void *) &status, &slen) < 0)   //getsockopt error
+                {
+                    goto finish;
+                }
+                if(status != 0)     //connect error
+                {
+                    goto finish;
+                }
+
+                //non-blocking connect success
+
+                if(epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL) == -1)  //epoll_ctl error
+                {
+                    return 0;
+                }
+
+                /* DO write...*/
+                return 1;
+            }
+        }
+    }
+
+    finish:
+        close(fd);
+        close(epfd);
+
+    return 0;
+}
 
 struct listenObject* dspObject::findListenObject(int sock)
 {
@@ -481,9 +554,18 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     }	
 
     //非阻塞
-    fcntl(sock, F_SETFL, O_NONBLOCK);
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 
     //建立连接
+    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) );
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        close(sock);
+        return false;
+    }
+    #if 0
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
     {
         if(errno == EINPROGRESS)
@@ -493,6 +575,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
             return false;
         }                
     }
+    #endif
     
     //add this socket to event listen queue
 	struct event *sock_event;
@@ -739,9 +822,18 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
     }   
 
     //非阻塞
-    fcntl(sock, F_SETFL, O_NONBLOCK);
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     
     //建立连接
+    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        close(sock);
+        return false;
+    }
+    #if 0
     if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) < 0)
     {
         if(errno == EINPROGRESS)
@@ -751,6 +843,7 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
             return false;
         }        
     }
+    #endif
 
     //add this socket to event listen queue
     struct event *sock_event;

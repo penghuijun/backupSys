@@ -670,7 +670,7 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
     if(reader.parse(infile,root))
     {
         infile.close();        
-        g_worker_logger->debug("BidResponse.json parse success ");
+        g_worker_logger->trace("BidResponse.json parse success ");
         string str_id = root["id"].asString();
         //cout << "id = " << root["id"].asString() << endl;
         cmrObj = checkValidId(str_id);
@@ -679,7 +679,7 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
             g_worker_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
             return NULL;
         }
-        g_worker_logger->debug("Find BidRespnse id in commMsgRecordList success ");
+        g_worker_logger->trace("Find BidRespnse id in commMsgRecordList success ");
         request_commMsg = cmrObj->requestCommMsg;
         const string& commMsg_data = request_commMsg.data();        
         mobile_request.ParseFromString(commMsg_data);
@@ -870,7 +870,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
         return NULL;
     }
-    g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList success ");
+    g_workerGYIN_logger->trace("Find BidRespnse id in commMsgRecordList success ");
         
     request_commMsg = cmrObj->requestCommMsg;
     const string& commMsg_data = request_commMsg.data();        
@@ -1981,7 +1981,7 @@ bool connectorServ::Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRe
     vector<string> str_buf;
     if(getStringFromSQLMAP(str_buf,request_dev,request_geo))
     {
-        g_worker_logger->debug("get string from SQLMAP success!");
+        g_worker_logger->trace("get string from SQLMAP success!");
     }
     else
     {
@@ -2099,7 +2099,7 @@ bool connectorServ::convertProtoToTeleJson(string &reqTeleJsonData,const MobileA
 
     root.toStyledString();
     reqTeleJsonData = root.toStyledString();
-    g_worker_logger->debug("MobileAdRequest.proto->TeleBidRequest.json success");
+    g_worker_logger->trace("MobileAdRequest.proto->TeleBidRequest.json success");
     
     ofstream outfile;
     outfile.open("TeleBidRequest.json",ios::out | ios::binary);        
@@ -2182,7 +2182,7 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     vector<string> str_buf;
     if(getStringFromSQLMAP(str_buf,request_dev,request_geo))
     {
-        g_workerGYIN_logger->debug("get string from SQLMAP success!");
+        g_workerGYIN_logger->trace("get string from SQLMAP success!");
     }
     else
     {
@@ -2309,7 +2309,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     scenario->set_type(APP);
 
     int length = bidRequest.ByteSize();    
-    g_workerGYIN_logger->debug("MobileAdRequest.proto->GYinBidRequest.protobuf success , Length : {0:d}",length);
+    g_workerGYIN_logger->trace("MobileAdRequest.proto->GYinBidRequest.protobuf success , Length : {0:d}",length);
 
     return true;    
 }
@@ -2907,7 +2907,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
         if (recv_bytes == 0)    //connect abort
         {
-            g_logger->debug("server {0} CLOSE_WAIT ...", dspName);
+            g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
             switch(type)
             {
                 case TELE:
@@ -2931,20 +2931,20 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             //socket type: O_NONBLOCK
             if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
             {
-                g_logger->debug("ERRNO EAGAIN: RECV END");
+                g_logger->trace("ERRNO EAGAIN: RECV END");
                 break;
             }
             else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
             {
-                g_logger->debug("ERRNO EINTR: RECV AGAIN");
+                g_logger->trace("ERRNO EINTR: RECV AGAIN");
                 continue;
             }
         }
         else    //normal success
         {
             if(temp)
-                g_logger->debug("SPLICE HAPPEN");
-            g_logger->debug("\r\n{0}", recv_str);
+                g_logger->trace("SPLICE HAPPEN");
+            g_logger->trace("\r\n{0}", recv_str);
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;
@@ -2965,13 +2965,13 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             g_logger->debug("{0} HTTP RSP: 204 No Content", dspName);
             break;
         case HTTP_CONTENT_LENGTH:
-            g_logger->debug("{0} HTTP RSP: Content-Length", dspName);
+            g_logger->debug("{0} HTTP RSP 200 OK: Content-Length", dspName);
             dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
             break;
         case HTTP_CHUNKED:
-            g_logger->debug("{0} HTTP RSP: Chunked", dspName);
+            g_logger->debug("{0} HTTP RSP 200 OK: Chunked", dspName);
             dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
-            g_logger->debug("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+            g_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
             g_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);

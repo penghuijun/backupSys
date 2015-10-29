@@ -510,7 +510,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     strcpy(Url,adReqUrl.c_str());        
     string str = "?username="+user+"&password="+CeritifyCode;
     strcat(Url,str.c_str());    
-    g_worker_logger->debug("ADREQ URL : {0}",Url);
+    g_worker_logger->trace("ADREQ URL : {0}",Url);
 
     ostringstream os;
     os<<adReqIP<<":"<<adReqPort;    

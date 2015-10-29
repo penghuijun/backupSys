@@ -2952,6 +2952,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         }
     }
 
+    delete [] recv_str;
+
     char * bodyData = new char[BUF_SIZE];
     memset(bodyData, 0, BUF_SIZE*sizeof(char));
 
@@ -2981,9 +2983,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     }
 
     delete [] fullData;
-    delete [] fullData_t;
-            
-    //delete [] recv_str;
+    delete [] fullData_t;            
+    
     if(dataLen == 0)
     {
         ; //already printf "GYIN HTTP RSP: 204 No Content"  

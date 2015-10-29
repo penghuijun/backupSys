@@ -3393,15 +3393,15 @@ void *connectorServ::checkConnectNum(void *arg)
     int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();
     while(1)
     {        
+        serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
         int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();
         if(GYIN_curConnectNum < GYIN_maxConnectNum)
-        {
-            serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
+        {            
             if(serv->m_dspManager.getGuangYinObject()->addConnectToGYIN(serv->m_base, handle_recvAdResponseGYin, arg))
-                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
-            serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();            
         }        
-        //sleep(1);
+        serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+        //usleep(1000);     //1ms
     }
 }
 void connectorServ::masterRun()

@@ -122,7 +122,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 {
     int result_item_size = target_result_list.size();
 	target_result_info *target_item =NULL;
-	g_worker_logger->debug("##### result_item_size: {0:d} , convergence_num: {1:d}",result_item_size,convergence_num);
+	g_worker_logger->trace("##### result_item_size: {0:d} , convergence_num: {1:d}",result_item_size,convergence_num);
 	if(result_item_size > 1)
 	{
         int index = 0;
@@ -138,7 +138,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 			{
 				int *campaignID_set_ptr = target_item->get_array_ptr();
 				int  size = target_item->get_array_size();
-				g_worker_logger->debug("##### target name:{0} size:{1:d}",target_item->get_name(),size);
+				g_worker_logger->trace("##### target name:{0} size:{1:d}",target_item->get_name(),size);
 	
 				if(size <= convergence_num)
 				{
@@ -156,7 +156,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
 					else
 					{
 						min_array_ptr = target_set_intersection(first_array, first_array_len, target_item->get_array_ptr(), target_item->get_array_size(), min_array_size);//new
-						g_worker_logger->info("target_set_intersection time[{0:d}] result size : {1:d}",index,min_array_size);
+						g_worker_logger->trace("target_set_intersection time[{0:d}] result size : {1:d}",index,min_array_size);
 						char *temp_str = new char[1024];      
                         char *buffer = new char[5];
                         memset(temp_str,0,1024*sizeof(char));
@@ -166,7 +166,7 @@ bool redisClient::target_set_convergence(list<target_result_info*>& target_resul
                            sprintf(buffer,"%d ",min_array_ptr[n]);
                            strcat(temp_str,buffer);
                         }
-                        g_worker_logger->debug("{0}",temp_str);
+                        g_worker_logger->trace("{0}",temp_str);
                         delete [] temp_str;
                         delete [] buffer;
 						//free node1 and node2, erase node1, add intersection result to node2, so as a word, erase the origin node, insert the result
@@ -272,7 +272,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     {
        target_infomation *info = *it;
        if(!info) continue;
-       g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
+       g_worker_logger->trace("##### hget {0} {1}",info->get_name(),info->get_id());
        if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
        {
            redis_free();
@@ -287,7 +287,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
     {
         target_infomation *info = *it;
         if(!info) continue;
-        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
+        g_worker_logger->trace("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -302,7 +302,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      {
         target_infomation *info = *it;
         if(!info) continue;
-        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
+        g_worker_logger->trace("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -317,7 +317,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      {
         target_infomation *info = *it;
         if(!info) continue;
-        g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
+        g_worker_logger->trace("##### hget {0} {1}",info->get_name(),info->get_id());
         if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
         {
             redis_free();
@@ -331,7 +331,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
      for(auto it = target_signal_vec.begin(); it != target_signal_vec.end(); it++)
      {
          target_infomation *info = *it;
-         g_worker_logger->debug("##### hget {0} {1}",info->get_name(),info->get_id());
+         g_worker_logger->trace("##### hget {0} {1}",info->get_name(),info->get_id());
          if(redisAppendCommand(m_context, "hget %s %s", info->get_name().c_str(), info->get_id().c_str()) != REDIS_OK)
          {
             redis_free();
@@ -351,7 +351,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                 
       for(int idx = 1; idx <= total_num; idx++)
       {
-         g_worker_logger->debug("index: {0:d}",idx);
+         g_worker_logger->trace("index: {0:d}",idx);
          vector<int> tmp_vec;
          redisReply *ply;
          if(redisGetReply(m_context, (void **) &ply)!= REDIS_OK)
@@ -379,7 +379,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                     sprintf(buffer,"%d ",campaignID_array[n]);
                     strcat(temp_str,buffer);
                  }
-                 g_worker_logger->debug("{0}",temp_str);
+                 g_worker_logger->trace("{0}",temp_str);
                  delete [] temp_str;
                  delete [] buffer;
              }
@@ -396,7 +396,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                      free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                      array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
                      delete[] tmp_result;//free
-                     g_worker_logger->info("target_geo union result size : {0:d}",result_set_calculation_size);
+                     g_worker_logger->trace("target_geo union result size : {0:d}",result_set_calculation_size);
                      char *temp_str = new char[1024];      
                      char *buffer = new char[5];
                      memset(temp_str,0,1024*sizeof(char));
@@ -406,7 +406,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                         sprintf(buffer,"%d ",result_set_calculation[n]);
                         strcat(temp_str,buffer);
                      }
-                     g_worker_logger->debug("{0}",temp_str);
+                     g_worker_logger->trace("{0}",temp_str);
                      delete [] temp_str;
                      delete [] buffer;
                      target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_geo");
@@ -422,7 +422,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                       result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                       free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                       array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                      g_worker_logger->info("target_os union result size : {0:d}",result_set_calculation_size);
+                      g_worker_logger->trace("target_os union result size : {0:d}",result_set_calculation_size);
                       char *temp_str = new char[1024];      
                       char *buffer = new char[5];
                       memset(temp_str,0,1024*sizeof(char));
@@ -432,7 +432,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                          sprintf(buffer,"%d ",result_set_calculation[n]);
                          strcat(temp_str,buffer);
                       }
-                      g_worker_logger->debug("{0}",temp_str);
+                      g_worker_logger->trace("{0}",temp_str);
                       delete [] temp_str;
                       delete [] buffer;
                       target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_os");
@@ -448,7 +448,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       g_worker_logger->info("target_dev union result size : {0:d}",result_set_calculation_size);
+                       g_worker_logger->trace("target_dev union result size : {0:d}",result_set_calculation_size);
                        char *temp_str = new char[1024];      
                        char *buffer = new char[5];
                        memset(temp_str,0,1024*sizeof(char));
@@ -458,7 +458,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                           sprintf(buffer,"%d ",result_set_calculation[n]);
                           strcat(temp_str,buffer);
                        }
-                       g_worker_logger->debug("{0}",temp_str);
+                       g_worker_logger->trace("{0}",temp_str);
                        delete [] temp_str;
                        delete [] buffer;
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_dev");
@@ -474,7 +474,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                        result_set_calculation = target_set_union(campaignID_set[0], campaignID_set_size[0], campaignID_set[1], campaignID_set_size[1], result_set_calculation_size);//new
                        free_memory(campaignID_set, sizeof(campaignID_set)/sizeof(int *));//free
                        array_zero(campaignID_set_size, sizeof(campaignID_set_size)/sizeof(int));
-                       g_worker_logger->info("target_app union result size : {0:d}",result_set_calculation_size);
+                       g_worker_logger->trace("target_app union result size : {0:d}",result_set_calculation_size);
                        char *temp_str = new char[1024];      
                        char *buffer = new char[5];
                        memset(temp_str,0,1024*sizeof(char));
@@ -484,7 +484,7 @@ bool redisClient::redis_get_target(operationTarget &target_obj, target_result_in
                           sprintf(buffer,"%d ",result_set_calculation[n]);
                           strcat(temp_str,buffer);
                        }
-                       g_worker_logger->debug("{0}",temp_str);
+                       g_worker_logger->trace("{0}",temp_str);
                        delete [] temp_str;
                        delete [] buffer;
                        target_item_insert_sorted(target_item_list, result_set_calculation, result_set_calculation_size, "target_app");

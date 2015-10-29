@@ -232,7 +232,7 @@ void bcServ::check_data_record()
         mircotime_t diff = micro - tm;
         if(diff>=overTime)//if have overtime, then user overtime, if not use default overtime
         {            
-            g_file_logger->debug("overtime : delete uuid: {0}",bcDataIt->first);
+            g_file_logger->debug("TIMEOUT_DEL : {0}",bcDataIt->first);
             delete bcData;  
             m_bcDataRecList.erase(bcDataIt++);
         }

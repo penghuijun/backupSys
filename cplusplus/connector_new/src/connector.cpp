@@ -2884,32 +2884,27 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             break;          
     }    
     
-    char *recv_str = new char[4096];
-    memset(recv_str, 0, 4096*sizeof(char));    
+    char *recv_str = new char[BUF_SIZE];
+    memset(recv_str, 0, BUF_SIZE*sizeof(char));    
     int recv_bytes = 0;
 
-    char *fullData = new char[4096];
-    memset(fullData, 0, 4096*sizeof(char));
+    char *fullData = new char[BUF_SIZE];
+    memset(fullData, 0, BUF_SIZE*sizeof(char));
 
     struct spliceData_t *fullData_t = new spliceData_t();
     fullData_t->data = fullData;
     fullData_t->curLen = 0;
     
     g_logger->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
-    char * bodyData = new char[4048];
-    memset(bodyData, 0, 4048*sizeof(char));
-
-    struct spliceData_t *httpBodyData_t = new spliceData_t();
-    httpBodyData_t->data = bodyData;
-    httpBodyData_t->curLen = 0;
+    
 
     int dataLen = 0;    
     int temp = 0;
     
     while(1)
     {
-        memset(recv_str,0,4096*sizeof(char));    
-        recv_bytes = recv(sock, recv_str, 4096*sizeof(char), 0);
+        memset(recv_str,0,BUF_SIZE*sizeof(char));    
+        recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
         if (recv_bytes == 0)    //connect abort
         {
             g_logger->debug("server {0} CLOSE_WAIT ...", dspName);
@@ -2927,6 +2922,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             close(sock);
             event_del(listenEvent);
             delete [] recv_str;
+            delete [] fullData;
+            delete [] fullData_t;
             return;
         }
         else if (recv_bytes < 0)  //SOCKET_ERROR
@@ -2954,6 +2951,13 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             temp++;            
         }
     }
+
+    char * bodyData = new char[BUF_SIZE];
+    memset(bodyData, 0, BUF_SIZE*sizeof(char));
+
+    struct spliceData_t *httpBodyData_t = new spliceData_t();
+    httpBodyData_t->data = bodyData;
+    httpBodyData_t->curLen = 0;
                
     switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
     {

@@ -53,6 +53,7 @@ using namespace com::rj::adsys::dsp::connector::obj::g::proto;
 using namespace com::rj::protos;
 using namespace std;
 
+#define BUF_SIZE	1024*8
 #define PUBLISHKEYLEN_MAX 100
 #define EPSINON 0.000001
 extern vector<map<int,string>> SQL_MAP;

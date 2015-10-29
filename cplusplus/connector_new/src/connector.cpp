@@ -2962,7 +2962,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
     {
         case HTTP_204_NO_CONTENT:
-            g_logger->debug("{0} HTTP RSP: 204 No Content", dspName);
+            g_logger->debug("{0} HTTP RSP: 204 No Content\r\n", dspName);
             break;
         case HTTP_CONTENT_LENGTH:
             g_logger->debug("{0} HTTP RSP 200 OK: Content-Length", dspName);

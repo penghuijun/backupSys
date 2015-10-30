@@ -987,7 +987,7 @@ commMsgRecord* connectorServ::checkValidId(const string& str_id)
     for( ; it != commMsgRecordList.end(); it++)
     {
         commMsgRecord* cmrObj = *it;
-        CommonMessage reqCommMsg = cmrObj->requestCommMsg;
+        CommonMessage &reqCommMsg = cmrObj->requestCommMsg;
         const string& commMsg_data = reqCommMsg.data();
         MobileAdRequest mobile_request;
         mobile_request.ParseFromString(commMsg_data);
@@ -2316,7 +2316,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {
     try
-    {
+    {    
         const string& commMsg_data = request_commMsg.data();
         MobileAdRequest mobile_request;
         mobile_request.ParseFromString(commMsg_data);
@@ -2397,6 +2397,7 @@ void connectorServ::thread_handleAdRequest(void *arg)
             g_worker_logger->error("adREQ CommonMessage.proto Parse Fail,check required fields");
             throw -1;
         }
+        
         timeval tv;
         memset(&tv,0,sizeof(struct timeval));
         gettimeofday(&tv,NULL);
@@ -2409,7 +2410,7 @@ void connectorServ::thread_handleAdRequest(void *arg)
         //serv->global_requestCommMsg.ParseFromArray(buf+PUBLISHKEYLEN_MAX, dataLen-PUBLISHKEYLEN_MAX);
         const string& tbusinessCode = request_commMsg.businesscode();
             
-        if(tbusinessCode == serv->m_mobileBusinessCode)
+        if(tbusinessCode == serv->m_mobileBusinessCode)     //"2"
         {
             serv->mobile_AdRequestHandler(publishKey,request_commMsg);
         }

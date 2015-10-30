@@ -3408,7 +3408,7 @@ void *connectorServ::checkConnectNum(void *arg)
                 serv->m_dspManager.getGuangYinObject()->connectNumIncrease();            
         }        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-        //usleep(1000);     //1ms
+        usleep(1000);     //1ms
     }
 }
 void connectorServ::masterRun()

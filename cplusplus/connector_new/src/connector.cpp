@@ -41,7 +41,7 @@ map<int,ConnectionType> ConnectionTypeMap;
 #endif
 
 
-const int CHECK_COMMMSG_TIMEOUT = 2000; // 2000ms
+const int CHECK_COMMMSG_TIMEOUT = 200; // 200ms
 const long long TELECODEUPDATE_TIME = 24*60*60*1000; // 24 hours
 const long long CLOCK_TIME = 17*60*60*1000; //Beijing time : 01:00:00  -> GMT(Greenwich mean time): 17:00:00
 
@@ -680,7 +680,8 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
             return NULL;
         }
         g_worker_logger->trace("Find BidRespnse id in commMsgRecordList success ");
-        request_commMsg = cmrObj->requestCommMsg;
+
+        request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);        
         const string& commMsg_data = request_commMsg.data();        
         mobile_request.ParseFromString(commMsg_data);
         
@@ -872,7 +873,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     }
     g_workerGYIN_logger->trace("Find BidRespnse id in commMsgRecordList success ");
         
-    request_commMsg = cmrObj->requestCommMsg;
+    request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);  
     const string& commMsg_data = request_commMsg.data();        
     mobile_request.ParseFromString(commMsg_data);
 
@@ -983,21 +984,13 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
 
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
 {   
-    vector<commMsgRecord*>::iterator it = commMsgRecordList.begin();
-    for( ; it != commMsgRecordList.end(); it++)
+    auto commMsgRecordIt = commMsgRecordList.find(str_id);
+    if(commMsgRecordIt != commMsgRecordList.end())
     {
-        commMsgRecord* cmrObj = *it;
-        CommonMessage &reqCommMsg = cmrObj->requestCommMsg;
-        const string& commMsg_data = reqCommMsg.data();
-        MobileAdRequest mobile_request;
-        mobile_request.ParseFromString(commMsg_data);
-
-        if(!strcmp(str_id.c_str(),mobile_request.id().c_str()))
-        {
-            return cmrObj;            
-        }        
+        return commMsgRecordIt->second;
     }
-    return NULL;        
+    else
+        return NULL;
 }
 bool connectorServ::mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action)
 {
@@ -2398,17 +2391,32 @@ void connectorServ::thread_handleAdRequest(void *arg)
             throw -1;
         }
         
+        
+        const string& tbusinessCode = request_commMsg.businesscode();
+
+        const string& commMsg_data = request_commMsg.data();
+        MobileAdRequest mobile_request;
+        mobile_request.ParseFromString(commMsg_data);
+
+        string uuid = mobile_request.id();
+
         timeval tv;
         memset(&tv,0,sizeof(struct timeval));
         gettimeofday(&tv,NULL);
+
+        char *commMsgData = new char[dataLen-PUBLISHKEYLEN_MAX];
+        memcpy(commMsgData, buf+PUBLISHKEYLEN_MAX, dataLen-PUBLISHKEYLEN_MAX);
+        
         struct commMsgRecord* obj = new commMsgRecord();
-        obj->requestCommMsg = request_commMsg;
+        obj->data = commMsgData;
+        obj->datalen = dataLen-PUBLISHKEYLEN_MAX;
         obj->tv = tv;
+        
         serv->commMsgRecordList_lock.lock();
-        serv->commMsgRecordList.push_back(obj);
+        serv->commMsgRecordList.insert(pair<string, commMsgRecord*>(uuid, obj));
         serv->commMsgRecordList_lock.unlock();
-        //serv->global_requestCommMsg.ParseFromArray(buf+PUBLISHKEYLEN_MAX, dataLen-PUBLISHKEYLEN_MAX);
-        const string& tbusinessCode = request_commMsg.businesscode();
+
+        
             
         if(tbusinessCode == serv->m_mobileBusinessCode)     //"2"
         {
@@ -3375,14 +3383,14 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
             }  
         }
         
-        serv->commMsgRecordList_lock.lock();
-        vector<commMsgRecord*>::iterator it = serv->commMsgRecordList.begin();
-        for(; it != serv->commMsgRecordList.end(); )
+        serv->commMsgRecordList_lock.lock();        
+        for(auto it = serv->commMsgRecordList.begin(); it != serv->commMsgRecordList.end(); )
         {            
-            commMsgRecord* cmrObj = *it;
+            commMsgRecord* cmrObj = it->second;
             long long record_timeMs = cmrObj->tv.tv_sec*1000 + cmrObj->tv.tv_usec/1000;
             if(cur_timeMs - record_timeMs >= CHECK_COMMMSG_TIMEOUT)
             {
+                delete [] cmrObj->data;
                 delete cmrObj;
                 cmrObj = NULL;
                 it = serv->commMsgRecordList.erase(it);
@@ -3391,7 +3399,7 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
                 it++;               
         }        
         serv->commMsgRecordList_lock.unlock();
-        sleep(1);
+        usleep(1000);   //1ms
     }
 }
 void *connectorServ::checkConnectNum(void *arg)

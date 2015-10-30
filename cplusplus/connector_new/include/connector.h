@@ -137,14 +137,8 @@ private:
 
 struct commMsgRecord
 {
-#if 0
-public:
-	commMsgRecord(){}
-	commMsgRecord(CommonMessage& commMsg,struct timeval& t):requestCommMsg(commMsg),tv(t){}
-	~commMsgRecord(){}
-private:
-#endif
-	CommonMessage requestCommMsg;
+	char *data;
+	int datalen;
 	struct timeval tv;
 };
 class connectorServ
@@ -273,7 +267,8 @@ private:
 	
 	struct event			   *m_conChinaTelecomDspEvent;
 	
-	vector<commMsgRecord*>		commMsgRecordList;
+	//vector<commMsgRecord*>		commMsgRecordList;
+	map<string, commMsgRecord*>		commMsgRecordList;
 	mutex_lock					commMsgRecordList_lock;
 
 	dspManager					m_dspManager;

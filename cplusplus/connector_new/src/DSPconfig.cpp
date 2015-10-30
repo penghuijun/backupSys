@@ -602,7 +602,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) );
     if(checkConnect(sock, ret) <= 0)
     {
-        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        g_worker_logger->error("TELE CONNECT FAIL ...");      
         close(sock);
         return false;
     }

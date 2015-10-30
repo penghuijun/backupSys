@@ -2336,7 +2336,8 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 {
                     g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
                 }
-                g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
+                else
+                    g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
             }
             else
                  g_worker_logger->debug("convertProtoToTeleJson Failed ");  

@@ -200,7 +200,7 @@ public:
 	bool GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request);
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
-	void handle_recvAdResponse(int sock, short event, void *arg, dspType type);
+	void handle_recvAdResponse(int sock, short event, dspType type);
 	void handle_BidResponseFromDSP(dspType type,char *data,int dataLen);		
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);

@@ -2874,12 +2874,8 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
         }
     }
 }
-void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspType type)
+void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
 {
-    connectorServ *serv = (connectorServ*)arg;
-    if(serv==NULL) 
-        return;
-
     shared_ptr<spdlog::logger> g_logger = NULL;
     string dspName;
     struct event *listenEvent = NULL;
@@ -2890,14 +2886,14 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         case TELE:
             g_logger = g_worker_logger;
             dspName = "TELE";
-            listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
-            flag_displayBodyData = serv->m_config.get_logTeleHttpRsp();
+            listenEvent = m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
+            flag_displayBodyData = m_config.get_logTeleHttpRsp();
             break;
         case GYIN:
             g_logger = g_workerGYIN_logger;
             dspName = "GYIN";
-            listenEvent = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
-            flag_displayBodyData = serv->m_config.get_logGYINHttpRsp();
+            listenEvent = m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+            flag_displayBodyData = m_config.get_logGYINHttpRsp();
             break;
         default:
             break;          
@@ -2930,10 +2926,10 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:
-                    serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+                    m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
                     break;
                 case GYIN:
-                    serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+                    m_dspManager.getGuangYinObject()->eraseListenObject(sock);
                     break;
                 default:
                     break;                    
@@ -3022,14 +3018,14 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                     g_logger->debug("BidRsponse : {0}",bodyData);   
                     break;
                 case GYIN:
-                    serv->displayGYinBidResponse(bodyData, dataLen);
+                    displayGYinBidResponse(bodyData, dataLen);
                     break;
                 default:
                     break;                              
             }
         }
          
-        serv->handle_BidResponseFromDSP(type, bodyData, dataLen);   
+        handle_BidResponseFromDSP(type, bodyData, dataLen);   
     }        
     delete [] bodyData;
     delete httpBodyData_t;
@@ -3044,7 +3040,7 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
         return;
     }
     
-    serv->handle_recvAdResponse(sock, event, arg, TELE);
+    serv->handle_recvAdResponse(sock, event, TELE);
 
     #if 0
     if(serv==NULL) 
@@ -3172,7 +3168,7 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         return;
     }
     
-    serv->handle_recvAdResponse(sock, event, arg, GYIN);
+    serv->handle_recvAdResponse(sock, event, GYIN);
 
     #if 0
     if(serv==NULL) 

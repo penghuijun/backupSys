@@ -2411,6 +2411,15 @@ void connectorServ::thread_handleAdRequest(void *arg)
         obj->data = commMsgData;
         obj->datalen = dataLen-PUBLISHKEYLEN_MAX;
         obj->tv = tv;
+        if(request_commMsg.has_ttl()&&(!request_commMsg.ttl().empty()))
+        {
+            obj->ttl = atoi(request_commMsg.ttl().c_str());            
+        }
+        else
+        {
+            obj->ttl = CHECK_COMMMSG_TIMEOUT;
+        }
+        
         
         serv->commMsgRecordList_lock.lock();
         serv->commMsgRecordList.insert(pair<string, commMsgRecord*>(uuid, obj));
@@ -3388,7 +3397,7 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
         {            
             commMsgRecord* cmrObj = it->second;
             long long record_timeMs = cmrObj->tv.tv_sec*1000 + cmrObj->tv.tv_usec/1000;
-            if(cur_timeMs - record_timeMs >= CHECK_COMMMSG_TIMEOUT)
+            if(cur_timeMs - record_timeMs >= cmrObj->ttl)
             {
                 delete [] cmrObj->data;
                 delete cmrObj;

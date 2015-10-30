@@ -140,6 +140,7 @@ struct commMsgRecord
 	char *data;
 	int datalen;
 	struct timeval tv;
+	long long ttl;	//ms
 };
 class connectorServ
 {

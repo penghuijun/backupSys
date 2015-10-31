@@ -819,7 +819,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
 
 void guangYinObject::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
 {
-    int maxNum = getCurConnectNum();
+    int maxNum = getMaxConnectNum();
     for(int i=0; i < maxNum; i++)
     {
         if(addConnectToGYIN(base, fn, arg))

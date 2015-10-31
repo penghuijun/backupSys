@@ -616,7 +616,9 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     listen->sock = sock;
     listen->_event = sock_event;
     //m_listenObjectList.push_back(listen);
+    listenObjectList_Lock();
     getListenObjectList().push_back(listen);
+	listenObjectList_unLock();
     
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     //if (send(sock, send_str, strlen(send_str),0) == -1)
@@ -862,7 +864,10 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
     struct listenObject *listen = new listenObject();    
     listen->sock = sock;
     listen->_event = sock_event;
+
+	listenObjectList_Lock();
     getListenObjectList().push_back(listen);
+	listenObjectList_unLock();
     g_workerGYIN_logger->debug("GYIN ADD CONNECTION");
     return true;
     

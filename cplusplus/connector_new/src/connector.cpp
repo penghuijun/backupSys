@@ -2886,13 +2886,11 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
         case TELE:
             g_logger = g_worker_logger;
             dspName = "TELE";
-            listenEvent = m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
             flag_displayBodyData = m_config.get_logTeleHttpRsp();
             break;
         case GYIN:
             g_logger = g_workerGYIN_logger;
             dspName = "GYIN";
-            listenEvent = m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
             flag_displayBodyData = m_config.get_logGYINHttpRsp();
             break;
         default:
@@ -2925,10 +2923,12 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
             switch(type)
             {
-                case TELE:
-                    m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+                case TELE:					
+					listenEvent = m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
+                    m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);					
                     break;
-                case GYIN:
+                case GYIN:					
+					listenEvent = m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
                     m_dspManager.getGuangYinObject()->eraseListenObject(sock);
                     break;
                 default:

@@ -2343,7 +2343,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */
         int GYIN_maxFlowLimit = m_dspManager.getGuangYinObject()->getMaxFlowLimit();
         int GYIN_curFlowCount = m_dspManager.getGuangYinObject()->getCurFlowCount();
-        if(m_config.get_enGYIN()&&(GYIN_curFlowCount <= GYIN_maxFlowLimit))
+        if(m_config.get_enGYIN()&&(GYIN_curFlowCount < GYIN_maxFlowLimit))
         {
             BidRequest bidRequest;        
             if(convertProtoToGYinProto(bidRequest,mobile_request))
@@ -2369,8 +2369,9 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             else
                 g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
         }   
-        else if(GYIN_curFlowCount > GYIN_maxFlowLimit)
+        else if(GYIN_curFlowCount == GYIN_maxFlowLimit)
         {
+            m_dspManager.getGuangYinObject()->curFlowCountIncrease();
             g_workerGYIN_logger->debug("FLOW LIMITED...");
         }
              

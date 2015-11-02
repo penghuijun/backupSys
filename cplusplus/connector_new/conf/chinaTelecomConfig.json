@@ -32,6 +32,7 @@
 /*FILTER*/
 	"extNetId": "100",
 	"intNetId": "6",
+	"maxConnectNum":5,
 	"appFilter":[
 		"com.rj.rj2048"
 	],

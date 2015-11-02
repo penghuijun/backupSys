@@ -3410,17 +3410,29 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
 void *connectorServ::checkConnectNum(void *arg)
 {
     connectorServ *serv = (connectorServ*) arg;   
+    
+    int TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum();
     int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();
     while(1)
     {        
+        serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
+        int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
+        if(TELE_curConnectNum < TELE_maxConnectNum)
+        {            
+            if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
+                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();            
+        }        
+        serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
+        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
         int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();
         if(GYIN_curConnectNum < GYIN_maxConnectNum)
         {            
-            if(serv->m_dspManager.getGuangYinObject()->addConnectToGYIN(serv->m_base, handle_recvAdResponseGYin, arg))
+            if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
                 serv->m_dspManager.getGuangYinObject()->connectNumIncrease();            
         }        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+
         usleep(1000);     //1ms
     }
 }
@@ -3487,15 +3499,10 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
     m_dspManager.init();
-    m_dspManager.creatConnectGYIN(m_base, handle_recvAdResponseGYin, this);
+    m_dspManager.creatConnectDSP(m_base, handle_recvAdResponseGYin, this);
 
-    //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
-    //event_add(recvGYINrspEvent, NULL);
-    
-    
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 
-        
     commMsgRecordList_lock.init();
     pthread_t pth1;
     pthread_t pth2;

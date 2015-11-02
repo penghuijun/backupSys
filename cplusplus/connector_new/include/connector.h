@@ -95,11 +95,13 @@ enum dataType
 };
 #endif
 
+#if 0
 enum dspType
 {
 	TELE,	//China telecom
 	GYIN	//GuangYin
 };
+#endif
 
 typedef struct BCProessInfo
 {

@@ -44,6 +44,7 @@ map<int,ConnectionType> ConnectionTypeMap;
 const int CHECK_COMMMSG_TIMEOUT = 200; // 200ms
 const long long TELECODEUPDATE_TIME = 24*60*60*1000; // 24 hours
 const long long CLOCK_TIME = 17*60*60*1000; //Beijing time : 01:00:00  -> GMT(Greenwich mean time): 17:00:00
+const long long DAWN_TIME = 16*60*60*1000; //Beijing time : 00:00:00  -> GMT(Greenwich mean time): 16:00:00
 
 void connectorServ::versionConvert(string &Dest,const char *Src)
 {
@@ -2340,7 +2341,9 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         /*
                 *send to GYIN
                 */
-        if(m_config.get_enGYIN())
+        int GYIN_maxFlowLimit = m_dspManager.getGuangYinObject()->getMaxFlowLimit();
+        int GYIN_curFlowCount = m_dspManager.getGuangYinObject()->getCurFlowCount();
+        if(m_config.get_enGYIN()&&(GYIN_curFlowCount <= GYIN_maxFlowLimit))
         {
             BidRequest bidRequest;        
             if(convertProtoToGYinProto(bidRequest,mobile_request))
@@ -2357,12 +2360,19 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
                 }
                 else
+                {
+                    m_dspManager.getGuangYinObject()->curFlowCountIncrease();
                     g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
+                }
                 delete [] buf;
             }     
             else
                 g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
-        }              
+        }   
+        else if(GYIN_curFlowCount > GYIN_maxFlowLimit)
+        {
+            g_workerGYIN_logger->debug("FLOW LIMITED...");
+        }
              
     }
     catch(...)
@@ -2878,7 +2888,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
 {
     shared_ptr<spdlog::logger> g_logger = NULL;
     string dspName;
-    //struct event *listenEvent = NULL;
+    struct event *listenEvent = NULL;
     bool flag_displayBodyData = false; 
     
     switch(type)
@@ -2921,32 +2931,21 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
         if (recv_bytes == 0)    //connect abort
         {
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
-            struct listenObject* l_obj = NULL;
             switch(type)
             {
                 case TELE:					
-                    if(!(l_obj = m_dspManager.getChinaTelecomObject()->findListenObject(sock)))
-                    {
-                        event_del(l_obj->_event);
-                    }
-                    else
-                        g_logger->error("FIND OBJ IN LISTENOBJECTLIST FAILED");
+					listenEvent = m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
                     m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);					
                     break;
-                case GYIN:	
-                    if(!(l_obj = m_dspManager.getGuangYinObject()->findListenObject(sock)))
-                    {
-                        event_del(l_obj->_event);
-                    }
-                    else
-                        g_logger->error("FIND OBJ IN LISTENOBJECTLIST FAILED");
+                case GYIN:					
+					listenEvent = m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
                     m_dspManager.getGuangYinObject()->eraseListenObject(sock);
                     break;
                 default:
                     break;                    
             }
             close(sock);
-            //event_del(listenEvent);
+            event_del(listenEvent);
             delete [] recv_str;
             delete [] fullData;
             delete [] fullData_t;
@@ -3398,6 +3397,10 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
                 g_worker_logger->error("UPDATE DSP PASSWORD FAIL ... ");                
             }  
         }
+        if((pre_timeMs-DAWN_TIME)%TELECODEUPDATE_TIME == 0) // update GYIN curFlowCount  at 00:00:00 (Beijing TIME)everyday
+        {
+            serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
+        }
         
         serv->commMsgRecordList_lock.lock();        
         for(auto it = serv->commMsgRecordList.begin(); it != serv->commMsgRecordList.end(); )
@@ -3421,39 +3424,17 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
 void *connectorServ::checkConnectNum(void *arg)
 {
     connectorServ *serv = (connectorServ*) arg;   
-    
-    int TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum();
     int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();
     while(1)
     {        
-        serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
-        int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
-        if(TELE_curConnectNum < TELE_maxConnectNum)
-        {            
-            if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
-            {
-                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();       
-                g_worker_logger->debug("TELE ADD CONNECTION SUCCESS");
-            }
-            else
-                g_worker_logger->debug("TELE ADD CONNECTION FAILED");
-        }        
-        serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
-        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
         int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();
         if(GYIN_curConnectNum < GYIN_maxConnectNum)
         {            
-            if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
-            {
-                g_workerGYIN_logger->debug("GYIN ADD CONNECTION SUCCESS");
-                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();   
-            }
-            else
-                g_workerGYIN_logger->debug("GYIN ADD CONNECTION FAILED");             
+            if(serv->m_dspManager.getGuangYinObject()->addConnectToGYIN(serv->m_base, handle_recvAdResponseGYin, arg))
+                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();            
         }        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-
         usleep(1000);     //1ms
     }
 }
@@ -3520,10 +3501,15 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
     m_dspManager.init();
-    m_dspManager.creatConnectDSP(m_base, handle_recvAdResponseGYin, this);
+    m_dspManager.creatConnectGYIN(m_base, handle_recvAdResponseGYin, this);
 
+    //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
+    //event_add(recvGYINrspEvent, NULL);
+    
+    
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 
+        
     commMsgRecordList_lock.init();
     pthread_t pth1;
     pthread_t pth2;

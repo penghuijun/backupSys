@@ -5,12 +5,6 @@ void dspManager::init()
     m_chinaTelecomObject = new chinaTelecomObject();
     m_guangYinObject     = new guangYinObject();
 }
-void dspManager::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
-{
-        m_chinaTelecomObject->creatConnectToDSP(base, fn, arg);
-        m_guangYinObject->creatConnectToDSP(base, fn, arg);            
-}
-
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
 {
     return m_chinaTelecomObject->isCeritifyCodeEmpty();
@@ -31,4 +25,10 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
+void dspManager::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
+{
+    m_guangYinObject->creatConnectGYIN(base, fn, arg);
+}
+
+
 

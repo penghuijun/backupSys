@@ -151,13 +151,11 @@ ssize_t socket_send(int sockfd, const char *buffer, size_t buflen)
 
 struct listenObject* dspObject::findListenObject(int sock)
 {
-    g_workerGYIN_logger->debug("input sock : {0:d}", sock);
     m_listenObjectListLock.lock();
     list<listenObject *>::iterator it = m_listenObjectList.begin();
     for( ; it != m_listenObjectList.end(); it++)
     {
         struct listenObject *object = *it;
-        g_workerGYIN_logger->debug("store sock : {0:d}", object->sock);
         if(object->sock == sock)
         {
             m_listenObjectListLock.unlock();
@@ -170,8 +168,7 @@ struct listenObject* dspObject::findListenObject(int sock)
 
 void dspObject::eraseListenObject(int sock)
 {
-    m_listenObjectListLock.lock();
-    
+    m_listenObjectListLock.lock();    
     list<listenObject *>::iterator it = m_listenObjectList.begin();
     for( ; it != m_listenObjectList.end(); it++)
     {
@@ -183,8 +180,7 @@ void dspObject::eraseListenObject(int sock)
             m_listenObjectListLock.unlock();
             return ;
         }            
-    }
-    
+    }    
     m_listenObjectListLock.unlock();
 }
 
@@ -869,7 +865,6 @@ bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_f
     listen->_event = sock_event;
 
     listenObjectList_Lock();
-    g_workerGYIN_logger->debug("add sock: {0:d}", listen->sock);
     getListenObjectList().push_back(listen);
     listenObjectList_unLock();
     g_workerGYIN_logger->debug("GYIN ADD CONNECTION");

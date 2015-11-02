@@ -2936,16 +2936,26 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
             switch(type)
             {
-                case TELE:					
-		      listenEvent = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
-                    serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);					
+                case TELE:	
+					{
+                        struct listenObject *obj = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock);
+                        if(obj != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else 
+                        {
+                            g_logger->error("FIND LISTEN OBJ FAILED");		 
+                        }
+                    }
                     break;
                 case GYIN:					
                     {
                         struct listenObject *obj = serv->m_dspManager.getGuangYinObject()->findListenObject(sock);
-                        if(!obj)
+                        if(obj != NULL)
                         {
-                            g_logger->debug("FIND LISTEN OBJ SUCCESS");
                             listenEvent = obj->_event;
                             serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
                             event_del(listenEvent);
@@ -2960,7 +2970,6 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                     break;                    
             }
             close(sock);
-            //event_del(listenEvent);
             delete [] recv_str;
             delete [] fullData;
             delete [] fullData_t;

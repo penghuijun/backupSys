@@ -2343,7 +2343,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */
         int GYIN_maxFlowLimit = m_dspManager.getGuangYinObject()->getMaxFlowLimit();
         int GYIN_curFlowCount = m_dspManager.getGuangYinObject()->getCurFlowCount();
-        if(m_config.get_enGYIN()&&(GYIN_curFlowCount < GYIN_maxFlowLimit))
+        if(m_config.get_enGYIN()&&((GYIN_curFlowCount < GYIN_maxFlowLimit)||(GYIN_maxFlowLimit == 0)))
         {
             BidRequest bidRequest;        
             if(convertProtoToGYinProto(bidRequest,mobile_request))
@@ -2361,7 +2361,8 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 }
                 else
                 {
-                    m_dspManager.getGuangYinObject()->curFlowCountIncrease();
+                	if(GYIN_maxFlowLimit != 0)
+                    	m_dspManager.getGuangYinObject()->curFlowCountIncrease();
                     g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
                 }
                 delete [] buf;
@@ -3449,8 +3450,7 @@ void *connectorServ::checkConnectNum(void *arg)
 				serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
 				serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
 				serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-			}
-                        
+			}                        
         }        
         usleep(1000);     //1ms
     }

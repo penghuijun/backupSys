@@ -266,7 +266,6 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
 	listenObjectList_Lock();
     getListenObjectList().push_back(listen);
 	listenObjectList_unLock();
-    g_worker_logger->debug("DSP ADD CONNECTION");
     return true;
     
 }

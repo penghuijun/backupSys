@@ -3420,7 +3420,12 @@ void *connectorServ::checkConnectNum(void *arg)
         if(TELE_curConnectNum < TELE_maxConnectNum)
         {            
             if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
-                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();            
+            {
+                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();       
+                g_worker_logger->debug("TELE ADD CONNECTION SUCCESS");
+            }
+            else
+                g_worker_logger->debug("TELE ADD CONNECTION FAILED");
         }        
         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
         
@@ -3429,7 +3434,12 @@ void *connectorServ::checkConnectNum(void *arg)
         if(GYIN_curConnectNum < GYIN_maxConnectNum)
         {            
             if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
-                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();            
+            {
+                g_workerGYIN_logger->debug("GYIN ADD CONNECTION SUCCESS");
+                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();   
+            }
+            else
+                g_workerGYIN_logger->debug("GYIN ADD CONNECTION FAILED");             
         }        
         serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
 

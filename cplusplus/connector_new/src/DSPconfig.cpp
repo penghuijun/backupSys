@@ -237,7 +237,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
-        g_workerGYIN_logger->error("GYIN SOCK CREATE FAIL ...");
+        g_worker_logger->error("DSP SOCK CREATE FAIL ...");
         return false;
     }   
 
@@ -249,7 +249,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
     if(checkConnect(sock, ret) <= 0)
     {
-        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        g_worker_logger->error("DSP CONNECT FAIL ...");      
         close(sock);
         return false;
     }
@@ -266,7 +266,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
 	listenObjectList_Lock();
     getListenObjectList().push_back(listen);
 	listenObjectList_unLock();
-    g_workerGYIN_logger->debug("GYIN ADD CONNECTION");
+    g_worker_logger->debug("DSP ADD CONNECTION");
     return true;
     
 }

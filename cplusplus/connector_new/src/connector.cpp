@@ -3074,9 +3074,9 @@ void connectorServ::handle_recvAdResponseTele(int sock,short event,void *arg)
         return;
     }
     
-    //serv->handle_recvAdResponse(sock, event, arg, TELE);
+    serv->handle_recvAdResponse(sock, event, arg, TELE);
 
-    #if 1
+    #if 0
     if(serv==NULL) 
     {
         g_worker_logger->emerg("handle_recvAdResponseTele param is null");
@@ -3202,9 +3202,9 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
         return;
     }
     
-    //serv->handle_recvAdResponse(sock, event, arg, GYIN);
+    serv->handle_recvAdResponse(sock, event, arg, GYIN);
 
-    #if 1
+    #if 0
     if(serv==NULL) 
     {
         g_workerGYIN_logger->emerg("handle_recvAdResponseGYin param is null");

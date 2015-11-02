@@ -2878,7 +2878,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
 {
     shared_ptr<spdlog::logger> g_logger = NULL;
     string dspName;
-    struct event *listenEvent = NULL;
+    //struct event *listenEvent = NULL;
     bool flag_displayBodyData = false; 
     
     switch(type)
@@ -2921,21 +2921,32 @@ void connectorServ::handle_recvAdResponse(int sock, short event, dspType type)
         if (recv_bytes == 0)    //connect abort
         {
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
+            struct listenObject* l_obj = NULL;
             switch(type)
             {
                 case TELE:					
-					listenEvent = m_dspManager.getChinaTelecomObject()->findListenObject(sock)->_event;
+                    if(!(l_obj = m_dspManager.getChinaTelecomObject()->findListenObject(sock)))
+                    {
+                        event_del(l_obj->_event);
+                    }
+                    else
+                        g_logger->error("FIND OBJ IN LISTENOBJECTLIST FAILED");
                     m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);					
                     break;
-                case GYIN:					
-					listenEvent = m_dspManager.getGuangYinObject()->findListenObject(sock)->_event;
+                case GYIN:	
+                    if(!(l_obj = m_dspManager.getGuangYinObject()->findListenObject(sock)))
+                    {
+                        event_del(l_obj->_event);
+                    }
+                    else
+                        g_logger->error("FIND OBJ IN LISTENOBJECTLIST FAILED");
                     m_dspManager.getGuangYinObject()->eraseListenObject(sock);
                     break;
                 default:
                     break;                    
             }
             close(sock);
-            event_del(listenEvent);
+            //event_del(listenEvent);
             delete [] recv_str;
             delete [] fullData;
             delete [] fullData_t;

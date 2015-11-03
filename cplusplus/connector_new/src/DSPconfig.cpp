@@ -148,6 +148,181 @@ ssize_t socket_send(int sockfd, const char *buffer, size_t buflen)
     
     return ret;
 }
+void dspObject::readDSPconfig(dspType type)
+{
+    string filename;
+    shared_ptr<spdlog::logger> g_logger;
+    switch(type)
+    {
+        case TELE:
+            filename = "./conf/chinaTelecomConfig.json";
+            g_logger = g_worker_logger;
+            break;
+        case GYIN:
+            filename = "./conf/guangYinConfig.json";
+            g_logger = g_workerGYIN_logger;
+            break;
+        default:
+            break;
+    }
+
+    ifstream ifile;	
+    ifile.open(filename, ios::in);
+    if(ifile.is_open() == false)
+    {		        
+        g_logger->error("Open {0} failure...", filename);
+        exit(1);	
+    }	
+
+    Json::Reader reader;
+    Json::Value root;
+
+    if(reader.parse(ifile, root))
+    {
+        ifile.close();
+        name        = root["name"].asString();       
+        adReqType   = root["adReqType"].asString();
+        adReqIP     = root["adReqIP"].asString();
+        adReqPort   = root["adReqPort"].asString();
+        adReqUrl    = root["adReqUrl"].asString();
+        
+        httpVersion = root["httpVersion"].asString();
+
+        //HTTP header
+        Connection  = root["Connection"].asString();
+        UserAgent   = root["User-Agent"].asString();
+        ContentType = root["Content-Type"].asString();
+        charset     = root["charset"].asString();
+        Host        = root["Host"].asString();
+        Cookie      = root["Cookie"].asString();
+
+        //filter
+        extNetId    = root["extNetId"].asString();
+        intNetId    = root["intNetId"].asString();        
+        
+    }
+    else
+    {
+        g_logger->error("Parse {0} failure...", filename);
+        ifile.close();
+        exit(1);
+    }
+    
+}
+
+void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
+{
+    int maxNum = getMaxConnectNum();
+    for(int i=0; i < maxNum; i++)
+    {
+        if(addConnectToDSP(base, fn, arg))
+            connectNumIncrease();        
+    }
+}
+
+bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg)
+{
+    sockaddr_in sin;
+    unsigned short httpPort = atoi(adReqPort.c_str());      
+    
+    sin.sin_family = AF_INET;    
+    sin.sin_port = htons(httpPort);    
+    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        g_workerGYIN_logger->error("GYIN SOCK CREATE FAIL ...");
+        return false;
+    }   
+
+    //非阻塞
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    
+    //建立连接
+    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
+        close(sock);
+        return false;
+    }
+
+    //add this socket to event listen queue
+    struct event *sock_event;
+    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    event_add(sock_event, NULL);
+
+    struct listenObject *listen = new listenObject();    
+    listen->sock = sock;
+    listen->_event = sock_event;
+
+    listenObjectList_Lock();
+    getListenObjectList().push_back(listen);
+    listenObjectList_unLock();
+    g_workerGYIN_logger->debug("GYIN ADD CONNECTION");
+    return true;
+    
+}
+
+
+
+void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
+{
+    //头信息
+    char *send_str = headerBuf;            
+
+    if(Con_len)
+    {
+        char content_header[100];
+        sprintf(content_header,"Content-Length: %d\r\n", Con_len);
+        strcat(send_str, content_header); 
+    }    
+
+    if(Connection.empty() == false)
+    {
+        strcat(send_str, "Connection: ");
+        strcat(send_str,Connection.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(UserAgent.empty() == false)
+    {
+        strcat(send_str, "User-Agent: ");
+        strcat(send_str,UserAgent.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(ContentType.empty() == false)
+    {
+        strcat(send_str, "Content-Type: ");    
+        strcat(send_str,ContentType.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+   if(charset.empty() == false)
+    {
+        strcat(send_str, "charset: ");
+        strcat(send_str,charset.c_str());
+        strcat(send_str, "\r\n");
+    }
+
+    if(Host.empty() == false)
+    {
+        strcat(send_str, "Host: ");
+        strcat(send_str,Host.c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(Cookie.empty() == false)
+    {
+        strcat(send_str, "Cookie: ");
+        strcat(send_str,Cookie.c_str());
+        strcat(send_str, "\r\n");
+    }  
+    
+}
 
 struct listenObject* dspObject::findListenObject(int sock)
 {
@@ -199,32 +374,13 @@ void chinaTelecomObject::readChinaTelecomConfig()
 
     if(reader.parse(ifile, root))
     {
-        ifile.close();
-        name        = root["name"].asString();
+        ifile.close();       
         tokenType   = root["tokenType"].asString();
         tokenIP     = root["tokenIP"].asString();
         tokenPort   = root["tokenPort"].asString();
         tokenUrl    = root["tokenUrl"].asString();
         user        = root["user"].asString();
-        passwd      = root["passwd"].asString();
-        adReqType   = root["adReqType"].asString();
-        adReqIP     = root["adReqIP"].asString();
-        adReqPort   = root["adReqPort"].asString();
-        adReqUrl    = root["adReqUrl"].asString();
-        
-        httpVersion = root["httpVersion"].asString();
-
-        //HTTP header
-        Connection  = root["Connection"].asString();
-        UserAgent   = root["User-Agent"].asString();
-        ContentType = root["Content-Type"].asString();
-        charset     = root["charset"].asString();
-        Host        = root["Host"].asString();
-        Cookie      = root["Cookie"].asString();
-
-        //filter
-        extNetId    = root["extNetId"].asString();
-        intNetId    = root["intNetId"].asString();        
+        passwd      = root["passwd"].asString();          
         
     }
     else
@@ -409,8 +565,16 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     //初始化发送信息
     char send_str[2048] = {0};
 
-
+    //请求行
+    strcat(send_str, tokenType.c_str());
+    strcat(send_str, Url);
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");
+    
     //头信息
+    gen_HttpHeader(send_str, 0);
+
+    #if 0
     strcat(send_str, tokenType.c_str());
     strcat(send_str, Url);
     strcat(send_str, httpVersion.c_str());    
@@ -457,7 +621,8 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
         strcat(send_str, "Cookie: ");
         strcat(send_str,Cookie.c_str());
         strcat(send_str, "\r\n");
-    }  
+    }
+    #endif
     
 
     //内容信息
@@ -505,15 +670,25 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     memset(send_str,0,4096*sizeof(char));  
 
     char Url[100] = {0};
-    strcpy(Url,adReqUrl.c_str());        
+    strcpy(Url,getAdReqUrl().c_str());        
     string str = "?username="+user+"&password="+CeritifyCode;
     strcat(Url,str.c_str());    
     g_worker_logger->trace("ADREQ URL : {0}",Url);
 
-    ostringstream os;
-    os<<adReqIP<<":"<<adReqPort;    
+    //ostringstream os;
+    //os<<adReqIP<<":"<<adReqPort;    
 
+    //请求行
+    strcat(send_str, getAdReqType().c_str());
+    strcat(send_str, Url);
+   
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");     
+    
     //头信息
+    gen_HttpHeader(send_str, dataLen);
+
+    #if 0
     strcat(send_str, adReqType.c_str());
     strcat(send_str, Url);
    
@@ -565,7 +740,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
         strcat(send_str,Cookie.c_str());
         strcat(send_str, "\r\n");
     }  
-
+    #endif
 
     //内容信息
     
@@ -577,7 +752,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
         g_worker_logger->debug("\r\n{0}",send_str);
     }   
     
-    
+    #if 0
     sockaddr_in sin;
     unsigned short httpPort = atoi(adReqPort.c_str());      
     
@@ -617,17 +792,47 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     listenObjectList_Lock();
     getListenObjectList().push_back(listen);
 	listenObjectList_unLock();
+    #endif
+
+    if(getCurConnectNum() == 0)
+    {
+        g_worker_logger->debug("NO CONNECTION TO GYIN");
+        return false;
+    }
     
+    
+    listenObject *obj = NULL;
+    
+    listenObjectList_Lock();
+    if(!getListenObjectList().empty())
+    {
+        obj = getListenObjectList().front();
+        getListenObjectList().pop_front();
+    }    
+    listenObjectList_unLock();  
+
+    if(!obj)
+    {
+        g_worker_logger->debug("NO IDLE SOCK ");
+        delete [] send_str;
+        return false;
+    }
+    
+    int sock =  obj->sock;
+
+    bool ret = true;
     //cout << "@@@@@ This msg send by PID: " << getpid() << endl; 
     //if (send(sock, send_str, strlen(send_str),0) == -1)
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_worker_logger->error("adReqSock send failed ...");
-        delete [] send_str;
-        return false;
+        ret = false;
     }         
+    listenObjectList_Lock();
+    getListenObjectList().push_back(obj);
+    listenObjectList_unLock();  
     delete [] send_str;
-    return true;
+    return ret;
 }
 
 void guangYinObject::readGuangYinConfig()
@@ -645,26 +850,10 @@ void guangYinObject::readGuangYinConfig()
     
     if(reader.parse(ifile, root))
     {
-        ifile.close();
-        name        = root["name"].asString();
-        
-        adReqType   = root["adReqType"].asString();
-        adReqIP     = root["adReqIP"].asString();
-        adReqPort   = root["adReqPort"].asString();
-        adReqUrl    = root["adReqUrl"].asString();
-        
-        httpVersion = root["httpVersion"].asString();
-    
-        //HTTP header
-        Connection  = root["Connection"].asString();
-        UserAgent   = root["User-Agent"].asString();
-        ContentType = root["Content-Type"].asString();        
-        Host        = root["Host"].asString();       
+        ifile.close();       
     
         //filter
-        publisherId = root["publisherId"].asString();
-        extNetId    = root["extNetId"].asString();
-        intNetId    = root["intNetId"].asString();     
+        publisherId = root["publisherId"].asString();        
         test        = root["test"].asBool();
 
         //Num of connect with GYIN
@@ -689,6 +878,14 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     memset(send_str,0,4096*sizeof(char));       
 
     //头信息
+    strcat(send_str, getAdReqType().c_str());
+    strcat(send_str, getAdReqUrl().c_str());    
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");     
+    
+    gen_HttpHeader(send_str, dataLen);
+
+    #if 0
     strcat(send_str, adReqType.c_str());
     strcat(send_str, adReqUrl.c_str());    
     strcat(send_str, httpVersion.c_str());    
@@ -725,7 +922,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         strcat(send_str,Host.c_str());
         strcat(send_str, "\r\n");
     }      
-
+    #endif
 
     //内容信息
     
@@ -815,61 +1012,4 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     delete [] send_str;    
     return ret;
 }
-
-void guangYinObject::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
-{
-    int maxNum = getMaxConnectNum();
-    for(int i=0; i < maxNum; i++)
-    {
-        if(addConnectToGYIN(base, fn, arg))
-            connectNumIncrease();        
-    }
-}
-
-bool guangYinObject::addConnectToGYIN(struct event_base * base, event_callback_fn fn, void *arg)
-{
-    sockaddr_in sin;
-    unsigned short httpPort = atoi(adReqPort.c_str());      
-    
-    sin.sin_family = AF_INET;    
-    sin.sin_port = htons(httpPort);    
-    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
-    {
-        g_workerGYIN_logger->error("GYIN SOCK CREATE FAIL ...");
-        return false;
-    }   
-
-    //非阻塞
-    int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-    
-    //建立连接
-    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
-    if(checkConnect(sock, ret) <= 0)
-    {
-        g_workerGYIN_logger->error("GYIN CONNECT FAIL ...");      
-        close(sock);
-        return false;
-    }
-
-    //add this socket to event listen queue
-    struct event *sock_event;
-    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
-    event_add(sock_event, NULL);
-
-    struct listenObject *listen = new listenObject();    
-    listen->sock = sock;
-    listen->_event = sock_event;
-
-    listenObjectList_Lock();
-    getListenObjectList().push_back(listen);
-    listenObjectList_unLock();
-    g_workerGYIN_logger->debug("GYIN ADD CONNECTION");
-    return true;
-    
-}
-
 

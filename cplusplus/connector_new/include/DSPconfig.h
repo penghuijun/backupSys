@@ -21,6 +21,12 @@
 
 using namespace std;
 
+enum dspType
+{
+	TELE,	//China telecom
+	GYIN	//GuangYin
+};
+
 struct listenObject
 {
 	int sock;
@@ -33,14 +39,23 @@ public:
 	{
 		m_listenObjectListLock.init();
 	}
-	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
+	void readDSPconfig(dspType type);
+	void gen_HttpHeader(char *headerBuf, int Con_len);
+	string& getAdReqType(){return adReqType;}
+	string& getAdReqUrl(){return adReqUrl;}
+	string& getHttpVersion(){return httpVersion;}
+	string& getExtNetId(){return extNetId;}
+	string& getIntNetId(){return intNetId;}
+	void creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg);	
+	bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
 	struct listenObject* findListenObject(int sock);
 	void eraseListenObject(int sock);	
 	void setMaxConnectNum(int num){maxConnectNum = num;}
 	int getCurConnectNum(){return curConnectNum;}
 	int getMaxConnectNum(){return maxConnectNum;}
 	void connectNumReduce(){curConnectNum--;}
-	void connectNumIncrease(){curConnectNum++;}
+	void connectNumIncrease(){curConnectNum++;}	
+	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
 	void listenObjectList_Lock()
 	{
 		m_listenObjectListLock.lock();
@@ -52,61 +67,11 @@ public:
 	
 	~dspObject(){}
 private:
-	int curConnectNum;
-	int maxConnectNum;
-	mutex_lock			 m_listenObjectListLock;
-	list<listenObject *> m_listenObjectList;
-};
-class chinaTelecomObject : public dspObject
-{
-public:
-	chinaTelecomObject()
-	{
-		readChinaTelecomConfig();		
-	}
-	//bool string_find(string& str1, const char* str2);
-	//void strGet(string& Dest,const char* Src);
-	void readChinaTelecomConfig();
-	string& getName(){return name;}
-	string& getTokenType(){return tokenType;}
-	string& getTokenIP(){return tokenIP;}
-	string& getTokenPort(){return tokenPort;}
-	string& getTokenUrl(){return tokenUrl;}
-	string& getUser(){return user;}
-	string& getPasswd(){return passwd;}
-	string& getAdReqType(){return adReqType;}
-	string& getAdReqIP(){return adReqIP;}
-	string& getAdReqPort(){return adReqPort;}
-	string& getAdReqUrl(){return adReqUrl;}
-	string& getHttpVersion(){return httpVersion;}
-	string& getConnection(){return Connection;}	
-	string& getUserAgent(){return UserAgent;}	
-	string& getCeritifyCode(){return CeritifyCode;}	
-	string& getExtNetId(){return extNetId;}
-	string& getIntNetId(){return intNetId;}
-	//list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
-	//struct listenObject* findListenObject(int sock);
-	//void eraseListenObject(int sock);	
-	bool parseCertifyStr(char * Src);
-	bool getCeritifyCodeFromChinaTelecomDSP();	
-	
-	bool isCeritifyCodeEmpty();
-	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg);
-	~chinaTelecomObject(){}
-private:
 	string name;	
-	string tokenType;
-	string tokenIP;
-	string tokenPort;
-	string tokenUrl;
-	string user;
-	string passwd;
-
 	string adReqType;
 	string adReqIP;
 	string adReqPort;
 	string adReqUrl;
-	string CeritifyCode;
 
 	string httpVersion;
 
@@ -121,8 +86,48 @@ private:
 	//FILTER
 	string extNetId;
 	string intNetId;
+
+	
+	int curConnectNum;
+	int maxConnectNum;
+	mutex_lock			 m_listenObjectListLock;
+	list<listenObject *> m_listenObjectList;
+};
+class chinaTelecomObject : public dspObject
+{
+public:
+	chinaTelecomObject()
+	{
+		readDSPconfig(TELE);
+		readChinaTelecomConfig();		
+	}
+	
+	void readChinaTelecomConfig();
+	string& getTokenType(){return tokenType;}
+	string& getTokenIP(){return tokenIP;}
+	string& getTokenPort(){return tokenPort;}
+	string& getTokenUrl(){return tokenUrl;}
+	string& getUser(){return user;}
+	string& getPasswd(){return passwd;}	
 		
-	//list<listenObject *> m_listenObjectList;
+	string& getCeritifyCode(){return CeritifyCode;}	
+	
+	bool parseCertifyStr(char * Src);
+	bool getCeritifyCodeFromChinaTelecomDSP();	
+	
+	bool isCeritifyCodeEmpty();
+	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg);
+	~chinaTelecomObject(){}
+private:
+	
+	string tokenType;
+	string tokenIP;
+	string tokenPort;
+	string tokenUrl;
+	string user;
+	string passwd;
+	
+	string CeritifyCode;		
 };
 
 class guangYinObject : public dspObject
@@ -130,47 +135,25 @@ class guangYinObject : public dspObject
 public:
 	guangYinObject():curFlowCount(0)
 	{
+		readDSPconfig(GYIN);
 		readGuangYinConfig();
 	}
-	void readGuangYinConfig();	
-	void creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg);	
-	bool addConnectToGYIN(struct event_base * base, event_callback_fn fn, void *arg);
+	void readGuangYinConfig();		
 	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	bool getTestValue(){return test;}
-	string& getPublisherID(){return publisherId;}
-	string& getExtNetId(){return extNetId;}
-	string& getIntNetId(){return intNetId;}	
+	string& getPublisherID(){return publisherId;}	
 	int getMaxFlowLimit(){return maxFlowLimit;}
 	int getCurFlowCount(){return curFlowCount;};
 	void curFlowCountIncrease(){curFlowCount++;}
 	void curFlowCountClean(){curFlowCount = 0;}
 	~guangYinObject(){}
-private:
-	string name;
-	string adReqType;
-	string adReqIP;
-	string adReqPort;
-	string adReqUrl;
-
-	string httpVersion;
-
-	//HTTP header
-	string Connection;
-	string UserAgent;
-	string ContentType;
-	string Host;
-
+private:	
 	//FILTER
-	string publisherId;
-	string extNetId;
-	string intNetId;
+	string publisherId;	
 	bool test;
+	
 	int maxFlowLimit;
 	int curFlowCount;
-
 	
-	//list<listenObject *> m_listenObjectList;	
-	
-	//int GYINsocket;
 };
 #endif

@@ -25,9 +25,10 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
-void dspManager::creatConnectGYIN(struct event_base * base, event_callback_fn fn, void *arg)
+void dspManager::creatConnectDSP(struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, void *arg)
 {
-    m_guangYinObject->creatConnectGYIN(base, fn, arg);
+    m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
+    m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
 }
 
 

@@ -95,12 +95,6 @@ enum dataType
 };
 #endif
 
-enum dspType
-{
-	TELE,	//China telecom
-	GYIN	//GuangYin
-};
-
 typedef struct BCProessInfo
 {
     pid_t               pid;

@@ -677,10 +677,10 @@ char* connectorServ::convertTeleBidResponseJsonToProtobuf(char *data,int dataLen
         cmrObj = checkValidId(str_id);
         if(!cmrObj)
         {
-            g_worker_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
+            g_worker_logger->debug("FIND RECLIST FAILED uuid: {0}", str_id);
             return NULL;
         }
-        g_worker_logger->trace("Find BidRespnse id in commMsgRecordList success ");
+        g_worker_logger->trace("FIND RECLIST success");
 
         request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);        
         const string& commMsg_data = request_commMsg.data();        
@@ -869,10 +869,10 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     cmrObj = checkValidId(str_id);
     if(!cmrObj)
     {
-        g_workerGYIN_logger->debug("Find BidRespnse id in commMsgRecordList fail ");
+        g_workerGYIN_logger->debug("FIND RECLIST FAILED uuid: {0}", str_id);
         return NULL;
     }
-    g_workerGYIN_logger->trace("Find BidRespnse id in commMsgRecordList success ");
+    g_workerGYIN_logger->trace("FIND RECLIST success");
         
     request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);  
     const string& commMsg_data = request_commMsg.data();        

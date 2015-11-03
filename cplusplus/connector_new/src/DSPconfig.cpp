@@ -199,6 +199,8 @@ void dspObject::readDSPconfig(dspType type)
         //filter
         extNetId    = root["extNetId"].asString();
         intNetId    = root["intNetId"].asString();        
+
+        maxConnectNum = root["maxConnectNum"].asInt();
         
     }
     else
@@ -857,7 +859,6 @@ void guangYinObject::readGuangYinConfig()
         test        = root["test"].asBool();
 
         //Num of connect with GYIN
-        setMaxConnectNum(root["maxConnectNum"].asInt());
         maxFlowLimit   = root["maxFlowLimit"].asInt();
         
     }

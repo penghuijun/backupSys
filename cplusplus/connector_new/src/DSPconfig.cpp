@@ -190,6 +190,8 @@ void dspObject::readDSPconfig(dspType type)
         adReqDomain = root["adReqDomain"].asString();
         adReqPort   = root["adReqPort"].asString();
         adReqUrl    = root["adReqUrl"].asString();
+
+        g_logger->debug("adReqDomain: {0}", adReqDomain);
         
         httpVersion = root["httpVersion"].asString();
 
@@ -220,6 +222,7 @@ void dspObject::readDSPconfig(dspType type)
 void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
 {
     int maxNum = getMaxConnectNum();
+    g_workerSMAATO_logger->debug("maxConnectNum: {0:d}", maxNum);
     for(int i=0; i < maxNum; i++)
     {
         if(addConnectToDSP(base, fn, arg))
@@ -236,6 +239,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     sin.sin_port = htons(httpPort);    
     if(!adReqIP.empty())
     {
+        g_workerSMAATO_logger->debug("adReq IP: {0}", adReqIP);
         sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
     }
     else if(!adReqDomain.empty())
@@ -244,15 +248,15 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
         m_hostent = gethostbyname(adReqDomain.c_str());
         if(m_hostent == NULL)
         {
-            g_worker_logger->error("SMAATO: gethostbyname error for host: {0}", adReqDomain);
+            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", adReqDomain);
             return false;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
-        g_worker_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
+        g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
     }
     else
     {
-        g_worker_logger->error("ADD CON GET IP FAIL");
+        g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
         return false;
     }
     

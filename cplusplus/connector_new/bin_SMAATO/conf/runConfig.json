@@ -9,5 +9,5 @@
 	"logGYINHttpRsp":false,
 	"logGYINRsp":false,
 
-	"enSOMA":false
+	"enSOMA":true
 }

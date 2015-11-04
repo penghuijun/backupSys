@@ -4,7 +4,7 @@
 	"logTeleHttpRsp":false,
 	"logTeleRsp":false,
 
-	"enGYIN":false,
+	"enGYIN":true,
 	"logGYINReq":false,
 	"logGYINHttpRsp":false,
 	"logGYINRsp":false,

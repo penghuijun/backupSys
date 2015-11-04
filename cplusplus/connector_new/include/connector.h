@@ -156,6 +156,7 @@ public:
 	static void handle_recvAdRequest(int fd,short event,void *arg);
 	static void handle_recvAdResponseTele(int fd,short event,void *arg);
 	static void handle_recvAdResponseGYin(int sock,short event,void *arg);
+	static void handle_recvAdResponseSmaato(int sock,short event,void *arg);
 	static void *connectToOther(void *arg);
 	static void *sendLoginHeartToOther(void *arg);
 	static void *recvLoginHeartFromOther(void *arg);

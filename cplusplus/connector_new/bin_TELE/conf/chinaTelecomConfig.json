@@ -1,0 +1,50 @@
+{
+	"name": "china telecom DSP",
+    
+/*HTTP REQUEST LINE*/
+	"tokenType": "GET ",
+	"tokenIP": "14.29.5.29",
+	"tokenPort": "80",
+	//"tokenIP": "192.168.150.128",
+	//"tokenPort": "6666",
+	"tokenUrl": "http://14.29.5.29/getDSPToken.do",
+	"user": "ruihui",
+	"passwd": "rui!*(hui",
+
+	"adReqType": "POST ",
+	"adReqIP": "14.29.5.29",
+	"adReqPort": "80",
+	//"adReqIP": "192.168.150.128",
+	//"adReqPort": "6666",
+	//"adReqUrl": "http://14.29.5.29/getDSPResult.do",
+	"adReqUrl": "/getDSPResult.do",
+
+	"httpVersion": " HTTP/1.1",
+
+/*HTTP HEADER CONFIG*/
+	"Connection": "Keep-Alive",	
+	"User-Agent": "Apache-HttpAsyncClient/4.1",
+	"Content-Type": "application/json",	
+	"charset": "UTF-8",
+	"Host": "14.29.5.29",
+	"Cookie": "JSESESIONID=abcWzqgOgWJRPalvNF6_u",
+
+/*FILTER*/
+	"extNetId": "100",
+	"intNetId": "6",
+	"maxConnectNum":10,
+	"appFilter":[
+		"com.rj.rj2048"
+	],
+	"adTypeFilter":[
+		"banner",
+		"interstitial"
+	],
+	"paraFilter":[
+		"server16"
+	],
+	"appTypeFilter":[
+		"app"
+	]
+}
+

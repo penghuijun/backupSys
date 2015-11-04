@@ -8,6 +8,7 @@ shared_ptr<spdlog::logger> g_master_logger;
 shared_ptr<spdlog::logger> g_manager_logger;
 shared_ptr<spdlog::logger> g_worker_logger;
 shared_ptr<spdlog::logger> g_workerGYIN_logger;
+shared_ptr<spdlog::logger> g_workerSMAATO_logger;
 
 
 int main(int argc,char *argv[])
@@ -25,7 +26,7 @@ int main(int argc,char *argv[])
     zmq_version (&major, &minor, &patch);
     g_manager_logger->info("Current 0MQ version is {0:d}.{1:d}.{2:d}", major, minor, patch);
 
-    string configFileName("../adManagerConfig.txt");
+    string configFileName("adManagerConfig.txt");
     configureObject configure(configFileName);
     configure.display();
 

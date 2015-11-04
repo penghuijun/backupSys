@@ -1,5 +1,5 @@
 {
-	"enChinaTelecom":false,
+	"enChinaTelecom":true,
 	"logTeleReq":false,
 	"logTeleHttpRsp":false,
 	"logTeleRsp":false,

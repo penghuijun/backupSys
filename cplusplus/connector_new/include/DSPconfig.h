@@ -23,8 +23,9 @@ using namespace std;
 
 enum dspType
 {
-	TELE,	//China telecom
-	GYIN	//GuangYin
+	TELE,		//China telecom
+	GYIN,		//GuangYin
+	SMAATO		//Smaato
 };
 
 struct listenObject
@@ -70,6 +71,7 @@ private:
 	string name;	
 	string adReqType;
 	string adReqIP;
+	string adReqDomain;
 	string adReqPort;
 	string adReqUrl;
 
@@ -156,4 +158,17 @@ private:
 	int curFlowCount;
 	
 };
+
+class smaatoObject: public dspObject
+{
+public:
+	smaatoObject()
+	{
+		readDSPconfig(SMAATO);
+	}
+	~smaatoObject(){}
+private:
+	
+};
+
 #endif

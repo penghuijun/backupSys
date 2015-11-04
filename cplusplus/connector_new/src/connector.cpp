@@ -30,6 +30,8 @@ extern shared_ptr<spdlog::logger> g_master_logger;
 extern shared_ptr<spdlog::logger> g_manager_logger;
 extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
+extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
+
 
 vector<map<int,string>> SQL_MAP;
 map<int,string> Creative_template;
@@ -3321,6 +3323,18 @@ void connectorServ::handle_recvAdResponseGYin(int sock,short event,void *arg)
     #endif
 }
 
+void connectorServ::handle_recvAdResponseSmaato(int sock,short event,void *arg)
+{   
+    connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+    {
+        g_workerGYIN_logger->emerg("handle_recvAdResponseSmaato param is null");
+        return;
+    }
+    
+    serv->handle_recvAdResponse(sock, event, arg, SMAATO);
+}
+
 void *connectorServ::connectToOther(void *arg)
 {
     connectorServ *serv = (connectorServ*) arg;    
@@ -3508,6 +3522,8 @@ void connectorServ::workerRun()
     g_worker_logger->set_level(m_logLevel);  
     g_workerGYIN_logger = spdlog::daily_logger_mt("GYIN", "logs/GYINdebugfile", true); 
     g_workerGYIN_logger->set_level(m_logLevel);
+    g_workerSMAATO_logger = spdlog::daily_logger_mt("SMAATO", "logs/SMAATOdebugfile", true);
+    g_workerSMAATO_logger->set_level(m_logLevel);
     g_worker_logger->info("worker start:{0:d}", getpid());
     
     m_zmq_connect.init();
@@ -3539,7 +3555,7 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
     m_dspManager.init();
-    m_dspManager.creatConnectDSP(m_base, handle_recvAdResponseTele, handle_recvAdResponseGYin, this);
+    m_dspManager.creatConnectDSP(m_base, handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, this);
 
     //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
     //event_add(recvGYINrspEvent, NULL);

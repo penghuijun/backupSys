@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SERVER_NAME=connector_mobile
+SERVER_NAME=smaato_mobile
 
 MASTER_PID=0
 
@@ -103,7 +103,7 @@ case "$1" in
 		;;
 
 	*)
-		echo "Usage: sh thro_server.sh [start|stop|restart]"
+		echo "Usage: sh $SERVER_NAME.sh [start|stop|restart]"
 		exit 1
 		;;
 esac

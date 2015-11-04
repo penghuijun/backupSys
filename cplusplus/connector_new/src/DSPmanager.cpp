@@ -3,7 +3,8 @@
 void dspManager::init()
 {
     m_chinaTelecomObject = new chinaTelecomObject();
-    m_guangYinObject     = new guangYinObject();
+    m_guangYinObject = new guangYinObject();
+    m_smaatoObject = new smaatoObject();
 }
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
 {
@@ -25,10 +26,11 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
-void dspManager::creatConnectDSP(struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, void *arg)
+void dspManager::creatConnectDSP(struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, void *arg)
 {
     m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
     m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
+    m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
 }
 
 

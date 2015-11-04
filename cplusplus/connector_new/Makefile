@@ -1,6 +1,13 @@
-TARGET 		:= connector_mobile
+TARGET 		:= mobile
 OBJ_PATH 	:= objs
 LOG_PATH	:= logs
+TELE_LOG	:= bin_TELE/$(LOG_PATH)
+GYIN_LOG	:= bin_GYIN/$(LOG_PATH)
+SMAATO_LOG	:= bin_SMAATO/$(LOG_PATH)
+TELE_MOBILE	:= bin_TELE/tele_mobile
+GYIN_MOBILE	:= bin_GYIN/gyin_mobile
+SMAATO_MOBILE	:= bin_SMAATO/smaato_mobile
+TARGET_ALL 	:= $(TARGET) $(TELE_MOBILE) $(GYIN_MOBILE) $(SMAATO_MOBILE)
 
 CC		:= gcc --std=c++11
 INCLUDES	:= -I./include
@@ -22,12 +29,12 @@ $(OBJ_PATH)/%.o : %.cc
 $(OBJ_PATH)/%.o : %.cpp
 	$(CC) -c $(CPPFLAGS) $(INCLUDES) $< -o $@  
 
-all: init protobuf compile
+all: init protobuf compile cptarget
 
 init:	
 	$(foreach d,$(SRCDIRS), mkdir -p $(OBJ_PATH)/$(d);)
-	rm -rf $(LOG_PATH)
-	mkdir $(LOG_PATH)
+	rm -rf $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)
+	mkdir $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)	
 	
 protobuf:
 	protoc -I=./src/proto --cpp_out=./src ./src/proto/*.proto	
@@ -36,12 +43,16 @@ protobuf:
 compile: $(OBJS)
 	$(CC) -o $(TARGET) $^ $(CPPFLAGS) $(LIBS)	
 
+cptarget:
+	cp -f mobile $(TELE_MOBILE)
+	cp -f mobile $(GYIN_MOBILE)
+	cp -f mobile $(SMAATO_MOBILE)
 	
 clean:
-	rm -rf $(OBJ_PATH) $(LOG_PATH)
-	rm -f $(TARGET)
-	rm -f include/*.pb.h
-	rm -f src/*.pb.cc
-	rm -f masterworker workermaster 	
+	rm -rf $(OBJ_PATH) $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)
+	rm -f $(TARGET_ALL)
+#	rm -f include/*.pb.h
+#	rm -f src/*.pb.cc
+#	rm -f masterworker workermaster 	
 	
 rebuild: clean all

@@ -166,6 +166,7 @@ public:
 	{
 		readDSPconfig(SMAATO);
 	}
+	bool sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	~smaatoObject(){}
 private:
 	

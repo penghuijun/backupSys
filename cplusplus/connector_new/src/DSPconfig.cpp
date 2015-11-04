@@ -190,8 +190,6 @@ void dspObject::readDSPconfig(dspType type)
         adReqDomain = root["adReqDomain"].asString();
         adReqPort   = root["adReqPort"].asString();
         adReqUrl    = root["adReqUrl"].asString();
-
-        g_logger->debug("adReqDomain: {0}", adReqDomain);
         
         httpVersion = root["httpVersion"].asString();
 
@@ -222,7 +220,6 @@ void dspObject::readDSPconfig(dspType type)
 void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
 {
     int maxNum = getMaxConnectNum();
-    g_workerSMAATO_logger->debug("maxConnectNum: {0:d}", maxNum);
     for(int i=0; i < maxNum; i++)
     {
         if(addConnectToDSP(base, fn, arg))
@@ -1042,5 +1039,59 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     listenObjectList_unLock();  
     delete [] send_str;    
     return ret;
+}
+
+bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+{
+    //初始化发送信息
+    char *send_str = new char[4096];
+    memset(send_str,0,4096*sizeof(char));       
+
+    //头信息
+    strcat(send_str, getAdReqType().c_str());
+    string Url = getAdReqUrl() + "?" + data;
+    strcat(send_str, Url.c_str());    
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");        
+
+    if(getCurConnectNum() == 0)
+    {
+        g_workerSMAATO_logger->debug("NO CONNECTION TO GYIN");
+        return false;
+    }
+    
+    
+    listenObject *obj = NULL;
+    
+    listenObjectList_Lock();
+    if(!getListenObjectList().empty())
+    {
+        obj = getListenObjectList().front();
+        getListenObjectList().pop_front();
+    }    
+    listenObjectList_unLock();  
+
+    if(!obj)
+    {
+        g_workerSMAATO_logger->debug("NO IDLE SOCK ");
+        delete [] send_str;
+        return false;
+    }
+    
+    int sock =  obj->sock;
+    
+    bool ret = true;
+    g_workerSMAATO_logger->debug("\r\n{0}", send_str);
+    if(socket_send(sock, send_str, strlen(send_str)) == -1)
+    {        
+        g_workerSMAATO_logger->error("adReqSock send failed ...");
+        ret  = false;
+    }         
+    listenObjectList_Lock();
+    getListenObjectList().push_back(obj);
+    listenObjectList_unLock();  
+    delete [] send_str;    
+    return ret;
+    
 }
 

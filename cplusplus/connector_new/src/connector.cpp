@@ -2311,6 +2311,133 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
 
     return true;    
 }
+
+bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request)
+{
+    char *strbuf = buf;
+    
+    MobileAdRequest_Device dev = mobile_request.device();    
+    MobileAdRequest_GeoInfo geo = mobile_request.geoinfo();
+    
+    vector<string> query_buf;
+    if(getStringFromSQLMAP(query_buf,dev,geo))
+    {
+        g_workerSMAATO_logger->trace("get string from SQLMAP success!");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
+        return false;
+    }         
+    
+    string apiver = "apiver=501";
+    strcat(strbuf, apiver.c_str());
+    strcat(strbuf, "&");
+
+    string adspace = "adspace=0";
+    strcat(strbuf, adspace.c_str());
+    strcat(strbuf, "&");
+
+    string pub = "pub=0";
+    strcat(strbuf, pub.c_str());
+    strcat(strbuf, "&");
+
+    string beacon = "beacon=true";
+    strcat(strbuf, beacon.c_str());
+    strcat(strbuf, "&");
+
+    string devip = "devip=" + mobile_request.dnsip();
+    strcat(strbuf, devip.c_str());
+    strcat(strbuf, "&");
+
+    string device = "device=" + dev.ua();
+    strcat(strbuf, device.c_str());
+    strcat(strbuf, "&");
+
+    string format = "format=all";
+    strcat(strbuf, format.c_str());
+    strcat(strbuf, "&");
+
+    string googleadid = "googleadid=";
+    if((dev.has_udid())&&(dev.udid().empty() == false))
+    {
+        googleadid += dev.udid();
+    }
+    else 
+    {
+        string tempid = dev.hidmd5() + "-" + dev.hidsha1();
+        googleadid += tempid;
+    }   
+    strcat(strbuf, googleadid.c_str());
+    strcat(strbuf, "&");
+
+    string googlednt = "googlednt=true";
+    strcat(strbuf, googlednt.c_str());    
+    strcat(strbuf, "&");
+
+    string response = "response=XML";
+    strcat(strbuf, response.c_str());
+    strcat(strbuf, "&");
+
+    string coppa = "coppa=0";
+    strcat(strbuf, coppa.c_str());
+    strcat(strbuf, "&");
+
+    string height = "height=" + mobile_request.adspaceheight();
+    strcat(strbuf, height.c_str());
+    strcat(strbuf, "&");
+    
+    string width = "width=" + mobile_request.adspacewidth();
+    strcat(strbuf, width.c_str());
+    strcat(strbuf, "&");
+    
+    string session = "session=" + mobile_request.session();
+    strcat(strbuf, session.c_str());
+    strcat(strbuf, "&");
+
+    string bundle = "bundle=" + mobile_request.packagename();
+    strcat(strbuf, bundle.c_str());
+    strcat(strbuf, "&");
+
+    MobileAdRequest_Aid aid = mobile_request.aid();
+    string appname = aid.appname();
+    string OSname = query_buf.at(4);
+    string AdspaceDimension = height + "x" + width;
+    
+    string adspacename = "adspacename=" + appname + "_" + OSname + "_" + AdspaceDimension;
+    strcat(strbuf, adspacename.c_str());
+    strcat(strbuf, "&");       
+
+    string kws = "kws=news";
+    strcat(strbuf, kws.c_str());
+    strcat(strbuf, "&");
+
+    string age = "age=25";
+    strcat(strbuf, age.c_str());    
+    strcat(strbuf, "&");
+
+    string gender = "gender=m";
+    strcat(strbuf, gender.c_str());    
+    strcat(strbuf, "&");
+
+    string gps = "gps=" + geo.latitude() + "," + geo.longitude();
+    strcat(strbuf, gps.c_str());    
+    strcat(strbuf, "&");
+
+    string region = "region=" + query_buf.at(7);
+    strcat(strbuf, region.c_str());    
+    strcat(strbuf, "&");
+
+    string devicemodel = "devicemodel=" + query_buf.at(3);
+    strcat(strbuf, devicemodel.c_str());    
+    strcat(strbuf, "&");
+
+    string devicemake = "devicemake=" + query_buf.at(2);
+    strcat(strbuf, devicemake.c_str());    
+    //strcat(strbuf, "&");    
+    
+}
+
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {
     try
@@ -2345,40 +2472,61 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         /*
                 *send to GYIN
                 */
-        int GYIN_maxFlowLimit = m_dspManager.getGuangYinObject()->getMaxFlowLimit();
-        int GYIN_curFlowCount = m_dspManager.getGuangYinObject()->getCurFlowCount();
-        if(m_config.get_enGYIN()&&((GYIN_curFlowCount < GYIN_maxFlowLimit)||(GYIN_maxFlowLimit == 0)))
+        if(m_config.get_enGYIN())
         {
-            BidRequest bidRequest;        
-            if(convertProtoToGYinProto(bidRequest,mobile_request))
-            {            
-                int length = bidRequest.ByteSize();
-                char* buf = new char[length];
-                bidRequest.SerializeToArray(buf,length);        
-                if(m_config.get_logGYINReq())
-                {                    
-                    displayGYinBidRequest(buf,length);                
-                }
-                if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
-                {
-                    g_workerGYIN_logger->debug("POST TO GYIN fail uuid : {0}",uuid); 
-                }
+            int GYIN_maxFlowLimit = m_dspManager.getGuangYinObject()->getMaxFlowLimit();
+            int GYIN_curFlowCount = m_dspManager.getGuangYinObject()->getCurFlowCount();
+            if((GYIN_curFlowCount < GYIN_maxFlowLimit)||(GYIN_maxFlowLimit == 0))
+            {
+                BidRequest bidRequest;        
+                if(convertProtoToGYinProto(bidRequest,mobile_request))
+                {            
+                    int length = bidRequest.ByteSize();
+                    char* buf = new char[length];
+                    bidRequest.SerializeToArray(buf,length);        
+                    if(m_config.get_logGYINReq())
+                    {                    
+                        displayGYinBidRequest(buf,length);                
+                    }
+                    if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
+                    {
+                        g_workerGYIN_logger->debug("POST TO GYIN fail uuid: {0}",uuid); 
+                    }
+                    else
+                    {
+                    	if(GYIN_maxFlowLimit != 0)
+                        	m_dspManager.getGuangYinObject()->curFlowCountIncrease();
+                        g_workerGYIN_logger->debug("POST TO GYIN success uuid: {0} \r\n",uuid); 
+                    }
+                    delete [] buf;
+                }     
                 else
-                {
-                	if(GYIN_maxFlowLimit != 0)
-                    	m_dspManager.getGuangYinObject()->curFlowCountIncrease();
-                    g_workerGYIN_logger->debug("POST TO GYIN success uuid : {0} \r\n",uuid); 
-                }
-                delete [] buf;
-            }     
-            else
-                g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
-        }   
-        else if(GYIN_curFlowCount == GYIN_maxFlowLimit)
-        {
-            m_dspManager.getGuangYinObject()->curFlowCountIncrease();
-            g_workerGYIN_logger->debug("FLOW LIMITED...");
+                    g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
+            }   
+            else if(GYIN_curFlowCount == GYIN_maxFlowLimit)
+            {
+                m_dspManager.getGuangYinObject()->curFlowCountIncrease();
+                g_workerGYIN_logger->debug("FLOW LIMITED...");
+            }
         }
+
+        /*
+                *send to SMAATO
+                */
+        if(m_config.get_enSmaato())
+        {
+            char *http_getArg = new char[4096];
+            convertProtoToHttpGETArg(http_getArg, mobile_request);
+            if(!m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this))
+            {
+                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
+            }
+            else
+            {
+                g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+            }
+            delete [] http_getArg;
+        }      
              
     }
     catch(...)

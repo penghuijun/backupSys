@@ -2406,7 +2406,7 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     MobileAdRequest_Aid aid = mobile_request.aid();
     string appname = aid.appname();
     string OSname = query_buf.at(4);
-    string AdspaceDimension = height + "x" + width;
+    string AdspaceDimension = mobile_request.adspacewidth() + "x" + mobile_request.adspaceheight();
     
     string adspacename = "adspacename=" + appname + "_" + OSname + "_" + AdspaceDimension;
     strcat(strbuf, adspacename.c_str());

@@ -1788,7 +1788,7 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
 {
     int responseDataLen = 0;    
     string uuid;    //for hash get bc info
-    char *responseDataStr;
+    char *responseDataStr = NULL;
 
     shared_ptr<spdlog::logger> g_logger = NULL;
     string dspName;
@@ -1808,6 +1808,11 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
             dspName = "GYIN";
             flag_displayCommonMsgResponse = m_config.get_logGYINRsp();
             break;
+		case SMAATO:
+			responseDataStr = NULL;
+			g_logger = g_workerSMAATO_logger;
+			dspName = "SMAATO";
+			break;
         default:
             break;
     }    
@@ -1882,7 +1887,6 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
     else
     {
         g_logger->debug("no valid BidResponse generate \r\n");
-        //g_worker_logger->debug("no valid BidResponse generate \r\n");   
     }    
 }
 bool connectorServ::getStringFromSQLMAP(vector<string>& str_buf,const MobileAdRequest_Device& request_dev,const MobileAdRequest_GeoInfo& request_geo)
@@ -3058,6 +3062,9 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             dspName = "GYIN";
             flag_displayBodyData = serv->m_config.get_logGYINHttpRsp();
             break;
+		case SMAATO:
+			g_logger = g_workerSMAATO_logger;
+			dspName = "SMAATO";
         default:
             break;          
     }    
@@ -3089,7 +3096,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:	
-			{
+					{
                         struct listenObject *obj = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock);
                         if(obj != NULL)
                         {
@@ -3117,6 +3124,20 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }
                     }
+				case SMAATO:
+					{
+						struct listenObject *obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock);
+                        if(obj != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getSmaatoObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else 
+                        {
+                            g_logger->error("FIND LISTEN OBJ FAILED");		 
+                        }	
+					}
                     break;
                 default:
                     break;                    
@@ -3145,7 +3166,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            g_logger->trace("\r\n{0}", recv_str);
+            g_logger->debug("\r\n{0}", recv_str);
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;
@@ -3201,11 +3222,13 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:
-                    g_logger->debug("BidRsponse : {0}",bodyData);   
+                    g_logger->debug("BidRsponse: {0}", bodyData);   
                     break;
                 case GYIN:
                     serv->displayGYinBidResponse(bodyData, dataLen);
                     break;
+				case SMAATO:
+					g_logger->debug("SmaatoRsponse: {0}", bodyData);
                 default:
                     break;                              
             }

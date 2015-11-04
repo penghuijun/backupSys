@@ -2267,8 +2267,10 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     
     Banner *banner = imp->mutable_banner();
     banner->set_id("1");
-    banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
-    banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
+    //banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
+    //banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
+    banner->set_w(320);
+    banner->set_h(50);
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 

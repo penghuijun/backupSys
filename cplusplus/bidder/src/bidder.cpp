@@ -799,7 +799,7 @@ try
 
         if(ssize>0)
         {           
-            g_worker_logger->debug("recv valid campaign, send to BC:{0:d},{1},{2},{3:d}"
+            g_worker_logger->info("recv valid campaign, send to BC:{0:d},{1},{2},{3:d}"
                 , ssize, uuid, bcIP, bcManagerPort);
             calSpeed();
             if(m_logRedisOn)

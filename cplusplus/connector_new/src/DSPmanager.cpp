@@ -1,10 +1,19 @@
 #include "DSPmanager.h"
 
-void dspManager::init()
+void dspManager::init(bool enTele, bool enGYin, bool enSmaato)
 {
-    m_chinaTelecomObject = new chinaTelecomObject();
-    m_guangYinObject = new guangYinObject();
-    m_smaatoObject = new smaatoObject();
+    if(enTele)
+    {        
+        m_chinaTelecomObject = new chinaTelecomObject();
+    }
+    if(enGYin)
+    {        
+        m_guangYinObject = new guangYinObject();
+    }
+    if(enSmaato)
+    {        
+        m_smaatoObject = new smaatoObject();
+    }
 }
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
 {
@@ -26,11 +35,20 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
-void dspManager::creatConnectDSP(struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, void *arg)
+void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato,struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, void *arg)
 {
-    m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
-    m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
-    m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
+    if(enTele)
+    {        
+        m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
+    }
+    if(enGYin)
+    {        
+        m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
+    }
+    if(enSmaato)
+    {        
+        m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
+    }
 }
 
 

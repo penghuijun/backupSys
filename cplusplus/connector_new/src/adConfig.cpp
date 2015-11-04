@@ -885,6 +885,8 @@ void configureObject::readLogConfig()
         logGYINReq = root["logGYINReq"].asBool();
         logGYINHttpRsp = root["logGYINHttpRsp"].asBool();
         logGYINRsp = root["logGYINRsp"].asBool();
+
+        enSmaato = root["enSmaato"].asBool();
     }
     else
     {

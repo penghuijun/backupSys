@@ -3428,17 +3428,23 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
         gettimeofday(&tv,NULL);
         long long cur_timeMs = tv.tv_sec*1000 + tv.tv_usec/1000;
         long long pre_timeMs = tv.tv_sec*1000;        
-        if((pre_timeMs-CLOCK_TIME)%TELECODEUPDATE_TIME == 0) // update telecom passwd at 01:00:00 (Beijing TIME)everyday
+        if(serv->m_config.get_enChinaTelecom())
         {
-            if(!serv->m_dspManager.getCeritifyCodeFromChinaTelecomDSP())
+            if((pre_timeMs-CLOCK_TIME)%TELECODEUPDATE_TIME == 0) // update telecom passwd at 01:00:00 (Beijing TIME)everyday
             {
-                g_worker_logger->error("UPDATE DSP PASSWORD FAIL ... ");                
-            }  
+                if(!serv->m_dspManager.getCeritifyCodeFromChinaTelecomDSP())
+                {
+                    g_worker_logger->error("UPDATE DSP PASSWORD FAIL ... ");                
+                }  
+            }
         }
-        if((pre_timeMs-DAWN_TIME)%TELECODEUPDATE_TIME == 0) // update GYIN curFlowCount  at 00:00:00 (Beijing TIME)everyday
+        if(serv->m_config.get_enGYIN())
         {
-            serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
-        }
+            if((pre_timeMs-DAWN_TIME)%TELECODEUPDATE_TIME == 0) // update GYIN curFlowCount  at 00:00:00 (Beijing TIME)everyday
+            {
+                serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
+            }
+        }        
         
         serv->commMsgRecordList_lock.lock();        
         for(auto it = serv->commMsgRecordList.begin(); it != serv->commMsgRecordList.end(); )
@@ -3462,31 +3468,62 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
 void *connectorServ::checkConnectNum(void *arg)
 {
     connectorServ *serv = (connectorServ*) arg;   
-    int TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum(); 
-    int GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();    
+    int TELE_maxConnectNum = 0;
+    int GYIN_maxConnectNum = 0;
+    int SMAATO_maxConnectNum = 0;
+    if(serv->m_config.get_enChinaTelecom())
+    {
+        TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum(); 
+    }
+    if(serv->m_config.get_enGYIN())
+    {        
+        GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();    
+    }
+    if(serv->m_config.get_enSmaato())
+    {
+        SMAATO_maxConnectNum = serv->m_dspManager.getSmaatoObject()->getMaxConnectNum();
+    }
     while(1)
     {        
-        int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
-        if(TELE_curConnectNum < TELE_maxConnectNum)
+        if(serv->m_config.get_enChinaTelecom())
         {
-            if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
+            int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
+            if(TELE_curConnectNum < TELE_maxConnectNum)
             {
-	         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
-                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
-		  serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
-	     }    
+                if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
+                {
+    	         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
+                    serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
+    		  serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
+    	        }    
+            }
         }
-        
-        int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();        
-        if(GYIN_curConnectNum < GYIN_maxConnectNum)
-        {            
-            if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
-            {
-		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
-		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
-		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-	     }                        
+        if(serv->m_config.get_enGYIN())
+        {
+            int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();        
+            if(GYIN_curConnectNum < GYIN_maxConnectNum)
+            {            
+                if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
+                {
+    		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
+    		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
+    		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+    	        }                        
+            }        
         }        
+        if(serv->m_config.get_enSmaato())
+        {
+            int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
+            if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
+            {            
+                if(serv->m_dspManager.getSmaatoObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseSmaato, arg))
+                {
+    		  serv->m_dspManager.getSmaatoObject()->listenObjectList_Lock();
+    		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
+    		  serv->m_dspManager.getSmaatoObject()->listenObjectList_unLock();
+    	        }                        
+            }      
+        }
         usleep(1000);     //1ms
     }
 }
@@ -3554,8 +3591,8 @@ void connectorServ::workerRun()
     int poolSize = m_connector_manager.get_connector_config().get_connectorThreadPoolSize();
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
-    m_dspManager.init();
-    m_dspManager.creatConnectDSP(m_base, handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, this);
+    m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato());
+    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_base, handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, this);
 
     //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
     //event_add(recvGYINrspEvent, NULL);

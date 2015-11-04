@@ -626,10 +626,13 @@ public:
 	bool				 get_logTeleReq(){return logTeleReq;}
 	bool 				 get_logTeleHttpRsp(){return logTeleHttpRsp;}
 	bool				 get_logTeleRsp(){return logTeleRsp;}
+	
 	bool 				 get_enGYIN(){return enGYIN;}
 	bool 				 get_logGYINReq(){return logGYINReq;}
 	bool				 get_logGYINHttpRsp(){return logGYINHttpRsp;}
 	bool				 get_logGYINRsp(){return logGYINRsp;}
+
+	bool 				get_enSmaato(){return enSmaato;}
 
 	void clear()
 	{
@@ -671,6 +674,8 @@ private:
 	bool 			     logGYINReq;
 	bool 				 logGYINHttpRsp;
 	bool                 logGYINRsp;
+
+	bool				enSmaato;
 };
 
 #endif

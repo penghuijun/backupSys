@@ -11,7 +11,8 @@
 /*HTTP HEADER CONFIG*/
     "Connection": "Keep-Alive", 
     "User-Agent": "Apache-HttpAsyncClient/4.1",
-    "Content-Type": "application/x-protobuf",     
+    "Content-Type": "application/xml",  
+    "charset": "UTF-8",   
     //"Host": "103.249.254.121",    
 
     "httpVersion": " HTTP/1.1",

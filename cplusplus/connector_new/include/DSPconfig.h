@@ -44,7 +44,12 @@ public:
 	void gen_HttpHeader(char *headerBuf, int Con_len);
 	string& getAdReqType(){return adReqType;}
 	string& getAdReqUrl(){return adReqUrl;}
+	string& getAdReqDomain(){return adReqDomain;}
 	string& getHttpVersion(){return httpVersion;}
+	string& getConnection(){return Connection;}
+	string& getUserAgent(){return UserAgent;}
+	string& getContentType(){return ContentType;}
+	string& getcharset(){return charset;}
 	string& getExtNetId(){return extNetId;}
 	string& getIntNetId(){return intNetId;}
 	void creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg);	

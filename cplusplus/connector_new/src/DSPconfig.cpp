@@ -1047,16 +1047,65 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     char *send_str = new char[4096];
     memset(send_str,0,4096*sizeof(char));       
 
-    //头信息
+    //请求行
     strcat(send_str, getAdReqType().c_str());
     string Url = getAdReqUrl() + "?" + data;
     strcat(send_str, Url.c_str());    
     strcat(send_str, getHttpVersion().c_str());    
     strcat(send_str, "\r\n");        
 
+    //头信息
+    if(getConnection().empty() == false)
+    {
+        strcat(send_str, "x-mh-Connection: ");
+        strcat(send_str,getConnection().c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(getUserAgent().empty() == false)
+    {
+        strcat(send_str, "x-mh-User-Agent: ");
+        strcat(send_str,getUserAgent().c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+    if(getContentType().empty() == false)
+    {
+        strcat(send_str, "x-mh-Content-Type: ");    
+        strcat(send_str,getContentType().c_str());
+        strcat(send_str, "\r\n");
+    }    
+
+   if(getcharset().empty() == false)
+    {
+        strcat(send_str, "x-mh-Accept-Charset: ");
+        strcat(send_str,getcharset().c_str());
+        strcat(send_str, "\r\n");
+    }
+
+    if(!getAdReqDomain().empty())
+    {
+        struct hostent *m_hostent = NULL;
+        m_hostent = gethostbyname(getAdReqDomain().c_str());
+        if(m_hostent == NULL)
+        {
+            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
+            return false;
+        }
+        char str_ip[32];
+        inet_ntop(m_hostent->h_addrtype, m_hostent->h_addr, str_ip, sizeof(str_ip));
+        
+        //g_workerSMAATO_logger->debug("SMAATO IP: {0}", str_ip);
+        strcat(send_str, "x-mh-X-Forward-For: ");
+        strcat(send_str, str_ip);
+        strcat(send_str, "\r\n");
+    }
+  
+    
+    
     if(getCurConnectNum() == 0)
     {
-        g_workerSMAATO_logger->debug("NO CONNECTION TO GYIN");
+        g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
         return false;
     }
     

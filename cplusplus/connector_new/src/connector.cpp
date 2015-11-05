@@ -1393,10 +1393,19 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
             }
             break;
         default:
+            {
+                g_workerGYIN_logger->error("GYIN_creativeAddEvents error: AdType = {0:d} no support", type);
+                return false;
+            }
             break;
     }
 
     map<int,string>::iterator it = Creative_template.find(id);
+    if(it == Creative_template.end())
+    {
+        g_workerGYIN_logger->error("GYIN Creative_template find error ");
+        return false;
+    }
     RetCode = it->second;                
     if(RetCode.empty() == false)
     {

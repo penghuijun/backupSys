@@ -2370,7 +2370,7 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     
     if(dev.has_ua())
     {
-        string device = "device=" + dev.ua();
+        string device = "device=" + UrlEncode(dev.ua());
         strcat(strbuf, device.c_str());
         strcat(strbuf, "&");
     }
@@ -2486,7 +2486,7 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, gender.c_str());    
     strcat(strbuf, "&");
 
-    if(geo.has_latitude()&&geo.has_longitude())
+    if(geo.has_latitude()&&geo.has_longitude()&&(!geo.latitude().empty())&&(!geo.longitude().empty()))
     {
         string gps = "gps=" + geo.latitude() + "," + geo.longitude();
         strcat(strbuf, gps.c_str());    
@@ -2615,6 +2615,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         if(m_config.get_enSmaato())
         {
             char *http_getArg = new char[4096];
+            memset(http_getArg, 0 ,4096*sizeof(char));
             convertProtoToHttpGETArg(http_getArg, mobile_request);
             if(!m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this))
             {

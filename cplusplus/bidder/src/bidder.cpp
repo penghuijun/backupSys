@@ -409,7 +409,7 @@ bool bidderServ::get_bidder_target(const MobileAdRequest& mobile_request, operat
     string daypart; 
     if(timeStamp.empty()==false)
     {
-        time_t time_stamp = (atoll(timeStamp.c_str())/1000);
+        time_t time_stamp = (atoll(timeStamp.c_str())/1000+8*60*60*1000);
         struct tm *utc_time = gmtime(&time_stamp);
         int daypart_index = (utc_time->tm_wday-1)*24+utc_time->tm_hour;
         intToString(daypart_index, daypart);

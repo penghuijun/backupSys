@@ -1392,9 +1392,15 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 id = 80;
             }
             break;
+        case MobileAdRequest_AdType_NATIVE:
+            {
+                g_workerGYIN_logger->error("NO SUPPORT MobileAdRequest_AdType_NATIVE ");
+                return false;
+            }
+            break;
         default:
             {
-                g_workerGYIN_logger->error("GYIN_creativeAddEvents error: AdType = {0:d} no support", type);
+                g_workerGYIN_logger->error("NO SUPPORT ADTYPE");
                 return false;
             }
             break;

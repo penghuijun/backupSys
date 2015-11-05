@@ -1,7 +1,10 @@
 bidder_mobile
 bc_mobile
 thro_mobile
-connector_mobile
+mobile
+tele_mobile
+gyin_mobile
+smaato_mobile
 logs
 *.o
 *.d

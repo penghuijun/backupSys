@@ -1083,6 +1083,9 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     strcat(send_str, "User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     strcat(send_str, "\r\n");
 
+	strcat(send_str, "Host:soma.smaato.net");
+	strcat(send_str, "\r\n");
+
     strcat(send_str, "\r\n");
 
     

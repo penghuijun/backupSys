@@ -3158,9 +3158,11 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             dspName = "GYIN";
             flag_displayBodyData = serv->m_config.get_logGYINHttpRsp();
             break;
-		case SMAATO:
-			g_logger = g_workerSMAATO_logger;
-			dspName = "SMAATO";
+	 case SMAATO:
+	     g_logger = g_workerSMAATO_logger;
+	     dspName = "SMAATO";
+	     flag_displayBodyData = true;
+	     break;
         default:
             break;          
     }    
@@ -3192,7 +3194,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:	
-					{
+			{
                         struct listenObject *obj = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock);
                         if(obj != NULL)
                         {
@@ -3220,9 +3222,10 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }
                     }
-				case SMAATO:
-					{
-						struct listenObject *obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock);
+                    break;
+		  case SMAATO:
+		      {
+			   struct listenObject *obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock);
                         if(obj != NULL)
                         {
                             listenEvent = obj->_event;
@@ -3233,7 +3236,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                         {
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }	
-					}
+			}
                     break;
                 default:
                     break;                    
@@ -3262,7 +3265,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            g_logger->debug("\r\n{0}", recv_str);
+            //g_logger->debug("\r\n{0}", recv_str);
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;
@@ -3323,8 +3326,9 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                 case GYIN:
                     serv->displayGYinBidResponse(bodyData, dataLen);
                     break;
-				case SMAATO:
-					g_logger->debug("SmaatoRsponse: {0}", bodyData);
+		  case SMAATO:
+		      g_logger->debug("SmaatoRsponse: {0}", bodyData);
+		      break;
                 default:
                     break;                              
             }

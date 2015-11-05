@@ -2286,10 +2286,32 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     
     Banner *banner = imp->mutable_banner();
     banner->set_id("1");
+
     //banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
     //banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
-    banner->set_w(320);
-    banner->set_h(50);
+    
+    MobileAdRequest_AdType adtype = mobile_request.type();
+    switch(adtype)
+    {
+        case MobileAdRequest_AdType_BANNER:
+        {
+            banner->set_w(320);
+            banner->set_h(50);
+        }
+        break;
+        case MobileAdRequest_AdType_INTERSTITIAL:
+        {
+            banner->set_w(320);
+            banner->set_h(480);
+        }
+        break;
+        default:
+        {
+            g_workerGYIN_logger->error("GYIN NO SUPPORT ADTYPE");
+            return false;
+        }
+        break;    
+    }    
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 

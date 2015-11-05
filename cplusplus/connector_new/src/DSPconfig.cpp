@@ -1055,16 +1055,45 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     strcat(send_str, "\r\n");        
 
     //Õ∑–≈œ¢
+
+    strcat(send_str, "Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Accept-Encoding:gzip,deflate,sdch");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Accept-Language:zh-CN,zh;q=0.8");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Cache-Control:no-cache");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Connection:keep-alive");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Cookie:SomaCookieUserId=60903a49-292c-41ec-9648-6edcca7e13ea");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Host:soma.smaato.net");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "Pragma:no-cache");
+    strcat(send_str, "\r\n");
+    
+    strcat(send_str, "User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
+    strcat(send_str, "\r\n");
+    
+    #if 0
     if(getConnection().empty() == false)
     {
-        strcat(send_str, "x-mh-Connection: ");
+        strcat(send_str, "Connection: ");
         strcat(send_str,getConnection().c_str());
         strcat(send_str, "\r\n");
     }    
 
     if(getUserAgent().empty() == false)
     {
-        strcat(send_str, "x-mh-User-Agent: ");
+        strcat(send_str, "User-Agent: ");
         strcat(send_str,getUserAgent().c_str());
         strcat(send_str, "\r\n");
     }    
@@ -1100,7 +1129,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
         strcat(send_str, str_ip);
         strcat(send_str, "\r\n");
     }
-  
+    #endif 
     
     
     if(getCurConnectNum() == 0)

@@ -2319,9 +2319,15 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
 bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request)
 {
     char *strbuf = buf;
+    if((!mobile_request.has_device()) || (!mobile_request.has_geoinfo()) ||(!mobile_request.has_aid()))
+    {
+        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid device |geoinfo |aid ");
+        return false;
+    }
     
     MobileAdRequest_Device dev = mobile_request.device();    
-    MobileAdRequest_GeoInfo geo = mobile_request.geoinfo();
+    MobileAdRequest_GeoInfo geo = mobile_request.geoinfo();    
+    MobileAdRequest_Aid aid = mobile_request.aid();
     
     vector<string> query_buf;
     if(getStringFromSQLMAP(query_buf,dev,geo))
@@ -2350,13 +2356,30 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, beacon.c_str());
     strcat(strbuf, "&");
 
-    string devip = "devip=" + mobile_request.dnsip();
-    strcat(strbuf, devip.c_str());
-    strcat(strbuf, "&");
-
-    string device = "device=" + dev.ua();
-    strcat(strbuf, device.c_str());
-    strcat(strbuf, "&");
+    if(mobile_request.has_dnsip())
+    {
+        string devip = "devip=" + mobile_request.dnsip();
+        strcat(strbuf, devip.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {        
+        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid devip");
+        return false;
+    }
+    
+    if(dev.has_ua())
+    {
+        string device = "device=" + dev.ua();
+        strcat(strbuf, device.c_str());
+        strcat(strbuf, "&");
+    }
+    else 
+    {
+        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid device");
+        return false;
+    }
+    
 
     string format = "format=all";
     strcat(strbuf, format.c_str());
@@ -2367,11 +2390,16 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     {
         googleadid += dev.udid();
     }
-    else 
+    else if(dev.has_hidmd5() && dev.has_hidsha1())
     {
         string tempid = dev.hidmd5() + "-" + dev.hidsha1();
         googleadid += tempid;
     }   
+    else
+    {
+        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid googleadid");
+        return false;
+    }
     strcat(strbuf, googleadid.c_str());
     strcat(strbuf, "&");
 
@@ -2387,30 +2415,64 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, coppa.c_str());
     strcat(strbuf, "&");
 
-    string height = "height=" + mobile_request.adspaceheight();
-    strcat(strbuf, height.c_str());
-    strcat(strbuf, "&");
+    if(mobile_request.has_adspaceheight())
+    {
+        string height = "height=" + mobile_request.adspaceheight();
+        strcat(strbuf, height.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid height");
+    }
     
-    string width = "width=" + mobile_request.adspacewidth();
-    strcat(strbuf, width.c_str());
-    strcat(strbuf, "&");
+    if(mobile_request.has_adspacewidth())
+    {
+        string width = "width=" + mobile_request.adspacewidth();
+        strcat(strbuf, width.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid width");
+    }
     
-    string session = "session=" + mobile_request.session();
-    strcat(strbuf, session.c_str());
-    strcat(strbuf, "&");
+    if(mobile_request.has_session())
+    {
+        string session = "session=" + mobile_request.session();
+        strcat(strbuf, session.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid session");
+    }
+    
+    if(mobile_request.has_packagename())
+    {
+        string bundle = "bundle=" + mobile_request.packagename();
+        strcat(strbuf, bundle.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid bundle");
+    }
+    
+    if(aid.has_appname()&&(!query_buf.at(4).empty())&& mobile_request.has_adspacewidth()&&mobile_request.has_adspaceheight())
+    {
+        string appname = aid.appname();
+        string OSname = query_buf.at(4);
+        string AdspaceDimension = mobile_request.adspacewidth() + "x" + mobile_request.adspaceheight();    
 
-    string bundle = "bundle=" + mobile_request.packagename();
-    strcat(strbuf, bundle.c_str());
-    strcat(strbuf, "&");
-
-    MobileAdRequest_Aid aid = mobile_request.aid();
-    string appname = aid.appname();
-    string OSname = query_buf.at(4);
-    string AdspaceDimension = mobile_request.adspacewidth() + "x" + mobile_request.adspaceheight();
-    
-    string adspacename = "adspacename=" + appname + "_" + OSname + "_" + AdspaceDimension;
-    strcat(strbuf, adspacename.c_str());
-    strcat(strbuf, "&");       
+        string adspacename = "adspacename=" + appname + "_" + OSname + "_" + AdspaceDimension;
+        strcat(strbuf, adspacename.c_str());
+        strcat(strbuf, "&");      
+    }
+    else
+    {        
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid adspacename");
+    } 
 
     string kws = "kws=news";
     strcat(strbuf, kws.c_str());
@@ -2424,21 +2486,54 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, gender.c_str());    
     strcat(strbuf, "&");
 
-    string gps = "gps=" + geo.latitude() + "," + geo.longitude();
-    strcat(strbuf, gps.c_str());    
-    strcat(strbuf, "&");
+    if(geo.has_latitude()&&geo.has_longitude())
+    {
+        string gps = "gps=" + geo.latitude() + "," + geo.longitude();
+        strcat(strbuf, gps.c_str());    
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid gps");
+    }
+    
+    if(!query_buf.at(7).empty())
+    {
+        string region = "region=" + query_buf.at(7);
+        strcat(strbuf, region.c_str());    
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid region");
+    }
+    
+    if(!query_buf.at(3).empty())
+    {
+        string devicemodel = "devicemodel=" + query_buf.at(3);
+        strcat(strbuf, devicemodel.c_str());    
+        strcat(strbuf, "&");
+    }
+    else
+    {        
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid devicemodel");
+    }
+    
+    if(!query_buf.at(2).empty())
+    {
+        string devicemake = "devicemake=" + query_buf.at(2);
+        strcat(strbuf, devicemake.c_str());    
+    }
+    else
+    {        
+        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid devicemake");
+    }
 
-    string region = "region=" + query_buf.at(7);
-    strcat(strbuf, region.c_str());    
-    strcat(strbuf, "&");
-
-    string devicemodel = "devicemodel=" + query_buf.at(3);
-    strcat(strbuf, devicemodel.c_str());    
-    strcat(strbuf, "&");
-
-    string devicemake = "devicemake=" + query_buf.at(2);
-    strcat(strbuf, devicemake.c_str());    
-    //strcat(strbuf, "&");    
+    int len = strlen(strbuf);
+    if(strbuf[len-1] == '&')
+    {
+        strbuf[len-1] = '\0';
+    }
     
 }
 

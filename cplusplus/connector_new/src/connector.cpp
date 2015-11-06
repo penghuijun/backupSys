@@ -3277,12 +3277,14 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
 			   struct listenObject *obj = NULL;
                         if((obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock)) != NULL)
                         {
+                            g_logger->debug("FIND LISTEN OBJ ");
                             listenEvent = obj->_event;
                             serv->m_dspManager.getSmaatoObject()->eraseListenObject(sock);
                             event_del(listenEvent);
                         }
                         else if((obj = serv->m_dspManager.getSmaatoObject()->findWaitListenObject(sock)) != NULL)
                         {
+                            g_logger->debug("FIND WAIT LISTEN OBJ ");
                             listenEvent = obj->_event;
                             serv->m_dspManager.getSmaatoObject()->eraseWaitListenObject(sock);
                             event_del(listenEvent);

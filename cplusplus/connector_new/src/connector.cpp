@@ -993,12 +993,141 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
     outfile.write(data,dataLen); 
     outfile.close();
 
+    xmlDocPtr pdoc = xmlParseMemory(data, dataLen);
+    xmlNodePtr root = xmlDocGetRootElement(pdoc);
+    if(root == NULL)
+    {
+        g_workerSMAATO_logger->error("Failed to parse xml file");
+        return NULL;
+    }
+    xmlNodePtr cur = root;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"response"))
+    {
+        g_workerSMAATO_logger->error("The root is not response");
+        return NULL;
+    }
+
+    //Node: sessionid ->req: device.hidMd5
+    cur = cur->xmlChildrenNode;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"sessionid"))
+    {
+        g_workerSMAATO_logger->error("Node: sessionid miss");
+        return NULL;
+    }    
+    xmlChar *sessionid;
+    sessionid = xmlNodeGetContent(cur);
+    char *ssid = new char[64];
+    strcpy(ssid, (char *)sessionid);
+    {
+        while(*ssid != '.')
+            ssid++;
+        *ssid = '\0';        
+    }
+    g_workerSMAATO_logger->debug("SESSIONID: {0}", ssid);
+    xmlFree(sessionid);
+    
+    //Node: status
+    cur = cur->next;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"status"))
+    {
+        g_workerSMAATO_logger->error("Node: status miss");
+        return NULL;
+    }    
+    xmlChar *status;
+    status = xmlNodeGetContent(cur);
+    if(!strcmp((char *)status, "error"))
+    {
+        cur = cur->next;
+        while(xmlStrcmp(cur->name, (const xmlChar *)"error"))
+            cur = cur->next;
+        //Node: error
+        //Node: error code
+        cur = cur->xmlChildrenNode;
+        if(xmlStrcmp(cur->name, (const xmlChar *)"code"))
+        {
+            g_workerSMAATO_logger->error("Node: error code miss");
+            return NULL;
+        }    
+        xmlChar *code;
+        code = xmlNodeGetContent(cur);
+        xmlFree(code);
+        
+        //Node: error desc
+        cur = cur->next;
+        if(xmlStrcmp(cur->name, (const xmlChar *)"desc"))
+        {
+            g_workerSMAATO_logger->error("Node: error desc miss");
+            return NULL;
+        }    
+        xmlChar *desc;
+        desc = xmlNodeGetContent(cur);
+        g_workerSMAATO_logger->debug("error: {0}", (char *)desc);
+        xmlFree(desc);
+        xmlFree(status);
+        return NULL;        
+    }
+    else if(!strcmp((char *)status, "success"))
+    {
+        g_workerSMAATO_logger->trace("STATUS success");
+         xmlFree(status);
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("Node: unknow status");
+        xmlFree(status);
+        return NULL;
+    }
+
+    //Node: user
+    cur = cur->next;
+    xmlNodePtr user = cur;
+    //Node: user->id
+    user = user->xmlChildrenNode;
+    xmlChar *id = xmlNodeGetContent(user);
+    xmlFree(id);
+
+    //Node: ads
+    cur = cur->next;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"ads"))
+    {
+        g_workerSMAATO_logger->error("Node: ads miss");
+        return NULL;
+    }    
+
+    //return xmlParseAds(cur, ret_dataLen);   
     return NULL;
+    
+    
+    //return NULL;
 
     //ifstream infile;
     //infile.open("SmaatoBidResponse.xml",ios::in | ios::binary);
 }
 
+#if 0
+char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
+{
+    CommonMessage response_commMsg;
+    MobileAdResponse mobile_response;
+
+     int dataSize = mobile_response.ByteSize();
+     char *dataBuf = new char[dataSize];
+     mobile_response.SerializeToArray(dataBuf, dataSize); 
+     response_commMsg.set_businesscode(request_commMsg.businesscode());
+     response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+     response_commMsg.set_ttl(request_commMsg.ttl());
+     response_commMsg.set_data(dataBuf, dataSize);
+     
+     dataSize = response_commMsg.ByteSize();
+     char* comMessBuf = new char[dataSize];
+     response_commMsg.SerializeToArray(comMessBuf, dataSize);
+     delete[] dataBuf;
+     ret_dataLen = dataSize;
+     g_worker_logger->debug("BidResponse.json->MobileAdResponse.proto convert success !");
+     return comMessBuf;
+     
+}
+#endif
 
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
 {   
@@ -2489,9 +2618,10 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
         g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid width");
     }
     
-    if(mobile_request.has_session())
+    if(dev.has_hidmd5())
     {
-        string session = "session=" + mobile_request.session();
+        g_workerSMAATO_logger->debug("MD5: {0}", dev.hidmd5());
+        string session = "session=" + dev.hidmd5();
         strcat(strbuf, session.c_str());
         strcat(strbuf, "&");
     }

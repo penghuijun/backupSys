@@ -29,6 +29,8 @@
 #include <thread/threadpool.h>
 #include <thread/threadpoolmanager.h>
 #include <mysql.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 #include "urlcode.h"
 #include "zmq.h"

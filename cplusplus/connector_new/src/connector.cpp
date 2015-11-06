@@ -985,6 +985,21 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     }
 }
 
+char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
+{
+    g_workerSMAATO_logger->debug("WRITE TO SmaatoBidResponse.xml");
+    ofstream outfile;
+    outfile.open("SmaatoBidResponse.xml",ios::out | ios::binary);
+    outfile.write(data,dataLen); 
+    outfile.close();
+
+    return NULL;
+
+    //ifstream infile;
+    //infile.open("SmaatoBidResponse.xml",ios::in | ios::binary);
+}
+
+
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
 {   
     auto commMsgRecordIt = commMsgRecordList.find(str_id);
@@ -1823,11 +1838,11 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
             dspName = "GYIN";
             flag_displayCommonMsgResponse = m_config.get_logGYINRsp();
             break;
-		case SMAATO:
-			responseDataStr = NULL;
-			g_logger = g_workerSMAATO_logger;
-			dspName = "SMAATO";
-			break;
+	case SMAATO:
+	     responseDataStr = convertSmaatoBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid);
+	     g_logger = g_workerSMAATO_logger;
+	     dspName = "SMAATO";
+	     break;
         default:
             break;
     }    

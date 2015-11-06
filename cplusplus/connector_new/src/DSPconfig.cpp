@@ -1056,35 +1056,18 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
 
     //头信息
 
-    strcat(send_str, "Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-    strcat(send_str, "\r\n");
     
-    strcat(send_str, "Accept-Encoding:gzip,deflate,sdch");
-    strcat(send_str, "\r\n");
     
-    strcat(send_str, "Accept-Language:zh-CN,zh;q=0.8");
-    strcat(send_str, "\r\n");
     
-    strcat(send_str, "Cache-Control:no-cache");
-    strcat(send_str, "\r\n");
     
-    strcat(send_str, "Connection:close");
-    strcat(send_str, "\r\n");
-    
-    strcat(send_str, "Cookie:SomaCookieUserId=60903a49-292c-41ec-9648-6edcca7e13ea");
-    strcat(send_str, "\r\n");
-    
-    strcat(send_str, "Host:soma.smaato.net");
-    strcat(send_str, "\r\n");
-    
-    strcat(send_str, "Pragma:no-cache");
-    strcat(send_str, "\r\n");
-    
-    strcat(send_str, "User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
+    strcat(send_str, "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     strcat(send_str, "\r\n");
 
-	strcat(send_str, "Host:soma.smaato.net");
-	strcat(send_str, "\r\n");
+    strcat(send_str, "Host: soma.smaato.net");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Accept: */*");
+    strcat(send_str, "\r\n");
 
     strcat(send_str, "\r\n");
 
@@ -1139,7 +1122,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     #endif 
     
-    
+    #if 0
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
@@ -1165,19 +1148,87 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     
     int sock =  obj->sock;
+    #endif
+
     
-    bool ret = true;
+    sockaddr_in sin;
+        unsigned short httpPort = atoi(getAdReqPort().c_str());      
+        
+        sin.sin_family = AF_INET;    
+        sin.sin_port = htons(httpPort);    
+        if(!getAdReqIP().empty())
+        {
+            g_workerSMAATO_logger->debug("adReq IP: {0}", getAdReqIP());
+            sin.sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
+        }
+        else if(!getAdReqDomain().empty())
+        {
+            struct hostent *m_hostent = NULL;
+            m_hostent = gethostbyname(getAdReqDomain().c_str());
+            if(m_hostent == NULL)
+            {
+                g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
+                return false;
+            }
+            sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
+            g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
+        }
+        else
+        {
+            g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
+            return false;
+        }
+        
+        
+    
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock == -1)
+        {
+            g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
+            return false;
+        }   
+    
+        //非阻塞
+        int flags = fcntl(sock, F_GETFL, 0);
+        fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+        
+        //建立连接
+        int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+        if(checkConnect(sock, ret) <= 0)
+        {
+            g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
+            close(sock);
+            return false;
+        }
+
+        //add this socket to event listen queue
+    struct event *sock_event;
+    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    event_add(sock_event, NULL);
+
+    struct listenObject *listen = new listenObject();    
+    listen->sock = sock;
+    listen->_event = sock_event;
+
+    listenObjectList_Lock();
+    getListenObjectList().push_back(listen);
+    listenObjectList_unLock();
+    
+    
+    bool ret_t = true;
     g_workerSMAATO_logger->debug("\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerSMAATO_logger->error("adReqSock send failed ...");
-        ret  = false;
+        ret_t  = false;
     }         
+    #if 0
     listenObjectList_Lock();
     getListenObjectList().push_back(obj);
     listenObjectList_unLock();  
+    #endif
     delete [] send_str;    
-    return ret;
+    return ret_t;
     
 }
 

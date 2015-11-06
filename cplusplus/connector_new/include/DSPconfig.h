@@ -42,6 +42,8 @@ public:
 	}
 	void readDSPconfig(dspType type);
 	void gen_HttpHeader(char *headerBuf, int Con_len);
+	string& getAdReqIP(){return adReqIP;}
+	string& getAdReqPort(){return adReqPort;}
 	string& getAdReqType(){return adReqType;}
 	string& getAdReqUrl(){return adReqUrl;}
 	string& getAdReqDomain(){return adReqDomain;}

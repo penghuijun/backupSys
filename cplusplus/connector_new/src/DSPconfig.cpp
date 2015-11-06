@@ -1255,7 +1255,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     g_workerSMAATO_logger->debug("\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
-        g_workerSMAATO_logger->error("adReqSock send failed ...");        
+        g_workerSMAATO_logger->error("SOCKET SEND failed");        
         event_del(obj->_event);
         close(sock);
         delete obj;
@@ -1265,6 +1265,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     else
     {
+        g_workerSMAATO_logger->debug("SOCKET SEND success");        
         listenObjectWaitList_Lock();
         getListenObjectWaitList().push_back(obj);
         listenObjectWaitList_unLock();

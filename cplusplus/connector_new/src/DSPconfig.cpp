@@ -1268,9 +1268,14 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     else
     {
-        g_workerSMAATO_logger->debug("SOCKET SEND success");        
+        g_workerSMAATO_logger->debug("SOCKET SEND success");    
+        //struct listenObject *listen = new listenObject();    
+        //listen->sock = obj->sock;
+        //listen->_event = obj->sock_event;
+        
         listenObjectWaitList_Lock();
-        getListenObjectWaitList().push_back(obj);
+        //getListenObjectWaitList().push_back(listen);
+        m_listenObjectWaitListAdd(obj);
         listenObjectWaitList_unLock();
     }
     

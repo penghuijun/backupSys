@@ -67,6 +67,10 @@ public:
 	void connectNumIncrease(){curConnectNum++;}	
 	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
 	list<listenObject *>& getListenObjectWaitList(){return m_listenObjectWaitList;}
+	void m_listenObjectWaitListAdd(listenObject *obj)
+	{
+		m_listenObjectWaitList.push_back(obj);
+	}
 	void listenObjectList_Lock()
 	{
 		m_listenObjectListLock.lock();

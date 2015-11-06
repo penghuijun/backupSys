@@ -373,16 +373,19 @@ struct listenObject* dspObject::findListenObject(int sock)
 struct listenObject* dspObject::findWaitListenObject(int sock)
 {
     m_listenObjectWaitListLock.lock();
-    list<listenObject *>::iterator it = m_listenObjectWaitList.begin();
-    for( ; it != m_listenObjectWaitList.end(); it++)
+    if(!m_listenObjectWaitList.empty())
     {
-        struct listenObject *object = *it;
-        if(object->sock == sock)
+        list<listenObject *>::iterator it = m_listenObjectWaitList.begin();
+        for( ; it != m_listenObjectWaitList.end(); it++)
         {
-            m_listenObjectWaitListLock.unlock();
-            return object;            
+            struct listenObject *object = *it;
+            if(object->sock == sock)
+            {
+                m_listenObjectWaitListLock.unlock();
+                return object;            
+            }
         }
-    }
+    }    
     m_listenObjectWaitListLock.unlock();
     return NULL;
 }

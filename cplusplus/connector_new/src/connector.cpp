@@ -3232,11 +3232,17 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             {
                 case TELE:	
 			{
-                        struct listenObject *obj = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock);
-                        if(obj != NULL)
+                        struct listenObject *obj = NULL;
+                        if((obj = serv->m_dspManager.getChinaTelecomObject()->findListenObject(sock)) != NULL)
                         {
                             listenEvent = obj->_event;
                             serv->m_dspManager.getChinaTelecomObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else if((obj = serv->m_dspManager.getChinaTelecomObject()->findWaitListenObject(sock)) != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getChinaTelecomObject()->eraseWaitListenObject(sock);
                             event_del(listenEvent);
                         }
                         else 
@@ -3247,11 +3253,17 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                     break;
                 case GYIN:					
                     {
-                        struct listenObject *obj = serv->m_dspManager.getGuangYinObject()->findListenObject(sock);
-                        if(obj != NULL)
+                        struct listenObject *obj = NULL;
+                        if((obj = serv->m_dspManager.getGuangYinObject()->findListenObject(sock)) != NULL)
                         {
                             listenEvent = obj->_event;
                             serv->m_dspManager.getGuangYinObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else if((obj = serv->m_dspManager.getGuangYinObject()->findWaitListenObject(sock)) != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getGuangYinObject()->eraseWaitListenObject(sock);
                             event_del(listenEvent);
                         }
                         else 
@@ -3262,11 +3274,17 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                     break;
 		  case SMAATO:
 		      {
-			   struct listenObject *obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock);
-                        if(obj != NULL)
+			   struct listenObject *obj = NULL;
+                        if((obj = serv->m_dspManager.getSmaatoObject()->findListenObject(sock)) != NULL)
                         {
                             listenEvent = obj->_event;
                             serv->m_dspManager.getSmaatoObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else if((obj = serv->m_dspManager.getSmaatoObject()->findWaitListenObject(sock)) != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getSmaatoObject()->eraseWaitListenObject(sock);
                             event_del(listenEvent);
                         }
                         else 
@@ -3290,6 +3308,35 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
             {
                 g_logger->trace("ERRNO EAGAIN: RECV END");
+                switch(type)
+                {
+                    case TELE:	
+        		      {                            
+                            if(!serv->m_dspManager.getChinaTelecomObject()->moveListenObjectFromWait2Idle(sock))
+                            {
+                                g_logger->error("FIND LISTEN WAIT OBJ FAILED");	
+                            }
+                        }
+                        break;
+                    case GYIN:					
+                        {
+                            if(!serv->m_dspManager.getGuangYinObject()->moveListenObjectFromWait2Idle(sock))
+                            {
+                                g_logger->error("FIND LISTEN WAIT OBJ FAILED");	
+                            }
+                        }
+                        break;
+    		      case SMAATO:
+        		      {
+        			   if(!serv->m_dspManager.getSmaatoObject()->moveListenObjectFromWait2Idle(sock))
+                                {
+                                    g_logger->error("FIND LISTEN WAIT OBJ FAILED");	
+                                }
+        		      }
+                        break;
+                    default:
+                        break;                    
+                }
                 break;
             }
             else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again

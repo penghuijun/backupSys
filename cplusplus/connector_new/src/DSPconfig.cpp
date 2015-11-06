@@ -370,6 +370,23 @@ struct listenObject* dspObject::findListenObject(int sock)
     return NULL;
 }
 
+struct listenObject* dspObject::findWaitListenObject(int sock)
+{
+    m_listenObjectWaitListLock.lock();
+    list<listenObject *>::iterator it = m_listenObjectWaitList.begin();
+    for( ; it != m_listenObjectWaitList.end(); it++)
+    {
+        struct listenObject *object = *it;
+        if(object->sock == sock)
+        {
+            m_listenObjectWaitListLock.unlock();
+            return object;            
+        }
+    }
+    m_listenObjectWaitListLock.unlock();
+    return NULL;
+}
+
 void dspObject::eraseListenObject(int sock)
 {
     m_listenObjectListLock.lock();    
@@ -386,6 +403,47 @@ void dspObject::eraseListenObject(int sock)
         }            
     }    
     m_listenObjectListLock.unlock();
+}
+
+void dspObject::eraseWaitListenObject(int sock)
+{
+    m_listenObjectWaitListLock.lock();    
+    list<listenObject *>::iterator it = m_listenObjectWaitList.begin();
+    for( ; it != m_listenObjectWaitList.end(); it++)
+    {
+        listenObject *object = *it;
+        if(object->sock == sock)
+        {
+            m_listenObjectWaitList.erase(it);         
+            curConnectNum--;
+            m_listenObjectWaitListLock.unlock();
+            return ;
+        }            
+    }    
+    m_listenObjectWaitListLock.unlock();
+}
+
+bool dspObject::moveListenObjectFromWait2Idle(int sock)
+{
+    m_listenObjectWaitListLock.lock();
+    list<listenObject *>::iterator it = m_listenObjectWaitList.begin();
+    for( ; it != m_listenObjectWaitList.end(); it++)
+    {
+        struct listenObject *object = *it;
+        if(object->sock == sock)
+        {
+            m_listenObjectWaitList.erase(it); 
+            m_listenObjectWaitListLock.unlock();
+
+            m_listenObjectListLock.lock();
+            m_listenObjectList.push_back(object);
+            m_listenObjectListLock.unlock();
+            
+            return true;            
+        }
+    }
+    m_listenObjectWaitListLock.unlock();
+    return false;
 }
 
 void chinaTelecomObject::readChinaTelecomConfig()
@@ -855,11 +913,25 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_worker_logger->error("adReqSock send failed ...");
+        event_del(obj->_event);
+        close(sock);
+        delete obj;
+        obj = NULL;
+        connectNumReduce();
         ret = false;
     }         
+    else
+    {
+        listenObjectWaitList_Lock();
+        getListenObjectWaitList().push_back(obj);
+        listenObjectWaitList_unLock();
+    }
+    #if 0
     listenObjectList_Lock();
     getListenObjectList().push_back(obj);
     listenObjectList_unLock();  
+    #endif
+    
     delete [] send_str;
     return ret;
 }
@@ -1032,11 +1104,24 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     if(socket_send(sock, send_str, wholeLen) == -1)
     {        
         g_workerGYIN_logger->error("adReqSock send failed ...");
+        event_del(obj->_event);
+        close(sock);
+        delete obj;
+        obj = NULL;
+        connectNumReduce();
         ret  = false;
     }         
+    else
+    {
+        listenObjectWaitList_Lock();
+        getListenObjectWaitList().push_back(obj);
+        listenObjectWaitList_unLock();
+    }
+    #if 0
     listenObjectList_Lock();
     getListenObjectList().push_back(obj);
     listenObjectList_unLock();  
+    #endif
     delete [] send_str;    
     return ret;
 }
@@ -1170,12 +1255,27 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     g_workerSMAATO_logger->debug("\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
-        g_workerSMAATO_logger->error("adReqSock send failed ...");
+        g_workerSMAATO_logger->error("adReqSock send failed ...");        
+        event_del(obj->_event);
+        close(sock);
+        delete obj;
+        obj = NULL;
+        connectNumReduce();
         ret  = false;
-    }         
+    }
+    else
+    {
+        listenObjectWaitList_Lock();
+        getListenObjectWaitList().push_back(obj);
+        listenObjectWaitList_unLock();
+    }
+    
+    #if 0
     listenObjectList_Lock();
     getListenObjectList().push_back(obj);
-    listenObjectList_unLock();  
+    listenObjectList_unLock(); 
+    #endif
+    
     delete [] send_str;    
     return ret;
     

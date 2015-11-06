@@ -39,6 +39,7 @@ public:
 	dspObject():curConnectNum(0)
 	{
 		m_listenObjectListLock.init();
+		m_listenObjectWaitListLock.init();
 	}
 	void readDSPconfig(dspType type);
 	void gen_HttpHeader(char *headerBuf, int Con_len);
@@ -55,13 +56,17 @@ public:
 	void creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg);	
 	bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
 	struct listenObject* findListenObject(int sock);
+	struct listenObject* findWaitListenObject(int sock);
 	void eraseListenObject(int sock);	
+	void eraseWaitListenObject(int sock);
+	bool moveListenObjectFromWait2Idle(int sock);
 	void setMaxConnectNum(int num){maxConnectNum = num;}
 	int getCurConnectNum(){return curConnectNum;}
 	int getMaxConnectNum(){return maxConnectNum;}
 	void connectNumReduce(){curConnectNum--;}
 	void connectNumIncrease(){curConnectNum++;}	
 	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
+	list<listenObject *>& getListenObjectWaitList(){return m_listenObjectWaitList;}
 	void listenObjectList_Lock()
 	{
 		m_listenObjectListLock.lock();
@@ -69,6 +74,14 @@ public:
 	void listenObjectList_unLock()
 	{
 		m_listenObjectListLock.unlock();
+	}
+	void listenObjectWaitList_Lock()
+	{
+		m_listenObjectWaitListLock.lock();
+	}
+	void listenObjectWaitList_unLock()
+	{
+		m_listenObjectWaitListLock.unlock();
 	}
 	
 	~dspObject(){}
@@ -97,8 +110,11 @@ private:
 	
 	int curConnectNum;
 	int maxConnectNum;
-	mutex_lock			 m_listenObjectListLock;
-	list<listenObject *> m_listenObjectList;
+	mutex_lock			m_listenObjectListLock;
+	list<listenObject *> 	m_listenObjectList;
+
+	mutex_lock			m_listenObjectWaitListLock;
+	list<listenObject *>	 	m_listenObjectWaitList;
 };
 class chinaTelecomObject : public dspObject
 {

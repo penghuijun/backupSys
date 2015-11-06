@@ -2734,19 +2734,35 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */                
         if(m_config.get_enChinaTelecom()) 
         {
-            string reqTeleJsonData;
-            if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
+        	int TELE_maxFlowLimit = m_dspManager.getChinaTelecomObject()->getMaxFlowLimit();
+            int TELE_curFlowCount = m_dspManager.getChinaTelecomObject()->getCurFlowCount();
+            if((TELE_curFlowCount < TELE_maxFlowLimit)||(TELE_maxFlowLimit == 0))
             {
-                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(),handle_recvAdResponseTele, this))
-                {
-                    g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
-                }
-                else
-                    g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
+				string reqTeleJsonData;
+	            if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
+	            {
+	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
+	                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(),handle_recvAdResponseTele, this))
+	                {
+	                    g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
+	                }
+	                else
+	                {
+	                	if(TELE_maxFlowLimit != 0)
+                        	m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
+						g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
+					}
+
+	            }
+	            else
+	                 g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+			}
+			else if(TELE_curFlowCount == TELE_maxFlowLimit)
+            {
+                m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
+                g_workerGYIN_logger->debug("FLOW LIMITED...");
             }
-            else
-                 g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+            
         }
         
         
@@ -2796,18 +2812,30 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */
         if(m_config.get_enSmaato())
         {
-            char *http_getArg = new char[4096];
-            memset(http_getArg, 0 ,4096*sizeof(char));
-            convertProtoToHttpGETArg(http_getArg, mobile_request);
-            if(!m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this))
+        	int SMAATO_maxFlowLimit = m_dspManager.getSmaatoObject()->getMaxFlowLimit();
+            int SMAATO_curFlowCount = m_dspManager.getSmaatoObject()->getCurFlowCount();
+            if((SMAATO_curFlowCount < SMAATO_maxFlowLimit)||(SMAATO_maxFlowLimit == 0))
             {
-                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
-            }
-            else
+				char *http_getArg = new char[4096];
+	            memset(http_getArg, 0 ,4096*sizeof(char));
+	            convertProtoToHttpGETArg(http_getArg, mobile_request);
+	            if(!m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this))
+	            {
+	                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
+	            }
+	            else
+	            {
+	            	if(SMAATO_maxFlowLimit != 0)
+                        m_dspManager.getSmaatoObject()->curFlowCountIncrease();
+	                g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+	            }
+	            delete [] http_getArg;
+			}
+			else if(SMAATO_curFlowCount == SMAATO_maxFlowLimit)
             {
-                g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+                m_dspManager.getSmaatoObject()->curFlowCountIncrease();
+                g_workerGYIN_logger->debug("FLOW LIMITED...");
             }
-            delete [] http_getArg;
         }      
              
     }
@@ -3893,14 +3921,17 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
                 }  
             }
         }
-        if(serv->m_config.get_enGYIN())
-        {
-            if((pre_timeMs-DAWN_TIME)%TELECODEUPDATE_TIME == 0) // update GYIN curFlowCount  at 00:00:00 (Beijing TIME)everyday
-            {
-                serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
-            }
-        }        
-        
+		
+		if((pre_timeMs-DAWN_TIME)%TELECODEUPDATE_TIME == 0) // update curFlowCount  at 00:00:00 (Beijing TIME)everyday
+		{
+			if(serv->m_config.get_enChinaTelecom())
+				serv->m_dspManager.getChinaTelecomObject()->curFlowCountClean();
+			if(serv->m_config.get_enGYIN())
+				serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
+			if(serv->m_config.get_enSmaato())
+				serv->m_dspManager.getSmaatoObject()->curFlowCountClean();
+		}
+           
         serv->commMsgRecordList_lock.lock();        
         for(auto it = serv->commMsgRecordList.begin(); it != serv->commMsgRecordList.end(); )
         {            

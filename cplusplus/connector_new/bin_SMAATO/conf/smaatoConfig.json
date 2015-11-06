@@ -22,6 +22,7 @@
     "extNetId":"102",
     "intNetId":"7",    
 	"maxConnectNum":5,	
+    "maxFlowLimit":100000,
     "appFilter":[
         "com.rj.rj2048"
     ],

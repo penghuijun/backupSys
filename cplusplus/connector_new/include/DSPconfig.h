@@ -36,7 +36,7 @@ struct listenObject
 class dspObject
 {
 public:
-	dspObject():curConnectNum(0)
+	dspObject():curConnectNum(0),curFlowCount(0)
 	{
 		m_listenObjectListLock.init();
 	}
@@ -58,11 +58,18 @@ public:
 	bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
 	struct listenObject* findListenObject(int sock);
 	void eraseListenObject(int sock);	
+	
 	void setMaxConnectNum(int num){maxConnectNum = num;}
 	int getCurConnectNum(){return curConnectNum;}
 	int getMaxConnectNum(){return maxConnectNum;}
 	void connectNumReduce(){curConnectNum--;}
 	void connectNumIncrease(){curConnectNum++;}	
+	
+	int getMaxFlowLimit(){return maxFlowLimit;}
+	int getCurFlowCount(){return curFlowCount;};
+	void curFlowCountIncrease(){curFlowCount++;}
+	void curFlowCountClean(){curFlowCount = 0;}
+	
 	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
 	void listenObjectList_Lock()
 	{
@@ -96,9 +103,12 @@ private:
 	string extNetId;
 	string intNetId;
 
+	int maxFlowLimit;
+	int curFlowCount;
 	
 	int curConnectNum;
 	int maxConnectNum;
+	
 	mutex_lock			 m_listenObjectListLock;
 	list<listenObject *> m_listenObjectList;
 };
@@ -142,7 +152,7 @@ private:
 class guangYinObject : public dspObject
 {
 public:
-	guangYinObject():curFlowCount(0)
+	guangYinObject()
 	{
 		readDSPconfig(GYIN);
 		readGuangYinConfig();
@@ -151,18 +161,12 @@ public:
 	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
 	bool getTestValue(){return test;}
 	string& getPublisherID(){return publisherId;}	
-	int getMaxFlowLimit(){return maxFlowLimit;}
-	int getCurFlowCount(){return curFlowCount;};
-	void curFlowCountIncrease(){curFlowCount++;}
-	void curFlowCountClean(){curFlowCount = 0;}
+	
 	~guangYinObject(){}
 private:	
 	//FILTER
 	string publisherId;	
 	bool test;
-	
-	int maxFlowLimit;
-	int curFlowCount;
 	
 };
 

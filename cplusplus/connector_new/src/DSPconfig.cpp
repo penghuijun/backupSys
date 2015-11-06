@@ -206,6 +206,7 @@ void dspObject::readDSPconfig(dspType type)
         intNetId    = root["intNetId"].asString();        
 
         maxConnectNum = root["maxConnectNum"].asInt();
+        maxFlowLimit  = root["maxFlowLimit"].asInt();
         
     }
     else
@@ -884,9 +885,6 @@ void guangYinObject::readGuangYinConfig()
         //filter
         publisherId = root["publisherId"].asString();        
         test        = root["test"].asBool();
-
-        //Num of connect with GYIN
-        maxFlowLimit   = root["maxFlowLimit"].asInt();
         
     }
     else
@@ -1055,10 +1053,6 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     strcat(send_str, "\r\n");        
 
     //Í·ÐÅÏ¢
-
-    
-    
-    
     
     strcat(send_str, "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     strcat(send_str, "\r\n");
@@ -1122,7 +1116,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     #endif 
     
-    #if 0
+    #if 1
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
@@ -1150,7 +1144,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     int sock =  obj->sock;
     #endif
 
-    
+    #if 0
     sockaddr_in sin;
         unsigned short httpPort = atoi(getAdReqPort().c_str());      
         
@@ -1213,7 +1207,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     listenObjectList_Lock();
     getListenObjectList().push_back(listen);
     listenObjectList_unLock();
-    
+    #endif
     
     bool ret_t = true;
     g_workerSMAATO_logger->debug("\r\n{0}", send_str);
@@ -1222,7 +1216,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
         g_workerSMAATO_logger->error("adReqSock send failed ...");
         ret_t  = false;
     }         
-    #if 0
+    #if 1
     listenObjectList_Lock();
     getListenObjectList().push_back(obj);
     listenObjectList_unLock();  

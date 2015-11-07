@@ -1096,28 +1096,112 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
         return NULL;
     }    
 
-    //return xmlParseAds(cur, ret_dataLen);   
-    return NULL;
-    
-    
+    return xmlParseAds(cur, ret_dataLen);   
     //return NULL;
-
-    //ifstream infile;
-    //infile.open("SmaatoBidResponse.xml",ios::in | ios::binary);
+    
 }
 
-#if 0
 char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
 {
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
 
+    mobile_response.set_id("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    
+    string intNetId = m_dspManager.getGuangYinObject()->getIntNetId();    
+    MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+    bidder_info->set_bidderid(intNetId);
+
+    mobile_response.set_bidid("null");
+        
+    MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();  
+    
+    MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();  
+    MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();  
+
+    map<int,string>::iterator it = CampaignMap.find(atoi(intNetId.c_str()));
+    if(it == CampaignMap.end())
+    {
+        g_workerGYIN_logger->debug("SMAATO GEN FAILED : get campainId from CampaignMap fail .  intNetId: {0}",intNetId);
+        return NULL;
+    }
+    string campaignId = it->second;      
+    mobile_bidder->set_campaignid(campaignId);
+
+    mobile_bidder->set_biddingtype("CPM");                   
+    mobile_bidder->set_biddingvalue("10.0");
+    mobile_bidder->set_expectcpm("10.0");            
+    mobile_bidder->set_currency("CNY");
+
+    mobile_creative->set_creativeid("0");    
+    mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);        
+
+    xmlNodePtr cur = adsNode;
+
+    //Node: ad
+    cur= cur->xmlChildrenNode;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"ad"))
+    {
+        g_workerSMAATO_logger->error("Node: ads.ad miss");
+        return NULL;
+    }   
+
+    //xmlGetProp: get cur Node's property
+    xmlChar *id = xmlGetProp(cur, (const xmlChar *)"id");
+    xmlChar *type = xmlGetProp(cur, (const xmlChar *)"type");
+
+    if(!strcmp((char *)type, "TXT"))
+    {
+        cur = cur->xmlChildrenNode;
+        SMAATO_mutableAction(mobile_action, cur, TXT);     
+        SMAATO_creativeAddEvents(mobile_creative, cur, TXT);        
+    }
+    else if(!strcmp((char *)type, "IMG"))
+    {
+        xmlChar *width = xmlGetProp(cur, (const xmlChar *)"width");
+        xmlChar *height = xmlGetProp(cur, (const xmlChar *)"height");
+                   
+        mobile_creative->set_width((char *)width);
+        mobile_creative->set_height((char *)height);
+        
+        cur = cur->xmlChildrenNode;
+        SMAATO_mutableAction(mobile_action, cur, IMG);     
+        SMAATO_creativeAddEvents(mobile_creative, cur, IMG);  
+    }
+    else if(!strcmp((char *)type, "RICHMEDIA"))
+    {
+        #if 0
+        cur = cur->xmlChildrenNode;
+        SMAATO_mutableAction(mobile_action, cur, RICHMEDIA);     
+        SMAATO_creativeAddEvents(mobile_creative, cur, RICHMEDIA);  
+        #endif
+        g_workerSMAATO_logger->debug("ADTYPE:RICHMEDIA not finish");
+        xmlFree(id);
+        xmlFree(type);
+        return NULL;
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("NONSUPPORT AD TYPE");
+        xmlFree(id);
+        xmlFree(type);
+        return NULL;
+    }
+
+    xmlFree(id);
+    xmlFree(type);
+    
+ 
+
      int dataSize = mobile_response.ByteSize();
      char *dataBuf = new char[dataSize];
      mobile_response.SerializeToArray(dataBuf, dataSize); 
-     response_commMsg.set_businesscode(request_commMsg.businesscode());
-     response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
-     response_commMsg.set_ttl(request_commMsg.ttl());
+     //response_commMsg.set_businesscode(request_commMsg.businesscode());
+     //response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+     //response_commMsg.set_ttl(request_commMsg.ttl());
+     response_commMsg.set_businesscode("2");
+     response_commMsg.set_datacodingtype("null");
+     response_commMsg.set_ttl("250");
      response_commMsg.set_data(dataBuf, dataSize);
      
      dataSize = response_commMsg.ByteSize();
@@ -1129,7 +1213,6 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
      return comMessBuf;
      
 }
-#endif
 
 commMsgRecord* connectorServ::checkValidId(const string& str_id)
 {   
@@ -1640,6 +1723,198 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     return true;
 }
 
+bool connectorServ::SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType)
+{
+    xmlNodePtr cur = adNode;
+    switch(adType)
+    {
+        case TXT:
+            {
+                Json::Value content; 
+                content["app_name"] = "test";       
+                content["in_app"] = 1;
+                
+                while(cur != NULL)
+                {
+                    //ads action
+                    if(!xmlStrcmp(cur->name, (const xmlChar *)"action"))
+                    {
+                        xmlChar *actUrl = xmlGetProp(cur, (const xmlChar *)"target");    //      
+                        content["web_url"] = (char *)actUrl;
+                        xmlFree(actUrl);
+                    }
+                    cur = cur->next;
+                }
+                
+                string str_content = content.toStyledString();
+                mobile_action->set_content(str_content);
+                mobile_action->set_actiontype("web_page");
+                mobile_action->set_inapp("1"); 
+            }
+            break;
+        case IMG:
+            {
+                Json::Value content; 
+                content["app_name"] = "test";       
+                content["in_app"] = 1;
+                
+                while(cur != NULL)
+                {
+                    //ads action
+                    if(!xmlStrcmp(cur->name, (const xmlChar *)"action"))
+                    {
+                        xmlChar *actUrl = xmlGetProp(cur, (const xmlChar *)"target");    //      
+                        content["web_url"] = (char *)actUrl;
+                        xmlFree(actUrl);
+                    }
+                    cur = cur->next;
+                }
+                
+                string str_content = content.toStyledString();
+                mobile_action->set_content(str_content);
+                mobile_action->set_actiontype("web_page");
+                mobile_action->set_inapp("1"); 
+            }
+            break;
+        case RICHMEDIA:
+            {
+
+            }
+            break;
+        default:
+            break;
+    }
+    
+
+    return true;
+}
+
+bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType)
+{
+    xmlNodePtr cur = adNode;
+    int id = 0;
+    string RetCode;           
+
+    /**
+         *  MediaType: 
+         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
+         *
+         *  MediaSubType:  
+         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
+         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
+         */
+         
+    switch(adType)
+        {            
+            case TXT:         //pure text banner
+                {
+                    id = 66;
+                    
+                    string title;
+                    while(cur != NULL)
+                    {
+                        //adtext
+                        if(!xmlStrcmp(cur->name, (const xmlChar *)"adtext"))
+                        {
+                            xmlChar *adtext = xmlNodeGetContent(cur);    //   
+                            title = (char *)adtext;
+                            xmlFree(adtext);
+                        }
+                        cur = cur->next;
+                    }
+                    
+                    map<int,string>::iterator it = Creative_template.find(id);
+                    RetCode = it->second;        
+                    if(RetCode.empty() == false)
+                    {
+                        string decodeStr;                        
+                        
+                        decodeStr = UrlDecode(RetCode);                        
+                        
+                        replace(decodeStr,"${MY_TITLE}",title);
+                        replace(decodeStr,"${MY_DESCRIPTION}","null");
+                        
+                        mobile_creative->set_admarkup(UrlEncode(decodeStr));  
+                        mobile_creative->set_mediatypeid("1");
+                        mobile_creative->set_mediasubtypeid("2");
+                    }                    
+                }
+                break;                
+            case IMG:         //interstitial
+                {
+                    id = 59;
+                    
+                    string creurl;
+                    while(cur != NULL)
+                    {
+                        //link
+                        if(!xmlStrcmp(cur->name, (const xmlChar *)"link"))
+                        {
+                            xmlChar *imgLink = xmlNodeGetContent(cur);    //   
+                            creurl = (char *)imgLink;
+                            xmlFree(imgLink);
+                        }
+                        cur = cur->next;
+                    }
+                    
+                    map<int,string>::iterator it = Creative_template.find(id);
+                    RetCode = it->second;  
+                    if(RetCode.empty() == false)
+                    {
+                        string decodeStr;                        
+                        
+                        decodeStr = UrlDecode(RetCode);                        
+                        replace(decodeStr,"${MY_IMAGE}",creurl);
+                        
+                        mobile_creative->set_admarkup(UrlEncode(decodeStr));
+                        mobile_creative->set_mediatypeid("2");
+                        mobile_creative->set_mediasubtypeid("5");
+                    }
+                }
+                break;
+            case RICHMEDIA:
+                {
+
+                }
+                break;
+            default:
+                break;
+    }         
+           
+    
+    cur = adNode;
+    string clickLink;
+    while(cur != NULL)
+    {
+        //action
+        if(!xmlStrcmp(cur->name, (const xmlChar *)"action"))
+        {
+            xmlChar *target = xmlGetProp(cur, (const xmlChar *)"target");    //  
+            clickLink = (char *)target;
+            xmlFree(target);
+        }
+        cur = cur->next;
+    }
+
+    #if 0
+    if(temp.isMember("curl"))
+    {
+        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+        creative_event->set_event("CLICK");
+        creative_event->set_trackurl(temp["curl"].asString());
+    }
+    #endif
+    
+    if(clickLink.empty() == false)
+    {
+        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+        creative_event->set_event("IMP");
+        creative_event->set_trackurl(clickLink);
+    }  
+    return true;
+}
+
+
 void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen)
 {
     CommonMessage response_commMsg;
@@ -1973,6 +2248,7 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
 	     responseDataStr = convertSmaatoBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid);
 	     g_logger = g_workerSMAATO_logger;
 	     dspName = "SMAATO";
+	     flag_displayCommonMsgResponse = m_config.get_logSmaatoRsp();
 	     break;
         default:
             break;
@@ -3373,7 +3649,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
 	 case SMAATO:
 	     g_logger = g_workerSMAATO_logger;
 	     dspName = "SMAATO";
-	     flag_displayBodyData = true;
+	     flag_displayBodyData = serv->m_config.get_logSmaatoHttpRsp();
 	     break;
         default:
             break;          

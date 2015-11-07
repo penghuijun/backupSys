@@ -633,6 +633,9 @@ public:
 	bool				 get_logGYINRsp(){return logGYINRsp;}
 
 	bool 				get_enSmaato(){return enSmaato;}
+	bool					get_logSmaatoReq(){return logSmaatoReq;}
+	bool					get_logSmaatoHttpRsp(){return logSmaatoHttpRsp;}
+	bool					get_logSmaatoRsp(){return logSmaatoRsp;}
 
 	void clear()
 	{
@@ -676,6 +679,9 @@ private:
 	bool                 logGYINRsp;
 
 	bool				enSmaato;
+	bool 			logSmaatoReq;
+	bool				logSmaatoHttpRsp;
+	bool 			logSmaatoRsp;
 };
 
 #endif

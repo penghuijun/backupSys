@@ -6,13 +6,15 @@
     //"adReqIP": "103.249.254.121",
     "adReqDomain": "soma.smaato.net",
     "adReqPort": "80",
-    "adReqUrl":"http://soma.smaato.net/oapi/reqAd.jsp",
+    //"adReqUrl":"http://soma.smaato.net/oapi/reqAd.jsp",
+	"adReqUrl":"/oapi/reqAd.jsp",
     
 /*HTTP HEADER CONFIG*/
     "Connection": "Keep-Alive", 
     "User-Agent": "Apache-HttpAsyncClient/4.1",
-    "Content-Type": "application/x-protobuf",     
-    //"Host": "103.249.254.121",    
+    "Content-Type": "application/xml",  
+    "charset": "UTF-8",   
+    "Host": "soma.smaato.net",    
 
     "httpVersion": " HTTP/1.1",
 
@@ -20,6 +22,7 @@
     "extNetId":"102",
     "intNetId":"7",    
 	"maxConnectNum":5,	
+    "maxFlowLimit":0,
     "appFilter":[
         "com.rj.rj2048"
     ],

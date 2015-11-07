@@ -81,7 +81,10 @@ public:
 		m_listenObjectListLock.unlock();
 	}
 	
-	~dspObject(){}
+	~dspObject()
+	{
+		delete m_listenObjectList;
+	}
 private:
 	string name;	
 	string adReqType;

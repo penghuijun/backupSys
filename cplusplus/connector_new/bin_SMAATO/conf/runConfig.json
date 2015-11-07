@@ -9,5 +9,8 @@
 	"logGYINHttpRsp":false,
 	"logGYINRsp":false,
 
-	"enSOMA":true
+	"enSmaato":true,
+	"logSmaatoReq":false,
+	"logSmaatoHttpRsp":false,
+	"logSmaatoRsp":true
 }

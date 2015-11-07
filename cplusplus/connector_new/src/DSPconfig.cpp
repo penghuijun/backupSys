@@ -1210,7 +1210,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     #endif
     
     bool ret_t = true;
-    g_workerSMAATO_logger->debug("\r\n{0}", send_str);
+    g_workerSMAATO_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerSMAATO_logger->error("adReqSock send failed ...");

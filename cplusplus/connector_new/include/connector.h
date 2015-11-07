@@ -89,6 +89,13 @@ enum proStatus
 	PRO_KILLING
 };
 
+enum smRspType
+{
+	TXT,
+	IMG,
+	RICHMEDIA	
+};
+
 #if 0
 enum dataType
 {
@@ -202,6 +209,7 @@ public:
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
+	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen);
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
 	bool convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request);
@@ -209,6 +217,8 @@ public:
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
 	bool GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid);
 	bool GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid);
+	bool SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType);
+	bool SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

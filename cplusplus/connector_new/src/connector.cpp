@@ -1108,7 +1108,7 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
 
     mobile_response.set_id("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     
-    string intNetId = m_dspManager.getGuangYinObject()->getIntNetId();    
+    string intNetId = m_dspManager.getSmaatoObject()->getIntNetId();    
     MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
     bidder_info->set_bidderid(intNetId);
 
@@ -1209,7 +1209,7 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
      response_commMsg.SerializeToArray(comMessBuf, dataSize);
      delete[] dataBuf;
      ret_dataLen = dataSize;
-     g_worker_logger->debug("BidResponse.json->MobileAdResponse.proto convert success !");
+     g_workerSMAATO_logger->debug("SMAATO.xml->MobileAdResponse.proto convert success !");
      return comMessBuf;
      
 }
@@ -2258,7 +2258,12 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
     {
         if(flag_displayCommonMsgResponse)
             displayCommonMsgResponse(g_logger, responseDataStr, responseDataLen);  
-            
+
+        if(!strcmp("SMAATO", dspName.c_str()))
+        {
+            delete [] responseDataStr;
+            return ;
+        }
         #if 0
         switch(type)
         {

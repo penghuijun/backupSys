@@ -1017,11 +1017,13 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
     xmlChar *sessionid;
     sessionid = xmlNodeGetContent(cur);
     char *ssid = new char[64];
+    
     strcpy(ssid, (char *)sessionid);
-    {
-        while(*ssid != '.')
-            ssid++;
-        *ssid = '\0';        
+    {   
+        char *start = ssid;
+        while(*start != '.')
+            start++;
+        *start = '\0';        
     }
     g_workerSMAATO_logger->debug("SESSIONID: {0}", ssid);
     xmlFree(sessionid);
@@ -3531,13 +3533,13 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:
-                    g_logger->debug("BidRsponse: {0}", bodyData);   
+                    g_logger->debug("BidRsponse: \r\n{0}", bodyData);   
                     break;
                 case GYIN:
                     serv->displayGYinBidResponse(bodyData, dataLen);
                     break;
 		  case SMAATO:
-		      g_logger->debug("SmaatoRsponse: {0}", bodyData);
+		      g_logger->debug("SmaatoRsponse: \r\n{0}", bodyData);
 		      break;
                 default:
                     break;                              

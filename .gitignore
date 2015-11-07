@@ -13,3 +13,13 @@ logs
 cplusplus/adManagerConfig.txt
 cplusplus/connector_new/TeleBidResponse.json
 cplusplus/connector_new/TeleBidRequest.json
+
+cplusplus/connector_new/bin_GYIN/adManagerConfig.txt
+cplusplus/connector_new/bin_GYIN/core
+cplusplus/connector_new/bin_SMAATO/SmaatoBidResponse.xml
+cplusplus/connector_new/bin_SMAATO/adManagerConfig.txt
+cplusplus/connector_new/bin_SMAATO/core
+cplusplus/connector_new/bin_TELE/TeleBidRequest.json
+cplusplus/connector_new/bin_TELE/TeleBidResponse.json
+cplusplus/connector_new/bin_TELE/adManagerConfig.txt
+cplusplus/connector_new/bin_TELE/core

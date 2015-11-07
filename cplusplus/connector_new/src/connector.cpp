@@ -987,12 +987,6 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
 
 char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
 {
-    g_workerSMAATO_logger->debug("WRITE TO SmaatoBidResponse.xml");
-    ofstream outfile;
-    outfile.open("SmaatoBidResponse.xml",ios::out | ios::binary);
-    outfile.write(data,dataLen); 
-    outfile.close();
-
     xmlDocPtr pdoc = xmlParseMemory(data, dataLen);
     xmlNodePtr root = xmlDocGetRootElement(pdoc);
     if(root == NULL)

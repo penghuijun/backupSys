@@ -290,7 +290,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     listen->_event = sock_event;
 
     listenObjectList_Lock();
-    getListenObjectList().push_back(listen);
+    getListenObjectList()->push_back(listen);
     listenObjectList_unLock();
     return true;
     
@@ -357,8 +357,8 @@ void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
 struct listenObject* dspObject::findListenObject(int sock)
 {
     m_listenObjectListLock.lock();
-    list<listenObject *>::iterator it = m_listenObjectList.begin();
-    for( ; it != m_listenObjectList.end(); it++)
+    list<listenObject *>::iterator it = m_listenObjectList->begin();
+    for( ; it != m_listenObjectList->end(); it++)
     {
         struct listenObject *object = *it;
         if(object->sock == sock)
@@ -374,13 +374,13 @@ struct listenObject* dspObject::findListenObject(int sock)
 void dspObject::eraseListenObject(int sock)
 {
     m_listenObjectListLock.lock();    
-    list<listenObject *>::iterator it = m_listenObjectList.begin();
-    for( ; it != m_listenObjectList.end(); it++)
+    list<listenObject *>::iterator it = m_listenObjectList->begin();
+    for( ; it != m_listenObjectList->end(); it++)
     {
         listenObject *object = *it;
         if(object->sock == sock)
         {
-            m_listenObjectList.erase(it);         
+            m_listenObjectList->erase(it);         
             curConnectNum--;
             m_listenObjectListLock.unlock();
             return ;
@@ -834,10 +834,10 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
     listenObject *obj = NULL;
     
     listenObjectList_Lock();
-    if(!getListenObjectList().empty())
+    if(!getListenObjectList()->empty())
     {
-        obj = getListenObjectList().front();
-        getListenObjectList().pop_front();
+        obj = getListenObjectList()->front();
+        getListenObjectList()->pop_front();
     }    
     listenObjectList_unLock();  
 
@@ -859,7 +859,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base
         ret = false;
     }         
     listenObjectList_Lock();
-    getListenObjectList().push_back(obj);
+    getListenObjectList()->push_back(obj);
     listenObjectList_unLock();  
     delete [] send_str;
     return ret;
@@ -1008,10 +1008,10 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     listenObject *obj = NULL;
     
     listenObjectList_Lock();
-    if(!getListenObjectList().empty())
+    if(!getListenObjectList()->empty())
     {
-        obj = getListenObjectList().front();
-        getListenObjectList().pop_front();
+        obj = getListenObjectList()->front();
+        getListenObjectList()->pop_front();
     }    
     listenObjectList_unLock();  
 
@@ -1033,7 +1033,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
         ret  = false;
     }         
     listenObjectList_Lock();
-    getListenObjectList().push_back(obj);
+    getListenObjectList()->push_back(obj);
     listenObjectList_unLock();  
     delete [] send_str;    
     return ret;
@@ -1127,10 +1127,10 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     listenObject *obj = NULL;
     
     listenObjectList_Lock();
-    if(!getListenObjectList().empty())
+    if(!getListenObjectList()->empty())
     {
-        obj = getListenObjectList().front();
-        getListenObjectList().pop_front();
+        obj = getListenObjectList()->front();
+        getListenObjectList()->pop_front();
     }    
     listenObjectList_unLock();  
 
@@ -1218,7 +1218,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }         
     #if 1
     listenObjectList_Lock();
-    getListenObjectList().push_back(obj);
+    getListenObjectList()->push_back(obj);
     listenObjectList_unLock();  
     #endif
     delete [] send_str;    

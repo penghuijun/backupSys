@@ -19,7 +19,7 @@ bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
 {
     return m_chinaTelecomObject->isCeritifyCodeEmpty();
 }
-list<listenObject *>& dspManager::getListenObjectList()
+list<listenObject *> *dspManager::getListenObjectList()
 {
     return m_chinaTelecomObject->getListenObjectList();
 }

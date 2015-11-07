@@ -8,7 +8,7 @@ class dspManager
 public:
 	dspManager(){}
 	void init(bool enTele, bool enGYin, bool enSmaato);		
-	list<listenObject *>& getListenObjectList();
+	list<listenObject *> *getListenObjectList();
 	bool isChinaTelecomObjectCeritifyCodeEmpty();
 	bool getCeritifyCodeFromChinaTelecomDSP();
 	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq,event_callback_fn fn, void *arg);

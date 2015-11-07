@@ -39,6 +39,7 @@ public:
 	dspObject():curConnectNum(0),curFlowCount(0)
 	{
 		m_listenObjectListLock.init();
+		m_listenObjectList = new list<listenObject *>();
 	}
 	void readDSPconfig(dspType type);
 	void gen_HttpHeader(char *headerBuf, int Con_len);
@@ -70,7 +71,7 @@ public:
 	void curFlowCountIncrease(){curFlowCount++;}
 	void curFlowCountClean(){curFlowCount = 0;}
 	
-	list<listenObject *>& getListenObjectList(){return m_listenObjectList;}
+	list<listenObject *> *getListenObjectList(){return m_listenObjectList;}
 	void listenObjectList_Lock()
 	{
 		m_listenObjectListLock.lock();
@@ -110,7 +111,7 @@ private:
 	int maxConnectNum;
 	
 	mutex_lock			 m_listenObjectListLock;
-	list<listenObject *> m_listenObjectList;
+	list<listenObject *> 	*m_listenObjectList;
 };
 class chinaTelecomObject : public dspObject
 {

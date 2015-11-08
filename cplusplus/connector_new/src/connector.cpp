@@ -3678,7 +3678,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         if (recv_bytes == 0)    //connect abort
         {
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
-            switch(type)
+            switch(type) 
             {
                 case TELE:	
 			{
@@ -3752,7 +3752,16 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            //g_logger->debug("\r\n{0}", recv_str);
+            //g_logger->debug("\r\n{0}", recv_str);            
+			int full_expectLen = fullData_t->curLen + recv_bytes;
+			if(full_expectLen > BUF_SIZE)
+			{
+				g_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
+				delete [] recv_str;
+				delete [] fullData;
+				delete [] fullData_t;
+				return ;
+			}
             char *curPos = fullData_t->data + fullData_t->curLen;
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;

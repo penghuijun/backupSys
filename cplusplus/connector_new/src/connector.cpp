@@ -1917,12 +1917,16 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                             if(!xmlStrcmp(cur->name, (const xmlChar *)"mediadata"))
                             {
                                 xmlChar *mediadata = xmlNodeGetContent(cur);    //   
-                                third_html = getTarMediadata((char *)mediadata);
+                                //third_html = getTarMediadata((char *)mediadata);
+                                third_html = (char *)mediadata;
                                 xmlFree(mediadata);
                             }
                             cur = cur->next;
                         }                        
 
+						replace(third_html,"<![CDATA[","");
+						replace(third_html,"]]>","");
+						
                         replace(third_html,"\"","\\\"");
                         replace(third_html,"'","\\'");
                         replace(third_html,"\t"," ");

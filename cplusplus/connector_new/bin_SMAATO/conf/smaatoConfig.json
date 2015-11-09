@@ -19,8 +19,8 @@
     "httpVersion": " HTTP/1.1",
 
 /*FILTER*/    
-    "extNetId":"102",
-    "intNetId":"7",    
+    //"extNetId":"102",
+    "intNetId":"10",    
 	"maxConnectNum":5,	
     "maxFlowLimit":0,
     "appFilter":[

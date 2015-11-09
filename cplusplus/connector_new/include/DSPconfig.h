@@ -180,6 +180,7 @@ public:
 	smaatoObject()
 	{
 		requestUuidList_Lock.init();
+		requestUuidList = new list<string>();
 		readDSPconfig(SMAATO);
 	}
 	bool sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
@@ -191,14 +192,14 @@ public:
 	{
 		requestUuidList_Lock.unlock();
 	}
-	list<string>& getRequestUuidList()
+	list<string>* getRequestUuidList()
 	{
 		return requestUuidList;
 	}
 	~smaatoObject(){}
 private:
 	mutex_lock requestUuidList_Lock;
-	list<string> requestUuidList;
+	list<string>* requestUuidList;
 };
 
 #endif

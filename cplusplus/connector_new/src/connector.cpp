@@ -1100,13 +1100,13 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
 
-	list<string>& requestUuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();
-    if(requestUuidList.empty())
+	list<string>* requestUuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();
+    if(requestUuidList->empty())
         return NULL;
 
 	m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
-	string uuid = requestUuidList.front();
-	requestUuidList.pop_front();
+	string uuid = requestUuidList->front();
+	requestUuidList->pop_front();
 	m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
         
     mobile_response.set_id(uuid); //uuid
@@ -3179,11 +3179,11 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                         m_dspManager.getSmaatoObject()->curFlowCountIncrease();
 	              	g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
 					
-					list<string>& m_uuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();					
-				  	if(m_uuidList.size() <= 100)
+					list<string>* m_uuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();					
+				  	if(m_uuidList->size() <= 100)
 				  	{
 						m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
-						m_uuidList.push_back(uuid);
+						m_uuidList->push_back(uuid);
 						m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
 					}	                
 	            }

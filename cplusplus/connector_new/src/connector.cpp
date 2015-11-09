@@ -1100,7 +1100,16 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
 
-    mobile_response.set_id("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+	list<string>& requestUuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();
+    if(requestUuidList.empty())
+        return NULL;
+
+	m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
+	string uuid = requestUuidList.front();
+	requestUuidList.pop_front();
+	m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
+        
+    mobile_response.set_id(uuid); //uuid
     
     string intNetId = m_dspManager.getSmaatoObject()->getIntNetId();    
     MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
@@ -1123,8 +1132,8 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
     mobile_bidder->set_campaignid(campaignId);
 
     mobile_bidder->set_biddingtype("CPM");                   
-    mobile_bidder->set_biddingvalue("10.0");
-    mobile_bidder->set_expectcpm("10.0");            
+    mobile_bidder->set_biddingvalue("6.0");
+    mobile_bidder->set_expectcpm("6.0");            
     mobile_bidder->set_currency("CNY");
 
     mobile_creative->set_creativeid("0");    
@@ -1164,15 +1173,17 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
     }
     else if(!strcmp((char *)type, "RICHMEDIA"))
     {
-        #if 0
+        #if 1
         cur = cur->xmlChildrenNode;
         SMAATO_mutableAction(mobile_action, cur, RICHMEDIA);     
         SMAATO_creativeAddEvents(mobile_creative, cur, RICHMEDIA);  
         #endif
+        #if 0
         g_workerSMAATO_logger->debug("ADTYPE:RICHMEDIA not finish");
         xmlFree(id);
         xmlFree(type);
         return NULL;
+        #endif
     }
     else
     {
@@ -1783,6 +1794,21 @@ bool connectorServ::SMAATO_mutableAction(MobileAdResponse_Action *mobile_action,
     return true;
 }
 
+char *getTarMediadata(char *data)
+{
+    char *start = data;
+    char *pos_start = memstr(start,strlen(start),"<![CDATA[");
+    if(pos_start == NULL)
+        return NULL;
+    pos_start += 9;
+    char *pos_end = memstr(start, strlen(start), "]]>");
+    if(pos_end == NULL)
+        return NULL;
+    *pos_end = '\0';
+    return pos_start;
+}
+
+
 bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType)
 {
     xmlNodePtr cur = adNode;
@@ -1834,9 +1860,9 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                     }                    
                 }
                 break;                
-            case IMG:         //interstitial
+            case IMG:         //normal banner with image
                 {
-                    id = 59;
+                    id = 61;
                     
                     string creurl;
                     while(cur != NULL)
@@ -1868,7 +1894,54 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                 break;
             case RICHMEDIA:
                 {
+                    id = 97;    //MY_THIRD_HTML
+                    map<int,string>::iterator it = Creative_template.find(id);
+                    if(it == Creative_template.end())
+                    {
+                        g_workerGYIN_logger->error("GYIN Creative_template find error ");
+                        return false;
+                    }
+                    RetCode = it->second;                
+                    if(RetCode.empty() == false)
+                    {
+                        string decodeStr;    
+                        
+                        decodeStr = UrlDecode(RetCode);      
+                        
+                        string sReplaceStr;
+                        string third_html;
 
+                        while(cur != NULL)
+                        {
+                            //mediadata
+                            if(!xmlStrcmp(cur->name, (const xmlChar *)"mediadata"))
+                            {
+                                xmlChar *mediadata = xmlNodeGetContent(cur);    //   
+                                third_html = getTarMediadata((char *)mediadata);
+                                xmlFree(mediadata);
+                            }
+                            cur = cur->next;
+                        }                        
+
+                        replace(third_html,"\"","\\\"");
+                        replace(third_html,"'","\\'");
+                        replace(third_html,"\t"," ");
+                        replace(third_html,"\n","");
+                        replace(third_html,"\r","");
+                        replace(third_html,"/","\\/");
+
+                        
+                        sReplaceStr.append("\"").append(third_html).append("\"");
+						g_workerSMAATO_logger->debug("THIRD_HTML:\r\n{0}", third_html);
+                                    
+                        replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
+                        
+                        mobile_creative->set_admarkup(UrlEncode(decodeStr));
+                        mobile_creative->set_mediatypeid("1");
+                        mobile_creative->set_mediasubtypeid("1");
+                        
+                    }                    
+                    
                 }
                 break;
             default:
@@ -3068,7 +3141,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     }
                     else
                     {
-                    	if(GYIN_maxFlowLimit != 0)
+                    	    if(GYIN_maxFlowLimit != 0)
                         	m_dspManager.getGuangYinObject()->curFlowCountIncrease();
                         g_workerGYIN_logger->debug("POST TO GYIN success uuid: {0} \r\n",uuid); 
                     }
@@ -3104,7 +3177,15 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            {
 	            	if(SMAATO_maxFlowLimit != 0)
                         m_dspManager.getSmaatoObject()->curFlowCountIncrease();
-	                g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+	              	g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+					
+					list<string>& m_uuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();					
+				  	if(m_uuidList.size() <= 100)
+				  	{
+						m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
+						m_uuidList.push_back(uuid);
+						m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
+					}	                
 	            }
 	            delete [] http_getArg;
 			}
@@ -3678,7 +3759,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         if (recv_bytes == 0)    //connect abort
         {
             g_logger->debug("server {0} CLOSE_WAIT ... \r\n", dspName);
-            switch(type) 
+            switch(type)
             {
                 case TELE:	
 			{

@@ -282,6 +282,7 @@ private:
 	mutex_lock					commMsgRecordList_lock;
 
 	dspManager					m_dspManager;
+	list<string>				requestUuidList;
 	
 };
 

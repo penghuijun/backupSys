@@ -16,11 +16,13 @@
 #include "spdlog/spdlog.h"
 #include "json/json.h"
 #include "lock.h"
+#include "http_parse.h"
 
 
 
 using namespace std;
 
+#define BUF_SIZE	1024*16		//16K
 enum dspType
 {
 	TELE,		//China telecom
@@ -183,7 +185,8 @@ public:
 		//requestUuidList = new list<string>();
 		readDSPconfig(SMAATO);
 	}
-	bool sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	void requestUuidList_Locklock()
 	{
 		requestUuidList_Lock.lock();

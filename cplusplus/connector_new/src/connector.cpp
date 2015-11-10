@@ -985,7 +985,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
     }
 }
 
-char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid)
+char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg)
 {
     xmlDocPtr pdoc = xmlParseMemory(data, dataLen);
     xmlNodePtr root = xmlDocGetRootElement(pdoc);
@@ -1090,23 +1090,29 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
         return NULL;
     }    
 
-    return xmlParseAds(cur, ret_dataLen, uuid);   
+    return xmlParseAds(cur, ret_dataLen, uuid, request_commMsg);   
     //return NULL;
     
 }
 
-char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid)
+char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg)
 {
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
 
+    const string& commMsg_data = request_commMsg.data();
+    MobileAdRequest mobile_request;
+    mobile_request.ParseFromString(commMsg_data);
+
+    uuid = mobile_request.id();
+
 	//list<string>* requestUuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();
-    if(requestUuidList.empty())
-        return NULL;
+    //if(requestUuidList.empty())
+        //return NULL;
 
 	//m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
-	uuid = requestUuidList.front();
-	requestUuidList.pop_front();
+	//uuid = requestUuidList.front();
+	//requestUuidList.pop_front();
 	//m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
         
     mobile_response.set_id(uuid); //uuid
@@ -1132,8 +1138,8 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
     mobile_bidder->set_campaignid(campaignId);
 
     mobile_bidder->set_biddingtype("CPM");                   
-    mobile_bidder->set_biddingvalue("6.0");
-    mobile_bidder->set_expectcpm("6.0");            
+    mobile_bidder->set_biddingvalue("18.0");
+    mobile_bidder->set_expectcpm("18.0");            
     mobile_bidder->set_currency("CNY");
 
     mobile_creative->set_creativeid("0");    
@@ -1201,12 +1207,12 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
      int dataSize = mobile_response.ByteSize();
      char *dataBuf = new char[dataSize];
      mobile_response.SerializeToArray(dataBuf, dataSize); 
-     //response_commMsg.set_businesscode(request_commMsg.businesscode());
-     //response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
-     //response_commMsg.set_ttl(request_commMsg.ttl());
-     response_commMsg.set_businesscode("2");
-     response_commMsg.set_datacodingtype("null");
-     response_commMsg.set_ttl("250");
+     response_commMsg.set_businesscode(request_commMsg.businesscode());
+     response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+     response_commMsg.set_ttl(request_commMsg.ttl());
+     //response_commMsg.set_businesscode("2");
+     //response_commMsg.set_datacodingtype("null");
+     //response_commMsg.set_ttl("250");
      response_commMsg.set_data(dataBuf, dataSize);
      
      dataSize = response_commMsg.ByteSize();
@@ -2291,7 +2297,7 @@ void connectorServ::hashGetBCinfo(string& uuid,string& bcIP,unsigned short& bcDa
     m_bc_manager.hashGetBCinfo(uuid,bcIP,bcDataPort);
 }
 
-void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLen)
+void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLen, const CommonMessage& request_commMsg)
 {
     int responseDataLen = 0;    
     string uuid;    //for hash get bc info
@@ -2316,7 +2322,7 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
             flag_displayCommonMsgResponse = m_config.get_logGYINRsp();
             break;
 	case SMAATO:
-	     responseDataStr = convertSmaatoBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid);
+	     responseDataStr = convertSmaatoBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid, request_commMsg);
 	     g_logger = g_workerSMAATO_logger;
 	     dspName = "SMAATO";
 	     flag_displayCommonMsgResponse = m_config.get_logSmaatoRsp();
@@ -3169,18 +3175,79 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 				char *http_getArg = new char[4096];
 	            memset(http_getArg, 0 ,4096*sizeof(char));
 	            convertProtoToHttpGETArg(http_getArg, mobile_request);
-	            if(!m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this))
+	            int sock = 0;
+	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this)) <= 0)
 	            {
 	                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
 	            }
 	            else
 	            {
-	            	if(SMAATO_maxFlowLimit != 0)
-                        m_dspManager.getSmaatoObject()->curFlowCountIncrease();
-	              	g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+	                if(SMAATO_maxFlowLimit != 0)
+	                    m_dspManager.getSmaatoObject()->curFlowCountIncrease();
+	                g_workerSMAATO_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+	                
 
-					if(requestUuidList.size() <= 100)
-						requestUuidList.push_back(uuid);	
+                        char *fullData = new char[BUF_SIZE];
+                        memset(fullData, 0, BUF_SIZE*sizeof(char));
+
+                        struct spliceData_t *fullData_t = new spliceData_t();
+                        fullData_t->data = fullData;
+                        fullData_t->curLen = 0;
+
+                        if(m_dspManager.recvBidResponseFromSmaatoDsp(sock, fullData_t))
+                        {
+                            int dataLen = 0;    
+                           char * bodyData = new char[BUF_SIZE];
+                            memset(bodyData, 0, BUF_SIZE*sizeof(char));
+
+                            struct spliceData_t *httpBodyData_t = new spliceData_t();
+                            httpBodyData_t->data = bodyData;
+                            httpBodyData_t->curLen = 0;
+
+                            string dspName = "SMAATO";
+                            switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
+                            {
+                                case HTTP_204_NO_CONTENT:
+                                    g_workerSMAATO_logger->debug("{0} HTTP RSP: 204 No Content\r\n", dspName);
+                                    break;
+                                case HTTP_CONTENT_LENGTH:
+                                    g_workerSMAATO_logger->debug("{0} HTTP RSP 200 OK: Content-Length", dspName);
+                                    dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+                                    break;
+                                case HTTP_CHUNKED:
+                                    g_workerSMAATO_logger->debug("{0} HTTP RSP 200 OK: Chunked", dspName);
+                                    dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
+                                    g_workerSMAATO_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+                                    break;
+                                case HTTP_UNKNOW_TYPE:
+                                    g_workerSMAATO_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
+                                    break;
+                                 default:
+                                    break;                    
+                            }
+
+                            delete [] fullData;
+                            delete [] fullData_t;            
+                            
+                            if(dataLen == 0)
+                            {
+                                ; //already printf "GYIN HTTP RSP: 204 No Content"  
+                            }   
+                            else if(dataLen == -1)
+                            {
+                                g_workerSMAATO_logger->error("HTTP BODY DATA INCOMPLETE ");
+                            }
+                            else
+                            {
+                                g_workerSMAATO_logger->debug("SmaatoRsponse: \r\n{0}", bodyData);                          
+                                handle_BidResponseFromDSP(SMAATO, bodyData, dataLen, request_commMsg);   
+                            }        
+                            delete [] bodyData;
+                            delete httpBodyData_t;
+                        }
+  
+					//if(requestUuidList.size() <= 100)
+						//requestUuidList.push_back(uuid);	
 
 					#if 0
 					list<string>* m_uuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();					
@@ -3193,12 +3260,12 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 					#endif
 	            }
 	            delete [] http_getArg;
-			}
-			else if(SMAATO_curFlowCount == SMAATO_maxFlowLimit)
-            {
-                m_dspManager.getSmaatoObject()->curFlowCountIncrease();
-                g_workerGYIN_logger->debug("FLOW LIMITED...");
-            }
+		}
+		else if(SMAATO_curFlowCount == SMAATO_maxFlowLimit)
+              {
+                   m_dspManager.getSmaatoObject()->curFlowCountIncrease();
+                   g_workerGYIN_logger->debug("FLOW LIMITED...");
+              }
         }      
              
     }
@@ -3915,8 +3982,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                     break;                              
             }
         }
-         
-        serv->handle_BidResponseFromDSP(type, bodyData, dataLen);   
+        CommonMessage request_commMsg; 
+        serv->handle_BidResponseFromDSP(type, bodyData, dataLen, request_commMsg);   
     }        
     delete [] bodyData;
     delete httpBodyData_t;
@@ -4371,6 +4438,7 @@ void *connectorServ::checkConnectNum(void *arg)
         }        
         if(serv->m_config.get_enSmaato())
         {
+            #if 0
             int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {            
@@ -4381,6 +4449,7 @@ void *connectorServ::checkConnectNum(void *arg)
     		  serv->m_dspManager.getSmaatoObject()->listenObjectList_unLock();
     	        }                        
             }      
+            #endif
         }
         usleep(1000);     //1ms
     }

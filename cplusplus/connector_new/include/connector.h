@@ -55,7 +55,7 @@ using namespace com::rj::adsys::dsp::connector::obj::g::proto;
 using namespace com::rj::protos;
 using namespace std;
 
-#define BUF_SIZE	1024*16		//16K
+
 #define PUBLISHKEYLEN_MAX 100
 #define EPSINON 0.000001
 extern vector<map<int,string>> SQL_MAP;
@@ -205,11 +205,11 @@ public:
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
 	void handle_recvAdResponse(int sock, short event, void *arg, dspType type);
-	void handle_BidResponseFromDSP(dspType type,char *data,int dataLen);		
+	void handle_BidResponseFromDSP(dspType type,char *data,int dataLen, const CommonMessage& request_commMsg);		
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
-	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
-	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid);
+	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
+	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg);
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
 	bool convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request);

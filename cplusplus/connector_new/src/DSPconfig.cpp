@@ -1039,7 +1039,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     return ret;
 }
 
-bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -1116,7 +1116,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     }
     #endif 
     
-    #if 1
+    #if 0
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
@@ -1144,7 +1144,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     int sock =  obj->sock;
     #endif
 
-    #if 0
+    #if 1
     sockaddr_in sin;
         unsigned short httpPort = atoi(getAdReqPort().c_str());      
         
@@ -1162,7 +1162,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
             if(m_hostent == NULL)
             {
                 g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
-                return false;
+                return -1;
             }
             sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
             g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
@@ -1170,7 +1170,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
         else
         {
             g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
-            return false;
+            return -1;
         }
         
         
@@ -1179,7 +1179,7 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
         if (sock == -1)
         {
             g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
-            return false;
+            return -1;
         }   
     
         //非阻塞
@@ -1192,9 +1192,11 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
         {
             g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
             close(sock);
-            return false;
+            return -1;
         }
+        #endif
 
+    #if 0
         //add this socket to event listen queue
     struct event *sock_event;
     sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
@@ -1209,20 +1211,118 @@ bool smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char
     listenObjectList_unLock();
     #endif
     
-    bool ret_t = true;
+    int ret_t = -1;
     g_workerSMAATO_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerSMAATO_logger->error("adReqSock send failed ...");
-        ret_t  = false;
+        ret_t  = sock;
     }         
-    #if 1
+
+    delete [] send_str;    
+    return ret_t;
+
+    
+    #if 0
     listenObjectList_Lock();
     getListenObjectList()->push_back(obj);
     listenObjectList_unLock();  
     #endif
-    delete [] send_str;    
-    return ret_t;
+    //delete [] send_str;    
+    //return ret_t;
     
 }
+
+bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)
+{
+    //获取返回信息	
+    char *recv_str = new char[BUF_SIZE];
+    memset(recv_str, 0, BUF_SIZE*sizeof(char));    
+    int recv_bytes = 0;    
+    
+    //g_workerSMAATO_logger->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
+    
+
+    int temp = 0;
+    bool waitFlag = true;
+    timeval startTime;
+    memset(&startTime,0,sizeof(struct timeval));
+    gettimeofday(&startTime,NULL);
+    long long start_timeMs = startTime.tv_sec*1000 + startTime.tv_usec/1000;
+    
+
+    timeval curTime;
+    
+    while(1)
+        {
+            memset(&curTime,0,sizeof(struct timeval));
+            gettimeofday(&curTime,NULL);
+            long long cur_timeMs = curTime.tv_sec*1000 + curTime.tv_usec/1000;
+
+            if((cur_timeMs - start_timeMs) >= 600)  //600ms
+            {
+                g_workerSMAATO_logger->debug("WAIT TIMEOUT CLOSE SOCKET");                
+                close(sock);
+                delete [] recv_str;
+                delete [] fullData_t->data;
+                delete [] fullData_t;
+                return false;
+            }
+            
+            memset(recv_str,0,BUF_SIZE*sizeof(char));    
+            recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
+            if (recv_bytes == 0)    //connect abort
+            {
+                g_workerSMAATO_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");                
+                close(sock);
+                delete [] recv_str;
+                delete [] fullData_t->data;
+                delete [] fullData_t;
+                return false;
+            }
+            else if (recv_bytes < 0)  //SOCKET_ERROR
+            {
+                //socket type: O_NONBLOCK
+                if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+                {
+                    //g_workerSMAATO_logger->trace("ERRNO EAGAIN: RECV END");
+                    if(waitFlag)
+                        continue ;
+                    else
+                        break;
+                }
+                else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+                {
+                    g_workerSMAATO_logger->trace("ERRNO EINTR: RECV AGAIN");
+                    continue;
+                }
+            }
+            else    //normal success
+            {
+                waitFlag = false;
+                if(temp)
+                    g_workerSMAATO_logger->trace("SPLICE HAPPEN");
+                //g_logger->debug("\r\n{0}", recv_str);            
+                int full_expectLen = fullData_t->curLen + recv_bytes;
+                if(full_expectLen > BUF_SIZE)
+                {
+                    g_workerSMAATO_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
+                    delete [] recv_str;
+                    delete [] fullData_t->data;
+                    delete [] fullData_t;
+                    return false;
+                }
+                char *curPos = fullData_t->data + fullData_t->curLen;
+                memcpy(curPos, recv_str, recv_bytes);
+                fullData_t->curLen += recv_bytes;
+                temp++;            
+            }
+            usleep(10000); //10ms
+        }
+
+    close(sock);
+    delete [] recv_str;
+    return true;
+}
+
 

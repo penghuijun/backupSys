@@ -3785,7 +3785,7 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
 		        mobile_request.ParseFromString(commMsg_data);
 
 		        string uuid = mobile_request.id();
-				g_master_logger->debug("recv AdRequest from throttle uuid:{0} ,len: {0:d}", uuid, data_len);
+				g_master_logger->debug("recv AdRequest from throttle uuid:{0} ,len: {1:d}", uuid, data_len);
 		   }
 		   
 

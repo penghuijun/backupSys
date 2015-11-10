@@ -209,7 +209,7 @@ public:
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
-	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen);
+	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid);
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
 	bool convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request);

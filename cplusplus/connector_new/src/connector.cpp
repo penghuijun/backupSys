@@ -1090,12 +1090,12 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
         return NULL;
     }    
 
-    return xmlParseAds(cur, ret_dataLen);   
+    return xmlParseAds(cur, ret_dataLen, uuid);   
     //return NULL;
     
 }
 
-char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
+char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid)
 {
     CommonMessage response_commMsg;
     MobileAdResponse mobile_response;
@@ -1105,7 +1105,7 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen)
         return NULL;
 
 	//m_dspManager.getSmaatoObject()->requestUuidList_Locklock();
-	string uuid = requestUuidList.front();
+	uuid = requestUuidList.front();
 	requestUuidList.pop_front();
 	//m_dspManager.getSmaatoObject()->requestUuidList_Lockunlock();
         

@@ -181,28 +181,30 @@ class smaatoObject: public dspObject
 public:
 	smaatoObject()
 	{
-		requestUuidList_Lock.init();
-		//requestUuidList = new list<string>();
+		smaatoSocketList_Lock.init();
+		smaatoSocketList = new list<int>();
 		readDSPconfig(SMAATO);
 	}
+	void smaatoConnectDSP();
+	bool smaatoAddConnectToDSP();
 	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
-	void requestUuidList_Locklock()
+	void smaatoSocketList_Locklock()
 	{
-		requestUuidList_Lock.lock();
+		smaatoSocketList_Lock.lock();
 	}
-	void requestUuidList_Lockunlock()
+	void smaatoSocketList_Lockunlock()
 	{
-		requestUuidList_Lock.unlock();
+		smaatoSocketList_Lock.unlock();
 	}
-	list<string>* getRequestUuidList()
+	list<int>* getSmaatoSocketList()
 	{
-		return requestUuidList;
+		return smaatoSocketList;
 	}
 	~smaatoObject(){}
 private:
-	mutex_lock requestUuidList_Lock;
-	list<string>* requestUuidList;
+	mutex_lock smaatoSocketList_Lock;
+	list<int>*	smaatoSocketList;
 };
 
 #endif

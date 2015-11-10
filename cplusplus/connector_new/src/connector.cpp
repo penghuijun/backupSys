@@ -4459,15 +4459,15 @@ void *connectorServ::checkConnectNum(void *arg)
         }        
         if(serv->m_config.get_enSmaato())
         {
-            #if 0
+            #if 1
             int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {            
-                if(serv->m_dspManager.getSmaatoObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseSmaato, arg))
+                if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
                 {
-    		  serv->m_dspManager.getSmaatoObject()->listenObjectList_Lock();
+    		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Locklock();
     		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
-    		  serv->m_dspManager.getSmaatoObject()->listenObjectList_unLock();
+    		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
     	        }                        
             }      
             #endif

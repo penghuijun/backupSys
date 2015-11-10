@@ -1116,7 +1116,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
     }
     #endif 
     
-    #if 0
+    #if 1
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
@@ -1124,27 +1124,26 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
     }
     
     
-    listenObject *obj = NULL;
-    
-    listenObjectList_Lock();
-    if(!getListenObjectList()->empty())
-    {
-        obj = getListenObjectList()->front();
-        getListenObjectList()->pop_front();
-    }    
-    listenObjectList_unLock();  
+    int sock = 0;
 
-    if(!obj)
+	smaatoSocketList_Lock.lock();
+    if(!smaatoSocketList->empty())
+    {
+        sock = smaatoSocketList->front();
+        smaatoSocketList->pop_front();
+    }    
+    smaatoSocketList_Lock.unlock();  
+
+    if(sock == 0)
     {
         g_workerSMAATO_logger->debug("NO IDLE SOCK ");
         delete [] send_str;
-        return false;
+        return 0;
     }
     
-    int sock =  obj->sock;
     #endif
 
-    #if 1
+    #if 0
     sockaddr_in sin;
         unsigned short httpPort = atoi(getAdReqPort().c_str());      
         
@@ -1263,7 +1262,8 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
 
             if((cur_timeMs - start_timeMs) >= 600)  //600ms
             {
-                g_workerSMAATO_logger->debug("WAIT TIMEOUT CLOSE SOCKET");                
+                g_workerSMAATO_logger->debug("WAIT TIMEOUT CLOSE SOCKET");        
+				connectNumReduce();
                 close(sock);
                 delete [] recv_str;
                 delete [] fullData_t->data;
@@ -1275,7 +1275,8 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
             recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
             if (recv_bytes == 0)    //connect abort
             {
-                g_workerSMAATO_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");                
+                g_workerSMAATO_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");    
+				connectNumReduce();
                 close(sock);
                 delete [] recv_str;
                 delete [] fullData_t->data;
@@ -1291,7 +1292,12 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                     if(waitFlag)
                         continue ;
                     else
+                    {
+                    	smaatoSocketList_Lock.lock();
+						smaatoSocketList->push_back(sock);
+						smaatoSocketList_Lock.unlock();
                         break;
+					}
                 }
                 else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
                 {
@@ -1309,6 +1315,8 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                 if(full_expectLen > BUF_SIZE)
                 {
                     g_workerSMAATO_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
+					connectNumReduce();
+                	close(sock);
                     delete [] recv_str;
                     delete [] fullData_t->data;
                     delete [] fullData_t;
@@ -1322,9 +1330,78 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
             usleep(10000); //10ms
         }
 
-    close(sock);
+    //close(sock);
     delete [] recv_str;
     return true;
 }
 
+void smaatoObject::smaatoConnectDSP()
+{
+	int maxNum = getMaxConnectNum();
+    for(int i=0; i < maxNum; i++)
+    {
+        if(smaatoAddConnectToDSP())
+			connectNumIncrease();        
+    }
+}
+
+bool smaatoObject::smaatoAddConnectToDSP()
+{
+	sockaddr_in sin;
+    unsigned short httpPort = atoi(getAdReqPort().c_str());      
+    
+    sin.sin_family = AF_INET;    
+    sin.sin_port = htons(httpPort);    
+    if(!getAdReqIP().empty())
+    {
+        g_workerSMAATO_logger->debug("adReq IP: {0}", getAdReqIP());
+        sin.sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
+    }
+    else if(!getAdReqDomain().empty())
+    {
+        struct hostent *m_hostent = NULL;
+        m_hostent = gethostbyname(getAdReqDomain().c_str());
+        if(m_hostent == NULL)
+        {
+            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
+            return false;
+        }
+        sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
+        g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
+        return false;
+    }
+    
+    
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
+        return false;
+    }   
+
+    //非阻塞
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    
+    //建立连接
+    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
+        close(sock);
+        return false;
+    }
+
+    //add this socket to event listen queue
+    smaatoSocketList_Lock.lock();
+	smaatoSocketList->push_back(sock);
+	smaatoSocketList_Lock.unlock();
+    return true;
+    
+}
 

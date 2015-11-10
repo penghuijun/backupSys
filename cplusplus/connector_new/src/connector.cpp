@@ -3303,6 +3303,7 @@ void connectorServ::thread_handleAdRequest(void *arg)
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
+		g_worker_logger->debug("Thread handle uuid: {0}", uuid);
 
         timeval tv;
         memset(&tv,0,sizeof(struct timeval));
@@ -3768,7 +3769,27 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
                break;
            }
            char *data=(char *)zmq_msg_data(&data_part);
-           g_master_logger->debug("recv AdRequest from throttle:{0:d}", data_len);
+
+		   {
+		   		CommonMessage request_commMsg;
+		        if(!request_commMsg.ParseFromArray(data, data_len))
+		        {
+		            g_worker_logger->error("adREQ CommonMessage.proto Parse Fail,check required fields");
+		            throw -1;
+		        }
+		        
+		        
+
+		        const string& commMsg_data = request_commMsg.data();
+		        MobileAdRequest mobile_request;
+		        mobile_request.ParseFromString(commMsg_data);
+
+		        string uuid = mobile_request.id();
+				g_master_logger->debug("recv AdRequest from throttle uuid:{0} ,len: {0:d}", uuid, data_len);
+		   }
+		   
+
+		   
            if((sub_key_len>0) &&(data_len>0))
            {
                serv->sendToWorker(subscribe_key, sub_key_len, data, data_len);

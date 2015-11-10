@@ -1211,12 +1211,12 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
     listenObjectList_unLock();
     #endif
     
-    int ret_t = -1;
+    int ret_t = sock;
     g_workerSMAATO_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerSMAATO_logger->error("adReqSock send failed ...");
-        ret_t  = sock;
+        ret_t  = -1;
     }         
 
     delete [] send_str;    

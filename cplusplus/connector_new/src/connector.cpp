@@ -2330,11 +2330,7 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
         if(flag_displayCommonMsgResponse)
             displayCommonMsgResponse(g_logger, responseDataStr, responseDataLen);  
 
-        if(!strcmp("SMAATO", dspName.c_str()))
-        {
-            delete [] responseDataStr;
-            return ;
-        }
+        
         #if 0
         switch(type)
         {

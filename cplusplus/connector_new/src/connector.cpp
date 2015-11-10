@@ -3176,7 +3176,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            memset(http_getArg, 0 ,4096*sizeof(char));
 	            convertProtoToHttpGETArg(http_getArg, mobile_request);
 	            int sock = 0;
-	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), handle_recvAdResponseSmaato, this)) <= 0)
+	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), uuid,handle_recvAdResponseSmaato, this)) <= 0)
 	            {
 	                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
 	            }

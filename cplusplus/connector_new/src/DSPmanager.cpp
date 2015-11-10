@@ -35,9 +35,9 @@ bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char
 {
     return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
 }
-int dspManager::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+int dspManager::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
 {
-    return m_smaatoObject->sendAdRequestToSmaatoDSP(base, data, dataLen, fn, arg);
+    return m_smaatoObject->sendAdRequestToSmaatoDSP(base, data, dataLen, uuid, fn, arg);
 }
 
 bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)

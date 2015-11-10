@@ -185,7 +185,7 @@ public:
 		//requestUuidList = new list<string>();
 		readDSPconfig(SMAATO);
 	}
-	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	void requestUuidList_Locklock()
 	{

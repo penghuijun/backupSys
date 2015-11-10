@@ -1039,7 +1039,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     return ret;
 }
 
-int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -1178,7 +1178,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
         int sock = socket(AF_INET, SOCK_STREAM, 0);
         if (sock == -1)
         {
-            g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
+            g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
             return -1;
         }   
     
@@ -1187,10 +1187,11 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
         fcntl(sock, F_SETFL, flags | O_NONBLOCK);
         
         //建立连接
+        g_workerSMAATO_logger->debug("start connect dsp: {0}", uuid);
         int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
         if(checkConnect(sock, ret) <= 0)
         {
-            g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
+            g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
             close(sock);
             return -1;
         }
@@ -1212,6 +1213,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
     #endif
     
     int ret_t = sock;
+	g_workerSMAATO_logger->debug("start send to dsp uuid: {0}", uuid);
     g_workerSMAATO_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        

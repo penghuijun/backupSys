@@ -1218,6 +1218,10 @@ int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char 
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerSMAATO_logger->error("adReqSock send failed ...");
+        close(sock);
+        smaatoSocketList_Lock.lock();
+        connectNumReduce();
+        smaatoSocketList_Lock.unlock();
         ret_t  = -1;
     }         
 
@@ -1264,7 +1268,9 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
             if((cur_timeMs - start_timeMs) >= 600)  //600ms
             {
                 g_workerSMAATO_logger->debug("WAIT TIMEOUT CLOSE SOCKET");        
-				connectNumReduce();
+                smaatoSocketList_Lock.lock();
+                connectNumReduce();
+                smaatoSocketList_Lock.unlock();
                 close(sock);
                 delete [] recv_str;
                 delete [] fullData_t->data;
@@ -1277,7 +1283,9 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
             if (recv_bytes == 0)    //connect abort
             {
                 g_workerSMAATO_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");    
-				connectNumReduce();
+                smaatoSocketList_Lock.lock();
+                connectNumReduce();
+                smaatoSocketList_Lock.unlock();
                 close(sock);
                 delete [] recv_str;
                 delete [] fullData_t->data;
@@ -1319,7 +1327,9 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                 if(full_expectLen > BUF_SIZE)
                 {
                     g_workerSMAATO_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
-					connectNumReduce();
+                    smaatoSocketList_Lock.lock();
+                    connectNumReduce();
+                    smaatoSocketList_Lock.unlock();
                 	close(sock);
                     delete [] recv_str;
                     delete [] fullData_t->data;

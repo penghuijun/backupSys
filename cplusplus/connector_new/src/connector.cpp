@@ -2885,9 +2885,18 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, adspace.c_str());
     strcat(strbuf, "&");
 
-    string pub = "pub=0";
-    strcat(strbuf, pub.c_str());
-    strcat(strbuf, "&");
+    if(mobile_request.has_publishid() && (mobile_request.publishid().empty() == false))
+    {
+        string pub = "pub=" + mobile_request.publishid();
+        strcat(strbuf, pub.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid publishId");
+        return false;
+    }
+    
 
     string beacon = "beacon=true";
     strcat(strbuf, beacon.c_str());

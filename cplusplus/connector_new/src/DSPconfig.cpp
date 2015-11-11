@@ -1040,6 +1040,38 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     return ret;
 }
 
+void smaatoObject::readSmaatoConfig()
+{
+    ifstream ifile; 
+    ifile.open("./conf/smaatoConfig.json",ios::in);
+    if(ifile.is_open() == false)
+    {               
+        g_workerSMAATO_logger->error("Open smaatoConfig.json failure...");
+        exit(1);    
+    }   
+    
+    Json::Reader reader;
+    Json::Value root;
+    
+    if(reader.parse(ifile, root))
+    {
+        ifile.close();       
+    
+        //filter
+        publisherId = root["publisherId"].asString();        
+        adSpaceId  = root["adSpaceId"].asString();
+        
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("Parse smaatoConfig.json failure...");
+        ifile.close();
+        exit(1);
+    }    
+
+}
+
+
 int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
 {
     //初始化发送信息

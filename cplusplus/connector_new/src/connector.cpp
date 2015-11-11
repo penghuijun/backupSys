@@ -2881,22 +2881,15 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, apiver.c_str());
     strcat(strbuf, "&");
 
-    string adspace = "adspace=0";
+    string& adspaceid = m_dspManager.getSmaatoObject()->getAdSpaceId();
+    string adspace = "adspace=" + adspaceid;
     strcat(strbuf, adspace.c_str());
     strcat(strbuf, "&");
 
-    if(mobile_request.has_publishid() && (mobile_request.publishid().empty() == false))
-    {
-        string pub = "pub=" + mobile_request.publishid();
-        strcat(strbuf, pub.c_str());
-        strcat(strbuf, "&");
-    }
-    else
-    {
-        g_workerSMAATO_logger->error("GEN HTTP ARG error: invalid publishId");
-        return false;
-    }
-    
+    string& pubId = m_dspManager.getSmaatoObject()->getPublisherId();
+    string pub = "pub=" + pubId;
+    strcat(strbuf, pub.c_str());
+    strcat(strbuf, "&");   
 
     string beacon = "beacon=true";
     strcat(strbuf, beacon.c_str());

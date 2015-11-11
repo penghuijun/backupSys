@@ -1351,8 +1351,8 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
 
 void smaatoObject::smaatoConnectDSP()
 {
-	int maxNum = getPreConnectNum();
-    for(int i=0; i < maxNum; i++)
+	int preNum = getPreConnectNum();
+    for(int i=0; i < preNum; i++)
     {
         if(smaatoAddConnectToDSP())
 			connectNumIncrease();        
@@ -1394,7 +1394,7 @@ bool smaatoObject::smaatoAddConnectToDSP()
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
-        g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
+        g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
         return false;
     }   
 
@@ -1406,7 +1406,7 @@ bool smaatoObject::smaatoAddConnectToDSP()
     int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
     if(checkConnect(sock, ret) <= 0)
     {
-        g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
+        g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
         close(sock);
         return false;
     }

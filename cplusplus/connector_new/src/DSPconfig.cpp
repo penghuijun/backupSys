@@ -1290,7 +1290,10 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                 {
                     //g_workerSMAATO_logger->trace("ERRNO EAGAIN: RECV END");
                     if(waitFlag)
+                    {
+                        usleep(10000); //10ms
                         continue ;
+                    }
                     else
                     {
                     	smaatoSocketList_Lock.lock();
@@ -1327,7 +1330,7 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                 fullData_t->curLen += recv_bytes;
                 temp++;            
             }
-            usleep(10000); //10ms
+            //usleep(10000); //10ms
         }
 
     //close(sock);

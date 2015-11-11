@@ -3181,9 +3181,10 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             int SMAATO_curFlowCount = m_dspManager.getSmaatoObject()->getCurFlowCount();
             if((SMAATO_curFlowCount < SMAATO_maxFlowLimit)||(SMAATO_maxFlowLimit == 0))
             {
-				char *http_getArg = new char[4096];
+		     char *http_getArg = new char[4096];
 	            memset(http_getArg, 0 ,4096*sizeof(char));
-	            convertProtoToHttpGETArg(http_getArg, mobile_request);
+	            if(!convertProtoToHttpGETArg(http_getArg, mobile_request))
+	                return ;
 	            int sock = 0;
 	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), uuid,handle_recvAdResponseSmaato, this)) <= 0)
 	            {

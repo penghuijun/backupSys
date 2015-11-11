@@ -206,6 +206,7 @@ void dspObject::readDSPconfig(dspType type)
         intNetId    = root["intNetId"].asString();        
 
         maxConnectNum = root["maxConnectNum"].asInt();
+        preConnectNum = root["preConnectNum"].asInt();
         maxFlowLimit  = root["maxFlowLimit"].asInt();
         
     }
@@ -220,7 +221,7 @@ void dspObject::readDSPconfig(dspType type)
 
 void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
 {
-    int maxNum = getMaxConnectNum();
+    int maxNum = getPreConnectNum();
     for(int i=0; i < maxNum; i++)
     {
         if(addConnectToDSP(base, fn, arg))
@@ -1340,7 +1341,7 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
 
 void smaatoObject::smaatoConnectDSP()
 {
-	int maxNum = getMaxConnectNum();
+	int maxNum = getPreConnectNum();
     for(int i=0; i < maxNum; i++)
     {
         if(smaatoAddConnectToDSP())

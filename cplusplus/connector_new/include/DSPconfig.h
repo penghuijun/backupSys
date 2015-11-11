@@ -65,6 +65,7 @@ public:
 	void setMaxConnectNum(int num){maxConnectNum = num;}
 	int getCurConnectNum(){return curConnectNum;}
 	int getMaxConnectNum(){return maxConnectNum;}
+	int getPreConnectNum(){return preConnectNum;}
 	void connectNumReduce(){curConnectNum--;}
 	void connectNumIncrease(){curConnectNum++;}	
 	
@@ -114,6 +115,7 @@ private:
 	
 	int curConnectNum;
 	int maxConnectNum;
+	int preConnectNum;
 	
 	mutex_lock			 m_listenObjectListLock;
 	list<listenObject *> 	*m_listenObjectList;

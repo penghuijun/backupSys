@@ -218,7 +218,7 @@ public:
 	bool GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid);
 	bool GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid);
 	bool SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType);
-	bool SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType);
+	bool SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType, MobileAdRequest_AdType& requestAdtype);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

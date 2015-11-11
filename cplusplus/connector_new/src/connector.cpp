@@ -1104,6 +1104,9 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
     MobileAdRequest mobile_request;
     mobile_request.ParseFromString(commMsg_data);
 
+    MobileAdRequest_AdType requestAdtype;
+    requestAdtype = mobile_request.type();
+
     uuid = mobile_request.id();
 
 	//list<string>* requestUuidList = m_dspManager.getSmaatoObject()->getRequestUuidList();
@@ -1163,7 +1166,13 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
     {
         cur = cur->xmlChildrenNode;
         SMAATO_mutableAction(mobile_action, cur, TXT);     
-        SMAATO_creativeAddEvents(mobile_creative, cur, TXT);        
+        if(!SMAATO_creativeAddEvents(mobile_creative, cur, TXT, requestAdtype))
+        {
+            g_workerSMAATO_logger->debug("TXT SMAATO_creativeAddEvents failed");
+            xmlFree(id);
+            xmlFree(type);
+            return NULL;
+        }
     }
     else if(!strcmp((char *)type, "IMG"))
     {
@@ -1175,14 +1184,26 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
         
         cur = cur->xmlChildrenNode;
         SMAATO_mutableAction(mobile_action, cur, IMG);     
-        SMAATO_creativeAddEvents(mobile_creative, cur, IMG);  
+        if(!SMAATO_creativeAddEvents(mobile_creative, cur, IMG, requestAdtype))
+        {
+            g_workerSMAATO_logger->debug("IMG SMAATO_creativeAddEvents failed");
+            xmlFree(id);
+            xmlFree(type);
+            return NULL;
+        }
     }
     else if(!strcmp((char *)type, "RICHMEDIA"))
     {
         #if 1
         cur = cur->xmlChildrenNode;
         SMAATO_mutableAction(mobile_action, cur, RICHMEDIA);     
-        SMAATO_creativeAddEvents(mobile_creative, cur, RICHMEDIA);  
+        if(!SMAATO_creativeAddEvents(mobile_creative, cur, RICHMEDIA, requestAdtype))
+        {
+            g_workerSMAATO_logger->debug("RICHMEDIA SMAATO_creativeAddEvents failed");
+            xmlFree(id);
+            xmlFree(type);
+            return NULL;
+        }
         #endif
         #if 0
         g_workerSMAATO_logger->debug("ADTYPE:RICHMEDIA not finish");
@@ -1815,7 +1836,7 @@ char *getTarMediadata(char *data)
 }
 
 
-bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType)
+bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType, MobileAdRequest_AdType& requestAdtype)
 {
     xmlNodePtr cur = adNode;
     int id = 0;
@@ -1834,7 +1855,18 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
         {            
             case TXT:         //pure text banner
                 {
-                    id = 66;
+                    switch(requestAdtype)
+                    {
+                        case MobileAdRequest_AdType_BANNER:
+                            id = 66;
+                            break;
+                        case MobileAdRequest_AdType_INTERSTITIAL:
+                            break;
+                        default:
+                            break;
+                    }
+                    if(id == 0)
+                        return false;
                     
                     string title;
                     while(cur != NULL)
@@ -1868,7 +1900,19 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                 break;                
             case IMG:         //normal banner with image
                 {
-                    id = 61;
+                    switch(requestAdtype)
+                    {
+                        case MobileAdRequest_AdType_BANNER:
+                            id = 61;
+                            break;
+                        case MobileAdRequest_AdType_INTERSTITIAL:
+                            id = 59;
+                            break;
+                        default:
+                            break;
+                    }
+                    if(id == 0)
+                        return false;
                     
                     string creurl;
                     while(cur != NULL)
@@ -1900,7 +1944,20 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                 break;
             case RICHMEDIA:
                 {
-                    id = 97;    //MY_THIRD_HTML
+                    switch(requestAdtype)
+                    {
+                        case MobileAdRequest_AdType_BANNER:
+                            id = 101;    //MY_THIRD_HTML
+                            break;
+                        case MobileAdRequest_AdType_INTERSTITIAL:
+                            id = 97;    //MY_THIRD_HTML
+                            break;
+                        default:
+                            break;
+                    }
+                    if(id == 0)
+                        return false;
+                        
                     map<int,string>::iterator it = Creative_template.find(id);
                     if(it == Creative_template.end())
                     {
@@ -2988,16 +3045,10 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
         g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid session");
     }
     
-    if(mobile_request.has_packagename())
-    {
-        string bundle = "bundle=" + mobile_request.packagename();
-        strcat(strbuf, bundle.c_str());
-        strcat(strbuf, "&");
-    }
-    else
-    {
-        g_workerSMAATO_logger->debug("GEN HTTP ARG debug: invalid bundle");
-    }
+    string bundle = "bundle=reach.junction.funnystory";
+    strcat(strbuf, bundle.c_str());
+    strcat(strbuf, "&");
+    
     
     if(aid.has_appname()&&(!query_buf.at(4).empty())&& mobile_request.has_adspacewidth()&&mobile_request.has_adspaceheight())
     {

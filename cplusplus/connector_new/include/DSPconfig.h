@@ -186,15 +186,15 @@ public:
 		smaatoSocketList_Lock.init();
 		smaatoSocketList = new list<int>();
 		readDSPconfig(SMAATO);
-		readSmaatoConfig();
+		//readSmaatoConfig();
 	}
-	void readSmaatoConfig();
+	//void readSmaatoConfig();
 	void smaatoConnectDSP();
 	bool smaatoAddConnectToDSP();
 	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
-	string& getAdSpaceId(){return adSpaceId;}
-	string& getPublisherId(){return publisherId;}
+	//string& getAdSpaceId(){return adSpaceId;}
+	//string& getPublisherId(){return publisherId;}
 	void smaatoSocketList_Locklock()
 	{
 		smaatoSocketList_Lock.lock();
@@ -209,8 +209,8 @@ public:
 	}
 	~smaatoObject(){}
 private:
-	string adSpaceId;
-	string publisherId;
+	//string adSpaceId;
+	//string publisherId;
 	mutex_lock smaatoSocketList_Lock;
 	list<int>*	smaatoSocketList;
 };

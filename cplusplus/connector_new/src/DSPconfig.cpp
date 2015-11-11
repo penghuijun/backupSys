@@ -1040,6 +1040,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const 
     return ret;
 }
 
+#if 0
 void smaatoObject::readSmaatoConfig()
 {
     ifstream ifile; 
@@ -1070,7 +1071,7 @@ void smaatoObject::readSmaatoConfig()
     }    
 
 }
-
+#endif
 
 int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
 {

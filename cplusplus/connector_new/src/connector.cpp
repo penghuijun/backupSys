@@ -2881,13 +2881,13 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, apiver.c_str());
     strcat(strbuf, "&");
 
-    string& adspaceid = m_dspManager.getSmaatoObject()->getAdSpaceId();
-    string adspace = "adspace=" + adspaceid;
+    //string& adspaceid = m_dspManager.getSmaatoObject()->getAdSpaceId();
+    string adspace = "adspace=130061846";
     strcat(strbuf, adspace.c_str());
     strcat(strbuf, "&");
 
-    string& pubId = m_dspManager.getSmaatoObject()->getPublisherId();
-    string pub = "pub=" + pubId;
+    //string& pubId = m_dspManager.getSmaatoObject()->getPublisherId();
+    string pub = "pub=1100014094";
     strcat(strbuf, pub.c_str());
     strcat(strbuf, "&");   
 

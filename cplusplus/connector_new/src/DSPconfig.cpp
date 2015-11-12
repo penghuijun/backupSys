@@ -167,9 +167,11 @@ void dspObject::readDSPconfig(dspType type)
         case SMAATO:
             filename = "./conf/smaatoConfig.json";
             g_logger = g_workerSMAATO_logger;
+			break;
         case INMOBI:
             filename = "./conf/inmobiConfig.json";
             g_logger = g_workerINMOBI_logger;
+			break;
         default:
             break;
     }
@@ -226,8 +228,8 @@ void dspObject::readDSPconfig(dspType type)
 
 void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
 {
-    int maxNum = getPreConnectNum();
-    for(int i=0; i < maxNum; i++)
+    int preNum = getPreConnectNum();
+    for(int i=0; i < preNum; i++)
     {
         if(addConnectToDSP(base, fn, arg))
             connectNumIncrease();        

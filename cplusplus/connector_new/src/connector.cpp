@@ -4168,7 +4168,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                         {
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }	
-			}
+			}		  
+		  break;
 		case INMOBI:					
                     {
                         struct listenObject *obj = serv->m_dspManager.getInMobiObject()->findListenObject(sock);
@@ -4183,7 +4184,6 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }
                     }
-                    break;
                     break;
                 default:
                     break;                    
@@ -4257,6 +4257,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             break;
         case HTTP_400_BAD_REQUEST:
             g_logger->debug("{0} HTTP RSP: 400 Bad Request", dspName);
+			break;
          default:
             break;                    
     }

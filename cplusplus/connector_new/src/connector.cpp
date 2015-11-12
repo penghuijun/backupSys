@@ -3148,8 +3148,8 @@ bool connectorServ::InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAd
     if(request_adType != MobileAdRequest_AdType_INTERSTITIAL)
         return false;
     imp["adtype"] = "int";                   //Set value as int to designate an interstitial request.
-    //imp["displaymanager"] = "";
-    //imp["displaymanagerver"] = "";
+    imp["displaymanager"] = "s_mediatorname";
+    imp["displaymanagerver"] = "1.2.0";
 
     Json::Value banner;
     banner["adsize"] = 14;                  //Interstitial 320*480
@@ -3176,7 +3176,7 @@ bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileA
 
     device["o1"] = dev.hidsha1();             //SHA1 of Android_ID
     device["um5"] = dev.hidmd5();           //MD5 of Android_ID
-    device["sid"] = mobile_request.session();
+    //device["sid"] = mobile_request.session();
     device["ip"] = mobile_request.dnsip();
     device["ua"] = dev.ua();
     device["locale"] = "en_CN";

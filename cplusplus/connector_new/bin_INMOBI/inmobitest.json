@@ -1,0 +1,33 @@
+{
+"responseformat":"axml" ,
+ "imp": [
+       {
+           "ads": 1,
+           "adtype": "int",
+           "displaymanager": "s_mediatorname",
+           "displaymanagerver": "1.2.0",
+           "banner": {
+               "adsize": 14,
+               "pos": "top"
+           }
+       }
+   ],  
+"site": {
+       "id": "adgayfgsdfwte9273e7dhadh937et2vasduwfp8e723"
+   },
+   "device": {
+       "o1": "dc8eydwdbwfw9cwe9tcev9w6ecwv9ye9wdfw",
+       "so1": "dasasdasc8eydwdbdaev9w6ecwv9ye9adafs",
+       "adt": 1,
+       "ip": "64.124.253.1",
+       "ua": "Mozilla/5.0(Linux;U;Android2.1-update1;en-us;SPH-D700Build/ECLAIR)AppleWebKit/530.17(KHTML, likeGecko)Version/4.0MobileSafari/530.17",
+       "locale": "en_US",
+       "connectiontype": "wifi",
+       "orientation": 1,
+       "geo": {
+           "lat": "21.34",
+           "lon": "44.67",
+           "accu": "0"
+       }
+   }
+} 

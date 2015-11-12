@@ -3179,7 +3179,7 @@ bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileA
     //device["sid"] = mobile_request.session();
     device["ip"] = mobile_request.dnsip();
     device["ua"] = dev.ua();
-    device["locale"] = "en_CN";
+    device["locale"] = "zh_CN";
 
     switch(atoi(dev.connectiontype().c_str()))
     {

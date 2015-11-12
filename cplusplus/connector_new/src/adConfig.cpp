@@ -765,7 +765,7 @@ catch(...)
 
 //read configure file
 void configureObject::readConfig()
-{
+{    
     try
     {
         clear();
@@ -775,7 +775,8 @@ void configureObject::readConfig()
             m_infile.close();
         }
         
-        m_infile.open(m_configName, ios::in);//open file
+        //m_infile.open(m_configName, ios::in);//open file
+        m_infile.open("adManagerConfig.txt", ios::in);
         if(m_infile.is_open()==false)
         {
             g_manager_logger->emerg("sorry, open {0} failure", m_configName);

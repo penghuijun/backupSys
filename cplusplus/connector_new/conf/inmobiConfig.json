@@ -1,20 +1,21 @@
  {
-    "name":"smaato dsp",
+    "name":"inMobi dsp",
 
 /*HTTP REQUEST LINE*/
-    "adReqType": "GET ",
+    "adReqType": "POST ",
     //"adReqIP": "103.249.254.121",
-    "adReqDomain": "soma.smaato.net",
+    "adReqDomain": "api.w.inmobi.com",
     "adReqPort": "80",
     //"adReqUrl":"http://soma.smaato.net/oapi/reqAd.jsp",
-	"adReqUrl":"/oapi/reqAd.jsp",
+	"adReqUrl":"/showad/v2",
     
 /*HTTP HEADER CONFIG*/
     "Connection": "Keep-Alive", 
     "User-Agent": "Apache-HttpAsyncClient/4.1",
-    "Content-Type": "application/xml",  
+    "Content-Type": "application/json",  
     "charset": "UTF-8",   
-    "Host": "soma.smaato.net",    
+    "Host": "api.w.inmobi.com",    
+    "X-Forwarded-For": "121.14.151.103",
 
     "httpVersion": " HTTP/1.1",
 
@@ -25,8 +26,8 @@
 	"preConnectNum":10,
     "maxFlowLimit":0,
 	
-	"adSpaceId":"130061846",
-	"publisherId":"1100014094",
+	"siteId": "713b1884a3a54eec9aaf81646c5433ab",
+    "placementId": "1447890046610",
 	
     "appFilter":[
         "com.rj.rj2048"

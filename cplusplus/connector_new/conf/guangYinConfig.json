@@ -22,8 +22,9 @@
     "test":false,
     "maxErrMinutes":10,
     "maxErrs":1000,
-	"maxConnectNum":5,
-	"maxFlowLimit":100000,
+	"maxConnectNum":5,	
+	"preConnectNum":5,
+	"maxFlowLimit":0,
     "appFilter":[
         "com.rj.rj2048"
     ],

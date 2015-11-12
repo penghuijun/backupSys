@@ -12,5 +12,10 @@
 	"enSmaato":true,
 	"logSmaatoReq":false,
 	"logSmaatoHttpRsp":false,
-	"logSmaatoRsp":true
+	"logSmaatoRsp":false,
+
+	"enInMobi":false,
+	"logInMobiReq":false,
+	"logInMobiHttpRsp":false,
+	"logInMobiRsp":false
 }

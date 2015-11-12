@@ -1,10 +1,10 @@
 {
-	"enChinaTelecom":false,
+	"enChinaTelecom":true,
 	"logTeleReq":false,
 	"logTeleHttpRsp":false,
 	"logTeleRsp":false,
 
-	"enGYIN":false,
+	"enGYIN":true,
 	"logGYINReq":false,
 	"logGYINHttpRsp":false,
 	"logGYINRsp":false,
@@ -12,5 +12,10 @@
 	"enSmaato":false,
 	"logSmaatoReq":false,
 	"logSmaatoHttpRsp":false,
-	"logSmaatoRsp":false
+	"logSmaatoRsp":false,
+
+	"enInMobi":true,
+	"logInMobiReq":false,
+	"logInMobiHttpRsp":false,
+	"logInMobiRsp":false
 }

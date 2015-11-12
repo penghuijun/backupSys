@@ -887,6 +887,16 @@ void configureObject::readLogConfig()
         logGYINRsp = root["logGYINRsp"].asBool();
 
         enSmaato = root["enSmaato"].asBool();
+        logSmaatoReq = root["logSmaatoReq"].asBool();
+        logSmaatoHttpRsp = root["logSmaatoHttpRsp"].asBool();
+        logSmaatoRsp = root["logSmaatoRsp"].asBool();
+        
+
+        enInMobi = root["enInMobi"].asBool();
+        logInMobiReq = root["logInMobiReq"].asBool();
+        logInMobiHttpRsp = root["logInMobiHttpRsp"].asBool();
+        logInMobiRsp = root["logInMobiRsp"].asBool();
+        
     }
     else
     {

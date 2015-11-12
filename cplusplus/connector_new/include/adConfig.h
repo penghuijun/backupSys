@@ -637,6 +637,11 @@ public:
 	bool					get_logSmaatoHttpRsp(){return logSmaatoHttpRsp;}
 	bool					get_logSmaatoRsp(){return logSmaatoRsp;}
 
+	bool 				get_enInMobi(){return enInMobi;}
+	bool					get_logInMobiReq(){return logInMobiReq;}
+	bool					get_logInMobiHttpRsp(){return logInMobiHttpRsp;}
+	bool					get_logInMobiRsp(){return logInMobiRsp;}
+
 	void clear()
 	{
 		m_throttle_info.throttleInformation_erase();
@@ -682,6 +687,11 @@ private:
 	bool 			logSmaatoReq;
 	bool				logSmaatoHttpRsp;
 	bool 			logSmaatoRsp;
+
+	bool				enInMobi;
+	bool 			logInMobiReq;
+	bool				logInMobiHttpRsp;
+	bool 			logInMobiRsp;
 };
 
 #endif

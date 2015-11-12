@@ -27,7 +27,8 @@ enum dspType
 {
 	TELE,		//China telecom
 	GYIN,		//GuangYin
-	SMAATO		//Smaato
+	SMAATO,	//Smaato
+	INMOBI  	//InMobi
 };
 
 struct listenObject
@@ -105,6 +106,7 @@ private:
 	string charset;
 	string Host;
 	string Cookie;
+	string Forwarded;
 
 	//FILTER
 	string extNetId;
@@ -143,7 +145,7 @@ public:
 	bool getCeritifyCodeFromChinaTelecomDSP();	
 	
 	bool isCeritifyCodeEmpty();
-	bool sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg);
+	bool sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq);
 	~chinaTelecomObject(){}
 private:
 	
@@ -166,7 +168,7 @@ public:
 		readGuangYinConfig();
 	}
 	void readGuangYinConfig();		
-	bool sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg);
+	bool sendAdRequestToGuangYinDSP(const char *data, int dataLen);
 	bool getTestValue(){return test;}
 	string& getPublisherID(){return publisherId;}	
 	
@@ -191,7 +193,7 @@ public:
 	//void readSmaatoConfig();
 	void smaatoConnectDSP();
 	bool smaatoAddConnectToDSP();
-	int sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg);
+	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	//string& getAdSpaceId(){return adSpaceId;}
 	//string& getPublisherId(){return publisherId;}
@@ -213,6 +215,23 @@ private:
 	//string publisherId;
 	mutex_lock smaatoSocketList_Lock;
 	list<int>*	smaatoSocketList;
+};
+
+class inmobiObject: public dspObject
+{
+public:
+	inmobiObject()
+	{
+		readDSPconfig(INMOBI);
+	}
+	void readInmobiConfig();
+	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq);
+	string& getSiteId(){return siteId;}
+	string& getPlacementId(){return placementId;}
+	~inmobiObject(){}
+private:
+	string siteId;
+	string placementId;	
 };
 
 #endif

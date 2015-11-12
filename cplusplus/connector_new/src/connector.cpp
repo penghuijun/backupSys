@@ -31,6 +31,8 @@ extern shared_ptr<spdlog::logger> g_manager_logger;
 extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
+extern shared_ptr<spdlog::logger> g_workerINMOBI_logger;
+
 
 
 vector<map<int,string>> SQL_MAP;
@@ -2384,6 +2386,13 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
 	     dspName = "SMAATO";
 	     flag_displayCommonMsgResponse = m_config.get_logSmaatoRsp();
 	     break;
+	case INMOBI:
+            //responseDataStr = convertTeleBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid);
+            responseDataStr = NULL;
+            g_logger = g_workerINMOBI_logger;
+            dspName = "INMOBI";
+            flag_displayCommonMsgResponse = m_config.get_logInMobiRsp();
+            break;
         default:
             break;
     }    
@@ -3129,7 +3138,128 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     return true;
     
 }
+bool connectorServ::InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAdRequest & mobile_request)
+{
+    Json::Value imp;
 
+    imp["ads"] = 1;
+
+    MobileAdRequest_AdType request_adType = mobile_request.type();
+    if(request_adType != MobileAdRequest_AdType_INTERSTITIAL)
+        return false;
+    imp["adtype"] = "int";                   //Set value as int to designate an interstitial request.
+    //imp["displaymanager"] = "";
+    //imp["displaymanagerver"] = "";
+
+    Json::Value banner;
+    banner["adsize"] = 14;                  //Interstitial 320*480
+    banner["pos"] = "top";
+    
+    imp["banner"] = banner;
+    impArray.append(imp);
+
+    return true;
+}
+bool connectorServ::InMobi_AdReqJsonAddSite(Json::Value &site, const MobileAdRequest & mobile_request)
+{
+    site["id"] = m_dspManager.getInMobiObject()->getSiteId();
+    return true;
+}
+bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileAdRequest & mobile_request)
+{
+    MobileAdRequest_Device dev = mobile_request.device();
+    if(dev.has_udid() && (!dev.udid().empty()))
+    {
+        device["gpid"] = dev.udid();
+    }
+
+    device["o1"] = dev.hidsha1();             //SHA1 of Android_ID
+    device["um5"] = dev.hidmd5();           //MD5 of Android_ID
+    device["sid"] = mobile_request.session();
+    device["ip"] = mobile_request.dnsip();
+    device["ua"] = dev.ua();
+    device["locale"] = "en_CN";
+    device["connectiontype"] = dev.connectiontype();
+
+    if(mobile_request.has_orientation())
+    {
+        MobileAdRequest_Orientation ori = mobile_request.orientation();    
+        switch(ori)
+        {
+            case MobileAdRequest_Orientation_LANDSCAPE:
+                device["orientation"] = 3;
+                break;
+            case MobileAdRequest_Orientation_PORTRAIT:
+                device["orientation"] = 1;
+                break;
+            default:
+                break;
+        }        
+    }
+    else
+        device["orientation"] = 1;
+
+    MobileAdRequest_GeoInfo geoinfo = mobile_request.geoinfo();
+    Json::Value geo;
+    geo["lat"] = geoinfo.latitude();
+    geo["lon"] = geoinfo.longitude();
+    geo["accu"] = "0";                      //Accuracy of the lat, lon values. Set accuracy to 0 if unavailable.
+    
+    return true;
+}
+bool connectorServ::InMobi_AdReqJsonAddUser(Json::Value &user, const MobileAdRequest & mobile_request)
+{
+    MobileAdRequest_User requestUser = mobile_request.user();
+    user["yob"] = "1990";
+    user["gender"] = "M";
+
+    Json::Value data;
+    data["id"] = "0";
+    data["name"] = "user";
+
+    Json::Value segment;
+    segment["name"] = "income";
+    segment["value"] = "10000";
+    
+    Json::Value segmentArray;
+    segmentArray.append(segment);
+    data["segment"] = segmentArray;
+
+    Json::Value dataArray;
+    dataArray.append(data);
+
+    user["data"] = dataArray;
+
+    return true;
+}
+bool connectorServ::convertProtoToInMobiJson(string & reqTeleJsonData,const MobileAdRequest & mobile_request)
+{
+    string id = mobile_request.id();                           
+        
+    Json::Value root;         
+    root["responseformat"] = "axml";
+
+    Json::Value impArray;
+    Json::Value site;
+    Json::Value device;
+    Json::Value user;
+
+    if(!InMobi_AdReqJsonAddImp(impArray, mobile_request))       //filter request adtype: INTERSTITIAL
+        return false;
+    InMobi_AdReqJsonAddSite(site, mobile_request);
+    InMobi_AdReqJsonAddDevice(device, mobile_request);
+    InMobi_AdReqJsonAddUser(user, mobile_request);
+    
+    root["imp"] = impArray;
+    root["site"] = site;
+    root["device"] = device;
+    root["user"] = user;
+    
+    root.toStyledString();
+    reqTeleJsonData = root.toStyledString();
+    g_worker_logger->trace("MobileAdRequest.proto->TeleBidRequest.json success");
+    return true;
+}
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {
     try
@@ -3153,7 +3283,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
 	            {
 	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-	                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(m_base, reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(),handle_recvAdResponseTele, this))
+	                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq()))
 	                {
 	                    g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
 	                }
@@ -3171,7 +3301,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 			else if(TELE_curFlowCount == TELE_maxFlowLimit)
             {
                 m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
-                g_workerGYIN_logger->debug("FLOW LIMITED...");
+                g_worker_logger->debug("FLOW LIMITED...");
             }
             
         }
@@ -3196,7 +3326,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     {                    
                         displayGYinBidRequest(buf,length);                
                     }
-                    if(!m_dspManager.sendAdRequestToGuangYinDSP(m_base,buf,length,handle_recvAdResponseGYin,this))
+                    if(!m_dspManager.sendAdRequestToGuangYinDSP(buf,length))
                     {
                         g_workerGYIN_logger->debug("POST TO GYIN fail uuid: {0}",uuid); 
                     }
@@ -3232,7 +3362,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            if(!convertProtoToHttpGETArg(http_getArg, mobile_request))
 	                return ;
 	            int sock = 0;
-	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(m_base, http_getArg, strlen(http_getArg), uuid,handle_recvAdResponseSmaato, this)) <= 0)
+	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid)) <= 0)
 	            {
 	                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
 	            }
@@ -3323,6 +3453,41 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                    g_workerGYIN_logger->debug("FLOW LIMITED...");
               }
         }      
+
+         /*
+                *send to INMOBI
+                */                
+        if(m_config.get_enInMobi()) 
+        {
+        	int INMOBI_maxFlowLimit = m_dspManager.getInMobiObject()->getMaxFlowLimit();
+            int INMOBI_curFlowCount = m_dspManager.getInMobiObject()->getCurFlowCount();
+            if((INMOBI_curFlowCount < INMOBI_maxFlowLimit)||(INMOBI_curFlowCount == 0))
+            {
+		    string reqTeleJsonData;
+	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
+	            {
+	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
+	                if(!m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq()))
+	                {
+	                    g_workerINMOBI_logger->debug("POST TO INMOBI fail uuid : {0}",uuid);            
+	                }
+	                else
+	                {
+	                	if(INMOBI_curFlowCount != 0)
+                        	    m_dspManager.getInMobiObject()->curFlowCountIncrease();
+				g_workerINMOBI_logger->debug("POST TO INMOBI success uuid : {0} \r\n",uuid);  
+			   }
+	            }
+	            else
+	                 g_workerINMOBI_logger->debug("convertProtoToInMobiJson Failed ");  
+	     }
+	     else if(INMOBI_curFlowCount == INMOBI_maxFlowLimit)
+            {
+                m_dspManager.getInMobiObject()->curFlowCountIncrease();
+                g_workerINMOBI_logger->debug("FLOW LIMITED...");
+            }
+            
+        }
              
     }
     catch(...)
@@ -3880,6 +4045,10 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
 	     dspName = "SMAATO";
 	     flag_displayBodyData = serv->m_config.get_logSmaatoHttpRsp();
 	     break;
+	 case INMOBI:
+	    g_logger = g_workerINMOBI_logger;
+	    dspName = "INMOBI";
+	    flag_displayBodyData = serv->m_config.get_logInMobiHttpRsp();
         default:
             break;          
     }    
@@ -3954,6 +4123,21 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
                             g_logger->error("FIND LISTEN OBJ FAILED");		 
                         }	
 			}
+		case INMOBI:					
+                    {
+                        struct listenObject *obj = serv->m_dspManager.getInMobiObject()->findListenObject(sock);
+                        if(obj != NULL)
+                        {
+                            listenEvent = obj->_event;
+                            serv->m_dspManager.getInMobiObject()->eraseListenObject(sock);
+                            event_del(listenEvent);
+                        }
+                        else 
+                        {
+                            g_logger->error("FIND LISTEN OBJ FAILED");		 
+                        }
+                    }
+                    break;
                     break;
                 default:
                     break;                    
@@ -4047,13 +4231,16 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             switch(type)
             {
                 case TELE:
-                    g_logger->debug("BidRsponse: \r\n{0}", bodyData);   
+                    g_logger->debug("TeleRsponse: \r\n{0}", bodyData);   //json
                     break;
                 case GYIN:
-                    serv->displayGYinBidResponse(bodyData, dataLen);
+                    serv->displayGYinBidResponse(bodyData, dataLen);    //protobuf
                     break;
 		  case SMAATO:
-		      g_logger->debug("SmaatoRsponse: \r\n{0}", bodyData);
+		      g_logger->debug("SmaatoRsponse: \r\n{0}", bodyData);  //xml
+		      break;
+		  case INMOBI:
+		      g_logger->debug("InMobi: \r\n{0}", bodyData);     //json
 		      break;
                 default:
                     break;                              
@@ -4334,6 +4521,19 @@ void connectorServ::handle_recvAdResponseSmaato(int sock,short event,void *arg)
     serv->handle_recvAdResponse(sock, event, arg, SMAATO);
 }
 
+void connectorServ::handle_recvAdResponseInMobi(int sock,short event,void *arg)
+{   
+    connectorServ *serv = (connectorServ*)arg;
+    if(serv==NULL) 
+    {
+        g_workerINMOBI_logger->emerg("handle_recvAdResponseInMobi param is null");
+        return;
+    }
+    
+    serv->handle_recvAdResponse(sock, event, arg, INMOBI);
+}
+
+
 void *connectorServ::connectToOther(void *arg)
 {
     connectorServ *serv = (connectorServ*) arg;    
@@ -4446,6 +4646,8 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
 				serv->m_dspManager.getGuangYinObject()->curFlowCountClean();
 			if(serv->m_config.get_enSmaato())
 				serv->m_dspManager.getSmaatoObject()->curFlowCountClean();
+		       if(serv->m_config.get_enInMobi())
+			       serv->m_dspManager.getInMobiObject()->curFlowCountClean();
 		}
            
         serv->commMsgRecordList_lock.lock();        
@@ -4473,6 +4675,7 @@ void *connectorServ::checkConnectNum(void *arg)
     int TELE_maxConnectNum = 0;
     int GYIN_maxConnectNum = 0;
     int SMAATO_maxConnectNum = 0;
+    int INMOBI_maxConnectNum = 0;
     if(serv->m_config.get_enChinaTelecom())
     {
         TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum(); 
@@ -4485,6 +4688,10 @@ void *connectorServ::checkConnectNum(void *arg)
     {
         SMAATO_maxConnectNum = serv->m_dspManager.getSmaatoObject()->getMaxConnectNum();
     }
+    if(serv->m_config.get_enInMobi())
+    {
+        INMOBI_maxConnectNum = serv->m_dspManager.getInMobiObject()->getMaxConnectNum();
+    }
     while(1)
     {        
         if(serv->m_config.get_enChinaTelecom())
@@ -4494,9 +4701,9 @@ void *connectorServ::checkConnectNum(void *arg)
             {
                 if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
                 {
-    	         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
-                    serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
-    		  serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
+    	                serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
+                       serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
+    		         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
     	        }    
             }
         }
@@ -4507,26 +4714,37 @@ void *connectorServ::checkConnectNum(void *arg)
             {            
                 if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
                 {
-    		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
-    		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
-    		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
+        		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
+        		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
+        		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
     	        }                        
             }        
         }        
         if(serv->m_config.get_enSmaato())
         {
-            #if 1
             int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {            
                 if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
                 {
-    		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Locklock();
-    		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
-    		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
+        		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Locklock();
+        		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
+        		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
     	        }                        
             }      
-            #endif
+        }
+        if(serv->m_config.get_enInMobi())
+        {
+            int INMOBI_curConnectNum = serv->m_dspManager.getInMobiObject()->getCurConnectNum();
+            if(INMOBI_curConnectNum < INMOBI_maxConnectNum)
+            {
+                if(serv->m_dspManager.getInMobiObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseInMobi, arg))
+                {
+                    serv->m_dspManager.getInMobiObject()->listenObjectList_Lock();
+    		      serv->m_dspManager.getInMobiObject()->connectNumIncrease();  
+    		      serv->m_dspManager.getInMobiObject()->listenObjectList_unLock();
+                }
+            }
         }
         usleep(1000);     //1ms
     }
@@ -4565,6 +4783,9 @@ void connectorServ::workerRun()
     g_workerGYIN_logger->set_level(m_logLevel);
     g_workerSMAATO_logger = spdlog::daily_logger_mt("SMAATO", "logs/SMAATOdebugfile", true);
     g_workerSMAATO_logger->set_level(m_logLevel);
+    g_workerINMOBI_logger= spdlog::daily_logger_mt("INMOBI", "logs/INMOBIdebugfile", true);
+    g_workerINMOBI_logger->set_level(m_logLevel);
+    
     g_worker_logger->info("worker start:{0:d}", getpid());
     
     m_zmq_connect.init();
@@ -4595,8 +4816,13 @@ void connectorServ::workerRun()
     int poolSize = m_connector_manager.get_connector_config().get_connectorThreadPoolSize();
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
 
-    m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato());
-    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_base, handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, this);
+    m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
+    
+    
+    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enInMobi(), m_config.get_enSmaato(), 
+                                                        m_base, 
+                                                        handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, handle_recvAdResponseInMobi, 
+                                                        this);
 
     //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
     //event_add(recvGYINrspEvent, NULL);

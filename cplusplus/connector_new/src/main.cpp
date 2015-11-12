@@ -9,6 +9,8 @@ shared_ptr<spdlog::logger> g_manager_logger;
 shared_ptr<spdlog::logger> g_worker_logger;
 shared_ptr<spdlog::logger> g_workerGYIN_logger;
 shared_ptr<spdlog::logger> g_workerSMAATO_logger;
+shared_ptr<spdlog::logger> g_workerINMOBI_logger;
+
 
 
 int main(int argc,char *argv[])

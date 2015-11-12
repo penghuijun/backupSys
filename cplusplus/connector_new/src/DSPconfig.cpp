@@ -3,6 +3,7 @@
 extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
+extern shared_ptr<spdlog::logger> g_workerINMOBI_logger;
 #if 0
 bool chinaTelecomObject::string_find(string& str1, const char* str2)
 {    
@@ -166,6 +167,9 @@ void dspObject::readDSPconfig(dspType type)
         case SMAATO:
             filename = "./conf/smaatoConfig.json";
             g_logger = g_workerSMAATO_logger;
+        case INMOBI:
+            filename = "./conf/inmobiConfig.json";
+            g_logger = g_workerINMOBI_logger;
         default:
             break;
     }
@@ -200,6 +204,7 @@ void dspObject::readDSPconfig(dspType type)
         charset     = root["charset"].asString();
         Host        = root["Host"].asString();
         Cookie      = root["Cookie"].asString();
+        Forwarded = root["X-Forwarded-For"].asString();
 
         //filter
         extNetId    = root["extNetId"].asString();
@@ -238,7 +243,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     sin.sin_port = htons(httpPort);    
     if(!adReqIP.empty())
     {
-        g_workerSMAATO_logger->debug("adReq IP: {0}", adReqIP);
+        g_worker_logger->debug("adReq IP: {0}", adReqIP);
         sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
     }
     else if(!adReqDomain.empty())
@@ -247,15 +252,15 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
         m_hostent = gethostbyname(adReqDomain.c_str());
         if(m_hostent == NULL)
         {
-            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", adReqDomain);
+            g_worker_logger->error("gethostbyname error for host: {0}", adReqDomain);
             return false;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
-        g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
+        g_worker_logger->debug("DOMAIN IP: {0}", inet_ntoa(sin.sin_addr));
     }
     else
     {
-        g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
+        g_worker_logger->error("ADD CON GET IP FAIL");
         return false;
     }
     
@@ -276,7 +281,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
     if(checkConnect(sock, ret) <= 0)
     {
-        g_workerGYIN_logger->error("ADD CON CONNECT FAIL ...");      
+        g_worker_logger->error("ADD CON CONNECT FAIL ...");      
         close(sock);
         return false;
     }
@@ -352,6 +357,13 @@ void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
         strcat(send_str,Cookie.c_str());
         strcat(send_str, "\r\n");
     }  
+
+    if(Forwarded.empty() == false)
+    {
+        strcat(send_str, "X-Forwarded-For: ");
+        strcat(send_str,Forwarded.c_str());
+        strcat(send_str, "\r\n");
+    }
     
 }
 
@@ -693,7 +705,7 @@ bool chinaTelecomObject::isCeritifyCodeEmpty()
     else
         return false;
 }
-bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq, event_callback_fn fn, void *arg)
+bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq)
 {
     //初始化发送信息
     //char send_str[2048] = {0};
@@ -897,7 +909,7 @@ void guangYinObject::readGuangYinConfig()
 
 }
 
-bool guangYinObject::sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
 {
     //初始化发送信息
     //char send_str[2048] = {0};
@@ -1073,7 +1085,7 @@ void smaatoObject::readSmaatoConfig()
 }
 #endif
 
-int smaatoObject::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
+int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -1451,4 +1463,104 @@ bool smaatoObject::smaatoAddConnectToDSP()
     return true;
     
 }
+
+void inmobiObject::readInmobiConfig()
+{
+     ifstream ifile; 
+    ifile.open("./conf/inmobiConfig.json",ios::in);
+    if(ifile.is_open() == false)
+    {               
+        g_worker_logger->error("Open inmobiConfig.json failure...");
+        exit(1);    
+    }   
+    
+    Json::Reader reader;
+    Json::Value root;
+    
+    if(reader.parse(ifile, root))
+    {
+        ifile.close();       
+    
+        //filter
+        siteId = root["siteId"].asString();        
+        placementId = root["placementId"].asBool();
+        
+    }
+    else
+    {
+        g_worker_logger->error("Parse inmobiConfig.json failure...");
+        ifile.close();
+        exit(1);
+    }    
+}
+
+bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq)
+{
+    //初始化发送信息
+    char *send_str = new char[4096];
+    memset(send_str,0,4096*sizeof(char));  
+
+    char Url[100] = {0};
+    strcpy(Url,getAdReqUrl().c_str());        
+    g_workerINMOBI_logger->trace("ADREQ URL : {0}",Url);
+
+    //请求行
+    strcat(send_str, getAdReqType().c_str());
+    strcat(send_str, Url);
+   
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");     
+    
+    //头信息
+    gen_HttpHeader(send_str, dataLen);
+
+    //内容信息    
+    strcat(send_str, "\r\n");    
+    strcat(send_str, data);
+    
+    if(enLogRsq)
+    {
+        g_workerINMOBI_logger->debug("\r\n{0}",send_str);
+    }   
+
+     if(getCurConnectNum() == 0)
+    {
+        g_workerINMOBI_logger->debug("NO CONNECTION TO GYIN");
+        return false;
+    }
+    
+    
+    listenObject *obj = NULL;
+    
+    listenObjectList_Lock();
+    if(!getListenObjectList()->empty())
+    {
+        obj = getListenObjectList()->front();
+        getListenObjectList()->pop_front();
+    }    
+    listenObjectList_unLock();  
+
+    if(!obj)
+    {
+        g_workerINMOBI_logger->debug("NO IDLE SOCK ");
+        delete [] send_str;
+        return false;
+    }
+    
+    int sock =  obj->sock;
+
+    bool ret = true;
+    if(socket_send(sock, send_str, strlen(send_str)) == -1)
+    {        
+        g_workerINMOBI_logger->error("adReqSock send failed ...");
+        ret = false;
+    }         
+    listenObjectList_Lock();
+    getListenObjectList()->push_back(obj);
+    listenObjectList_unLock();  
+    delete [] send_str;
+    return ret;
+    
+}
+
 

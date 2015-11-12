@@ -166,6 +166,7 @@ public:
 	static void handle_recvAdResponseTele(int fd,short event,void *arg);
 	static void handle_recvAdResponseGYin(int sock,short event,void *arg);
 	static void handle_recvAdResponseSmaato(int sock,short event,void *arg);
+	static void handle_recvAdResponseInMobi(int sock,short event,void *arg);
 	static void *connectToOther(void *arg);
 	static void *sendLoginHeartToOther(void *arg);
 	static void *recvLoginHeartFromOther(void *arg);
@@ -202,6 +203,10 @@ public:
 	bool Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRequest& mobile_request);
 	bool GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mobile_request);
 	bool GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request);
+	bool InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAdRequest & mobile_request);
+	bool InMobi_AdReqJsonAddSite(Json::Value &site, const MobileAdRequest & mobile_request);
+	bool InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileAdRequest & mobile_request);	
+	bool InMobi_AdReqJsonAddUser(Json::Value &user, const MobileAdRequest & mobile_request);
 	void mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg);
 	static void thread_handleAdRequest(void *arg);	
 	void handle_recvAdResponse(int sock, short event, void *arg, dspType type);
@@ -213,6 +218,7 @@ public:
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
 	bool convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request);
+	bool convertProtoToInMobiJson(string & reqTeleJsonData,const MobileAdRequest & mobile_request);
 	bool mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action);
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
 	bool GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Bid &GYIN_bid);

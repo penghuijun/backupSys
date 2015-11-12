@@ -4,10 +4,12 @@ LOG_PATH	:= logs
 TELE_LOG	:= bin_TELE/$(LOG_PATH)
 GYIN_LOG	:= bin_GYIN/$(LOG_PATH)
 SMAATO_LOG	:= bin_SMAATO/$(LOG_PATH)
+INMOBI_LOG	:= bin_INMOBI/$(LOG_PATH)
 TELE_MOBILE	:= bin_TELE/tele_mobile
 GYIN_MOBILE	:= bin_GYIN/gyin_mobile
 SMAATO_MOBILE	:= bin_SMAATO/smaato_mobile
-TARGET_ALL 	:= $(TARGET) $(TELE_MOBILE) $(GYIN_MOBILE) $(SMAATO_MOBILE)
+INMOBI_MOBILE	:= bin_INMOBI/inmobi_mobile
+TARGET_ALL 	:= $(TARGET) $(TELE_MOBILE) $(GYIN_MOBILE) $(SMAATO_MOBILE) $(INMOBI_MOBILE)
 
 CC		:= gcc --std=c++11
 INCLUDES	:= -I./include
@@ -33,8 +35,8 @@ all: init protobuf compile cptarget
 
 init:	
 	$(foreach d,$(SRCDIRS), mkdir -p $(OBJ_PATH)/$(d);)
-	rm -rf $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)
-	mkdir $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)	
+	rm -rf $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG) $(INMOBI_LOG)
+	mkdir $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)	$(INMOBI_LOG)
 	
 protobuf:
 	protoc -I=./src/proto --cpp_out=./src ./src/proto/*.proto	
@@ -47,9 +49,10 @@ cptarget:
 	cp -f mobile $(TELE_MOBILE)
 	cp -f mobile $(GYIN_MOBILE)
 	cp -f mobile $(SMAATO_MOBILE)
+	cp -f mobile $(INMOBI_MOBILE)
 	
 clean:
-	rm -rf $(OBJ_PATH) $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG)
+	rm -rf $(OBJ_PATH) $(LOG_PATH) $(TELE_LOG) $(GYIN_LOG) $(SMAATO_LOG) $(INMOBI_LOG)
 	rm -f $(TARGET_ALL)
 #	rm -f include/*.pb.h
 #	rm -f src/*.pb.cc

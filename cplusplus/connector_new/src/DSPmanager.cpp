@@ -1,6 +1,6 @@
 #include "DSPmanager.h"
 
-void dspManager::init(bool enTele, bool enGYin, bool enSmaato)
+void dspManager::init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi)
 {
     if(enTele)
     {        
@@ -13,6 +13,10 @@ void dspManager::init(bool enTele, bool enGYin, bool enSmaato)
     if(enSmaato)
     {        
         m_smaatoObject = new smaatoObject();
+    }
+    if(enInmobi)
+    {
+        m_inmobiObject = new inmobiObject();
     }
 }
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()
@@ -27,24 +31,31 @@ bool dspManager::getCeritifyCodeFromChinaTelecomDSP()
 {
     return m_chinaTelecomObject->getCeritifyCodeFromChinaTelecomDSP();
 }
-bool dspManager::sendAdRequestToChinaTelecomDSP(struct event_base * base, const char *data, int dataLen, bool enLogRsq,event_callback_fn fn, void *arg)
+bool dspManager::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq)
 {
-    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(base, data, dataLen, enLogRsq, fn, arg);
+    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(data, dataLen, enLogRsq);
 }
-bool dspManager::sendAdRequestToGuangYinDSP(struct event_base * base, const char *data, int dataLen, event_callback_fn fn, void *arg)
+bool dspManager::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
 {
-    return m_guangYinObject->sendAdRequestToGuangYinDSP(base, data, dataLen, fn, arg);
+    return m_guangYinObject->sendAdRequestToGuangYinDSP( data, dataLen);
 }
-int dspManager::sendAdRequestToSmaatoDSP(struct event_base * base, const char *data, int dataLen, string& uuid, event_callback_fn fn, void *arg)
+int dspManager::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid)
 {
-    return m_smaatoObject->sendAdRequestToSmaatoDSP(base, data, dataLen, uuid, fn, arg);
+    return m_smaatoObject->sendAdRequestToSmaatoDSP(data, dataLen, uuid);
+}
+bool dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq)
+{
+    return m_inmobiObject->sendAdRequestToInMobiDSP(data, dataLen, enLogRsq);
 }
 
 bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)
 {
     return m_smaatoObject->recvBidResponseFromSmaatoDsp(sock, fullData_t);
 }
-void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato,struct event_base * base, event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, void *arg)
+void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato, bool enInmobi,
+                                                                    struct event_base * base, 
+                                                                    event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, event_callback_fn inmobi_fn,
+                                                                    void *arg)
 {
     if(enTele)
     {        
@@ -58,6 +69,10 @@ void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato,struct 
     {        
         //m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
         m_smaatoObject->smaatoConnectDSP();
+    }
+    if(enInmobi)
+    {
+        m_inmobiObject->creatConnectDSP(base, inmobi_fn, arg);
     }
 }
 

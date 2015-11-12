@@ -3494,7 +3494,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             if((INMOBI_curFlowCount < INMOBI_maxFlowLimit)||(INMOBI_curFlowCount == 0))
             {
 		    string reqTeleJsonData;
-		    #if 1
+		    #if 0
 		    {
                         Json::Reader reader;
                         Json::Value root;
@@ -3510,7 +3510,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                         }
 		    }
 		    #endif
-	            //if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
+	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
 	            {
 	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
 	                if(!m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq()))
@@ -3524,8 +3524,8 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 				g_workerINMOBI_logger->debug("POST TO INMOBI success uuid : {0} \r\n",uuid);  
 			   }
 	            }
-	            //else
-	                 //g_workerINMOBI_logger->debug("convertProtoToInMobiJson Failed ");  
+	            else
+	                 g_workerINMOBI_logger->debug("convertProtoToInMobiJson Failed ");  
 	     }
 	     else if(INMOBI_curFlowCount == INMOBI_maxFlowLimit)
             {

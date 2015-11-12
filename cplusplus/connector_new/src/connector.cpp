@@ -2867,8 +2867,8 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
         break;
         case MobileAdRequest_AdType_INTERSTITIAL:
         {
-            banner->set_w(320);
-            banner->set_h(480);
+            banner->set_w(360);
+            banner->set_h(300);
         }
         break;
         default:
@@ -4819,7 +4819,7 @@ void connectorServ::workerRun()
     m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
     
     
-    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enInMobi(), m_config.get_enSmaato(), 
+    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi(),
                                                         m_base, 
                                                         handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, handle_recvAdResponseInMobi, 
                                                         this);

@@ -12,6 +12,7 @@ using namespace std;
 #define HTTP_204_NO_CONTENT	1
 #define HTTP_CONTENT_LENGTH	2
 #define HTTP_CHUNKED			3
+#define HTTP_400_BAD_REQUEST	4
 #define HTTP_UNKNOW_TYPE		9999
 #define HTTP_BODY_DATA_LOSE	-1
 

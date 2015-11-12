@@ -223,6 +223,7 @@ public:
 	inmobiObject()
 	{
 		readDSPconfig(INMOBI);
+		readInmobiConfig();
 	}
 	void readInmobiConfig();
 	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq);

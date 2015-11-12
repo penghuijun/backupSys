@@ -4193,7 +4193,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     httpBodyData_t->curLen = 0;
                
     switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
-    {
+    {        
         case HTTP_204_NO_CONTENT:
             g_logger->debug("{0} HTTP RSP: 204 No Content\r\n", dspName);
             break;
@@ -4209,6 +4209,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         case HTTP_UNKNOW_TYPE:
             g_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
             break;
+        case HTTP_400_BAD_REQUEST:
+            g_logger->debug("{0} HTTP RSP: 400 Bad Request", dspName);
          default:
             break;                    
     }

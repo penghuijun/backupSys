@@ -158,6 +158,10 @@ int httpBodyTypeParse(char *input, int inLen)
     {
         return HTTP_204_NO_CONTENT;
     }
+    else if(memstr(data_start, data_len, "400 Bad Request"))
+    {
+        return HTTP_400_BAD_REQUEST;
+    }
     else if(memstr(data_start, data_len, "200 OK"))
     {
         if(memstr(data_start, data_len, "Transfer-Encoding: chunked"))

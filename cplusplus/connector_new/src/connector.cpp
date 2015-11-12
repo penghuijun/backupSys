@@ -3162,7 +3162,8 @@ bool connectorServ::InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAd
 }
 bool connectorServ::InMobi_AdReqJsonAddSite(Json::Value &site, const MobileAdRequest & mobile_request)
 {
-    site["id"] = m_dspManager.getInMobiObject()->getSiteId();
+    //site["id"] = m_dspManager.getInMobiObject()->getSiteId();
+    site["id"] = "713b1884a3a54eec9aaf81646c5433ab";
     return true;
 }
 bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileAdRequest & mobile_request)
@@ -3179,7 +3180,34 @@ bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileA
     device["ip"] = mobile_request.dnsip();
     device["ua"] = dev.ua();
     device["locale"] = "en_CN";
-    device["connectiontype"] = dev.connectiontype();
+
+    switch(atoi(dev.connectiontype().c_str()))
+    {
+        case 0:
+            device["connectiontype"] = "unknown";
+            break;
+        case 1:
+            device["connectiontype"] = "ethernet";
+            break;
+        case 2:
+            device["connectiontype"] = "wifi";
+            break;
+        case 3:
+            device["connectiontype"] = "unknown";
+            break;
+        case 4:
+            device["connectiontype"] = "2G";
+            break;
+        case 5:
+            device["connectiontype"] = "3G";
+            break;
+        case 6:
+            device["connectiontype"] = "4G";
+            break;
+        default:
+            device["connectiontype"] = "unknown";
+            break;
+    }
 
     if(mobile_request.has_orientation())
     {
@@ -3204,6 +3232,8 @@ bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileA
     geo["lat"] = geoinfo.latitude();
     geo["lon"] = geoinfo.longitude();
     geo["accu"] = "0";                      //Accuracy of the lat, lon values. Set accuracy to 0 if unavailable.
+
+    device["geo"] = geo;
     
     return true;
 }

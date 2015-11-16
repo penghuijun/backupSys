@@ -4707,11 +4707,11 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
             long long record_timeMs = cmrObj->tv.tv_sec*1000 + cmrObj->tv.tv_usec/1000;
             if(cur_timeMs - record_timeMs >= cmrObj->ttl)
             {
+                g_worker_logger->debug("TIMEOUT DEL uuid: {0}", it->first);
                 delete [] cmrObj->data;
                 delete cmrObj;
                 cmrObj = NULL;
-                it = serv->commMsgRecordList.erase(it);
-                g_worker_logger->debug("TIMEOUT DEL uuid: {0}", it->first);
+                it = serv->commMsgRecordList.erase(it);                
             } 
             else
                 it++;               

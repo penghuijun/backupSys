@@ -280,6 +280,7 @@ private:
 	struct event_base* 			pth1_base;
 
 	ThreadPoolManager 			m_thread_manager;
+	ThreadPoolManager			m_tConnect_manager;
 	
 	struct event			   *m_conChinaTelecomDspEvent;
 	

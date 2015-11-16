@@ -4775,13 +4775,16 @@ void *connectorServ::checkConnectNum(void *arg)
         {
             int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
-            {            
+            {         
+            	serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject());
+            	#if 0
                 if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
                 {
         		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Locklock();
         		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
         		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
-    	        }                        
+    	        }  
+				#endif
             }      
         }
         if(serv->m_config.get_enInMobi())
@@ -4866,6 +4869,7 @@ void connectorServ::workerRun()
 
     int poolSize = m_connector_manager.get_connector_config().get_connectorThreadPoolSize();
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
+    m_tConnect_manager.Init(10000, 50, 50);//connect pool init
 
     m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
     

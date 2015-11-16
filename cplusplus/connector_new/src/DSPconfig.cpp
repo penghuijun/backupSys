@@ -1398,34 +1398,37 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
 
 void smaatoObject::smaatoConnectDSP()
 {
+	#if 0
 	int preNum = getPreConnectNum();
     for(int i=0; i < preNum; i++)
     {
         if(smaatoAddConnectToDSP())
 			connectNumIncrease();        
     }
+	#endif
 }
 
-bool smaatoObject::smaatoAddConnectToDSP()
+void smaatoObject::smaatoAddConnectToDSP(void *arg)
 {
+	smaatoObject *smaatoObj = (smaatoObject *)arg;
 	sockaddr_in sin;
-    unsigned short httpPort = atoi(getAdReqPort().c_str());      
+    unsigned short httpPort = atoi(smaatoObj->getAdReqPort().c_str());      
     
     sin.sin_family = AF_INET;    
     sin.sin_port = htons(httpPort);    
-    if(!getAdReqIP().empty())
+    if(!smaatoObj->getAdReqIP().empty())
     {
-        g_workerSMAATO_logger->debug("adReq IP: {0}", getAdReqIP());
-        sin.sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
+        g_workerSMAATO_logger->debug("adReq IP: {0}", smaatoObj->getAdReqIP());
+        sin.sin_addr.s_addr = inet_addr(smaatoObj->getAdReqIP().c_str());
     }
-    else if(!getAdReqDomain().empty())
+    else if(!smaatoObj->getAdReqDomain().empty())
     {
         struct hostent *m_hostent = NULL;
-        m_hostent = gethostbyname(getAdReqDomain().c_str());
+        m_hostent = gethostbyname(smaatoObj->getAdReqDomain().c_str());
         if(m_hostent == NULL)
         {
-            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
-            return false;
+            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", smaatoObj->getAdReqDomain());
+            return ;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
         g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
@@ -1433,7 +1436,7 @@ bool smaatoObject::smaatoAddConnectToDSP()
     else
     {
         g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
-        return false;
+        return ;
     }
     
     
@@ -1442,7 +1445,7 @@ bool smaatoObject::smaatoAddConnectToDSP()
     if (sock == -1)
     {
         g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
-        return false;
+        return ;
     }   
 
     //·Ç×èÈû
@@ -1455,14 +1458,15 @@ bool smaatoObject::smaatoAddConnectToDSP()
     {
         g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
         close(sock);
-        return false;
+        return ;
     }
 
     //add this socket to event listen queue
-    smaatoSocketList_Lock.lock();
-	smaatoSocketList->push_back(sock);
-	smaatoSocketList_Lock.unlock();
-    return true;
+    smaatoObj->smaatoSocketList_Lock.lock();
+	smaatoObj->smaatoSocketList->push_back(sock);
+	smaatoObj->connectNumIncrease();
+	smaatoObj->smaatoSocketList_Lock.unlock();
+    return ;
     
 }
 

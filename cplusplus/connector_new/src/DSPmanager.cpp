@@ -68,7 +68,7 @@ void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato, bool e
     if(enSmaato)
     {        
         //m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
-        m_smaatoObject->smaatoConnectDSP();
+        //m_smaatoObject->smaatoConnectDSP();
     }
     if(enInmobi)
     {

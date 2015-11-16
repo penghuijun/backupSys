@@ -192,7 +192,7 @@ public:
 	}
 	//void readSmaatoConfig();
 	void smaatoConnectDSP();
-	bool smaatoAddConnectToDSP();
+	static void smaatoAddConnectToDSP(void *argc);
 	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	//string& getAdSpaceId(){return adSpaceId;}

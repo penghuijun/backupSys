@@ -1642,17 +1642,29 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
     string RetCode;
     AdmType GYIN_admtype = GYIN_bid.admtype();
     //string adm;
+    string mediaTypeId;
+
+    /**
+         *  MediaType: 
+         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
+         *
+         *  MediaSubType:  
+         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
+         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
+         */
     
     switch(type)
     {
         case MobileAdRequest_AdType_BANNER:
             {
                 id = 79;                
+                mediaTypeId = "1";
             }
             break;
         case MobileAdRequest_AdType_INTERSTITIAL:
             {
                 id = 80;
+                mediaTypeId = "2";
             }
             break;
         case MobileAdRequest_AdType_NATIVE:
@@ -1731,8 +1743,8 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
         
         mobile_creative->set_admarkup(UrlEncode(decodeStr));
-        mobile_creative->set_mediatypeid("1");
-        mobile_creative->set_mediasubtypeid("1");
+        mobile_creative->set_mediatypeid(mediaTypeId);
+        mobile_creative->set_mediasubtypeid("5");
         
     }
 
@@ -1843,6 +1855,7 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
     xmlNodePtr cur = adNode;
     int id = 0;
     string RetCode;           
+    string mediaTypeId;
 
     /**
          *  MediaType: 
@@ -1861,6 +1874,7 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                     {
                         case MobileAdRequest_AdType_BANNER:
                             id = 66;
+                            mediaTypeId = "1";
                             break;
                         case MobileAdRequest_AdType_INTERSTITIAL:
                             break;
@@ -1906,9 +1920,11 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                     {
                         case MobileAdRequest_AdType_BANNER:
                             id = 61;
+                            mediaTypeId = "1";
                             break;
                         case MobileAdRequest_AdType_INTERSTITIAL:
                             id = 59;
+                            mediaTypeId = "2";
                             break;
                         default:
                             break;
@@ -1950,9 +1966,11 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                     {
                         case MobileAdRequest_AdType_BANNER:
                             id = 101;    //MY_THIRD_HTML
+                            mediaTypeId = "1";
                             break;
                         case MobileAdRequest_AdType_INTERSTITIAL:
                             id = 97;    //MY_THIRD_HTML
+                            mediaTypeId = "2";
                             break;
                         default:
                             break;
@@ -2006,8 +2024,8 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
                         
                         mobile_creative->set_admarkup(UrlEncode(decodeStr));
-                        mobile_creative->set_mediatypeid("1");
-                        mobile_creative->set_mediasubtypeid("1");
+                        mobile_creative->set_mediatypeid(mediaTypeId);
+                        mobile_creative->set_mediasubtypeid("5");
                         
                     }                    
                     
@@ -4784,7 +4802,7 @@ void *connectorServ::checkConnectNum(void *arg)
         		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
         		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
     	        }  
-				#endif
+	      #endif
             }      
         }
         if(serv->m_config.get_enInMobi())

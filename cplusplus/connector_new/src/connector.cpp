@@ -1178,6 +1178,9 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
     }
     else if(!strcmp((char *)type, "IMG"))
     {
+        g_workerSMAATO_logger->debug("CUR NO SUPPORT SMAATO IMG");
+        return NULL;
+        #if 0
         xmlChar *width = xmlGetProp(cur, (const xmlChar *)"width");
         xmlChar *height = xmlGetProp(cur, (const xmlChar *)"height");
                    
@@ -1193,6 +1196,7 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
             xmlFree(type);
             return NULL;
         }
+        #endif 
     }
     else if(!strcmp((char *)type, "RICHMEDIA"))
     {

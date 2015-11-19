@@ -4751,7 +4751,7 @@ void *connectorServ::checkConnectNum(void *arg)
     int INMOBI_maxConnectNum = 0;
     struct connectDsp_t * con_t = NULL;
     con_t->base = serv->m_base;
-    con_t->arg = arg;
+    con_t->arg = serv;
     if(serv->m_config.get_enChinaTelecom())
     {
         con_t->fn = handle_recvAdResponseTele;

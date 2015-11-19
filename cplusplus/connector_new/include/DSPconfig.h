@@ -22,6 +22,8 @@
 
 using namespace std;
 
+class dspObject;
+
 #define BUF_SIZE	1024*16		//16K
 enum dspType
 {
@@ -42,6 +44,7 @@ struct connectDsp_t
 	struct event_base * base;
 	event_callback_fn fn;
 	void *arg;
+	dspObject *dspObj;
 	//dspType dsptype;
 };
 class dspObject
@@ -68,7 +71,7 @@ public:
 	string& getIntNetId(){return intNetId;}
 	void creatConnectDSP(struct connectDsp_t * con_t);	
 	//bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
-	void addConnectToDSP(void * arg);
+	static void addConnectToDSP(void * arg);
 	struct listenObject* findListenObject(int sock);
 	void eraseListenObject(int sock);	
 	

@@ -242,23 +242,25 @@ void dspObject::creatConnectDSP(struct connectDsp_t * con_t)
 void dspObject::addConnectToDSP(void * arg)
 {   
     struct connectDsp_t * con_t = (struct connectDsp_t *)arg;
+    dspObject *dspObj = (dspObject *)con_t->dspObj;
+    
     sockaddr_in sin;
-    unsigned short httpPort = atoi(adReqPort.c_str());      
+    unsigned short httpPort = atoi(dspObj->getAdReqPort().c_str());      
     
     sin.sin_family = AF_INET;    
     sin.sin_port = htons(httpPort);    
-    if(!adReqIP.empty())
+    if(!dspObj->getAdReqIP().empty())
     {
-        g_worker_logger->debug("adReq IP: {0}", adReqIP);
-        sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
+        g_worker_logger->debug("adReq IP: {0}", dspObj->getAdReqIP());
+        sin.sin_addr.s_addr = inet_addr(dspObj->getAdReqIP().c_str());
     }
-    else if(!adReqDomain.empty())
+    else if(!dspObj->getAdReqDomain().empty())
     {
         struct hostent *m_hostent = NULL;
-        m_hostent = gethostbyname(adReqDomain.c_str());
+        m_hostent = gethostbyname(dspObj->getAdReqDomain().c_str());
         if(m_hostent == NULL)
         {
-            g_worker_logger->error("gethostbyname error for host: {0}", adReqDomain);
+            g_worker_logger->error("gethostbyname error for host: {0}", dspObj->getAdReqDomain());
             return ;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
@@ -301,10 +303,10 @@ void dspObject::addConnectToDSP(void * arg)
     listen->sock = sock;
     listen->_event = sock_event;
 
-    listenObjectList_Lock();
-    getListenObjectList()->push_back(listen);
-    connectNumIncrease();
-    listenObjectList_unLock();
+    dspObj->listenObjectList_Lock();
+    dspObj->getListenObjectList()->push_back(listen);
+    dspObj->connectNumIncrease();
+    dspObj->listenObjectList_unLock();
     
 }
 

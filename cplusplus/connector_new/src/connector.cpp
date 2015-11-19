@@ -4755,11 +4755,13 @@ void *connectorServ::checkConnectNum(void *arg)
     if(serv->m_config.get_enChinaTelecom())
     {
         con_t->fn = handle_recvAdResponseTele;
+        con_t->dspObj = serv->m_dspManager.getChinaTelecomObject();
         TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum(); 
     }
     if(serv->m_config.get_enGYIN())
     {        
         con_t->fn = handle_recvAdResponseGYin;
+        con_t->dspObj = serv->m_dspManager.getGuangYinObject();
         GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();    
     }
     if(serv->m_config.get_enSmaato())
@@ -4769,6 +4771,7 @@ void *connectorServ::checkConnectNum(void *arg)
     if(serv->m_config.get_enInMobi())
     {
         con_t->fn = handle_recvAdResponseInMobi;
+        con_t->dspObj = serv->m_dspManager.getInMobiObject();
         INMOBI_maxConnectNum = serv->m_dspManager.getInMobiObject()->getMaxConnectNum();
     }
     while(1)

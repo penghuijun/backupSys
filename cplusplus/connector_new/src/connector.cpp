@@ -4749,7 +4749,7 @@ void *connectorServ::checkConnectNum(void *arg)
     int GYIN_maxConnectNum = 0;
     int SMAATO_maxConnectNum = 0;
     int INMOBI_maxConnectNum = 0;
-    struct connectDsp_t * con_t = NULL;
+    struct connectDsp_t * con_t = (struct connectDsp_t *)malloc(sizeof(struct connectDsp_t));
     con_t->base = serv->m_base;
     con_t->arg = serv;
     if(serv->m_config.get_enChinaTelecom())
@@ -4842,6 +4842,7 @@ void *connectorServ::checkConnectNum(void *arg)
         }
         usleep(1000);     //1ms
     }
+    free(con_t);
 }
 void connectorServ::masterRun()
 {       

@@ -226,18 +226,22 @@ void dspObject::readDSPconfig(dspType type)
     
 }
 
-void dspObject::creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg)
+void dspObject::creatConnectDSP(struct connectDsp_t * con_t)
 {
+    #if 0
     int preNum = getPreConnectNum();
     for(int i=0; i < preNum; i++)
     {
-        if(addConnectToDSP(base, fn, arg))
+        if(addConnectToDSP(con_t))
             connectNumIncrease();        
     }
+    #endif
 }
 
-bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg)
-{
+//bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg)
+void dspObject::addConnectToDSP(void * arg)
+{   
+    struct connectDsp_t * con_t = (struct connectDsp_t *)arg;
     sockaddr_in sin;
     unsigned short httpPort = atoi(adReqPort.c_str());      
     
@@ -255,7 +259,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
         if(m_hostent == NULL)
         {
             g_worker_logger->error("gethostbyname error for host: {0}", adReqDomain);
-            return false;
+            return ;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
         g_worker_logger->debug("DOMAIN IP: {0}", inet_ntoa(sin.sin_addr));
@@ -263,7 +267,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     else
     {
         g_worker_logger->error("ADD CON GET IP FAIL");
-        return false;
+        return ;
     }
     
     
@@ -272,7 +276,7 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     if (sock == -1)
     {
         g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
-        return false;
+        return ;
     }   
 
     //·Ç×èÈû
@@ -285,12 +289,12 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
     {
         g_worker_logger->error("ADD CON CONNECT FAIL ...");      
         close(sock);
-        return false;
+        return ;
     }
 
     //add this socket to event listen queue
     struct event *sock_event;
-    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
+    sock_event = event_new(con_t->base, sock, EV_READ|EV_PERSIST, con_t->fn, con_t->arg);     
     event_add(sock_event, NULL);
 
     struct listenObject *listen = new listenObject();    
@@ -299,8 +303,8 @@ bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, 
 
     listenObjectList_Lock();
     getListenObjectList()->push_back(listen);
+    connectNumIncrease();
     listenObjectList_unLock();
-    return true;
     
 }
 

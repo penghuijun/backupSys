@@ -4749,12 +4749,17 @@ void *connectorServ::checkConnectNum(void *arg)
     int GYIN_maxConnectNum = 0;
     int SMAATO_maxConnectNum = 0;
     int INMOBI_maxConnectNum = 0;
+    struct connectDsp_t * con_t = NULL;
+    con_t->base = serv->m_base;
+    con_t->arg = arg;
     if(serv->m_config.get_enChinaTelecom())
     {
+        con_t->fn = handle_recvAdResponseTele;
         TELE_maxConnectNum = serv->m_dspManager.getChinaTelecomObject()->getMaxConnectNum(); 
     }
     if(serv->m_config.get_enGYIN())
     {        
+        con_t->fn = handle_recvAdResponseGYin;
         GYIN_maxConnectNum = serv->m_dspManager.getGuangYinObject()->getMaxConnectNum();    
     }
     if(serv->m_config.get_enSmaato())
@@ -4763,6 +4768,7 @@ void *connectorServ::checkConnectNum(void *arg)
     }
     if(serv->m_config.get_enInMobi())
     {
+        con_t->fn = handle_recvAdResponseInMobi;
         INMOBI_maxConnectNum = serv->m_dspManager.getInMobiObject()->getMaxConnectNum();
     }
     while(1)
@@ -4772,12 +4778,15 @@ void *connectorServ::checkConnectNum(void *arg)
             int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
             if(TELE_curConnectNum < TELE_maxConnectNum)
             {
-                if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseTele, arg))
+                serv->m_tConnect_manager.Run(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP, con_t);
+                #if 0
+                if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(con_t))
                 {
     	                serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
                        serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
     		         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
     	        }    
+    	        #endif
             }
         }
         if(serv->m_config.get_enGYIN())
@@ -4785,12 +4794,15 @@ void *connectorServ::checkConnectNum(void *arg)
             int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();        
             if(GYIN_curConnectNum < GYIN_maxConnectNum)
             {            
-                if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseGYin, arg))
+                serv->m_tConnect_manager.Run(serv->m_dspManager.getGuangYinObject()->addConnectToDSP, con_t);
+                #if 0
+                if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(con_t))
                 {
         		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
         		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
         		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-    	        }                        
+    	        }                   
+    	        #endif
             }        
         }        
         if(serv->m_config.get_enSmaato())
@@ -4814,12 +4826,15 @@ void *connectorServ::checkConnectNum(void *arg)
             int INMOBI_curConnectNum = serv->m_dspManager.getInMobiObject()->getCurConnectNum();
             if(INMOBI_curConnectNum < INMOBI_maxConnectNum)
             {
-                if(serv->m_dspManager.getInMobiObject()->addConnectToDSP(serv->m_base, handle_recvAdResponseInMobi, arg))
+                serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t);
+                #if 0
+                if(serv->m_dspManager.getInMobiObject()->addConnectToDSP(con_t))
                 {
                     serv->m_dspManager.getInMobiObject()->listenObjectList_Lock();
     		      serv->m_dspManager.getInMobiObject()->connectNumIncrease();  
     		      serv->m_dspManager.getInMobiObject()->listenObjectList_unLock();
                 }
+                #endif
             }
         }
         usleep(1000);     //1ms
@@ -4895,11 +4910,12 @@ void connectorServ::workerRun()
 
     m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
     
-    
+    #if 0
     m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi(),
                                                         m_base, 
                                                         handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, handle_recvAdResponseInMobi, 
                                                         this);
+    #endif
 
     //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
     //event_add(recvGYINrspEvent, NULL);

@@ -59,11 +59,11 @@ void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato, bool e
 {
     if(enTele)
     {        
-        m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
+        //m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
     }
     if(enGYin)
     {        
-        m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
+        //m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
     }
     if(enSmaato)
     {        
@@ -72,7 +72,7 @@ void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato, bool e
     }
     if(enInmobi)
     {
-        m_inmobiObject->creatConnectDSP(base, inmobi_fn, arg);
+        //m_inmobiObject->creatConnectDSP(base, inmobi_fn, arg);
     }
 }
 

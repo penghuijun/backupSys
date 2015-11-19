@@ -36,6 +36,14 @@ struct listenObject
 	int sock;
 	struct event *_event;
 };
+
+struct connectDsp_t
+{
+	struct event_base * base;
+	event_callback_fn fn;
+	void *arg;
+	//dspType dsptype;
+};
 class dspObject
 {
 public:
@@ -58,8 +66,9 @@ public:
 	string& getcharset(){return charset;}
 	string& getExtNetId(){return extNetId;}
 	string& getIntNetId(){return intNetId;}
-	void creatConnectDSP(struct event_base * base, event_callback_fn fn, void *arg);	
-	bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
+	void creatConnectDSP(struct connectDsp_t * con_t);	
+	//bool addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg);
+	void addConnectToDSP(void * arg);
 	struct listenObject* findListenObject(int sock);
 	void eraseListenObject(int sock);	
 	

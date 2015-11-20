@@ -2009,10 +2009,10 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
                                 xmlFree(mediadata);
                             }
                             cur = cur->next;
-                        }                        
+                        }                       
 
-						replace(third_html,"<![CDATA[","");
-						replace(third_html,"]]>","");
+                        replace(third_html,"<![CDATA[","");
+                        replace(third_html,"]]>","");
 						
                         replace(third_html,"\"","\\\"");
                         replace(third_html,"'","\\'");
@@ -2041,34 +2041,28 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
            
     
     cur = adNode;
-    string clickLink;
     while(cur != NULL)
     {
-        //action
-        if(!xmlStrcmp(cur->name, (const xmlChar *)"action"))
+        //beacons
+        if(!xmlStrcmp(cur->name, (const xmlChar *)"beacons"))
         {
-            xmlChar *target = xmlGetProp(cur, (const xmlChar *)"target");    //  
-            clickLink = (char *)target;
-            xmlFree(target);
+            xmlNodePtr beaconNode = cur->xmlChildrenNode;
+            while(beaconNode != NULL)
+            {
+                if(!xmlStrcmp(beaconNode->name, (const xmlChar *)"beacon"))
+                {
+                    xmlChar *beaconChar = xmlNodeGetContent(beaconNode);    //   
+                    MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+                    creative_event->set_event("IMP");
+                    creative_event->set_trackurl((char *)beaconChar);
+                    xmlFree(beaconChar);
+                }
+                beaconNode = beaconNode->next;
+            }            
         }
         cur = cur->next;
     }
-
-    #if 0
-    if(temp.isMember("curl"))
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("CLICK");
-        creative_event->set_trackurl(temp["curl"].asString());
-    }
-    #endif
-    
-    if(clickLink.empty() == false)
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
-        creative_event->set_trackurl(clickLink);
-    }  
+        
     return true;
 }
 

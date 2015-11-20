@@ -462,7 +462,8 @@ connectorServ::connectorServ(configureObject& config):m_config(config)
 
         m_throttle_manager.init(m_config.get_throttle_info());
         m_bc_manager.init(m_config.get_bc_info());
-        m_connector_manager.init(m_config.get_connector_info());
+        m_connector_manager.init(m_config.get_connector_info());		
+		m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
         
         m_workerNum = m_connector_manager.get_connector_config().get_connectorWorkerNum();
         cout << "<<<<<<<< m_workerNum = " << m_workerNum << endl;
@@ -4906,7 +4907,7 @@ void connectorServ::workerRun()
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
     m_tConnect_manager.Init(10000, 50, 50);//connect pool init
 
-    m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
+    //m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
     
     #if 0
     m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi(),

@@ -119,6 +119,7 @@ private:
 	string Host;
 	string Cookie;
 	string Forwarded;
+	string Accept;
 
 	//FILTER
 	string extNetId;

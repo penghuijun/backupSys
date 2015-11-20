@@ -11,10 +11,10 @@
     
 /*HTTP HEADER CONFIG*/
     "Connection": "Keep-Alive", 
-    "User-Agent": "Apache-HttpAsyncClient/4.1",
-    "Content-Type": "application/xml",  
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
     "charset": "UTF-8",   
-    "Host": "soma.smaato.net",    
+    "Host": "soma.smaato.net", 
+    "Accept": "*/*",   
 
     "httpVersion": " HTTP/1.1",
 

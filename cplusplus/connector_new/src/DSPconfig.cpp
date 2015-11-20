@@ -207,6 +207,7 @@ void dspObject::readDSPconfig(dspType type)
         Host        = root["Host"].asString();
         Cookie      = root["Cookie"].asString();
         Forwarded = root["X-Forwarded-For"].asString();
+        Accept     = root["Accept"].asString();
 
         //filter
         extNetId    = root["extNetId"].asString();
@@ -372,6 +373,13 @@ void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
         strcat(send_str,Forwarded.c_str());
         strcat(send_str, "\r\n");
     }
+
+    if(Accept.empty() == false)
+    {
+        strcat(send_str, "Accept: ");
+        strcat(send_str, Accept.c_str());
+        strcat(send_str, "\r\n");
+    }
     
 }
 
@@ -441,126 +449,6 @@ void chinaTelecomObject::readChinaTelecomConfig()
         exit(1);
     }
 
-    #if 0
-    string buf;	    
-    while(getline(ifile,buf))	
-    {		
-        if(buf.empty() || buf.at(0) == '#' || buf.at(0)==' ') 
-            continue;		
-        if(string_find(buf,"name"))		
-        {			
-            strGet(name,buf.c_str());			
-            //cout << "name: " << name <<endl; 		
-        }			
-        else if(string_find(buf,"tokenType"))		
-        {			
-            strGet(tokenType,buf.c_str());			
-            //cout << "tokenType: " << tokenType <<endl; 		
-        }	
-        else if(string_find(buf,"tokenIP"))		
-        {			
-            strGet(tokenIP,buf.c_str());			
-            //cout << "tokenIP: " << tokenIP <<endl; 		
-        }	
-        else if(string_find(buf,"tokenPort"))		
-        {			
-            strGet(tokenPort,buf.c_str());			
-            //cout << "tokenPort: " << tokenPort <<endl; 		
-        }	
-        else if(string_find(buf,"tokenUrl"))		
-        {			
-            strGet(tokenUrl,buf.c_str());			
-            //cout << "tokenUrl: " << tokenUrl <<endl; 		
-        }	
-        else if(string_find(buf,"user"))		
-        {			
-            strGet(user,buf.c_str());			
-            //cout << "user: " << user <<endl; 		
-        }	
-        else if(string_find(buf,"user"))		
-        {			
-            strGet(user,buf.c_str());			
-            //cout << "user: " << user <<endl; 		
-        }	
-        else if(string_find(buf,"passwd"))		
-        {			
-            strGet(passwd,buf.c_str());			
-            //cout << "passwd: " << passwd <<endl; 		
-        }	
-        else if(string_find(buf,"adReqType"))		
-        {			
-            strGet(adReqType,buf.c_str());			
-            //cout << "adReqType: " << adReqType <<endl; 		
-        }
-        else if(string_find(buf,"adReqIP"))		
-        {			
-            strGet(adReqIP,buf.c_str());			
-            //cout << "adReqIP: " << adReqIP <<endl; 		
-        }
-        else if(string_find(buf,"adReqPort"))		
-        {			
-            strGet(adReqPort,buf.c_str());			
-            //cout << "adReqPort: " << adReqPort <<endl; 		
-        }
-        else if(string_find(buf,"adReqUrl"))		
-        {			
-            strGet(adReqUrl,buf.c_str());			
-            //cout << "adReqUrl: " << adReqUrl <<endl; 		
-        }
-        else if(string_find(buf,"httpVersion"))		
-        {			
-            strGet(httpVersion,buf.c_str());			
-            //cout << "httpVersion: " << httpVersion <<endl; 		
-        }
-        else if(string_find(buf,"Connection"))		
-        {			
-            strGet(Connection,buf.c_str());			
-            //cout << "Connection: " << Connection <<endl; 		
-        }
-        else if(string_find(buf,"Cache-Control"))		
-        {			
-            strGet(CacheControl,buf.c_str());			
-            //cout << "Cache-Control: " << CacheControl <<endl; 		
-        }
-        else if(string_find(buf,"User-Agent"))		
-        {			
-            strGet(UserAgent,buf.c_str());			
-            //cout << "UserAgent: " << UserAgent <<endl; 		
-        }        
-        else if(string_find(buf,"Content-Type"))		
-        {			
-            strGet(ContentType,buf.c_str());			
-            //cout << "Content-Type: " << ContentType <<endl; 		
-        }
-        else if(string_find(buf,"AcceptType"))		
-        {			
-            strGet(Accept,buf.c_str());			
-            //cout << "Accept: " << Accept <<endl; 		
-        }
-        else if(string_find(buf,"Accept-Encoding"))		
-        {			
-            strGet(AcceptEncoding,buf.c_str());			
-            //cout << "Accept-Encoding: " << AcceptEncoding <<endl; 		
-        }
-        else if(string_find(buf,"Accept-Language"))		
-        {			
-            strGet(AcceptLanguage,buf.c_str());			
-            //cout << "Accept-Language: " << AcceptLanguage <<endl; 		
-        }
-        else if(string_find(buf,"charset"))		
-        {			
-            strGet(charset,buf.c_str());			            
-        }
-        else if(string_find(buf,"Host"))		
-        {			
-            strGet(Host,buf.c_str());			            	
-        }
-        else if(string_find(buf,"Cookie"))		
-        {			
-            strGet(Cookie,buf.c_str());			            	
-        }
-    }	
-    #endif
 }
 bool chinaTelecomObject::parseCertifyStr(char * Src)
 {
@@ -739,59 +627,6 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int da
     //头信息
     gen_HttpHeader(send_str, dataLen);
 
-    #if 0
-    strcat(send_str, adReqType.c_str());
-    strcat(send_str, Url);
-   
-    strcat(send_str, httpVersion.c_str());    
-    strcat(send_str, "\r\n");             
-    
-    char content_header[100];
-    sprintf(content_header,"Content-Length: %d\r\n", dataLen);
-    strcat(send_str, content_header); 
-
-    if(Connection.empty() == false)
-    {
-        strcat(send_str, "Connection: ");
-        strcat(send_str,Connection.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(UserAgent.empty() == false)
-    {
-        strcat(send_str, "User-Agent: ");
-        strcat(send_str,UserAgent.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(ContentType.empty() == false)
-    {
-        strcat(send_str, "Content-Type: ");    
-        strcat(send_str,ContentType.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(charset.empty() == false)
-    {
-        strcat(send_str, "charset: ");
-        strcat(send_str,charset.c_str());
-        strcat(send_str, "\r\n");
-    }
-
-    if(Host.empty() == false)
-    {
-        strcat(send_str, "Host: ");
-        strcat(send_str,Host.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(Cookie.empty() == false)
-    {
-        strcat(send_str, "Cookie: ");
-        strcat(send_str,Cookie.c_str());
-        strcat(send_str, "\r\n");
-    }  
-    #endif
 
     //内容信息
     
@@ -932,44 +767,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
     
     gen_HttpHeader(send_str, dataLen);
 
-    #if 0
-    strcat(send_str, adReqType.c_str());
-    strcat(send_str, adReqUrl.c_str());    
-    strcat(send_str, httpVersion.c_str());    
-    strcat(send_str, "\r\n");             
-    
-    char content_header[100];
-    sprintf(content_header,"Content-Length: %d\r\n", dataLen);
-    strcat(send_str, content_header); 
-
-    if(Connection.empty() == false)
-    {
-        strcat(send_str, "Connection: ");
-        strcat(send_str,Connection.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(UserAgent.empty() == false)
-    {
-        strcat(send_str, "User-Agent: ");
-        strcat(send_str,UserAgent.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(ContentType.empty() == false)
-    {
-        strcat(send_str, "Content-Type: ");    
-        strcat(send_str,ContentType.c_str());
-        strcat(send_str, "\r\n");
-    }        
-
-    if(Host.empty() == false)
-    {
-        strcat(send_str, "Host: ");
-        strcat(send_str,Host.c_str());
-        strcat(send_str, "\r\n");
-    }      
-    #endif
 
     //内容信息
     
@@ -1107,7 +904,8 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
     strcat(send_str, "\r\n");        
 
     //头信息
-    
+    gen_HttpHeader(send_str, 0);
+    #if 0
     strcat(send_str, "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
     strcat(send_str, "\r\n");
 
@@ -1116,6 +914,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
 
     strcat(send_str, "Accept: */*");
     strcat(send_str, "\r\n");
+    #endif
 
     strcat(send_str, "\r\n");
 
@@ -1169,8 +968,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
         strcat(send_str, "\r\n");
     }
     #endif 
-    
-    #if 1
+ 
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");
@@ -1180,7 +978,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
     
     int sock = 0;
 
-	smaatoSocketList_Lock.lock();
+    smaatoSocketList_Lock.lock();
     if(!smaatoSocketList->empty())
     {
         sock = smaatoSocketList->front();
@@ -1195,78 +993,9 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
         return 0;
     }
     
-    #endif
-
-    #if 0
-    sockaddr_in sin;
-        unsigned short httpPort = atoi(getAdReqPort().c_str());      
-        
-        sin.sin_family = AF_INET;    
-        sin.sin_port = htons(httpPort);    
-        if(!getAdReqIP().empty())
-        {
-            g_workerSMAATO_logger->debug("adReq IP: {0}", getAdReqIP());
-            sin.sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
-        }
-        else if(!getAdReqDomain().empty())
-        {
-            struct hostent *m_hostent = NULL;
-            m_hostent = gethostbyname(getAdReqDomain().c_str());
-            if(m_hostent == NULL)
-            {
-                g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
-                return -1;
-            }
-            sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
-            g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
-        }
-        else
-        {
-            g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
-            return -1;
-        }
-        
-        
-    
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock == -1)
-        {
-            g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
-            return -1;
-        }   
-    
-        //非阻塞
-        int flags = fcntl(sock, F_GETFL, 0);
-        fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-        
-        //建立连接
-        g_workerSMAATO_logger->debug("start connect dsp: {0}", uuid);
-        int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
-        if(checkConnect(sock, ret) <= 0)
-        {
-            g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
-            close(sock);
-            return -1;
-        }
-        #endif
-
-    #if 0
-        //add this socket to event listen queue
-    struct event *sock_event;
-    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
-    event_add(sock_event, NULL);
-
-    struct listenObject *listen = new listenObject();    
-    listen->sock = sock;
-    listen->_event = sock_event;
-
-    listenObjectList_Lock();
-    getListenObjectList().push_back(listen);
-    listenObjectList_unLock();
-    #endif
     
     int ret_t = sock;
-	g_workerSMAATO_logger->debug("start send to dsp uuid: {0}", uuid);
+    g_workerSMAATO_logger->debug("start send to dsp uuid: {0}", uuid);
     g_workerSMAATO_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
@@ -1281,15 +1010,6 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
     delete [] send_str;    
     return ret_t;
 
-    
-    #if 0
-    listenObjectList_Lock();
-    getListenObjectList()->push_back(obj);
-    listenObjectList_unLock();  
-    #endif
-    //delete [] send_str;    
-    //return ret_t;
-    
 }
 
 bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)

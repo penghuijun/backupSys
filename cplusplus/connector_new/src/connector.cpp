@@ -3754,6 +3754,16 @@ bool connectorServ::manager_from_BC_handler(const managerProtocol_messageType &t
         case managerProtocol_messageType_LOGIN_RSP:
         {
             g_manager_logger->info("[login rsp][connector <- BC]:{0},{1:d}", bc_ip, bc_mangerPort);
+            
+            const string& connectorIP = m_connector_manager.get_connector_config().get_connectorIP();
+            unsigned short conManagerPort = m_connector_manager.get_connector_config().get_connectorManagerPort();       
+            
+            string& key = m_zmqSubKey_manager.add_subKey(connectorIP,conManagerPort,bc_ip, bc_mangerPort, bc_dataPort);                
+            if(key.empty() == false)
+            {
+                m_throttle_manager.add_throSubKey(key);
+            }
+            
             m_bc_manager.logined(bc_ip,bc_mangerPort);
             break;
         }        

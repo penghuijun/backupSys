@@ -4832,7 +4832,7 @@ void *connectorServ::checkConnectNum(void *arg)
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {         
             	serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject());
-            	serv->m_dspManager.getInMobiObject()->connectNumIncrease();
+            	serv->m_dspManager.getSmaatoObject()->connectNumIncrease();
             	#if 0
                 if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
                 {

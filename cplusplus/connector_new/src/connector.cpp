@@ -4798,6 +4798,7 @@ void *connectorServ::checkConnectNum(void *arg)
             if(TELE_curConnectNum < TELE_maxConnectNum)
             {
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP, con_t);
+                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();
                 #if 0
                 if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(con_t))
                 {
@@ -4814,6 +4815,7 @@ void *connectorServ::checkConnectNum(void *arg)
             if(GYIN_curConnectNum < GYIN_maxConnectNum)
             {            
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getGuangYinObject()->addConnectToDSP, con_t);
+                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
                 #if 0
                 if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(con_t))
                 {
@@ -4830,6 +4832,7 @@ void *connectorServ::checkConnectNum(void *arg)
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {         
             	serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject());
+            	serv->m_dspManager.getInMobiObject()->connectNumIncrease();
             	#if 0
                 if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
                 {
@@ -4846,6 +4849,7 @@ void *connectorServ::checkConnectNum(void *arg)
             if(INMOBI_curConnectNum < INMOBI_maxConnectNum)
             {
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t);
+                serv->m_dspManager.getInMobiObject()->connectNumIncrease();
                 #if 0
                 if(serv->m_dspManager.getInMobiObject()->addConnectToDSP(con_t))
                 {

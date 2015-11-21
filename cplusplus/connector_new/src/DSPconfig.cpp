@@ -262,6 +262,7 @@ void dspObject::addConnectToDSP(void * arg)
         if(m_hostent == NULL)
         {
             g_worker_logger->error("gethostbyname error for host: {0}", dspObj->getAdReqDomain());
+            dspObj->connectNumReduce();
             return ;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
@@ -270,6 +271,7 @@ void dspObject::addConnectToDSP(void * arg)
     else
     {
         g_worker_logger->error("ADD CON GET IP FAIL");
+        dspObj->connectNumReduce();
         return ;
     }
     
@@ -279,6 +281,7 @@ void dspObject::addConnectToDSP(void * arg)
     if (sock == -1)
     {
         g_worker_logger->error("ADD CON SOCK CREATE FAIL ...");
+        dspObj->connectNumReduce();
         return ;
     }   
 
@@ -292,6 +295,7 @@ void dspObject::addConnectToDSP(void * arg)
     {
         g_worker_logger->error("ADD CON CONNECT FAIL ...");      
         close(sock);
+        dspObj->connectNumReduce();
         return ;
     }
 
@@ -306,7 +310,6 @@ void dspObject::addConnectToDSP(void * arg)
 
     dspObj->listenObjectList_Lock();
     dspObj->getListenObjectList()->push_back(listen);
-    dspObj->connectNumIncrease();
     dspObj->listenObjectList_unLock();
     
 }
@@ -1154,6 +1157,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
         if(m_hostent == NULL)
         {
             g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", smaatoObj->getAdReqDomain());
+            smaatoObj->connectNumReduce();
             return ;
         }
         sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
@@ -1162,6 +1166,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     else
     {
         g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
+        smaatoObj->connectNumReduce();
         return ;
     }
     
@@ -1171,6 +1176,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     if (sock == -1)
     {
         g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
+        smaatoObj->connectNumReduce();
         return ;
     }   
 
@@ -1183,6 +1189,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     if(checkConnect(sock, ret) <= 0)
     {
         g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
+        smaatoObj->connectNumReduce();
         close(sock);
         return ;
     }
@@ -1190,7 +1197,6 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     //add this socket to event listen queue
     smaatoObj->smaatoSocketList_Locklock();
     smaatoObj->getSmaatoSocketList()->push_back(sock);
-    smaatoObj->connectNumIncrease();
     smaatoObj->smaatoSocketList_Lockunlock();
     return ;
     

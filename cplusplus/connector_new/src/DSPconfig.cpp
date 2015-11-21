@@ -167,16 +167,16 @@ void dspObject::readDSPconfig(dspType type)
         case SMAATO:
             filename = "./conf/smaatoConfig.json";
             g_logger = g_workerSMAATO_logger;
-			break;
+            break;
         case INMOBI:
             filename = "./conf/inmobiConfig.json";
             g_logger = g_workerINMOBI_logger;
-			break;
+            break;
         default:
             break;
     }
 
-    ifstream ifile;	
+    ifstream ifile;
     ifile.open(filename, ios::in);
     if(ifile.is_open() == false)
     {		        

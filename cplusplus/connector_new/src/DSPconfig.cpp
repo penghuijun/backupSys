@@ -227,19 +227,6 @@ void dspObject::readDSPconfig(dspType type)
     
 }
 
-void dspObject::creatConnectDSP(struct connectDsp_t * con_t)
-{
-    #if 0
-    int preNum = getPreConnectNum();
-    for(int i=0; i < preNum; i++)
-    {
-        if(addConnectToDSP(con_t))
-            connectNumIncrease();        
-    }
-    #endif
-}
-
-//bool dspObject::addConnectToDSP(struct event_base * base, event_callback_fn fn, void *arg)
 void dspObject::addConnectToDSP(void * arg)
 {   
     struct connectDsp_t * con_t = (struct connectDsp_t *)arg;
@@ -515,58 +502,7 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     
     //头信息
     gen_HttpHeader(send_str, 0);
-
-    #if 0
-    strcat(send_str, tokenType.c_str());
-    strcat(send_str, Url);
-    strcat(send_str, httpVersion.c_str());    
-    strcat(send_str, "\r\n");
-    
-    
-    if(Connection.empty() == false)
-    {
-        strcat(send_str, "Connection: ");
-        strcat(send_str,Connection.c_str());
-        strcat(send_str, "\r\n");
-    }     
-    
-    if(UserAgent.empty() == false)
-    {
-        strcat(send_str, "User-Agent: ");
-        strcat(send_str,UserAgent.c_str());
-        strcat(send_str, "\r\n");
-    }    
-    
-    if(ContentType.empty() == false)
-    {
-        strcat(send_str, "Content-Type: ");    
-        strcat(send_str,ContentType.c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(charset.empty() == false)
-    {
-        strcat(send_str, "charset: ");
-        strcat(send_str,charset.c_str());
-        strcat(send_str, "\r\n");
-    }
-    
-    if(Host.empty() == false)
-    {
-        strcat(send_str, "Host: ");
-        strcat(send_str,Host.c_str());
-        strcat(send_str, "\r\n");
-    }    
-    
-    if(Cookie.empty() == false)
-    {
-        strcat(send_str, "Cookie: ");
-        strcat(send_str,Cookie.c_str());
-        strcat(send_str, "\r\n");
-    }
-    #endif
-    
-
+   
     //内容信息
     strcat(send_str, "\r\n");
     //cout << "send_str: " << send_str << endl;
@@ -641,48 +577,6 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int da
         g_worker_logger->debug("\r\n{0}",send_str);
     }   
     
-    #if 0
-    sockaddr_in sin;
-    unsigned short httpPort = atoi(adReqPort.c_str());      
-    
-    sin.sin_family = AF_INET;    
-    sin.sin_port = htons(httpPort);    
-    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);  
-    if (sock == -1)
-    {
-        g_worker_logger->error("adReqSock create failed ...");
-        return false;
-    }	
-
-    //非阻塞
-    int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-
-    //建立连接
-    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) );
-    if(checkConnect(sock, ret) <= 0)
-    {
-        g_worker_logger->error("TELE CONNECT FAIL ...");      
-        close(sock);
-        return false;
-    }
-    
-    //add this socket to event listen queue
-    struct event *sock_event;
-    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
-    event_add(sock_event, NULL);
-
-    struct listenObject *listen = new listenObject();    
-    listen->sock = sock;
-    listen->_event = sock_event;
-    //m_listenObjectList.push_back(listen);
-    listenObjectList_Lock();
-    getListenObjectList().push_back(listen);
-	listenObjectList_unLock();
-    #endif
-
     if(getCurConnectNum() == 0)
     {
         g_worker_logger->debug("NO CONNECTION TO GYIN");
@@ -783,42 +677,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
     
     //g_workerGYIN_logger->debug("GYin ADREQ datalen: {0:d}  ",dataLen);
     
-    #if 0
-    sockaddr_in sin;
-    unsigned short httpPort = atoi(adReqPort.c_str());      
-    
-    sin.sin_family = AF_INET;    
-    sin.sin_port = htons(httpPort);    
-    sin.sin_addr.s_addr = inet_addr(adReqIP.c_str());
-
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
-    {
-        g_workerGYIN_logger->error("adReqSock create failed ...");
-        delete [] send_str;
-        return false;
-    }   
-    
-    //建立连接
-    if (connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in) ) == -1)
-    {
-        g_workerGYIN_logger->error("adReqSock connect failed ...");      
-        close(sock);
-        delete [] send_str;
-        return false;
-    }
-    
-    //add this socket to event listen queue
-    struct event *sock_event;
-    sock_event = event_new(base, sock, EV_READ|EV_PERSIST, fn, arg);     
-    event_add(sock_event, NULL);
-
-    struct listenObject *listen = new listenObject();    
-    listen->sock = sock;
-    listen->_event = sock_event;
-    //listenObjectList.push_back(listen);
-    getListenObjectList().push_back(listen);
-    #endif
     if(getCurConnectNum() == 0)
     {
         g_workerGYIN_logger->debug("NO CONNECTION TO GYIN");
@@ -860,7 +718,6 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
     return ret;
 }
 
-#if 0
 void smaatoObject::readSmaatoConfig()
 {
     ifstream ifile; 
@@ -891,7 +748,6 @@ void smaatoObject::readSmaatoConfig()
     }    
 
 }
-#endif
 
 int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid)
 {
@@ -908,70 +764,10 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
 
     //头信息
     gen_HttpHeader(send_str, 0);
-    #if 0
-    strcat(send_str, "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36");
-    strcat(send_str, "\r\n");
-
-    strcat(send_str, "Host: soma.smaato.net");
-    strcat(send_str, "\r\n");
-
-    strcat(send_str, "Accept: */*");
-    strcat(send_str, "\r\n");
-    #endif
 
     strcat(send_str, "\r\n");
 
     
-    
-    
-    #if 0
-    if(getConnection().empty() == false)
-    {
-        strcat(send_str, "Connection: ");
-        strcat(send_str,getConnection().c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(getUserAgent().empty() == false)
-    {
-        strcat(send_str, "User-Agent: ");
-        strcat(send_str,getUserAgent().c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-    if(getContentType().empty() == false)
-    {
-        strcat(send_str, "x-mh-Content-Type: ");    
-        strcat(send_str,getContentType().c_str());
-        strcat(send_str, "\r\n");
-    }    
-
-   if(getcharset().empty() == false)
-    {
-        strcat(send_str, "x-mh-Accept-Charset: ");
-        strcat(send_str,getcharset().c_str());
-        strcat(send_str, "\r\n");
-    }
-
-    if(!getAdReqDomain().empty())
-    {
-        struct hostent *m_hostent = NULL;
-        m_hostent = gethostbyname(getAdReqDomain().c_str());
-        if(m_hostent == NULL)
-        {
-            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", getAdReqDomain());
-            return false;
-        }
-        char str_ip[32];
-        inet_ntop(m_hostent->h_addrtype, m_hostent->h_addr, str_ip, sizeof(str_ip));
-        
-        //g_workerSMAATO_logger->debug("SMAATO IP: {0}", str_ip);
-        strcat(send_str, "x-mh-X-Forward-For: ");
-        strcat(send_str, str_ip);
-        strcat(send_str, "\r\n");
-    }
-    #endif 
- 
     if(getCurConnectNum() == 0)
     {
         g_workerSMAATO_logger->debug("NO CONNECTION TO SMAATO");

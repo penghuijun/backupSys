@@ -2964,13 +2964,15 @@ bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& m
     strcat(strbuf, apiver.c_str());
     strcat(strbuf, "&");
 
-    //string& adspaceid = m_dspManager.getSmaatoObject()->getAdSpaceId();
-    string adspace = "adspace=130061846";
+    string& adspaceid = m_dspManager.getSmaatoObject()->getAdSpaceId();
+    //string adspace = "adspace=130061846";
+    string adspace = "adspace=" + adspaceid;
     strcat(strbuf, adspace.c_str());
     strcat(strbuf, "&");
 
-    //string& pubId = m_dspManager.getSmaatoObject()->getPublisherId();
-    string pub = "pub=1100014094";
+    string& pubId = m_dspManager.getSmaatoObject()->getPublisherId();
+    //string pub = "pub=1100014094";
+    string pub="pub=" + pubId;
     strcat(strbuf, pub.c_str());
     strcat(strbuf, "&");   
 
@@ -3179,8 +3181,8 @@ bool connectorServ::InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAd
 }
 bool connectorServ::InMobi_AdReqJsonAddSite(Json::Value &site, const MobileAdRequest & mobile_request)
 {
-    //site["id"] = m_dspManager.getInMobiObject()->getSiteId();
-    site["id"] = "713b1884a3a54eec9aaf81646c5433ab";
+    site["id"] = m_dspManager.getInMobiObject()->getSiteId();
+    //site["id"] = "713b1884a3a54eec9aaf81646c5433ab";
     return true;
 }
 bool connectorServ::InMobi_AdReqJsonAddDevice(Json::Value &device, const MobileAdRequest & mobile_request)
@@ -3322,35 +3324,33 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */                
         if(m_config.get_enChinaTelecom()) 
         {
-        	int TELE_maxFlowLimit = m_dspManager.getChinaTelecomObject()->getMaxFlowLimit();
+            int TELE_maxFlowLimit = m_dspManager.getChinaTelecomObject()->getMaxFlowLimit();
             int TELE_curFlowCount = m_dspManager.getChinaTelecomObject()->getCurFlowCount();
             if((TELE_curFlowCount < TELE_maxFlowLimit)||(TELE_maxFlowLimit == 0))
             {
-				string reqTeleJsonData;
-	            if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
-	            {
-	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-	                if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq()))
-	                {
-	                    g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
-	                }
-	                else
-	                {
-	                	if(TELE_maxFlowLimit != 0)
-                        	m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
-						g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
-					}
-
-	            }
-	            else
-	                 g_worker_logger->debug("convertProtoToTeleJson Failed ");  
-			}
-			else if(TELE_curFlowCount == TELE_maxFlowLimit)
+                    string reqTeleJsonData;
+                    if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
+                    {
+                        //callback func: handle_recvAdResponseTele active by socket EV_READ event                
+                        if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq()))
+                        {
+                            g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
+                        }
+                        else
+                        {
+                            if(TELE_maxFlowLimit != 0)
+                                m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
+                            g_worker_logger->debug("POST TO TELE success uuid : {0} \r\n",uuid);  
+                        }
+                    }
+                    else
+                        g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+            }
+            else if(TELE_curFlowCount == TELE_maxFlowLimit)
             {
                 m_dspManager.getChinaTelecomObject()->curFlowCountIncrease();
                 g_worker_logger->debug("FLOW LIMITED...");
             }
-            
         }
         
         
@@ -3400,7 +3400,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */
         if(m_config.get_enSmaato())
         {
-        	int SMAATO_maxFlowLimit = m_dspManager.getSmaatoObject()->getMaxFlowLimit();
+            int SMAATO_maxFlowLimit = m_dspManager.getSmaatoObject()->getMaxFlowLimit();
             int SMAATO_curFlowCount = m_dspManager.getSmaatoObject()->getCurFlowCount();
             if((SMAATO_curFlowCount < SMAATO_maxFlowLimit)||(SMAATO_maxFlowLimit == 0))
             {
@@ -3506,7 +3506,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 */                
         if(m_config.get_enInMobi()) 
         {
-        	int INMOBI_maxFlowLimit = m_dspManager.getInMobiObject()->getMaxFlowLimit();
+            int INMOBI_maxFlowLimit = m_dspManager.getInMobiObject()->getMaxFlowLimit();
             int INMOBI_curFlowCount = m_dspManager.getInMobiObject()->getCurFlowCount();
             if((INMOBI_curFlowCount < INMOBI_maxFlowLimit)||(INMOBI_curFlowCount == 0))
             {
@@ -4799,14 +4799,6 @@ void *connectorServ::checkConnectNum(void *arg)
             {
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP, con_t);
                 serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();
-                #if 0
-                if(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP(con_t))
-                {
-    	                serv->m_dspManager.getChinaTelecomObject()->listenObjectList_Lock();
-                       serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();  
-    		         serv->m_dspManager.getChinaTelecomObject()->listenObjectList_unLock();
-    	        }    
-    	        #endif
             }
         }
         if(serv->m_config.get_enGYIN())
@@ -4816,14 +4808,6 @@ void *connectorServ::checkConnectNum(void *arg)
             {            
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getGuangYinObject()->addConnectToDSP, con_t);
                 serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
-                #if 0
-                if(serv->m_dspManager.getGuangYinObject()->addConnectToDSP(con_t))
-                {
-        		  serv->m_dspManager.getGuangYinObject()->listenObjectList_Lock();
-        		  serv->m_dspManager.getGuangYinObject()->connectNumIncrease();  
-        		  serv->m_dspManager.getGuangYinObject()->listenObjectList_unLock();
-    	        }                   
-    	        #endif
             }        
         }        
         if(serv->m_config.get_enSmaato())
@@ -4833,14 +4817,6 @@ void *connectorServ::checkConnectNum(void *arg)
             {         
             	serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject());
             	serv->m_dspManager.getSmaatoObject()->connectNumIncrease();
-            	#if 0
-                if(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP())
-                {
-        		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Locklock();
-        		  serv->m_dspManager.getSmaatoObject()->connectNumIncrease();  
-        		  serv->m_dspManager.getSmaatoObject()->smaatoSocketList_Lockunlock();
-    	        }  
-	      #endif
             }      
         }
         if(serv->m_config.get_enInMobi())
@@ -4850,14 +4826,6 @@ void *connectorServ::checkConnectNum(void *arg)
             {
                 serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t);
                 serv->m_dspManager.getInMobiObject()->connectNumIncrease();
-                #if 0
-                if(serv->m_dspManager.getInMobiObject()->addConnectToDSP(con_t))
-                {
-                    serv->m_dspManager.getInMobiObject()->listenObjectList_Lock();
-    		      serv->m_dspManager.getInMobiObject()->connectNumIncrease();  
-    		      serv->m_dspManager.getInMobiObject()->listenObjectList_unLock();
-                }
-                #endif
             }
         }
         usleep(1000);     //1ms
@@ -4931,19 +4899,6 @@ void connectorServ::workerRun()
     int poolSize = m_connector_manager.get_connector_config().get_connectorThreadPoolSize();
     m_thread_manager.Init(10000, poolSize, poolSize);//thread pool init
     m_tConnect_manager.Init(10000, 50, 50);//connect pool init
-
-    //m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
-    
-    #if 0
-    m_dspManager.creatConnectDSP(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi(),
-                                                        m_base, 
-                                                        handle_recvAdResponseTele, handle_recvAdResponseGYin, handle_recvAdResponseSmaato, handle_recvAdResponseInMobi, 
-                                                        this);
-    #endif
-
-    //struct event *recvGYINrspEvent = event_new(m_base, m_dspManager.getGuangYinObject()->getGYINsocket(),EV_READ|EV_PERSIST, handle_recvAdResponseGYin, this);
-    //event_add(recvGYINrspEvent, NULL);
-    
     
     m_bc_manager.connectToBCListDataPort(m_zmq_connect);
 

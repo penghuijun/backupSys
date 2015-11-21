@@ -52,29 +52,5 @@ bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *ful
 {
     return m_smaatoObject->recvBidResponseFromSmaatoDsp(sock, fullData_t);
 }
-void dspManager::creatConnectDSP(bool enTele, bool enGYin, bool enSmaato, bool enInmobi,
-                                                                    struct event_base * base, 
-                                                                    event_callback_fn tele_fn, event_callback_fn gyin_fn, event_callback_fn smaato_fn, event_callback_fn inmobi_fn,
-                                                                    void *arg)
-{
-    if(enTele)
-    {        
-        //m_chinaTelecomObject->creatConnectDSP(base, tele_fn, arg);
-    }
-    if(enGYin)
-    {        
-        //m_guangYinObject->creatConnectDSP(base, gyin_fn, arg);
-    }
-    if(enSmaato)
-    {        
-        //m_smaatoObject->creatConnectDSP(base, smaato_fn, arg);
-        //m_smaatoObject->smaatoConnectDSP();
-    }
-    if(enInmobi)
-    {
-        //m_inmobiObject->creatConnectDSP(base, inmobi_fn, arg);
-    }
-}
-
 
 

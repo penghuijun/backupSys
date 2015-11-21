@@ -60,10 +60,10 @@ private:
 	struct event   *m_manangerEvent=NULL;
 	
 	//bc registed the bidder
-	bool	        m_registed = false;
+	bool	        m_registed;
 	
 	//lost heart times, heart between bc and bidder
-	int             m_heart_times = 0;
+	int             m_heart_times;
 };
 
 class connectorManager
@@ -88,7 +88,7 @@ public:
 	~connectorManager();
 private:
 	vector<connectorObject*> m_connector_list;
-	const int c_lost_times_max = 3;
+	const  int c_lost_times_max;	//default: 3
 	mutex_lock m_manager_lock;
 };
 

@@ -61,7 +61,7 @@ private:
 	unsigned short m_bcManagerPort;
 	unsigned short m_bcDataPort;
 	string         m_subKey;
-	bool           m_registerToBidder = false;
+	bool           m_registerToBidder;
 };
 
 
@@ -119,8 +119,8 @@ private:
 	int                      m_throttleManagerFd;
 	void*                    m_throttleManagerHandler=NULL;
 	struct event*            m_throttleManagerEvent=NULL;
-	int                      m_heart_times = 0;
-	bool                     m_loginThrottled = false;
+	int                      m_heart_times;
+	bool                     m_loginThrottled;
 };
 
 
@@ -151,7 +151,7 @@ public:
 	void unSubscribe(vector<string> unsubList);
 	~throttleManager();
 private:
-	const int               c_lost_times_max = 3;
+	const int               c_lost_times_max;	//default: 3
 	vector<throttleObject*> m_throttle_list;
 	mutex_lock              m_throttleList_lock;
 };

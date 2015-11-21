@@ -606,7 +606,7 @@ private:
 	ThreadPoolManager   m_threadPoolManger;
 	bcManager           m_bc_manager;
 
-	bool                m_logRedisOn=false;
+	bool                m_logRedisOn;
 	string              m_logRedisIP;
 	unsigned short      m_logRedisPort;
 	

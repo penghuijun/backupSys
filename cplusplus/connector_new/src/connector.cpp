@@ -3854,10 +3854,21 @@ bool connectorServ::manager_handler(void *handler, string& identify,  const mana
         connectorConfig configure = m_connector_manager.get_connector_config();
         const string& connectorIP = configure.get_connectorIP();
         unsigned short connectorPort = configure.get_connectorManagerPort();
-        if(managerProtocol_messageType_LOGIN_RSP == rspType)
-            g_manager_logger->info("[login rsp][connector -> throttle]:{0}, {1:d}", connectorIP, connectorPort);
-        else if(managerProtocol_messageType_HEART_RSP == rspType)
-            g_manager_logger->info("[heart rsp][connector -> throttle]:{0}, {1:d}", connectorIP, connectorPort);
+        if(managerProtocol_messageTrans_BC == from)
+        {
+            if(managerProtocol_messageType_LOGIN_RSP == rspType)
+                g_manager_logger->info("[login rsp][connector -> BC]:{0}, {1:d}", connectorIP, connectorPort);
+            else if(managerProtocol_messageType_HEART_RSP == rspType)
+                g_manager_logger->info("[heart rsp][connector -> BC]:{0}, {1:d}", connectorIP, connectorPort);
+        }
+        else if(managerProtocol_messageTrans_THROTTLE == from)
+        {
+            if(managerProtocol_messageType_LOGIN_RSP == rspType)
+                g_manager_logger->info("[login rsp][connector -> throttle]:{0}, {1:d}", connectorIP, connectorPort);
+            else if(managerProtocol_messageType_HEART_RSP == rspType)
+                g_manager_logger->info("[heart rsp][connector -> throttle]:{0}, {1:d}", connectorIP, connectorPort);
+        }
+        
         int sndsize = managerProPackage::send_response(handler, identify, managerProtocol_messageTrans_CONNECTOR, rspType
             , connectorIP, connectorPort);
     }

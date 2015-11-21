@@ -3,7 +3,7 @@ inline zmqSubscribeKey::zmqSubscribeKey()
 {
 }
 
-zmqSubscribeKey::zmqSubscribeKey(const string& bidderIP, unsigned short bidderPort, string& bcIP, unsigned short bcManagerPort, unsigned short bcDataPort)
+zmqSubscribeKey::zmqSubscribeKey(const string& bidderIP, unsigned short bidderPort, string& bcIP, unsigned short bcManagerPort, unsigned short bcDataPort):m_registerToBidder(false)
 {
     set(bidderIP, bidderPort, bcIP, bcManagerPort, bcDataPort);
 }
@@ -195,7 +195,7 @@ inline throttleObject::throttleObject()
 {
 }
 
-throttleObject::throttleObject(const string& throttleIP, unsigned short throttleManagerPort, unsigned short throttlePubPort)
+throttleObject::throttleObject(const string& throttleIP, unsigned short throttleManagerPort, unsigned short throttlePubPort):m_heart_times(0),m_loginThrottled(false)
 {
 try
 {
@@ -332,7 +332,7 @@ throttleObject::~throttleObject()
     if(m_throttleManagerHandler) zmq_close(m_throttleManagerHandler);
 }
 
-throttleManager::throttleManager()
+throttleManager::throttleManager():c_lost_times_max(3)
 {
     m_throttleList_lock.init();
 }

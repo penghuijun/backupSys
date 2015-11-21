@@ -81,10 +81,10 @@ private:
 	struct event   *m_bidderManangerEvent=NULL;
 	
 	//bc registed the bidder
-	bool	        m_registed = false;
-	const int       c_lost_times_max = 3;	
+	bool	        m_registed;
+	const  int       c_lost_times_max;		//default: 3
 	//lost heart times, heart between bc and bidder
-	int             m_heart_times = 0;
+	int             m_heart_times;
 };
 
 class bidderManager

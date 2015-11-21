@@ -2,11 +2,11 @@
 
 using namespace com::rj::protos::manager;
 
-bidderObject::bidderObject()
+bidderObject::bidderObject():m_registed(false),m_heart_times(0),c_lost_times_max(3)
 {
 }
 
-bidderObject::bidderObject(const string &bidder_ip, unsigned short bidder_port)
+bidderObject::bidderObject(const string &bidder_ip, unsigned short bidder_port):m_registed(false),m_heart_times(0),c_lost_times_max(3)
 {
     set( bidder_ip, bidder_port);
 }

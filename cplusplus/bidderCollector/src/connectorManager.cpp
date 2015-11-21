@@ -6,7 +6,7 @@ connectorObject::connectorObject()
 {
 }
 
-connectorObject::connectorObject(const string &ip, unsigned short port)
+connectorObject::connectorObject(const string &ip, unsigned short port):m_registed(false),m_heart_times(0)
 {
     set( ip, port);
 }
@@ -85,7 +85,7 @@ connectorObject::~connectorObject()
     g_manager_logger->info("[erase connector]:{0},{1:d}", m_ip, m_manangerPort);
 }
 
-connectorManager::connectorManager()
+connectorManager::connectorManager():c_lost_times_max(3)
 {
     m_manager_lock.init();
 }

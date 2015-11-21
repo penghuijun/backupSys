@@ -92,7 +92,7 @@ void *bcServ::getTime(void *arg)
     }
 }
 
-bcServ::bcServ(configureObject &config):m_config(config)
+bcServ::bcServ(configureObject &config):m_config(config),m_logRedisOn(false)
 {
     try
     {

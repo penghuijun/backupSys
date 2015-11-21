@@ -1078,11 +1078,11 @@ bool smaatoObject::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *f
                     }
                     else
                     {
-                    	smaatoSocketList_Lock.lock();
-						smaatoSocketList->push_back(sock);
-						smaatoSocketList_Lock.unlock();
+                        smaatoSocketList_Lock.lock();
+                        smaatoSocketList->push_back(sock);
+                        smaatoSocketList_Lock.unlock();
                         break;
-					}
+                    }
                 }
                 else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
                 {
@@ -1188,10 +1188,10 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     }
 
     //add this socket to event listen queue
-    smaatoObj->smaatoSocketList_Lock.lock();
-	smaatoObj->smaatoSocketList->push_back(sock);
-	smaatoObj->connectNumIncrease();
-	smaatoObj->smaatoSocketList_Lock.unlock();
+    smaatoObj->smaatoSocketList_Locklock();
+    smaatoObj->getSmaatoSocketList()->push_back(sock);
+    smaatoObj->connectNumIncrease();
+    smaatoObj->smaatoSocketList_Lockunlock();
     return ;
     
 }

@@ -3612,7 +3612,7 @@ void connectorServ::thread_handleAdRequest(void *arg)
         
         serv->commMsgRecordList_lock.lock();
         serv->commMsgRecordList.insert(pair<string, commMsgRecord*>(uuid, obj));
-        g_worker_logger->debug("LIST INSERT uuid: {0}", uuid);
+        g_worker_logger->trace("LIST INSERT uuid: {0}", uuid);
         serv->commMsgRecordList_lock.unlock();
 
         
@@ -4745,7 +4745,7 @@ void *connectorServ::checkTimeOutCommMsg(void *arg)
             long long record_timeMs = cmrObj->tv.tv_sec*1000 + cmrObj->tv.tv_usec/1000;
             if(cur_timeMs - record_timeMs >= cmrObj->ttl)
             {
-                g_worker_logger->debug("TIMEOUT DEL uuid: {0}", it->first);
+                g_worker_logger->trace("TIMEOUT DEL uuid: {0}", it->first);
                 delete [] cmrObj->data;
                 delete cmrObj;
                 cmrObj = NULL;

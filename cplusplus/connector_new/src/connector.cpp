@@ -3587,7 +3587,6 @@ void connectorServ::thread_handleAdRequest(void *arg)
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
-		g_worker_logger->debug("Thread handle uuid: {0}", uuid);
 
         timeval tv;
         memset(&tv,0,sizeof(struct timeval));

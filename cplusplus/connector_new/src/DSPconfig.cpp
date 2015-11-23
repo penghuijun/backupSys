@@ -935,8 +935,9 @@ void smaatoObject::smaatoConnectDSP()
 
 void smaatoObject::smaatoAddConnectToDSP(void *arg)
 {
-	smaatoObject *smaatoObj = (smaatoObject *)arg;
-	sockaddr_in sin;
+    smaatoObject *smaatoObj = (smaatoObject *)arg;
+    sockaddr_in sin;
+    struct hostent *m_hostent = NULL;
     unsigned short httpPort = atoi(smaatoObj->getAdReqPort().c_str());      
     
     sin.sin_family = AF_INET;    
@@ -948,7 +949,6 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     }
     else if(!smaatoObj->getAdReqDomain().empty())
     {
-        struct hostent *m_hostent = NULL;
         m_hostent = gethostbyname(smaatoObj->getAdReqDomain().c_str());
         if(m_hostent == NULL)
         {
@@ -973,6 +973,8 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     {
         g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
         smaatoObj->connectNumReduce();
+        free(m_hostent);
+        m_hostent = NULL;
         return ;
     }   
 
@@ -982,6 +984,8 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     
     //建立连接
     int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    free(m_hostent);
+    m_hostent = NULL;
     if(checkConnect(sock, ret) <= 0)
     {
         g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      

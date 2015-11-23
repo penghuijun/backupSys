@@ -1,5 +1,6 @@
 #include "DSPconfig.h"
 
+extern shared_ptr<spdlog::logger> g_master_logger;
 extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
@@ -236,7 +237,7 @@ bool dspObject::addr_init()
     sin->sin_port = htons(httpPort);    
     if(!getAdReqIP().empty())
     {
-        g_worker_logger->debug("adReq IP: {0}", getAdReqIP());
+        g_master_logger->debug("adReq IP: {0}", getAdReqIP());
         sin->sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
     }
     else if(!getAdReqDomain().empty())
@@ -245,15 +246,15 @@ bool dspObject::addr_init()
         m_hostent = gethostbyname(getAdReqDomain().c_str());
         if(m_hostent == NULL)
         {
-            g_worker_logger->error("gethostbyname error for host: {0}", getAdReqDomain());
+            g_master_logger->error("gethostbyname error for host: {0}", getAdReqDomain());
             return false;
         }
         sin->sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
-        g_worker_logger->debug("DOMAIN IP: {0}", inet_ntoa(sin->sin_addr));
+        g_master_logger->debug("DOMAIN IP: {0}", inet_ntoa(sin->sin_addr));
     }
     else
     {
-        g_worker_logger->error("ADD CON GET IP FAIL");
+        g_master_logger->error("ADD CON GET IP FAIL");
         return false;
     }
     return true;

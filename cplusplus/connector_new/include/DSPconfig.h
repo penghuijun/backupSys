@@ -53,9 +53,7 @@ public:
 	dspObject():curConnectNum(0),curFlowCount(0)
 	{
 		m_listenObjectListLock.init();
-		m_listenObjectList = new list<listenObject *>();
-		if(!addr_init())
-			exit(1);
+		m_listenObjectList = new list<listenObject *>();		
 	}
 	void readDSPconfig(dspType type);
 	bool addr_init();
@@ -145,6 +143,8 @@ public:
 	{
 		readDSPconfig(TELE);
 		readChinaTelecomConfig();		
+		if(!addr_init())
+			exit(1);
 	}
 	
 	void readChinaTelecomConfig();
@@ -182,6 +182,8 @@ public:
 	{
 		readDSPconfig(GYIN);
 		readGuangYinConfig();
+		if(!addr_init())
+			exit(1);
 	}
 	void readGuangYinConfig();		
 	bool sendAdRequestToGuangYinDSP(const char *data, int dataLen);
@@ -205,6 +207,8 @@ public:
 		smaatoSocketList = new list<int>();
 		readDSPconfig(SMAATO);
 		readSmaatoConfig();
+		if(!addr_init())
+			exit(1);
 	}
 	void readSmaatoConfig();
 	void smaatoConnectDSP();
@@ -240,6 +244,8 @@ public:
 	{
 		readDSPconfig(INMOBI);
 		readInmobiConfig();
+		if(!addr_init())
+			exit(1);
 	}
 	void readInmobiConfig();
 	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq);

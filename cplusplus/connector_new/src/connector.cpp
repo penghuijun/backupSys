@@ -4797,8 +4797,10 @@ void *connectorServ::checkConnectNum(void *arg)
             int TELE_curConnectNum = serv->m_dspManager.getChinaTelecomObject()->getCurConnectNum();
             if(TELE_curConnectNum < TELE_maxConnectNum)
             {
-                serv->m_tConnect_manager.Run(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP, con_t);
-                serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();
+                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getChinaTelecomObject()->addConnectToDSP, con_t))   //add task in taskPool success
+                    serv->m_dspManager.getChinaTelecomObject()->connectNumIncrease();
+                else
+                    g_worker_logger->error("ADD TASK IN TASKPOOL FAIL");
             }
         }
         if(serv->m_config.get_enGYIN())
@@ -4806,8 +4808,10 @@ void *connectorServ::checkConnectNum(void *arg)
             int GYIN_curConnectNum = serv->m_dspManager.getGuangYinObject()->getCurConnectNum();        
             if(GYIN_curConnectNum < GYIN_maxConnectNum)
             {            
-                serv->m_tConnect_manager.Run(serv->m_dspManager.getGuangYinObject()->addConnectToDSP, con_t);
-                serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
+                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getGuangYinObject()->addConnectToDSP, con_t))   //add task in taskPool success
+                    serv->m_dspManager.getGuangYinObject()->connectNumIncrease();
+                else
+                    g_workerGYIN_logger->error("ADD TASK IN TASKPOOL FAIL");
             }        
         }        
         if(serv->m_config.get_enSmaato())
@@ -4815,8 +4819,10 @@ void *connectorServ::checkConnectNum(void *arg)
             int SMAATO_curConnectNum = serv->m_dspManager.getSmaatoObject()->getCurConnectNum();        
             if(SMAATO_curConnectNum < SMAATO_maxConnectNum)
             {         
-            	serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject());
-            	serv->m_dspManager.getSmaatoObject()->connectNumIncrease();
+            	if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getSmaatoObject()->smaatoAddConnectToDSP, serv->m_dspManager.getSmaatoObject()))    //add task in taskPool success
+            	    serv->m_dspManager.getSmaatoObject()->connectNumIncrease();
+            	else
+            	    g_workerSMAATO_logger->error("ADD TASK IN TASKPOOL FAIL");
             }      
         }
         if(serv->m_config.get_enInMobi())
@@ -4824,8 +4830,10 @@ void *connectorServ::checkConnectNum(void *arg)
             int INMOBI_curConnectNum = serv->m_dspManager.getInMobiObject()->getCurConnectNum();
             if(INMOBI_curConnectNum < INMOBI_maxConnectNum)
             {
-                serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t);
-                serv->m_dspManager.getInMobiObject()->connectNumIncrease();
+                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t))     //add task in taskPool success
+                    serv->m_dspManager.getInMobiObject()->connectNumIncrease();
+                else
+                    g_workerINMOBI_logger->error("ADD TASK IN TASKPOOL FAIL");
             }
         }
         usleep(1000);     //1ms

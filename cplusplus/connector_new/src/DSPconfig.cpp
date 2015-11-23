@@ -154,24 +154,19 @@ ssize_t socket_send(int sockfd, const char *buffer, size_t buflen)
 void dspObject::readDSPconfig(dspType type)
 {
     string filename;
-    shared_ptr<spdlog::logger> g_logger;
     switch(type)
     {
         case TELE:
             filename = "./conf/chinaTelecomConfig.json";
-            g_logger = g_worker_logger;
             break;
         case GYIN:
             filename = "./conf/guangYinConfig.json";
-            g_logger = g_workerGYIN_logger;
             break;
         case SMAATO:
             filename = "./conf/smaatoConfig.json";
-            g_logger = g_workerSMAATO_logger;
             break;
         case INMOBI:
             filename = "./conf/inmobiConfig.json";
-            g_logger = g_workerINMOBI_logger;
             break;
         default:
             break;
@@ -181,7 +176,7 @@ void dspObject::readDSPconfig(dspType type)
     ifile.open(filename, ios::in);
     if(ifile.is_open() == false)
     {		        
-        g_logger->error("Open {0} failure...", filename);
+        g_master_logger->error("Open {0} failure...", filename);
         exit(1);	
     }	
 
@@ -221,7 +216,7 @@ void dspObject::readDSPconfig(dspType type)
     }
     else
     {
-        g_logger->error("Parse {0} failure...", filename);
+        g_master_logger->error("Parse {0} failure...", filename);
         ifile.close();
         exit(1);
     }
@@ -448,7 +443,7 @@ void chinaTelecomObject::readChinaTelecomConfig()
     ifile.open("./conf/chinaTelecomConfig.json",ios::in);
     if(ifile.is_open() == false)
     {		        
-        g_worker_logger->error("Open chinaTelecomConfig.json failure...");
+        g_master_logger->error("Open chinaTelecomConfig.json failure...");
         exit(1);	
     }	
 
@@ -468,7 +463,7 @@ void chinaTelecomObject::readChinaTelecomConfig()
     }
     else
     {
-        g_worker_logger->error("Parse clientConfig.json failure...");
+        g_master_logger->error("Parse clientConfig.json failure...");
         ifile.close();
         exit(1);
     }
@@ -658,7 +653,7 @@ void guangYinObject::readGuangYinConfig()
     ifile.open("./conf/guangYinConfig.json",ios::in);
     if(ifile.is_open() == false)
     {               
-        g_worker_logger->error("Open guangYinConfig.json failure...");
+        g_master_logger->error("Open guangYinConfig.json failure...");
         exit(1);    
     }   
     
@@ -676,7 +671,7 @@ void guangYinObject::readGuangYinConfig()
     }
     else
     {
-        g_worker_logger->error("Parse guangYinConfig.json failure...");
+        g_master_logger->error("Parse guangYinConfig.json failure...");
         ifile.close();
         exit(1);
     }    
@@ -758,7 +753,7 @@ void smaatoObject::readSmaatoConfig()
     ifile.open("./conf/smaatoConfig.json",ios::in);
     if(ifile.is_open() == false)
     {               
-        g_workerSMAATO_logger->error("Open smaatoConfig.json failure...");
+        g_master_logger->error("Open smaatoConfig.json failure...");
         exit(1);    
     }   
     
@@ -776,7 +771,7 @@ void smaatoObject::readSmaatoConfig()
     }
     else
     {
-        g_workerSMAATO_logger->error("Parse smaatoConfig.json failure...");
+        g_master_logger->error("Parse smaatoConfig.json failure...");
         ifile.close();
         exit(1);
     }    
@@ -1040,7 +1035,7 @@ void inmobiObject::readInmobiConfig()
     ifile.open("./conf/inmobiConfig.json",ios::in);
     if(ifile.is_open() == false)
     {               
-        g_worker_logger->error("Open inmobiConfig.json failure...");
+        g_master_logger->error("Open inmobiConfig.json failure...");
         exit(1);    
     }   
     
@@ -1058,7 +1053,7 @@ void inmobiObject::readInmobiConfig()
     }
     else
     {
-        g_worker_logger->error("Parse inmobiConfig.json failure...");
+        g_master_logger->error("Parse inmobiConfig.json failure...");
         ifile.close();
         exit(1);
     }    

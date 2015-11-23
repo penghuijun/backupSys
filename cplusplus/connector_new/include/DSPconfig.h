@@ -54,8 +54,11 @@ public:
 	{
 		m_listenObjectListLock.init();
 		m_listenObjectList = new list<listenObject *>();
+		if(!addr_init())
+			exit(1);
 	}
 	void readDSPconfig(dspType type);
+	bool addr_init();
 	void gen_HttpHeader(char *headerBuf, int Con_len);
 	string& getAdReqIP(){return adReqIP;}
 	string& getAdReqPort(){return adReqPort;}
@@ -94,7 +97,7 @@ public:
 	{
 		m_listenObjectListLock.unlock();
 	}
-	
+	struct sockaddr_in * getSockAddr_in(){return sin;}
 	~dspObject()
 	{
 		delete m_listenObjectList;
@@ -132,6 +135,8 @@ private:
 	
 	mutex_lock			 m_listenObjectListLock;
 	list<listenObject *> 	*m_listenObjectList;
+
+	struct sockaddr_in *	sin; 
 };
 class chinaTelecomObject : public dspObject
 {

@@ -227,11 +227,44 @@ void dspObject::readDSPconfig(dspType type)
     
 }
 
+bool dspObject::addr_init()
+{
+    sin = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+    unsigned short httpPort = atoi(getAdReqPort().c_str());      
+    
+    sin->sin_family = AF_INET;    
+    sin->sin_port = htons(httpPort);    
+    if(!getAdReqIP().empty())
+    {
+        g_worker_logger->debug("adReq IP: {0}", getAdReqIP());
+        sin->sin_addr.s_addr = inet_addr(getAdReqIP().c_str());
+    }
+    else if(!getAdReqDomain().empty())
+    {
+        struct hostent *m_hostent = NULL;
+        m_hostent = gethostbyname(getAdReqDomain().c_str());
+        if(m_hostent == NULL)
+        {
+            g_worker_logger->error("gethostbyname error for host: {0}", getAdReqDomain());
+            return false;
+        }
+        sin->sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
+        g_worker_logger->debug("DOMAIN IP: {0}", inet_ntoa(sin->sin_addr));
+    }
+    else
+    {
+        g_worker_logger->error("ADD CON GET IP FAIL");
+        return false;
+    }
+    return true;
+}
+
 void dspObject::addConnectToDSP(void * arg)
 {   
     struct connectDsp_t * con_t = (struct connectDsp_t *)arg;
     dspObject *dspObj = (dspObject *)con_t->dspObj;
-    
+
+    #if 0
     sockaddr_in sin;
     unsigned short httpPort = atoi(dspObj->getAdReqPort().c_str());      
     
@@ -261,7 +294,7 @@ void dspObject::addConnectToDSP(void * arg)
         dspObj->connectNumReduce();
         return ;
     }
-    
+    #endif 
     
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -277,7 +310,7 @@ void dspObject::addConnectToDSP(void * arg)
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     
     //建立连接
-    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    int ret = connect(sock, (const sockaddr*)dspObj->getSockAddr_in(), sizeof(sockaddr_in));    
     if(checkConnect(sock, ret) <= 0)
     {
         g_worker_logger->error("ADD CON CONNECT FAIL ...");      
@@ -936,8 +969,8 @@ void smaatoObject::smaatoConnectDSP()
 void smaatoObject::smaatoAddConnectToDSP(void *arg)
 {
     smaatoObject *smaatoObj = (smaatoObject *)arg;
+    #if 0
     sockaddr_in sin;
-    struct hostent *m_hostent = NULL;
     unsigned short httpPort = atoi(smaatoObj->getAdReqPort().c_str());      
     
     sin.sin_family = AF_INET;    
@@ -949,6 +982,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     }
     else if(!smaatoObj->getAdReqDomain().empty())
     {
+        struct hostent *m_hostent = NULL;
         m_hostent = gethostbyname(smaatoObj->getAdReqDomain().c_str());
         if(m_hostent == NULL)
         {
@@ -965,7 +999,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
         smaatoObj->connectNumReduce();
         return ;
     }
-    
+    #endif
     
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -973,8 +1007,6 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     {
         g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
         smaatoObj->connectNumReduce();
-        free(m_hostent);
-        m_hostent = NULL;
         return ;
     }   
 
@@ -983,9 +1015,8 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     
     //建立连接
-    int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
-    free(m_hostent);
-    m_hostent = NULL;
+    //int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    int ret = connect(sock, (const sockaddr*)smaatoObj->getSockAddr_in(), sizeof(sockaddr_in));   
     if(checkConnect(sock, ret) <= 0)
     {
         g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      

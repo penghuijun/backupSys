@@ -82,7 +82,7 @@ public:
 	void connectNumIncrease(){curConnectNum++;}	
 	
 	int getMaxFlowLimit(){return maxFlowLimit;}
-	int getCurFlowCount(){return curFlowCount;};
+	int getCurFlowCount(){return curFlowCount;}
 	void curFlowCountIncrease(){curFlowCount++;}
 	void curFlowCountClean(){curFlowCount = 0;}
 	

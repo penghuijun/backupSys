@@ -225,6 +225,7 @@ void dspObject::readDSPconfig(dspType type)
 
 bool dspObject::addr_init()
 {
+    g_master_logger->debug("ip: {0},domain: {1},port: {2}", adReqIP, adReqDomain, adReqPort);
     sin = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
     unsigned short httpPort = atoi(getAdReqPort().c_str());      
     

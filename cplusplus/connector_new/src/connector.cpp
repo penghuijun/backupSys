@@ -4264,6 +4264,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             memcpy(curPos, recv_str, recv_bytes);
             fullData_t->curLen += recv_bytes;
             temp++;            
+            usleep(500);    //500us
         }
     }
 

@@ -56,6 +56,7 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
 
         if(chunked_len < tempLen)   //compare real len with len field value
         {
+            g_worker_logger->trace("Field value: {0:d}, Real value: {1:d}", tempLen, chunked_len);
             return HTTP_BODY_DATA_LOSE;
         }
         

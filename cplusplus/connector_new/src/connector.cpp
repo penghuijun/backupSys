@@ -4250,7 +4250,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            //g_logger->debug("\r\n{0}", recv_str);            
+            g_logger->trace("\r\n{0}", recv_str);            
             int full_expectLen = fullData_t->curLen + recv_bytes;
             if(full_expectLen > BUF_SIZE)
             {

@@ -50,7 +50,14 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
         data_start = memstr(data_start, data_len, "\r\n");
         data_start += 2;        
         //data_len -= (data_start - input); 
-
+        
+        int real_len = data_len - (data_start - input);
+        if(real_len < tempLen)  //compare real len with len field value
+        {
+            g_worker_logger->trace("Field value: {0:d}, Real value: {1:d}", tempLen, real_len);
+            return HTTP_BODY_DATA_LOSE;
+        }
+        #if 0
         char *chunked_end = memstr(data_start, data_len, "\r\n");
         if(!chunked_end)
         {
@@ -65,12 +72,13 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
         {
             g_worker_logger->trace("Find body end symbol rn failed, Continue");
         }
-        
+        #endif
         
         char *curPos = chData_t->data + chData_t->curLen;
         memcpy(curPos, data_start, tempLen);
         chData_t->curLen += tempLen;
 
+        #if 0
         data_start = memstr(data_start, data_len, "\r\n");
         if(!data_start)
         {
@@ -83,6 +91,8 @@ int chunkedbodyParse(struct spliceData_t *chData_t, char *input, int inLen)
             g_worker_logger->trace("Find body end symbol rn failed, Return");
             return chData_t->curLen;
         }        
+        #endif
+        return chData_t->curLen;
     }
     else    //end
     {

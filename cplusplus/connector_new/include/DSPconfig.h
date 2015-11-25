@@ -217,6 +217,7 @@ public:
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	string& getAdSpaceId(){return adSpaceId;}
 	string& getPublisherId(){return publisherId;}
+	int getPrice(){return price;}
 	void smaatoSocketList_Locklock()
 	{
 		smaatoSocketList_Lock.lock();
@@ -233,6 +234,7 @@ public:
 private:
 	string adSpaceId;
 	string publisherId;
+	int price;
 	mutex_lock smaatoSocketList_Lock;
 	list<int>*	smaatoSocketList;
 };

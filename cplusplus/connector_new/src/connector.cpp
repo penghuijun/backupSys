@@ -1143,9 +1143,15 @@ char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& 
     string campaignId = it->second;      
     mobile_bidder->set_campaignid(campaignId);
 
+    int price = m_dspManager.getSmaatoObject()->getPrice();
+    stringstream ss;
+    string s_price;
+    ss << price;
+    ss >> s_price;
+    
     mobile_bidder->set_biddingtype("CPM");                   
-    mobile_bidder->set_biddingvalue("18.0");
-    mobile_bidder->set_expectcpm("18.0");            
+    mobile_bidder->set_biddingvalue(s_price);
+    mobile_bidder->set_expectcpm(s_price);            
     mobile_bidder->set_currency("CNY");
 
     mobile_creative->set_creativeid("0");    

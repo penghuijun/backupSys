@@ -768,6 +768,7 @@ void smaatoObject::readSmaatoConfig()
         //filter
         publisherId = root["publisherId"].asString();        
         adSpaceId  = root["adSpaceId"].asString();
+        price          = root["price"].asInt();
         
     }
     else

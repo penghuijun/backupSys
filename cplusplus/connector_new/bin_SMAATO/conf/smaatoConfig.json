@@ -27,6 +27,7 @@
 	
 	"adSpaceId":"130061846",
 	"publisherId":"1100014094",
+    "price":20,
 	
     "appFilter":[
         "com.rj.rj2048"

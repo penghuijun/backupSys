@@ -38,6 +38,10 @@ extern shared_ptr<spdlog::logger> g_workerINMOBI_logger;
 vector<map<int,string>> SQL_MAP;
 map<int,string> Creative_template;
 map<int,string> CampaignMap;
+
+char *stroeBuffer = new char[BUF_SIZE];
+struct spliceData_t *stroeBuffer_t = new spliceData_t();
+
 #if 0
 map<string,ContentCategory> AndroidContenCategoryMap;
 map<string,ContentCategory> IOSContenCategoryMap;
@@ -4298,18 +4302,22 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             g_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
+        {
             g_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
+            char *curPos = stroeBuffer_t->data + stroeBuffer_t->curLen;
+            memcpy(curPos, fullData_t->data, fullData_t->curLen);
+            stroeBuffer_t->curLen += fullData_t->curLen;
+            dataLen = httpChunkedParse(httpBodyData_t, stroeBuffer_t->data, stroeBuffer_t->curLen);   
+        }
             break;
         case HTTP_400_BAD_REQUEST:
             g_logger->debug("{0} HTTP RSP: 400 Bad Request", dspName);
-			break;
+            break;
          default:
             break;                    
     }
 
-    delete [] fullData;
-    delete [] fullData_t;            
-    
+          
     if(dataLen == 0)
     {
         ; //already printf "GYIN HTTP RSP: 204 No Content"  
@@ -4317,6 +4325,12 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
     else if(dataLen == -1)
     {
         g_logger->error("HTTP BODY DATA INCOMPLETE ");
+        
+        memset(stroeBuffer, 0, BUF_SIZE*sizeof(char));
+        stroeBuffer_t->data = stroeBuffer;
+        stroeBuffer_t->curLen = 0;
+        
+        memcpy(stroeBuffer, fullData_t->data, fullData_t->curLen);        
     }
     else
     {
@@ -4343,6 +4357,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         CommonMessage request_commMsg; 
         serv->handle_BidResponseFromDSP(type, bodyData, dataLen, request_commMsg);   
     }        
+    delete [] fullData;
+    delete fullData_t;     
     delete [] bodyData;
     delete httpBodyData_t;
     

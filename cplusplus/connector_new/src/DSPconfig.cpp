@@ -536,8 +536,10 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     //ÄÚÈÝÐÅÏ¢
     strcat(send_str, "\r\n");
     //cout << "send_str: " << send_str << endl;
+
+    g_worker_logger->debug("SEND:\r\n {0}", send_str);
 	
-	if (send(sock, send_str, strlen(send_str),0) == -1)
+    if (send(sock, send_str, strlen(send_str),0) == -1)
     {   
         g_worker_logger->error("tokenSock send failed ...");
         return false;
@@ -550,16 +552,17 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
         g_worker_logger->error("tokenSock recv failed ...");
         return false;
     }	
-	
-	if(!parseCertifyStr(recv_str))
-	{
+
+    g_worker_logger->debug("RECV:\r\n {0}", recv_str);
+    if(!parseCertifyStr(recv_str))
+    {
         g_worker_logger->error("parse [CERITIFY CODE] fail ...");
         return false;
-	}	    
-	g_worker_logger->debug("CERITIFY CODE : {0}",recv_str);	
-	CeritifyCode = recv_str;
-	close(sock);
-	return true;
+    }	    
+    g_worker_logger->debug("CERITIFY CODE : {0}",recv_str);	
+    CeritifyCode = recv_str;
+    close(sock);
+    return true;
 }
 bool chinaTelecomObject::isCeritifyCodeEmpty()
 {    

@@ -4304,11 +4304,11 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         case HTTP_UNKNOW_TYPE:
         {
             g_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
-            g_logger->debug("STORE DATA:\r\n {0} \r\n LEN:\r\n {1:d}", stroeBuffer_t->data, stroeBuffer_t->curLen);
+            g_logger->trace("STORE DATA:\r\n {0} \r\n LEN:\r\n {1:d}", stroeBuffer_t->data, stroeBuffer_t->curLen);
             char *curPos = stroeBuffer_t->data + stroeBuffer_t->curLen;
             memcpy(curPos, fullData_t->data, fullData_t->curLen);
             stroeBuffer_t->curLen += fullData_t->curLen;
-            g_logger->debug("STORE DATA:\r\n {0} \r\n LEN:\r\n {1:d}", stroeBuffer_t->data, stroeBuffer_t->curLen);
+            g_logger->trace("STORE DATA:\r\n {0} \r\n LEN:\r\n {1:d}", stroeBuffer_t->data, stroeBuffer_t->curLen);
             dataLen = httpChunkedParse(httpBodyData_t, stroeBuffer_t->data, stroeBuffer_t->curLen);   
             g_logger->debug("DATALEN: {0:d}", dataLen);
         }

@@ -57,7 +57,7 @@ public:
 	}
 	void readDSPconfig(dspType type);
 	bool addr_init();
-	void gen_HttpHeader(char *headerBuf, int Con_len);
+	void gen_HttpHeader(char *headerBuf, int Con_len, string& ua);
 	string& getAdReqIP(){return adReqIP;}
 	string& getAdReqPort(){return adReqPort;}
 	string& getAdReqType(){return adReqType;}
@@ -65,7 +65,6 @@ public:
 	string& getAdReqDomain(){return adReqDomain;}
 	string& getHttpVersion(){return httpVersion;}
 	string& getConnection(){return Connection;}
-	string& getUserAgent(){return UserAgent;}
 	string& getContentType(){return ContentType;}
 	string& getcharset(){return charset;}
 	string& getExtNetId(){return extNetId;}
@@ -112,7 +111,6 @@ private:
 
 	//HTTP header 
 	string Connection;	
-	string UserAgent;
 	string ContentType;	
 	string charset;
 	string Host;
@@ -161,7 +159,7 @@ public:
 	bool getCeritifyCodeFromChinaTelecomDSP();	
 	
 	bool isCeritifyCodeEmpty();
-	bool sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq);
+	bool sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	~chinaTelecomObject(){}
 private:
 	
@@ -186,7 +184,7 @@ public:
 			exit(1);
 	}
 	void readGuangYinConfig();		
-	bool sendAdRequestToGuangYinDSP(const char *data, int dataLen);
+	bool sendAdRequestToGuangYinDSP(const char *data, int dataLen, string& ua);
 	bool getTestValue(){return test;}
 	string& getPublisherID(){return publisherId;}	
 	
@@ -213,7 +211,7 @@ public:
 	void readSmaatoConfig();
 	void smaatoConnectDSP();
 	static void smaatoAddConnectToDSP(void *argc);
-	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid);
+	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	string& getAdSpaceId(){return adSpaceId;}
 	string& getPublisherId(){return publisherId;}
@@ -250,7 +248,7 @@ public:
 			exit(1);
 	}
 	void readInmobiConfig();
-	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq);
+	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	string& getSiteId(){return siteId;}
 	string& getPlacementId(){return placementId;}
 	~inmobiObject(){}

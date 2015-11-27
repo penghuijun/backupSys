@@ -197,7 +197,6 @@ void dspObject::readDSPconfig(dspType type)
 
         //HTTP header
         Connection  = root["Connection"].asString();
-        UserAgent   = root["User-Agent"].asString();
         ContentType = root["Content-Type"].asString();
         charset     = root["charset"].asString();
         Host        = root["Host"].asString();
@@ -333,7 +332,7 @@ void dspObject::addConnectToDSP(void * arg)
 
 
 
-void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
+void dspObject::gen_HttpHeader(char *headerBuf, int Con_len, string& ua)
 {
     //头信息
     char *send_str = headerBuf;            
@@ -352,10 +351,10 @@ void dspObject::gen_HttpHeader(char *headerBuf, int Con_len)
         strcat(send_str, "\r\n");
     }    
 
-    if(UserAgent.empty() == false)
+    if(ua.empty() == false)
     {
         strcat(send_str, "User-Agent: ");
-        strcat(send_str,UserAgent.c_str());
+        strcat(send_str,ua.c_str());
         strcat(send_str, "\r\n");
     }    
 
@@ -529,9 +528,10 @@ bool chinaTelecomObject::getCeritifyCodeFromChinaTelecomDSP()
     strcat(send_str, Url);
     strcat(send_str, getHttpVersion().c_str());    
     strcat(send_str, "\r\n");
-    
+
+    string ua = "";
     //头信息
-    gen_HttpHeader(send_str, 0);
+    gen_HttpHeader(send_str, 0, ua);
    
     //内容信息
     strcat(send_str, "\r\n");
@@ -573,7 +573,7 @@ bool chinaTelecomObject::isCeritifyCodeEmpty()
     else
         return false;
 }
-bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq)
+bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
     //初始化发送信息
     //char send_str[2048] = {0};
@@ -597,7 +597,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int da
     strcat(send_str, "\r\n");     
     
     //头信息
-    gen_HttpHeader(send_str, dataLen);
+    gen_HttpHeader(send_str, dataLen, ua);
 
 
     //内容信息
@@ -682,7 +682,7 @@ void guangYinObject::readGuangYinConfig()
 
 }
 
-bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
+bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen, string& ua)
 {
     //初始化发送信息
     //char send_str[2048] = {0};
@@ -695,7 +695,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
     strcat(send_str, getHttpVersion().c_str());    
     strcat(send_str, "\r\n");     
     
-    gen_HttpHeader(send_str, dataLen);
+    gen_HttpHeader(send_str, dataLen, ua);
 
 
     //内容信息
@@ -783,7 +783,7 @@ void smaatoObject::readSmaatoConfig()
 
 }
 
-int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid)
+int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -797,7 +797,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
     strcat(send_str, "\r\n");        
 
     //头信息
-    gen_HttpHeader(send_str, 0);
+    gen_HttpHeader(send_str, 0, ua);
 
     strcat(send_str, "\r\n");
 
@@ -1064,7 +1064,7 @@ void inmobiObject::readInmobiConfig()
     }    
 }
 
-bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq)
+bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -1082,7 +1082,7 @@ bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool 
     strcat(send_str, "\r\n");     
     
     //头信息
-    gen_HttpHeader(send_str, dataLen);
+    gen_HttpHeader(send_str, dataLen, ua);
 
     //内容信息    
     strcat(send_str, "\r\n");    

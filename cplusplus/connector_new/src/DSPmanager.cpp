@@ -31,21 +31,21 @@ bool dspManager::getCeritifyCodeFromChinaTelecomDSP()
 {
     return m_chinaTelecomObject->getCeritifyCodeFromChinaTelecomDSP();
 }
-bool dspManager::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq)
+bool dspManager::sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
-    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(data, dataLen, enLogRsq);
+    return m_chinaTelecomObject->sendAdRequestToChinaTelecomDSP(data, dataLen, enLogRsq, ua);
 }
-bool dspManager::sendAdRequestToGuangYinDSP(const char *data, int dataLen)
+bool dspManager::sendAdRequestToGuangYinDSP(const char *data, int dataLen, string& ua)
 {
-    return m_guangYinObject->sendAdRequestToGuangYinDSP( data, dataLen);
+    return m_guangYinObject->sendAdRequestToGuangYinDSP( data, dataLen, ua);
 }
-int dspManager::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid)
+int dspManager::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua)
 {
-    return m_smaatoObject->sendAdRequestToSmaatoDSP(data, dataLen, uuid);
+    return m_smaatoObject->sendAdRequestToSmaatoDSP(data, dataLen, uuid, ua);
 }
-bool dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq)
+bool dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
-    return m_inmobiObject->sendAdRequestToInMobiDSP(data, dataLen, enLogRsq);
+    return m_inmobiObject->sendAdRequestToInMobiDSP(data, dataLen, enLogRsq, ua);
 }
 
 bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)

@@ -3328,6 +3328,9 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
         mobile_request.ParseFromString(commMsg_data);
 
         string uuid = mobile_request.id();
+
+        MobileAdRequest_Device dev = mobile_request.device();
+        string ua = dev.ua();
         
         /*
                 *send to CHINA TELECOM
@@ -3342,7 +3345,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
                     {
                         //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-                        if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq()))
+                        if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(), ua))
                         {
                             g_worker_logger->debug("POST TO TELE fail uuid : {0}",uuid);            
                         }
@@ -3383,7 +3386,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     {                    
                         displayGYinBidRequest(buf,length);                
                     }
-                    if(!m_dspManager.sendAdRequestToGuangYinDSP(buf,length))
+                    if(!m_dspManager.sendAdRequestToGuangYinDSP(buf, length, ua))
                     {
                         g_workerGYIN_logger->debug("POST TO GYIN fail uuid: {0}",uuid); 
                     }
@@ -3419,7 +3422,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            if(!convertProtoToHttpGETArg(http_getArg, mobile_request))
 	                return ;
 	            int sock = 0;
-	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid)) <= 0)
+	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid, ua)) <= 0)
 	            {
 	                g_workerSMAATO_logger->debug("POST TO SMAATO fail uuid: {0}", uuid);
 	            }
@@ -3540,7 +3543,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
 	            {
 	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-	                if(!m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq()))
+	                if(!m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq(), ua))
 	                {
 	                    g_workerINMOBI_logger->debug("POST TO INMOBI fail uuid : {0}",uuid);            
 	                }

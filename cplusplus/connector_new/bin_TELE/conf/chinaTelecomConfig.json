@@ -23,7 +23,6 @@
 
 /*HTTP HEADER CONFIG*/
 	"Connection": "Keep-Alive",	
-	"User-Agent": "Apache-HttpAsyncClient/4.1",
 	"Content-Type": "application/json",	
 	"charset": "UTF-8",
 	"Host": "14.29.5.29",

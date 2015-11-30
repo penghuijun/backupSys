@@ -4314,6 +4314,8 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
             g_logger->trace("STORE DATA:\r\n {0} \r\n LEN:\r\n {1:d}", stroeBuffer_t->data, stroeBuffer_t->curLen);
             dataLen = httpChunkedParse(httpBodyData_t, stroeBuffer_t->data, stroeBuffer_t->curLen);   
             g_logger->debug("DATALEN: {0:d}", dataLen);
+            memset(stroeBuffer, 0, BUF_SIZE*sizeof(char));
+            stroeBuffer_t->curLen = 0;
         }
             break;
         case HTTP_400_BAD_REQUEST:

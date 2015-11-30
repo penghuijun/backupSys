@@ -629,7 +629,7 @@ bool chinaTelecomObject::sendAdRequestToChinaTelecomDSP(const char *data, int da
 
     if(!obj)
     {
-        g_worker_logger->debug("NO IDLE SOCK ");
+        g_worker_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
         delete [] send_str;
         return false;
     }
@@ -729,7 +729,7 @@ bool guangYinObject::sendAdRequestToGuangYinDSP(const char *data, int dataLen, s
 
     if(!obj)
     {
-        g_workerGYIN_logger->debug("NO IDLE SOCK ");
+        g_workerGYIN_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
         delete [] send_str;
         return false;
     }
@@ -821,7 +821,7 @@ int smaatoObject::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string
 
     if(sock == 0)
     {
-        g_workerSMAATO_logger->debug("NO IDLE SOCK ");
+        g_workerSMAATO_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
         delete [] send_str;
         return 0;
     }
@@ -1113,7 +1113,7 @@ bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool 
 
     if(!obj)
     {
-        g_workerINMOBI_logger->debug("NO IDLE SOCK ");
+        g_workerINMOBI_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
         delete [] send_str;
         return false;
     }

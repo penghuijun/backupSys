@@ -1023,6 +1023,7 @@ void smaatoObject::smaatoAddConnectToDSP(void *arg)
         g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
         smaatoObj->connectNumReduce();
         close(sock);
+        smaatoObj->addr_init();
         return ;
     }
 

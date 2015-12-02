@@ -2850,7 +2850,8 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     device->set_osv(str_buf.at(5));
     device->set_w(atoi(request_dev.screenwidth().c_str()));
     device->set_h(atoi(request_dev.screenheight().c_str()));
-    device->set_idfa(request_dev.udid());
+    if(request_dev.has_udid() && (request_dev.udid().empty() == false))
+        device->set_idfa(request_dev.udid());
 
     return true;
     

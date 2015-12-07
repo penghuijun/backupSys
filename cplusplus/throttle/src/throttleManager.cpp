@@ -438,4 +438,10 @@ void throttleManager::delete_bc(string bcIP, unsigned short bcPort)
 	m_throttlePublish.erase_publishKey(sys_bc, bcIP, bcPort);
 }
 
+void throttleManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
+{
+    m_throttlePublish.publishData(pubVastHandler, msgData, msgLen);
+}
+
+
 

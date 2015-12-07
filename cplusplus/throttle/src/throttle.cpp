@@ -724,12 +724,16 @@ void throttleServ::publishData(char *msgData, int msgLen)
     char uuid[PUBLISHKEYLEN_MAX];
     memset(uuid, 0, sizeof(uuid));
     memcpy(uuid, msgData, sizeof(uuid));
-    string pubKey;
     static int sendNum = 1;
-    string bidderKey;
-    string connectorKey;
     
     displayRecord();
+
+    /*
+      *each request just send to bidder and connector by hash random
+      */
+    #if 0   
+    string bidderKey;
+    string connectorKey;
     if(m_throttleManager.get_throttle_publishKey(uuid, bidderKey, connectorKey))
     {
         int dataLen = msgLen - PUBLISHKEYLEN_MAX;
@@ -757,6 +761,25 @@ void throttleServ::publishData(char *msgData, int msgLen)
         failureTimes++;
         g_file_logger->warn("req failure:{0}, {1:d}", uuid, failureTimes);  
     }
+    #endif
+
+
+    /*
+      *each request send to all bidder and connector by loop
+      */
+    #if 1
+    void *pubVastHandler = m_throttleManager.get_throttle_publish_handler();
+    if(pubVastHandler)
+    {
+        g_file_logger->debug("master publish:{0}, {1:d}", uuid, sendNum++);
+        m_throttleManager.publishData(pubVastHandler, msgData, msgLen);
+    }
+    else
+    {
+        g_file_logger->error("pubVastHandler null");
+    }
+    #endif
+    
 }
 
 

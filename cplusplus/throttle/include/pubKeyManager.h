@@ -80,6 +80,7 @@ public:
 
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
+	void publishData(void *pubVastHandler, char *msgData, int msgLen);
 	~bcSubKeyManager();
 
 private:
@@ -104,6 +105,7 @@ public:
 	bool bc_publishExist(const string& ip, unsigned short port);
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
+	void publishData(void *pubVastHandler, char *msgData, int msgLen);
 	~throttlePubKeyManager();
 private:
 

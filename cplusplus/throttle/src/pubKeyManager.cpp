@@ -1,6 +1,9 @@
 #include "throttleManager.h"
 #include "spdlog/spdlog.h"
 #include "string.h"
+#include "zmq.h"
+
+#define PUBLISHKEYLEN_MAX 100
 
 extern shared_ptr<spdlog::logger> g_manager_logger;
 extern shared_ptr<spdlog::logger> g_file_logger;
@@ -21,16 +24,16 @@ uint32_t hashFnv1a64::hash_fnv1a_64(const char *key, size_t key_length)
 }
 uint32_t hashFnv1a64::get_rand_index(const char* uuid)
 {
-	const int keyLen=32;
-	char key[keyLen];
+    const int keyLen=32;
+    char key[keyLen];
     int strLen = strlen(uuid);
-	for(int i= 0; i < strLen; i++)
-	{
-		char ch = *(uuid+i);
-    	if(ch != '-') key[i]=ch;
-	}
-	uint32_t secret = hash_fnv1a_64(key, keyLen);
-	return secret;
+    for(int i= 0; i < strLen; i++)
+    {
+        char ch = *(uuid+i);
+        if(ch != '-') key[i]=ch;
+    }
+    uint32_t secret = hash_fnv1a_64(key, keyLen);
+    return secret;
 }
 
 zmqSubscribeKey::zmqSubscribeKey(const string& bidderIP, unsigned short bidderPort,const string& bcIP,
@@ -247,6 +250,35 @@ bool bcSubKeyManager::connector_publishExist(const string& ip, unsigned short po
     return false;
 }
 
+void bcSubKeyManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
+{
+    int dataLen = msgLen - PUBLISHKEYLEN_MAX;
+    for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
+    {
+        zmqSubscribeKey* keyObj = *bidder_it;
+        string bidderKey = keyObj->get_subKey();
+        if(bidderKey.empty()==false)
+        {
+            //publish data to bidder and BC
+            zmq_send(pubVastHandler, bidderKey.c_str(), bidderKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
+            zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
+        }
+    }
+
+    for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
+    {
+        zmqSubscribeKey* keyObj = *connector_it;
+        string connectorKey = keyObj->get_subKey();
+        if(connectorKey.empty()==false)
+        {
+            //publish data to connector and BC
+            zmq_send(pubVastHandler, connectorKey.c_str(), connectorKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
+            zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
+        }
+    }
+}
+
+
 
 bcSubKeyManager::~bcSubKeyManager()
 {
@@ -282,15 +314,15 @@ bool throttlePubKeyManager::add_publishKey(bool frombidder, const string& bidder
         if((keyManager->get_bc_ip() == bc_ip)&&(keyManager->get_bcManangerPort() == bcManagerPort)&&(keyManager->get_bcDataPort() == bcDataPOort))
         {
             keyManager->add(frombidder, bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort);
-		    m_publishKey_lock.read_write_unlock();
+            m_publishKey_lock.read_write_unlock();
             return true;
         }
     }
 
     bcSubKeyManager *manager = new bcSubKeyManager(frombidder, bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort);
-	m_bcSubkeyManagerList.push_back(manager);	
+    m_bcSubkeyManagerList.push_back(manager);	
     m_publishKey_lock.read_write_unlock();
-	return true;
+    return true;
 }
 
 bool throttlePubKeyManager::get_publish_key(const char* uuid, string& bidderKey, string& connectorKey)
@@ -299,19 +331,19 @@ bool throttlePubKeyManager::get_publish_key(const char* uuid, string& bidderKey,
 	{
         m_publishKey_lock.read_lock();
         
-		int size = m_bcSubkeyManagerList.size();
-		if(size == 0) 
-		{
-		    g_file_logger->warn("publishkeylist is empty");
+        int size = m_bcSubkeyManagerList.size();
+        if(size == 0) 
+        {
+            g_file_logger->warn("publishkeylist is empty");
             m_publishKey_lock.read_write_unlock();
-			return false;
-		}
+            return false;
+        }
         uint32_t rand_index = hashFnv1a64::get_rand_index(uuid);
-		uint32_t pipe_index = (rand_index%size);
-		bcSubKeyManager* keyManager = m_bcSubkeyManagerList.at(pipe_index);
+        uint32_t pipe_index = (rand_index%size);
+        bcSubKeyManager* keyManager = m_bcSubkeyManagerList.at(pipe_index);
         keyManager->get_keypipe(uuid, bidderKey, connectorKey);
         m_publishKey_lock.read_write_unlock();
-		return true;
+        return true;
 	}
 	catch(...)
 	{
@@ -451,6 +483,15 @@ bool throttlePubKeyManager::connector_publishExist(const string& ip, unsigned sh
     }
     m_publishKey_lock.read_write_unlock();  
     return ret;
+}
+
+void throttlePubKeyManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
+{
+    for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
+    {
+        bcSubKeyManager* obj = *it;
+        obj->publishData(pubVastHandler, msgData, msgLen);
+    }
 }
 
 throttlePubKeyManager::~throttlePubKeyManager()

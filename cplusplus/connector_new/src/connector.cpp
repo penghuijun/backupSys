@@ -881,7 +881,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         g_workerGYIN_logger->debug("FIND RECLIST FAILED uuid: {0}", str_id);
         return NULL;
     }
-    g_workerGYIN_logger->trace("FIND RECLIST success uuid: {0}", str_id);
+    //g_workerGYIN_logger->trace("FIND RECLIST success uuid: {0}", str_id);
         
     request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);  
     const string& commMsg_data = request_commMsg.data();        
@@ -944,18 +944,21 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         string appType = mobile_request.apptype();
         if(!strcmp(appType.c_str(), "app"))
         {
+            g_workerGYIN_logger->trace("mapp response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
             if(!GYIN_creativeAddEventsMapp(mobile_request,mobile_creative,GYIN_bid))
             return NULL;
         }
         else if(!strcmp(appType.c_str(), "mweb"))
         {
+            g_workerGYIN_logger->trace("mweb response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
             if(!GYIN_creativeAddEventsMweb(mobile_request,mobile_creative,GYIN_bid))
             return NULL;
         }
         else if(!strcmp(appType.c_str(), "pcweb"))
         {
+            g_workerGYIN_logger->trace("pcweb response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
             if(!GYIN_creativeAddEventsPCweb(mobile_request,mobile_creative,GYIN_bid))
             return NULL;

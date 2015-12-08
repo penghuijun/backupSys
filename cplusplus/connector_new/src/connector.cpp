@@ -940,7 +940,20 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         sprintf(str_h,"%.1f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
         mobile_creative->set_height(str_h);
-        mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
+
+        string appType = mobile_request.apptype();
+        if(!strcmp(appType.c_str(), "app"))
+        {
+            mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
+        }
+        else if(!strcmp(appType.c_str(), "mweb"))
+        {
+            mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
+        }
+        else if(!strcmp(appType.c_str(), "pcweb"))
+        {
+            mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
+        }
 
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
         if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
@@ -3019,7 +3032,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
         if(!GYin_AdReqProtoMutableApp(app, mobile_request))
             return false;
     }
-    else if(!strcmp(appType.c_str(), "web"))
+    else if((!strcmp(appType.c_str(), "pcweb"))||(!strcmp(appType.c_str(), "mweb")))
     {
         //web site
         g_workerGYIN_logger->debug("GYIN website request ");

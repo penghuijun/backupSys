@@ -881,7 +881,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         g_workerGYIN_logger->debug("FIND RECLIST FAILED uuid: {0}", str_id);
         return NULL;
     }
-    g_workerGYIN_logger->trace("FIND RECLIST success");
+    g_workerGYIN_logger->trace("FIND RECLIST success uuid: {0}", str_id);
         
     request_commMsg.ParseFromArray(cmrObj->data, cmrObj->datalen);  
     const string& commMsg_data = request_commMsg.data();        

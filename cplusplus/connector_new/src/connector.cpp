@@ -3030,7 +3030,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     }
     else
     {
-        g_workerGYIN_logger->debug("CONVERT GYIN FAIL: novlid appType");
+        g_workerGYIN_logger->debug("CONVERT GYIN FAIL: novlid appType: {0}", appType);
         return false;
     }
 

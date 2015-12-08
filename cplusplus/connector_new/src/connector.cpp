@@ -3353,7 +3353,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     else if((!strcmp(appType.c_str(), "pcweb"))||(!strcmp(appType.c_str(), "mweb")))
     {
         //web site
-        g_workerGYIN_logger->debug("GYIN website request ");
+        g_workerGYIN_logger->trace("GYIN website request uuid: {0}", mobile_request.id());
         Site *webSite;
         webSite = bidRequest.mutable_site();
         if(!GYin_AdReqProtoMutableWebsite(webSite, mobile_request))

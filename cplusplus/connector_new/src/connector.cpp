@@ -2240,25 +2240,60 @@ void connectorServ::displayGYinBidRequest(const char *data,int dataLen)
     }
     g_workerGYIN_logger->debug("    }");//imp end
 
-    App app = bidrequest.app();
-    g_workerGYIN_logger->debug("    App {");
-    g_workerGYIN_logger->debug("        id: {0}",app.id());
-    g_workerGYIN_logger->debug("        name: {0}",app.name());
-    g_workerGYIN_logger->debug("        bundle: {0}",app.bundle());
-    //g_workerGYIN_logger->debug("        domain: {0}",app.domain());
-    g_workerGYIN_logger->debug("        storeurl: {0}",app.storeurl());
-    g_workerGYIN_logger->debug("        cat: {0}",app.cat());
-    g_workerGYIN_logger->debug("        paid: {0:d}",app.paid());
-    g_workerGYIN_logger->debug("        Publisher {");
-    Publisher pub = app.publisher();
-    g_workerGYIN_logger->debug("            id: {0}",pub.id());
-    g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
-    g_workerGYIN_logger->debug("        }");//publisher end
-    for(int i=0; i<app.keywords_size(); i++)
+    if(bidrequest.has_app())
     {
-        g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,app.keywords(i));
+        App app = bidrequest.app();
+        g_workerGYIN_logger->debug("    App {");
+        g_workerGYIN_logger->debug("        id: {0}",app.id());
+        g_workerGYIN_logger->debug("        name: {0}",app.name());
+        g_workerGYIN_logger->debug("        bundle: {0}",app.bundle());
+        //g_workerGYIN_logger->debug("        domain: {0}",app.domain());
+        g_workerGYIN_logger->debug("        storeurl: {0}",app.storeurl());
+        g_workerGYIN_logger->debug("        cat: {0}",app.cat());
+        g_workerGYIN_logger->debug("        paid: {0:d}",app.paid());
+        g_workerGYIN_logger->debug("        Publisher {");
+        Publisher pub = app.publisher();
+        g_workerGYIN_logger->debug("            id: {0}",pub.id());
+        g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
+        g_workerGYIN_logger->debug("        }");//publisher end
+        for(int i=0; i<app.keywords_size(); i++)
+        {
+            g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,app.keywords(i));
+        }
+        g_workerGYIN_logger->debug("    }");//app end
     }
-    g_workerGYIN_logger->debug("    }");//app end
+
+    if(bidrequest.has_site())
+    {
+        Site webSite = bidrequest.site();
+        g_workerGYIN_logger->debug("");
+        g_workerGYIN_logger->debug("    Site {");
+        g_workerGYIN_logger->debug("        id: {0}",webSite.id());
+        g_workerGYIN_logger->debug("        name: {0}",webSite.name());
+        g_workerGYIN_logger->debug("        domain: {0}",webSite.domain());
+        g_workerGYIN_logger->debug("        page: {0}",webSite.page());
+        g_workerGYIN_logger->debug("        ref: {0}",webSite.ref());
+        g_workerGYIN_logger->debug("        mobile: {0:d}",webSite.mobile());
+        g_workerGYIN_logger->debug("        Publisher {");
+        Publisher pub = webSite.publisher();
+        g_workerGYIN_logger->debug("            id: {0}",pub.id());
+        g_workerGYIN_logger->debug("            domain: {0}",pub.domain());
+        g_workerGYIN_logger->debug("        }");//publisher end
+        for(int i=0; i<webSite.cat_size(); i++)
+        {
+            g_workerGYIN_logger->debug("        cat{0:d}: {1}",i,webSite.cat(i));
+        }
+        for(int i=0; i<webSite.search_size(); i++)
+        {
+            g_workerGYIN_logger->debug("        search{0:d}: {1}",i,webSite.search(i));
+        }
+        for(int i=0; i<webSite.keywords_size(); i++)
+        {
+            g_workerGYIN_logger->debug("        keywords{0:d}: {1}",i,webSite.keywords(i));
+        }
+        g_workerGYIN_logger->debug("    }");//webSite end
+    }
+
 
     User user = bidrequest.user();
     g_workerGYIN_logger->debug("    User {");
@@ -2782,6 +2817,70 @@ bool connectorServ::GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mo
     }
     return true;
 }
+
+bool connectorServ::GYin_AdReqProtoMutableWebsite(Site *webSite, const MobileAdRequest& mobile_request)
+{
+    MobileAdRequest_Wid wid = mobile_request.wid();
+    webSite->set_id(wid.id());
+    webSite->set_name(wid.sitename());
+    webSite->set_domain(wid.domain());
+    if(mobile_request.has_page()&&(mobile_request.page().empty() == false))
+        webSite->set_page(mobile_request.page());
+    else
+    {
+        g_workerGYIN_logger->debug("CONVERT GYIN FAIL: website novlid page");
+        return false;
+    }
+
+    MobileAdRequest_Device dev = mobile_request.device();
+    string category = wid.category();
+    enum ContentCategory targetCat;
+    if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
+    {   
+        targetCat = GYin_AndroidgetTargetCat(category);
+        #if 0
+        map<string,ContentCategory>::iterator it = AndroidContenCategoryMap.find(category);
+        if(it == AndroidContenCategoryMap.end())
+        {
+            g_worker_logger->debug("CONVERT GYIN FAIL : novlid android category");
+            return false;
+        }
+        app->set_cat(it->second);
+        #endif
+    }
+    else if(strcmp("2",dev.platform().c_str()) == 0)    //IOS
+    {
+        targetCat = GYin_IOSgetTargetCat(category);
+        #if 0
+        map<string,ContentCategory>::iterator it = IOSContenCategoryMap.find(category);
+        if(it == IOSContenCategoryMap.end())
+        {
+            g_worker_logger->debug("CONVERT GYIN FAIL : novlid IOS category");
+            return false;
+        }
+        app->set_cat(it->second);
+        #endif
+    }
+    else                                                                //no platform found in request,it's must,if not process will exit
+    {
+        targetCat = CAT_805;
+    }
+    webSite->add_cat(targetCat);
+
+    webSite->set_mobile(0);
+    Publisher *publisher;
+    string pubID = m_dspManager.getGuangYinObject()->getPublisherID();
+    publisher = webSite->mutable_publisher();
+    publisher->set_id(pubID);
+    publisher->set_domain("www.reachjunction.com");
+
+    for(int i=0; i<wid.keywords_size(); i++)
+    {
+        webSite->add_keywords(wid.keywords(i));
+    }
+    return true;
+}
+
 bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request)
 {
     const MobileAdRequest_Device& request_dev = mobile_request.device();     
@@ -2911,11 +3010,29 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     banner->add_btype(IFRAME); 
     banner->add_btype(JS);
 
-    //App
-    App *app;    
-    app = bidRequest.mutable_app();
-    if(!GYin_AdReqProtoMutableApp(app,mobile_request))
+    string appType = mobile_request.apptype();
+    if(!strcmp(appType.c_str(), "app"))
+    {
+        //App
+        App *app;    
+        app = bidRequest.mutable_app();
+        if(!GYin_AdReqProtoMutableApp(app, mobile_request))
+            return false;
+    }
+    else if(!strcmp(appType.c_str(), "web"))
+    {
+        //web site
+        g_workerGYIN_logger->debug("GYIN website request ");
+        Site *webSite;
+        webSite = bidRequest.mutable_site();
+        if(!GYin_AdReqProtoMutableWebsite(webSite, mobile_request))
+            return false;
+    }
+    else
+    {
+        g_workerGYIN_logger->debug("CONVERT GYIN FAIL: novlid appType");
         return false;
+    }
 
     //User
     User *user;
@@ -4089,24 +4206,22 @@ void connectorServ::handle_recvAdRequest(int fd,short event,void * arg)
            }
            char *data=(char *)zmq_msg_data(&data_part);
 
-		   {
-		   		CommonMessage request_commMsg;
-		        if(!request_commMsg.ParseFromArray(data, data_len))
-		        {
-		            g_worker_logger->error("adREQ CommonMessage.proto Parse Fail,check required fields");
-		            throw -1;
-		        }
-		        
-		        
+            {
+                CommonMessage request_commMsg;
+                if(!request_commMsg.ParseFromArray(data, data_len))
+                {
+                    g_worker_logger->error("adREQ CommonMessage.proto Parse Fail,check required fields");
+                    throw -1;
+                }
 
-		        const string& commMsg_data = request_commMsg.data();
-		        MobileAdRequest mobile_request;
-		        mobile_request.ParseFromString(commMsg_data);
+                const string& commMsg_data = request_commMsg.data();
+                MobileAdRequest mobile_request;
+                mobile_request.ParseFromString(commMsg_data);
 
-		        string uuid = mobile_request.id();
-				g_master_logger->debug("recv AdRequest from throttle uuid:{0} ,len: {1:d}", uuid, data_len);
-		   }
-		   
+                string uuid = mobile_request.id();
+                g_master_logger->debug("recv AdRequest from throttle uuid:{0} ,len: {1:d}", uuid, data_len);
+            }
+   
 
 		   
            if((sub_key_len>0) &&(data_len>0))

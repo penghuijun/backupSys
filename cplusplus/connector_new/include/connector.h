@@ -202,6 +202,7 @@ public:
 	void Tele_AdReqJsonAddImp(Json::Value &impArray,const MobileAdRequest &mobile_request);
 	bool Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRequest& mobile_request);
 	bool GYin_AdReqProtoMutableApp(App *app,const MobileAdRequest& mobile_request);
+	bool GYin_AdReqProtoMutableWebsite(Site *webSite, const MobileAdRequest& mobile_request);
 	bool GYin_AdReqProtoMutableDev(Device *device,const MobileAdRequest& mobile_request);
 	bool InMobi_AdReqJsonAddImp(Json::Value &impArray, const MobileAdRequest & mobile_request);
 	bool InMobi_AdReqJsonAddSite(Json::Value &site, const MobileAdRequest & mobile_request);

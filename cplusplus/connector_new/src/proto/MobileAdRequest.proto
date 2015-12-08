@@ -30,10 +30,38 @@ message MobileAdRequest {
     optional string trafficQuality = 21; // default is "0"  <-- server
     optional string inventoryQuality = 22; // default is "reviewed"  <-- server
     optional TestFlag test = 23;
-    optional Aid aid = 24;
+    optional Aid aid = 24;   
     repeated Paramter paramter = 25;
 
-    message Aid {
+    //web
+    optional string page = 26;  //web page 
+    optional Wid wid = 27;
+
+    message Wid{
+        optional string id = 1;
+        optional string status = 2;
+        optional string networkid = 3;
+        optional string networkreselling = 4;
+        optional string networkresellingshare = 5;
+        optional string publisherid = 6;
+        optional string currency = 7;
+        optional string resell = 8;
+        optional string directpaymentmodel = 9;
+        optional string directpaymentvalue = 10;
+        optional string indrectpaymentmodel = 11;
+        optional string indrectpaymentvalue = 12;
+        repeated string keywords = 13;
+        repeated string supportlanguage = 14;
+        optional string category = 15;
+        optional string domain = 16;
+        optional string sitename = 17;
+        optional string reviewed = 18;
+        repeated string excludenetwork = 19;
+        repeated string excludeadvertiser = 20;
+        repeated string excludecampaign = 21;
+    }
+
+    message Aid {        
         optional string id = 1;
         optional string status = 2;
         optional string networkid = 3;
@@ -56,7 +84,7 @@ message MobileAdRequest {
         repeated string appexcludenetwork = 20;
         repeated string appexcludeadvertiser = 21;
         repeated string appexcludecampaign = 22;
-        repeated string appexcludecreative = 23;
+		repeated string appexcludecreative = 23;
     }
 
     message AppSession {
@@ -105,6 +133,7 @@ message MobileAdRequest {
         optional string screenWidth = 14;
         optional string screenHeight = 15;
         optional string density = 16;
+		optional string browser = 17;
     }
 
     message GeoInfo {

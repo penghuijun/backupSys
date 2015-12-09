@@ -1224,7 +1224,7 @@ char* connectorServ::convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLe
     mobile_creative->set_height(ad_height);
 
     
-    if(INMOBI_creativeAddEvents(mobile_creative, ad_type, ad_content, requestAdtype))
+    if(!INMOBI_creativeAddEvents(mobile_creative, ad_type, ad_content, requestAdtype))
     {
         g_workerINMOBI_logger->debug("INMOBI_creativeAddEvents failed");
         return NULL;

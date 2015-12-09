@@ -3353,6 +3353,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     if(!strcmp(appType.c_str(), "app"))
     {
         //App
+        g_workerGYIN_logger->trace("mapp request uuid: {0}", mobile_request.id());
         App *app;    
         app = bidRequest.mutable_app();
         if(!GYin_AdReqProtoMutableApp(app, mobile_request))
@@ -4021,7 +4022,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                             fullData_t->data = fullData;
                             fullData_t->curLen = 0;
 
-                            if(m_dspManager.recvBidResponseFromSmaatoDsp(sock, fullData_t))
+                            if(m_dspManager.recvBidResponseFromInmobiDsp(sock, fullData_t))
                             {
                                 int dataLen = 0;    
                                char * bodyData = new char[BUF_SIZE];

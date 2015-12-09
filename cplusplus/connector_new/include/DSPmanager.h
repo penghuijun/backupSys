@@ -16,6 +16,7 @@ public:
 	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua);
 	int sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
+	bool recvBidResponseFromInmobiDsp(int sock, struct spliceData_t *fullData_t);
 	
 	chinaTelecomObject * getChinaTelecomObject(){return m_chinaTelecomObject;}
 	guangYinObject * getGuangYinObject(){return m_guangYinObject;}

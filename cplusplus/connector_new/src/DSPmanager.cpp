@@ -53,4 +53,10 @@ bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *ful
     return m_smaatoObject->recvBidResponseFromSmaatoDsp(sock, fullData_t);
 }
 
+bool dspManager::recvBidResponseFromInmobiDsp(int sock, struct spliceData_t *fullData_t)
+{
+    return m_inmobiObject->recvBidResponseFromInmobiDsp(sock, fullData_t);
+}
+
+
 

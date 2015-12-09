@@ -252,6 +252,7 @@ public:
 	void readInmobiConfig();
 	static void inmobiAddConnectToDSP(void *argc);
 	int sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
+	bool recvBidResponseFromInmobiDsp(int sock, struct spliceData_t *fullData_t);
 	string& getSiteId(){return siteId;}
 	string& getPlacementId(){return placementId;}
 	int getPrice(){return price;}

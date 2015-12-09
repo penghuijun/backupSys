@@ -1180,6 +1180,118 @@ int inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool e
 }
 
 
+bool inmobiObject::recvBidResponseFromInmobiDsp(int sock, struct spliceData_t *fullData_t)
+{
+    //获取返回信息	
+    char *recv_str = new char[BUF_SIZE];
+    memset(recv_str, 0, BUF_SIZE*sizeof(char));    
+    int recv_bytes = 0;    
+    
+    //g_workerSMAATO_logger->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
+    
+
+    int temp = 0;
+    bool waitFlag = true;
+    timeval startTime;
+    memset(&startTime,0,sizeof(struct timeval));
+    gettimeofday(&startTime,NULL);
+    long long start_timeMs = startTime.tv_sec*1000 + startTime.tv_usec/1000;
+    
+
+    timeval curTime;
+    
+    while(1)
+        {
+            memset(&curTime,0,sizeof(struct timeval));
+            gettimeofday(&curTime,NULL);
+            long long cur_timeMs = curTime.tv_sec*1000 + curTime.tv_usec/1000;
+
+            if((cur_timeMs - start_timeMs) >= 600)  //600ms
+            {
+                g_workerINMOBI_logger->debug("WAIT TIMEOUT CLOSE SOCKET");        
+                inmobiSocketList_Lock.lock();
+                connectNumReduce();
+                inmobiSocketList_Lock.unlock();
+                close(sock);
+                delete [] recv_str;
+                delete [] fullData_t->data;
+                delete [] fullData_t;
+                return false;
+            }
+            
+            memset(recv_str,0,BUF_SIZE*sizeof(char));    
+            recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
+            if (recv_bytes == 0)    //connect abort
+            {
+                g_workerINMOBI_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");    
+                inmobiSocketList_Lock.lock();
+                connectNumReduce();
+                inmobiSocketList_Lock.unlock();
+                close(sock);
+                delete [] recv_str;
+                delete [] fullData_t->data;
+                delete [] fullData_t;
+                return false;
+            }
+            else if (recv_bytes < 0)  //SOCKET_ERROR
+            {
+                //socket type: O_NONBLOCK
+                if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+                {
+                    //g_workerSMAATO_logger->trace("ERRNO EAGAIN: RECV END");
+                    if(waitFlag)
+                    {
+                        usleep(10000); //10ms
+                        continue ;
+                    }
+                    else
+                    {
+                        inmobiSocketList_Lock.lock();
+                        inmobiSocketList->push_back(sock);
+                        inmobiSocketList_Lock.unlock();
+                        break;
+                    }
+                }
+                else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+                {
+                    g_workerINMOBI_logger->trace("ERRNO EINTR: RECV AGAIN");
+                    continue;
+                }
+            }
+            else    //normal success
+            {
+                waitFlag = false;
+                if(temp)
+                    g_workerINMOBI_logger->trace("SPLICE HAPPEN");
+                //g_logger->debug("\r\n{0}", recv_str);            
+                int full_expectLen = fullData_t->curLen + recv_bytes;
+                if(full_expectLen > BUF_SIZE)
+                {
+                    g_workerINMOBI_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
+                    inmobiSocketList_Lock.lock();
+                    connectNumReduce();
+                    inmobiSocketList_Lock.unlock();
+                	close(sock);
+                    delete [] recv_str;
+                    delete [] fullData_t->data;
+                    delete [] fullData_t;
+                    return false;
+                }
+                char *curPos = fullData_t->data + fullData_t->curLen;
+                memcpy(curPos, recv_str, recv_bytes);
+                fullData_t->curLen += recv_bytes;
+                temp++;            
+            }
+            //usleep(10000); //10ms
+        }
+
+    //close(sock);
+    delete [] recv_str;
+    return true;
+}
+
+
+
 void inmobiObject::inmobiAddConnectToDSP(void *arg)
 {
     inmobiObject *inmobiObj = (inmobiObject *)arg;

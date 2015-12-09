@@ -3353,7 +3353,10 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     else if((!strcmp(appType.c_str(), "pcweb"))||(!strcmp(appType.c_str(), "mweb")))
     {
         //web site
-        g_workerGYIN_logger->trace("GYIN website request uuid: {0}", mobile_request.id());
+        if(!strcmp(appType.c_str(), "mweb"))
+            g_workerGYIN_logger->trace("mweb request uuid: {0}", mobile_request.id());
+        else if(!strcmp(appType.c_str(), "pcweb"))
+            g_workerGYIN_logger->trace("pcweb request uuid: {0}", mobile_request.id());
         Site *webSite;
         webSite = bidRequest.mutable_site();
         if(!GYin_AdReqProtoMutableWebsite(webSite, mobile_request))
@@ -4710,7 +4713,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            g_logger->trace("\r\n{0}", recv_str);            
+            //g_logger->trace("\r\n{0}", recv_str);            
             int full_expectLen = fullData_t->curLen + recv_bytes;
             if(full_expectLen > BUF_SIZE)
             {
@@ -4749,7 +4752,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         case HTTP_CHUNKED:
             g_logger->debug("{0} HTTP RSP 200 OK: Chunked", dspName);
             dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
-            g_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+            //g_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
             break;
         case HTTP_UNKNOW_TYPE:
         {

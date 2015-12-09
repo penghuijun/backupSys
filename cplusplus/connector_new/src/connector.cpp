@@ -1937,25 +1937,35 @@ bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,Mobil
                 break;
             case JSON:
                 {
-                    third_html = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
                     Json::Reader reader;
                     Json::Value root;
                     string adm = GYIN_bid.adm();
                     reader.parse(adm,root);
                     string adID = root["adID"].asString();
-                    int width = root["width"].asInt();
-                    int height = root["height"].asInt();
+                    
                     string src = root["src"].asString();
                     //string type = root["type"].asString();
+                    int width = root["width"].asInt();
+                    int height = root["height"].asInt();
+                    if((width == 0)||(height == 0))
+                    {
+                        third_html = "<img src='${SRC_URL}'></img>";
+                        replace(third_html,"${SRC_URL}",src);
+                    }
+                    else
+                    {
+                        third_html = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
 
-                    char widthStr[16] = {0};
-                    char heightStr[16] = {0};
-                    sprintf(widthStr,"%d",width);
-                    sprintf(heightStr,"%d",height);
+                        char widthStr[16] = {0};
+                        char heightStr[16] = {0};
+                        sprintf(widthStr,"%d",width);
+                        sprintf(heightStr,"%d",height);
 
-                    replace(third_html,"${SRC_URL}",src);
-                    replace(third_html,"${W}",widthStr);
-                    replace(third_html,"${H}",heightStr);
+                        replace(third_html,"${SRC_URL}",src);
+                        replace(third_html,"${W}",widthStr);
+                        replace(third_html,"${H}",heightStr);
+                    }                   
+                    
                 }
                 break;
             default:

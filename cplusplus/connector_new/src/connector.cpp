@@ -1153,6 +1153,11 @@ char* connectorServ::convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLe
 
     //Node: Ad
     cur= cur->xmlChildrenNode;
+	if(!cur)
+	{
+		g_workerINMOBI_logger->debug("NOVILD ADS RESPONSE");
+		return NULL;
+	}
     if(xmlStrcmp(cur->name, (const xmlChar *)"Ad"))
     {
         g_workerINMOBI_logger->error("Node: Ad miss");

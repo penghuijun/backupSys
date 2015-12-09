@@ -242,19 +242,38 @@ class inmobiObject: public dspObject
 public:
 	inmobiObject()
 	{
+		inmobiSocketList_Lock.init();
+		inmobiSocketList = new list<int>();
 		readDSPconfig(INMOBI);
 		readInmobiConfig();
 		if(!addr_init())
 			exit(1);
 	}
 	void readInmobiConfig();
-	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
+	static void inmobiAddConnectToDSP(void *argc);
+	int sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	string& getSiteId(){return siteId;}
 	string& getPlacementId(){return placementId;}
+	int getPrice(){return price;}
+	void inmobiSocketList_Locklock()
+	{
+		inmobiSocketList_Lock.lock();
+	}
+	void inmobiSocketList_Lockunlock()
+	{
+		inmobiSocketList_Lock.unlock();
+	}
+	list<int>* getInmobiSocketList()
+	{
+		return inmobiSocketList;
+	}
 	~inmobiObject(){}
 private:
 	string siteId;
 	string placementId;	
+	int price;
+	mutex_lock inmobiSocketList_Lock;
+	list<int>* inmobiSocketList;
 };
 
 #endif

@@ -43,7 +43,7 @@ int dspManager::sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& 
 {
     return m_smaatoObject->sendAdRequestToSmaatoDSP(data, dataLen, uuid, ua);
 }
-bool dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
+int dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
     return m_inmobiObject->sendAdRequestToInMobiDSP(data, dataLen, enLogRsq, ua);
 }

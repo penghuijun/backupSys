@@ -1055,6 +1055,7 @@ void inmobiObject::readInmobiConfig()
         //filter
         siteId = root["siteId"].asString();        
         placementId = root["placementId"].asBool();
+        price = root["price"].asInt();
         
     }
     else
@@ -1065,7 +1066,7 @@ void inmobiObject::readInmobiConfig()
     }    
 }
 
-bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
+int inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua)
 {
     //初始化发送信息
     char *send_str = new char[4096];
@@ -1094,6 +1095,49 @@ bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool 
         g_workerINMOBI_logger->debug("\r\n{0}",send_str);
     }   
 
+    if(getCurConnectNum() == 0)
+    {
+        g_workerINMOBI_logger->debug("NO CONNECTION TO INMOBI");
+        return false;
+    }
+    
+    
+    int sock = 0;
+
+    inmobiSocketList_Lock.lock();
+    if(!inmobiSocketList->empty())
+    {
+        sock = inmobiSocketList->front();
+        inmobiSocketList->pop_front();
+    }    
+    inmobiSocketList_Lock.unlock();  
+
+    if(sock == 0)
+    {
+        g_workerINMOBI_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
+        delete [] send_str;
+        return 0;
+    }
+    
+    
+    int ret_t = sock;
+    g_workerINMOBI_logger->debug("SEND\r\n{0}", send_str);
+    if(socket_send(sock, send_str, strlen(send_str)) == -1)
+    {        
+        g_workerINMOBI_logger->error("adReqSock send failed ...");
+        close(sock);
+        inmobiSocketList_Lock.lock();
+        connectNumReduce();
+        inmobiSocketList_Lock.unlock();
+        ret_t  = -1;
+    }         
+
+    delete [] send_str;    
+    return ret_t;
+
+
+
+    #if 0
      if(getCurConnectNum() == 0)
     {
         g_workerINMOBI_logger->debug("NO CONNECTION TO GYIN");
@@ -1131,7 +1175,78 @@ bool inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool 
     listenObjectList_unLock();  
     delete [] send_str;
     return ret;
+    #endif
     
 }
+
+
+void inmobiObject::inmobiAddConnectToDSP(void *arg)
+{
+    inmobiObject *inmobiObj = (inmobiObject *)arg;
+    #if 0
+    sockaddr_in sin;
+    unsigned short httpPort = atoi(inmobiObj->getAdReqPort().c_str());      
+    
+    sin.sin_family = AF_INET;    
+    sin.sin_port = htons(httpPort);    
+    if(!inmobiObj->getAdReqIP().empty())
+    {
+        g_workerSMAATO_logger->debug("adReq IP: {0}", inmobiObj->getAdReqIP());
+        sin.sin_addr.s_addr = inet_addr(inmobiObj->getAdReqIP().c_str());
+    }
+    else if(!inmobiObj->getAdReqDomain().empty())
+    {
+        struct hostent *m_hostent = NULL;
+        m_hostent = gethostbyname(inmobiObj->getAdReqDomain().c_str());
+        if(m_hostent == NULL)
+        {
+            g_workerSMAATO_logger->error("SMAATO: gethostbyname error for host: {0}", inmobiObj->getAdReqDomain());
+            inmobiObj->connectNumReduce();
+            return ;
+        }
+        sin.sin_addr.s_addr = *(unsigned long *)m_hostent->h_addr;
+        g_workerSMAATO_logger->debug("SMAATO IP: {0}", inet_ntoa(sin.sin_addr));
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("ADD CON GET IP FAIL");
+        inmobiObj->connectNumReduce();
+        return ;
+    }
+    #endif
+    
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        g_workerSMAATO_logger->error("ADD CON SOCK CREATE FAIL ...");
+        inmobiObj->connectNumReduce();
+        return ;
+    }   
+
+    //非阻塞
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    
+    //建立连接
+    //int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    int ret = connect(sock, (const sockaddr*)inmobiObj->getSockAddr_in(), sizeof(sockaddr_in));   
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerSMAATO_logger->error("ADD CON CONNECT FAIL ...");      
+        inmobiObj->connectNumReduce();
+        close(sock);
+        inmobiObj->addr_init();
+        return ;
+    }
+
+    //add this socket to event listen queue
+    inmobiObj->inmobiSocketList_Locklock();
+    inmobiObj->getInmobiSocketList()->push_back(sock);
+    inmobiObj->inmobiSocketList_Lockunlock();
+    return ;
+    
+}
+
 
 

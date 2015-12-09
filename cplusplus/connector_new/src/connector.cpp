@@ -1119,6 +1119,140 @@ char* connectorServ::convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLe
     
 }
 
+char* connectorServ::convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg)
+{
+    xmlDocPtr pdoc = xmlParseMemory(data, dataLen);
+    xmlNodePtr root = xmlDocGetRootElement(pdoc);
+    if(root == NULL)
+    {
+        g_workerINMOBI_logger->error("Failed to parse xml file");
+        return NULL;
+    }
+    xmlNodePtr cur = root;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"AdResponse"))
+    {
+        g_workerINMOBI_logger->error("The root is not AdResponse");
+        return NULL;
+    }
+
+    /*
+      * xmlGetProp: get cur Node's property    xmlChar *id = xmlGetProp(cur, (const xmlChar *)"id");
+      * xmlNodeGetContent: get cur Node's content    xmlChar *content = xmlNodeGetContent(cur);
+      */
+
+      
+    //Node: Ads
+    cur = cur->xmlChildrenNode;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"Ads"))
+    {
+        g_workerINMOBI_logger->error("Node: Ads miss");
+        return NULL;
+    }    
+    xmlChar *ads_number = xmlGetProp(cur, (const xmlChar *)"number");
+    xmlFree(ads_number);
+
+    //Node: Ad
+    cur= cur->xmlChildrenNode;
+    if(xmlStrcmp(cur->name, (const xmlChar *)"Ad"))
+    {
+        g_workerINMOBI_logger->error("Node: Ad miss");
+        return NULL;
+    }
+    xmlChar *type = xmlGetProp(cur, (const xmlChar *)"type");
+    xmlChar *width = xmlGetProp(cur, (const xmlChar *)"width");
+    xmlChar *height = xmlGetProp(cur, (const xmlChar *)"height");
+    xmlChar *content = xmlNodeGetContent(cur);
+
+    string ad_type = (char *)type;
+    string ad_width = (char *)width;
+    string ad_height = (char *)height;
+    string ad_content = (char *)content;    
+
+    xmlFree(type);
+    xmlFree(width);
+    xmlFree(height);
+    xmlFree(content);
+
+    CommonMessage response_commMsg;
+    MobileAdResponse mobile_response;
+
+    const string& commMsg_data = request_commMsg.data();
+    MobileAdRequest mobile_request;
+    mobile_request.ParseFromString(commMsg_data);
+
+    MobileAdRequest_AdType requestAdtype;
+    requestAdtype = mobile_request.type();
+
+    uuid = mobile_request.id();
+
+    mobile_response.set_id(uuid);
+
+    string intNetId = m_dspManager.getInMobiObject()->getIntNetId();    
+    MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+    bidder_info->set_bidderid(intNetId);
+
+    mobile_response.set_bidid("null");
+        
+    MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();  
+    
+    //MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();  
+    MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative();  
+
+    map<int,string>::iterator it = CampaignMap.find(atoi(intNetId.c_str()));
+    if(it == CampaignMap.end())
+    {
+        g_workerINMOBI_logger->debug("INMOBI GEN FAILED : get campainId from CampaignMap fail .  intNetId: {0}",intNetId);
+        return NULL;
+    }
+    string campaignId = it->second;      
+    mobile_bidder->set_campaignid(campaignId);
+
+    int price = m_dspManager.getInMobiObject()->getPrice();
+    stringstream ss;
+    string s_price;
+    ss << price;
+    ss >> s_price;
+    
+    mobile_bidder->set_biddingtype("CPM");                   
+    mobile_bidder->set_biddingvalue(s_price);
+    mobile_bidder->set_expectcpm(s_price);            
+    mobile_bidder->set_currency("CNY");
+
+    mobile_creative->set_creativeid("0");    
+    mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP); 
+    mobile_creative->set_width(ad_width);
+    mobile_creative->set_height(ad_height);
+
+    
+    if(INMOBI_creativeAddEvents(mobile_creative, ad_type, ad_content, requestAdtype))
+    {
+        g_workerINMOBI_logger->debug("INMOBI_creativeAddEvents failed");
+        return NULL;
+    }
+    
+
+    int dataSize = mobile_response.ByteSize();
+    char *dataBuf = new char[dataSize];
+    mobile_response.SerializeToArray(dataBuf, dataSize); 
+    response_commMsg.set_businesscode(request_commMsg.businesscode());
+    response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+    response_commMsg.set_ttl(request_commMsg.ttl());
+    //response_commMsg.set_businesscode("2");
+    //response_commMsg.set_datacodingtype("null");
+    //response_commMsg.set_ttl("250");
+    response_commMsg.set_data(dataBuf, dataSize);
+     
+    dataSize = response_commMsg.ByteSize();
+    char* comMessBuf = new char[dataSize];
+    response_commMsg.SerializeToArray(comMessBuf, dataSize);
+    delete[] dataBuf;
+    ret_dataLen = dataSize;
+    g_workerINMOBI_logger->debug("INMOBI.xml->MobileAdResponse.proto convert success !");
+    return comMessBuf;
+        
+}
+
+
 char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg)
 {
     CommonMessage response_commMsg;
@@ -2117,7 +2251,7 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
 
                         
                         sReplaceStr.append("\"").append(third_html).append("\"");
-						g_workerSMAATO_logger->debug("THIRD_HTML:\r\n{0}", third_html);
+                        g_workerSMAATO_logger->debug("THIRD_HTML:\r\n{0}", third_html);
                                     
                         replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
                         
@@ -2160,6 +2294,119 @@ bool connectorServ::SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_
     return true;
 }
 
+bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, string &ad_type, string &ad_content, MobileAdRequest_AdType& requestAdtype)
+{
+    int id = 0;
+    string RetCode;
+    string mediaTypeId;
+
+     /**
+         *  MediaType: 
+         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
+         *
+         *  MediaSubType:  
+         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
+         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
+         */
+         
+    
+    if(!strcmp(ad_type.c_str(), "text"))
+    {
+        switch(requestAdtype)
+        {
+            case MobileAdRequest_AdType_BANNER:
+                //id = 66;
+                mediaTypeId = "1";
+                break;
+            case MobileAdRequest_AdType_INTERSTITIAL:
+                break;
+            default:
+                break;
+        }
+        if(id == 0)
+            return false;
+    }
+    else if(!strcmp(ad_type.c_str(), "banner"))
+    {
+        switch(requestAdtype)
+        {
+            case MobileAdRequest_AdType_BANNER:
+                //id = 61;
+                mediaTypeId = "1";
+                break;
+            case MobileAdRequest_AdType_INTERSTITIAL:
+                //id = 59;
+                mediaTypeId = "2";
+                break;
+            default:
+                break;
+        }
+        
+        id = 79;            //MY_THIRD_HTML
+        if(id == 0)
+            return false;
+                        
+    }
+    else if(!strcmp(ad_type.c_str(), "rm"))   //"rm"
+    {
+        switch(requestAdtype)
+        {
+            case MobileAdRequest_AdType_BANNER:
+                id = 101;    //MY_THIRD_HTML
+                mediaTypeId = "1";
+                break;
+            case MobileAdRequest_AdType_INTERSTITIAL:
+                id = 97;    //MY_THIRD_HTML
+                mediaTypeId = "2";
+                break;
+            default:
+                break;
+        }
+        if(id == 0)
+            return false;
+    }
+
+    map<int,string>::iterator it = Creative_template.find(id);
+    if(it == Creative_template.end())
+    {
+        g_workerINMOBI_logger->error("INMOBI Creative_template find error ");
+        return false;
+    }
+    RetCode = it->second;                
+    if(RetCode.empty() == false)
+    {
+        string decodeStr;    
+        
+        decodeStr = UrlDecode(RetCode);      
+        
+        string sReplaceStr;
+        string third_html;
+        
+        third_html = ad_content;                 
+
+        replace(third_html,"<![CDATA[","");
+        replace(third_html,"]]>","");
+        
+        replace(third_html,"\"","\\\"");
+        replace(third_html,"'","\\'");
+        replace(third_html,"\t"," ");
+        replace(third_html,"\n","");
+        replace(third_html,"\r","");
+        replace(third_html,"/","\\/");
+        
+        sReplaceStr.append("\"").append(third_html).append("\"");
+        //cout << sReplaceStr << endl;
+                    
+        replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
+        
+        mobile_creative->set_admarkup(UrlEncode(decodeStr));
+        mobile_creative->set_mediatypeid(mediaTypeId);
+        mobile_creative->set_mediasubtypeid("5");
+        
+    }
+
+    return true;
+}
 
 void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen)
 {
@@ -2532,8 +2779,7 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
 	     flag_displayCommonMsgResponse = m_config.get_logSmaatoRsp();
 	     break;
 	case INMOBI:
-            //responseDataStr = convertTeleBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid);
-            responseDataStr = NULL;
+            responseDataStr = convertInmobiBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid, request_commMsg);
             g_logger = g_workerINMOBI_logger;
             dspName = "INMOBI";
             flag_displayCommonMsgResponse = m_config.get_logInMobiRsp();
@@ -3746,8 +3992,9 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 		    #endif
 	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
 	            {
-	                 //callback func: handle_recvAdResponseTele active by socket EV_READ event                
-	                if(!m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq(), ua))
+                        //callback func: handle_recvAdResponseTele active by socket EV_READ event     
+	                 int sock = 0;
+	                if((sock = m_dspManager.sendAdRequestToInMobiDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logInMobiReq(), ua)) <= 0)
 	                {
 	                    g_workerINMOBI_logger->debug("POST TO INMOBI fail uuid : {0}",uuid);            
 	                }
@@ -3756,6 +4003,65 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 	                	if(INMOBI_curFlowCount != 0)
                         	    m_dspManager.getInMobiObject()->curFlowCountIncrease();
 				g_workerINMOBI_logger->debug("POST TO INMOBI success uuid : {0} \r\n",uuid);  
+
+				char *fullData = new char[BUF_SIZE];
+                            memset(fullData, 0, BUF_SIZE*sizeof(char));
+
+                            struct spliceData_t *fullData_t = new spliceData_t();
+                            fullData_t->data = fullData;
+                            fullData_t->curLen = 0;
+
+                            if(m_dspManager.recvBidResponseFromSmaatoDsp(sock, fullData_t))
+                            {
+                                int dataLen = 0;    
+                               char * bodyData = new char[BUF_SIZE];
+                                memset(bodyData, 0, BUF_SIZE*sizeof(char));
+
+                                struct spliceData_t *httpBodyData_t = new spliceData_t();
+                                httpBodyData_t->data = bodyData;
+                                httpBodyData_t->curLen = 0;
+
+                                string dspName = "INMOBI";
+                                switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
+                                {
+                                    case HTTP_204_NO_CONTENT:
+                                        g_workerINMOBI_logger->debug("{0} HTTP RSP: 204 No Content\r\n", dspName);
+                                        break;
+                                    case HTTP_CONTENT_LENGTH:
+                                        g_workerINMOBI_logger->debug("{0} HTTP RSP 200 OK: Content-Length", dspName);
+                                        dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+                                        break;
+                                    case HTTP_CHUNKED:
+                                        g_workerINMOBI_logger->debug("{0} HTTP RSP 200 OK: Chunked", dspName);
+                                        dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
+                                        g_workerINMOBI_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+                                        break;
+                                    case HTTP_UNKNOW_TYPE:
+                                        g_workerINMOBI_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
+                                        break;
+                                     default:
+                                        break;                    
+                                }
+
+                                delete [] fullData;
+                                delete [] fullData_t;            
+                                
+                                if(dataLen == 0)
+                                {
+                                    ; //already printf "GYIN HTTP RSP: 204 No Content"  
+                                }   
+                                else if(dataLen == -1)
+                                {
+                                    g_workerINMOBI_logger->error("HTTP BODY DATA INCOMPLETE ");
+                                }
+                                else
+                                {
+                                    g_workerINMOBI_logger->debug("InmobiRsponse: \r\n{0}", bodyData);                          
+                                    handle_BidResponseFromDSP(INMOBI, bodyData, dataLen, request_commMsg);   
+                                }        
+                                delete [] bodyData;
+                                delete httpBodyData_t;
+                            }
 			   }
 	            }
 	            else
@@ -4465,7 +4771,7 @@ void connectorServ::handle_recvAdResponse(int sock, short event, void *arg, dspT
         {
             if(temp)
                 g_logger->trace("SPLICE HAPPEN");
-            //g_logger->trace("\r\n{0}", recv_str);            
+            g_logger->trace("\r\n{0}", recv_str);            
             int full_expectLen = fullData_t->curLen + recv_bytes;
             if(full_expectLen > BUF_SIZE)
             {
@@ -5063,7 +5369,7 @@ void *connectorServ::checkConnectNum(void *arg)
             int INMOBI_curConnectNum = serv->m_dspManager.getInMobiObject()->getCurConnectNum();
             if(INMOBI_curConnectNum < INMOBI_maxConnectNum)
             {
-                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->addConnectToDSP, con_t))     //add task in taskPool success
+                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getInMobiObject()->inmobiAddConnectToDSP, serv->m_dspManager.getInMobiObject()))     //add task in taskPool success
                     serv->m_dspManager.getInMobiObject()->connectNumIncrease();
                 else
                     g_workerINMOBI_logger->error("ADD TASK IN TASKPOOL FAIL");

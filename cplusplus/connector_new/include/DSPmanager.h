@@ -14,7 +14,7 @@ public:
 	bool sendAdRequestToChinaTelecomDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	bool sendAdRequestToGuangYinDSP(const char *data, int dataLen, string& ua);
 	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua);
-	bool sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
+	int sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enLogRsq, string& ua);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	
 	chinaTelecomObject * getChinaTelecomObject(){return m_chinaTelecomObject;}

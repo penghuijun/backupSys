@@ -215,6 +215,7 @@ public:
 	char* convertTeleBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
+	char* convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
 	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg);
 	bool convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request);	
 	bool convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request);
@@ -226,6 +227,7 @@ public:
 	bool GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid);
 	bool SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType);
 	bool SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType, MobileAdRequest_AdType& requestAdtype);
+	bool INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, string &ad_type, string &ad_content, MobileAdRequest_AdType& requestAdtype);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

@@ -1121,7 +1121,6 @@ int inmobiObject::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool e
     
     
     int ret_t = sock;
-    g_workerINMOBI_logger->debug("SEND\r\n{0}", send_str);
     if(socket_send(sock, send_str, strlen(send_str)) == -1)
     {        
         g_workerINMOBI_logger->error("adReqSock send failed ...");

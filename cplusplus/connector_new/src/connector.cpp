@@ -946,26 +946,22 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         {
             g_workerGYIN_logger->trace("mapp response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP);
-            if(!GYIN_creativeAddEventsMapp(mobile_request,mobile_creative,GYIN_bid))
-            return NULL;
         }
         else if(!strcmp(appType.c_str(), "mweb"))
         {
             g_workerGYIN_logger->trace("mweb response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_WEB);
-            if(!GYIN_creativeAddEventsMweb(mobile_request,mobile_creative,GYIN_bid))
-            return NULL;
         }
         else if(!strcmp(appType.c_str(), "pcweb"))
         {
             g_workerGYIN_logger->trace("pcweb response uuid: {0}", str_id);
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_PC_WEB);
-            if(!GYIN_creativeAddEventsPCweb(mobile_request,mobile_creative,GYIN_bid))
-            return NULL;
         }
 
         MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action();   
         if(!GYIN_mutableAction(mobile_request,mobile_action,GYIN_bid))
+            return NULL;
+        if(!GYIN_creativeAddEvents(mobile_request,mobile_creative,GYIN_bid))
             return NULL;
         
         ret = true;
@@ -1671,7 +1667,7 @@ bool connectorServ::GYIN_mutableAction(MobileAdRequest &mobile_request,MobileAdR
 
     return true;
 }
-bool connectorServ::GYIN_creativeAddEventsMapp(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
+bool connectorServ::GYIN_creativeAddEvents(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
 {
     MobileAdRequest_AdType type = mobile_request.type();
     int id = 0;
@@ -1679,6 +1675,7 @@ bool connectorServ::GYIN_creativeAddEventsMapp(MobileAdRequest &mobile_request,M
     AdmType GYIN_admtype = GYIN_bid.admtype();
     //string adm;
     string mediaTypeId;
+    string appType = mobile_request.apptype();
 
     /**
          *  MediaType: 
@@ -1693,13 +1690,78 @@ bool connectorServ::GYIN_creativeAddEventsMapp(MobileAdRequest &mobile_request,M
     {
         case MobileAdRequest_AdType_BANNER:
             {
-                id = 79;                
+                if(!strcmp(appType.c_str(), "app"))
+                {
+                    id = 79;                
+                }
+                else if(!strcmp(appType.c_str(), "mweb"))
+                {
+                    switch(GYIN_admtype)
+                    {
+                        case HTML:
+                            {
+                                id = 103;    //third HTML code
+                            }
+                            break;
+                        case JSON:
+                            {
+                                id = 86;    //image url or 102 just for url without image
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if(!strcmp(appType.c_str(), "pcweb"))
+                {
+                    switch(GYIN_admtype)
+                    {
+                        case HTML:
+                            {
+                                id = 91;    //third HTML code
+                            }
+                            break;
+                        case JSON:
+                            {
+                                id = 93;    //image url or 92 for url without image
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 mediaTypeId = "1";
             }
             break;
         case MobileAdRequest_AdType_INTERSTITIAL:
             {
-                id = 80;
+                if(!strcmp(appType.c_str(), "app"))
+                {
+                    id = 80;                
+                }
+                else if(!strcmp(appType.c_str(), "mweb"))
+                {
+                    switch(GYIN_admtype)
+                    {
+                        case HTML:
+                            {
+                                id = 96;    //third HTML code
+                            }
+                            break;
+                        case JSON:
+                            {
+                                id = 88;    //image url or just 95 just for url without image
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if(!strcmp(appType.c_str(), "pcweb"))
+                {
+                    g_workerGYIN_logger->error("PC WEB NO SUPPORT MobileAdRequest_AdType_INTERSTITIAL ");
+                    return false;
+                }
                 mediaTypeId = "2";
             }
             break;
@@ -1804,316 +1866,6 @@ bool connectorServ::GYIN_creativeAddEventsMapp(MobileAdRequest &mobile_request,M
     }
     return true;
 }
-
-bool connectorServ::GYIN_creativeAddEventsMweb(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
-{
-    MobileAdRequest_AdType type = mobile_request.type();
-    int id = 0;
-    string RetCode;
-    AdmType GYIN_admtype = GYIN_bid.admtype();
-    //string adm;
-    string mediaTypeId;
-
-    /**
-         *  MediaType: 
-         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
-         *
-         *  MediaSubType:  
-         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
-         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
-         */
-    
-    switch(type)
-    {
-        case MobileAdRequest_AdType_BANNER:
-            {
-                switch(GYIN_admtype)
-                {
-                    case HTML:
-                        {
-                            id = 103;    //third HTML code
-                        }
-                        break;
-                    case JSON:
-                        {
-                            id = 86;    //image url or 102 just for url without image
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                mediaTypeId = "1";
-            }
-            break;
-        case MobileAdRequest_AdType_INTERSTITIAL:
-            {
-                switch(GYIN_admtype)
-                {
-                    case HTML:
-                        {
-                            id = 96;    //third HTML code
-                        }
-                        break;
-                    case JSON:
-                        {
-                            id = 88;    //image url or just 95 just for url without image
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                mediaTypeId = "2";
-            }
-            break;
-        case MobileAdRequest_AdType_NATIVE:
-            {
-                g_workerGYIN_logger->error("NO SUPPORT MobileAdRequest_AdType_NATIVE ");
-                return false;
-            }
-            break;
-        default:
-            {
-                g_workerGYIN_logger->error("NO SUPPORT ADTYPE");
-                return false;
-            }
-            break;
-    }
-
-    map<int,string>::iterator it = Creative_template.find(id);
-    if(it == Creative_template.end())
-    {
-        g_workerGYIN_logger->error("GYIN Creative_template find error ");
-        return false;
-    }
-    RetCode = it->second;                
-    if(RetCode.empty() == false)
-    {
-        string decodeStr;    
-        
-        decodeStr = UrlDecode(RetCode);      
-        
-        string sReplaceStr;
-        string third_html;
-        switch(GYIN_admtype)
-        {
-            case HTML:
-                {
-                    third_html = GYIN_bid.adm();                                
-                }
-                break;
-            case JSON:
-                {
-                    third_html = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
-                    Json::Reader reader;
-                    Json::Value root;
-                    string adm = GYIN_bid.adm();
-                    reader.parse(adm,root);
-                    string adID = root["adID"].asString();
-                    int width = root["width"].asInt();
-                    int height = root["height"].asInt();
-                    string src = root["src"].asString();
-                    //string type = root["type"].asString();
-
-                    char widthStr[16] = {0};
-                    char heightStr[16] = {0};
-                    sprintf(widthStr,"%d",width);
-                    sprintf(heightStr,"%d",height);
-
-                    replace(third_html,"${SRC_URL}",src);
-                    replace(third_html,"${W}",widthStr);
-                    replace(third_html,"${H}",heightStr);
-                }
-                break;
-            default:
-                break;
-        }                    
-        
-        replace(third_html,"\"","\\\"");
-        replace(third_html,"'","\\'");
-        replace(third_html,"\t"," ");
-        replace(third_html,"\n","");
-        replace(third_html,"\r","");
-        replace(third_html,"/","\\/");
-        
-        sReplaceStr.append("\"").append(third_html).append("\"");
-        //cout << sReplaceStr << endl;
-                    
-        replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
-        
-        mobile_creative->set_admarkup(UrlEncode(decodeStr));
-        mobile_creative->set_mediatypeid(mediaTypeId);
-        mobile_creative->set_mediasubtypeid("5");
-        
-    }
-
-    if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
-        creative_event->set_trackurl(GYIN_bid.iurl());
-    }   
-    if(GYIN_bid.has_nurl()&&(GYIN_bid.nurl().empty() == false))
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("WIN");
-        creative_event->set_trackurl(GYIN_bid.nurl());
-    }      
-    for(int i=0; i<GYIN_bid.extiurl_size(); i++)
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
-        creative_event->set_trackurl(GYIN_bid.extiurl(i));
-    }
-    return true;
-}
-bool connectorServ::GYIN_creativeAddEventsPCweb(MobileAdRequest &mobile_request,MobileAdResponse_Creative  *mobile_creative,Bid &GYIN_bid)
-{
-    MobileAdRequest_AdType type = mobile_request.type();
-    int id = 0;
-    string RetCode;
-    AdmType GYIN_admtype = GYIN_bid.admtype();
-    //string adm;
-    string mediaTypeId;
-
-    /**
-         *  MediaType: 
-         *          BANNER(1), INTERSTITIAL(2), NATIVE(3)
-         *
-         *  MediaSubType:  
-         *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
-         *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
-         */
-    
-    switch(type)
-    {
-        case MobileAdRequest_AdType_BANNER:
-            {
-                switch(GYIN_admtype)
-                {
-                    case HTML:
-                        {
-                            id = 91;    //third HTML code
-                        }
-                        break;
-                    case JSON:
-                        {
-                            id = 93;    //image url or 92 for url without image
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                mediaTypeId = "1";
-            }
-            break;
-        case MobileAdRequest_AdType_INTERSTITIAL:
-            {
-                g_workerGYIN_logger->error("PC WEB NO SUPPORT MobileAdRequest_AdType_INTERSTITIAL ");
-                return false;
-            }
-            break;
-        case MobileAdRequest_AdType_NATIVE:
-            {
-                g_workerGYIN_logger->error("PC WEB NO SUPPORT MobileAdRequest_AdType_NATIVE ");
-                return false;
-            }
-            break;
-        default:
-            {
-                g_workerGYIN_logger->error("PC WEB NO SUPPORT ADTYPE");
-                return false;
-            }
-            break;
-    }
-
-    map<int,string>::iterator it = Creative_template.find(id);
-    if(it == Creative_template.end())
-    {
-        g_workerGYIN_logger->error("GYIN PC WEB Creative_template find error ");
-        return false;
-    }
-    RetCode = it->second;                
-    if(RetCode.empty() == false)
-    {
-        string decodeStr;    
-        
-        decodeStr = UrlDecode(RetCode);      
-        
-        string sReplaceStr;
-        string third_html;
-        switch(GYIN_admtype)
-        {
-            case HTML:
-                {
-                    third_html = GYIN_bid.adm();                                
-                }
-                break;
-            case JSON:
-                {
-                    third_html = "<img src='${SRC_URL}' width='${W}' height='${H}'></img>";
-                    Json::Reader reader;
-                    Json::Value root;
-                    string adm = GYIN_bid.adm();
-                    reader.parse(adm,root);
-                    string adID = root["adID"].asString();
-                    int width = root["width"].asInt();
-                    int height = root["height"].asInt();
-                    string src = root["src"].asString();
-                    //string type = root["type"].asString();
-
-                    char widthStr[16] = {0};
-                    char heightStr[16] = {0};
-                    sprintf(widthStr,"%d",width);
-                    sprintf(heightStr,"%d",height);
-
-                    replace(third_html,"${SRC_URL}",src);
-                    replace(third_html,"${W}",widthStr);
-                    replace(third_html,"${H}",heightStr);
-                }
-                break;
-            default:
-                break;
-        }                    
-        
-        replace(third_html,"\"","\\\"");
-        replace(third_html,"'","\\'");
-        replace(third_html,"\t"," ");
-        replace(third_html,"\n","");
-        replace(third_html,"\r","");
-        replace(third_html,"/","\\/");
-        
-        sReplaceStr.append("\"").append(third_html).append("\"");
-        //cout << sReplaceStr << endl;
-                    
-        replace(decodeStr,"${MY_THIRD_HTML}",sReplaceStr);
-        
-        mobile_creative->set_admarkup(UrlEncode(decodeStr));
-        mobile_creative->set_mediatypeid(mediaTypeId);
-        mobile_creative->set_mediasubtypeid("5");
-        
-    }
-
-    if(GYIN_bid.has_iurl()&&(GYIN_bid.iurl().empty() == false))
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
-        creative_event->set_trackurl(GYIN_bid.iurl());
-    }   
-    if(GYIN_bid.has_nurl()&&(GYIN_bid.nurl().empty() == false))
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("WIN");
-        creative_event->set_trackurl(GYIN_bid.nurl());
-    }      
-    for(int i=0; i<GYIN_bid.extiurl_size(); i++)
-    {
-        MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
-        creative_event->set_event("IMP");
-        creative_event->set_trackurl(GYIN_bid.extiurl(i));
-    }
-    return true;
-}
-
 
 bool connectorServ::SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType)
 {

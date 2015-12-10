@@ -2322,6 +2322,9 @@ bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_
          *  MediaSubType:  
          *          NORMAL_BANNER(1), TXT_BANNER(2), EXP_BANNER(3),
          *          ICON_BANNER(1), TRD_BANNER(10), INT_FULL_PAGE(5)
+         *
+         *  Creative_template id:
+         *          BANNER(79), INTERSTITIAL(97)
          */
          
     
@@ -2330,10 +2333,12 @@ bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_
         switch(requestAdtype)
         {
             case MobileAdRequest_AdType_BANNER:
+                g_workerINMOBI_logger->trace("request banner && response text, template id: null");
                 //id = 66;
                 mediaTypeId = "1";
                 break;
             case MobileAdRequest_AdType_INTERSTITIAL:
+                g_workerINMOBI_logger->trace("request interstitial && response text, template id: null");
                 break;
             default:
                 break;
@@ -2346,18 +2351,19 @@ bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_
         switch(requestAdtype)
         {
             case MobileAdRequest_AdType_BANNER:
-                //id = 61;
+                g_workerINMOBI_logger->trace("request banner && response banner, template id: 79");
+                id = 79;        //MY_THIRD_HTML
                 mediaTypeId = "1";
                 break;
             case MobileAdRequest_AdType_INTERSTITIAL:
-                //id = 59;
+                g_workerINMOBI_logger->trace("request interstitial && response banner, template id: 97");
+                id = 97;        //MY_THIRD_HTML
                 mediaTypeId = "2";
                 break;
             default:
                 break;
         }
         
-        id = 79;            //MY_THIRD_HTML
         if(id == 0)
             return false;
                         
@@ -2367,11 +2373,15 @@ bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_
         switch(requestAdtype)
         {
             case MobileAdRequest_AdType_BANNER:
-                id = 101;    //MY_THIRD_HTML
+                g_workerINMOBI_logger->trace("request banner && response rm, template id: 79");
+                //id = 101;    //MY_THIRD_HTML
+                id = 79;
                 mediaTypeId = "1";
                 break;
             case MobileAdRequest_AdType_INTERSTITIAL:
-                id = 97;    //MY_THIRD_HTML
+                g_workerINMOBI_logger->trace("request interstitial && response rm, template id: 79");
+                //id = 97;    //MY_THIRD_HTML
+                id = 79;
                 mediaTypeId = "2";
                 break;
             default:

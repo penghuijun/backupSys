@@ -3769,6 +3769,14 @@ bool connectorServ::InMobi_AdReqJsonAddUser(Json::Value &user, const MobileAdReq
 }
 bool connectorServ::convertProtoToInMobiJson(string & reqTeleJsonData,const MobileAdRequest & mobile_request)
 {
+    string apptype = mobile_request.apptype();      // 3 types: "app" "mweb" "pcweb"
+
+    if(strcmp(apptype.c_str(), "app"))
+    {
+        g_workerINMOBI_logger->debug("REQ APPTYPE ISN'T MOBILE APP, NEVER SEND");
+        return false;
+    }
+    
     string id = mobile_request.id();                           
         
     Json::Value root;         
@@ -3792,7 +3800,7 @@ bool connectorServ::convertProtoToInMobiJson(string & reqTeleJsonData,const Mobi
     
     root.toStyledString();
     reqTeleJsonData = root.toStyledString();
-    g_worker_logger->trace("MobileAdRequest.proto->TeleBidRequest.json success");
+    g_workerINMOBI_logger->trace("MobileAdRequest.proto->TeleBidRequest.json success");
     return true;
 }
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
@@ -4016,6 +4024,11 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                         }
 		    }
 		    #endif
+
+		    /*
+                    *   current only interstitial ads REQ come from mobile app could send to INMOBI 
+		      */
+		      
 	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
 	            {
                         //callback func: handle_recvAdResponseTele active by socket EV_READ event     

@@ -99,6 +99,7 @@ int checkConnect(int fd, int connect_ret)
                 }
 
                 /* DO write...*/
+                close(epfd);
                 return 1;
             }
         }

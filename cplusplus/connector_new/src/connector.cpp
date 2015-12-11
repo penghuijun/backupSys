@@ -919,7 +919,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         }
         Bid GYIN_bid = GYIN_seatbid.bid(0);
         mobile_bidder->set_biddingtype("CPM");   
-        float GYIN_price = 10 * GYIN_bid.price();
+        float GYIN_price = GYIN_bid.price()/100;
         if((GYIN_price >= -EPSINON)&&(GYIN_price <= EPSINON))  // 0
         {
             g_worker_logger->debug("GYIN GEN FAILED : bid.price = {0:d} ",GYIN_price);

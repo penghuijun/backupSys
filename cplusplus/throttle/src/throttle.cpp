@@ -45,6 +45,7 @@ sig_atomic_t sigusr1_recved = 0;;
 extern shared_ptr<spdlog::logger> g_file_logger;
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
+
 //#ifdef DEBUG
 //get micro time
 unsigned long long throttleServ::getLonglongTime()
@@ -151,6 +152,7 @@ try
     m_logRedisIP           = m_config.get_logRedisIP();
     m_logRedisPort         = m_config.get_logRedisPort();
 
+		
 //dev manager init
     m_throttleManager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_connector_info(), m_config.get_bidder_info()
         , m_config.get_bc_info());
@@ -782,6 +784,76 @@ void throttleServ::publishData(char *msgData, int msgLen)
     
 }
 
+/*
+  *name:workerPublishData
+  *argument:
+  *func:publish data with zeromq publish
+  *return:
+  */
+void throttleServ::workerPublishData(char *msgData, int msgLen)
+{
+    char uuid[PUBLISHKEYLEN_MAX];
+    memset(uuid, 0, sizeof(uuid));
+    memcpy(uuid, msgData, sizeof(uuid));
+    static int sendNum = 1;
+    
+    //displayRecord();
+
+    /*
+      *each request just send to bidder and connector by hash random
+      */
+    #if 0   
+    string bidderKey;
+    string connectorKey;
+    if(m_throttleManager.get_throttle_publishKey(uuid, bidderKey, connectorKey))
+    {
+        int dataLen = msgLen - PUBLISHKEYLEN_MAX;
+        void *pubVastHandler = m_throttleManager.get_throttle_publish_handler();
+        g_file_logger->debug("master publish:{0},{1},{2},{3:d}", uuid, bidderKey, connectorKey, sendNum++);            
+        if(pubVastHandler)
+        {
+            if(bidderKey.empty()==false)
+            {
+                //publish data to bidder and BC
+                zmq_send(pubVastHandler, bidderKey.c_str(), bidderKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
+                zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
+            }
+            if(connectorKey.empty()==false)
+            {
+                //publish data to connector and BC
+                zmq_send(pubVastHandler, connectorKey.c_str(), connectorKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
+                zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
+            }
+        }
+    }
+    else
+    {
+        static int failureTimes = 0;
+        failureTimes++;
+        g_file_logger->warn("req failure:{0}, {1:d}", uuid, failureTimes);  
+    }
+    #endif
+
+
+    /*
+      *each request send to all bidder and connector by loop
+      */
+    #if 1
+    void *pubVastHandler = m_throttleManager.get_throttle_publish_handler();
+    if(pubVastHandler)
+    {
+        g_file_logger->debug("woker publish:{0}, {1:d}", uuid, sendNum++);
+        m_throttleManager.workerPublishData(pubVastHandler, msgData, msgLen);
+    }
+    else
+    {
+        g_file_logger->error("pubVastHandler null");
+    }
+    #endif
+    
+}
+
+
 
 /*
   *name:masterPullMsg
@@ -886,7 +958,8 @@ void throttleServ::parseAdRequest(char *msgData, int msgLen)
     memset(tmpBuf, 0x00, tmpBufLen);
     memcpy(tmpBuf, uuid.c_str(), uuid.size());
     memcpy(tmpBuf+PUBLISHKEYLEN_MAX, msgData, msgLen);  
-       
+
+	#if 0
     int rc = zmq_send(m_workerPushHandler, tmpBuf, tmpBufLen, ZMQ_NOBLOCK);
     
     if(rc <= 0)
@@ -895,6 +968,10 @@ void throttleServ::parseAdRequest(char *msgData, int msgLen)
         sendToMastLostTimes++;
         g_file_logger->warn("sendToMastLostTimes:{0:d}", sendToMastLostTimes);         
     }
+	#endif
+
+	workerPublishData(tmpBuf, tmpBufLen);
+	
     delete[] tmpBuf; 
 }
 

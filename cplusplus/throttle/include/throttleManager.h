@@ -45,7 +45,8 @@ public:
 		, struct event_base* base,	event_callback_fn fn, void *arg);
 	void delete_bc(string bcIP, unsigned short bcPort);
 
-	void publishData(void *pubVastHandler, char *msgData, int msgLen);
+	void publishData(void *pubVastHandler, char *msgData, int msgLen);	
+	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
 	
 	~throttleManager()
 	{

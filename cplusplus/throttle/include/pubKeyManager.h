@@ -1,6 +1,17 @@
 #ifndef __PUBKEYMANAGER_H__
 #define __PUBKEYMANAGER_H__
 
+#include <boost/interprocess/managed_shared_memory.hpp>
+#include <boost/interprocess/containers/vector.hpp>
+#include <boost/interprocess/containers/string.hpp>
+#include <boost/interprocess/allocators/allocator.hpp>
+
+//using namespace boost::interprocess;
+
+typedef boost::interprocess::allocator<char, boost::interprocess::managed_shared_memory::segment_manager> CharAllocator;
+typedef boost::interprocess::basic_string<char, std::char_traits<char>, CharAllocator> MyShmString;
+typedef boost::interprocess::allocator<MyShmString, boost::interprocess::managed_shared_memory::segment_manager> StringAllocator;
+typedef boost::interprocess::vector<MyShmString, StringAllocator> MyShmStringVector;
 
 class hashFnv1a64
 {
@@ -64,9 +75,9 @@ public:
 		unsigned short bcManagerPort, unsigned short bcDataPort);
 
 	void set(const string& bcIP, unsigned short bcManagerPort, unsigned short bcDataPort);
-	const string& add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+	bool add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort);
-	const string& addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+	bool addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort );
 
 	void get_keypipe(const char* uuid, string& bidderKey, string& connectorKey);
@@ -81,6 +92,7 @@ public:
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
 	void publishData(void *pubVastHandler, char *msgData, int msgLen);
+	void syncShareMemory(MyShmStringVector *vec);
 	~bcSubKeyManager();
 
 private:
@@ -106,11 +118,14 @@ public:
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
 	void publishData(void *pubVastHandler, char *msgData, int msgLen);
+	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
+	void syncShmSubKeyVector();
 	~throttlePubKeyManager();
 private:
 
 	read_write_lock          m_publishKey_lock;
 	vector<bcSubKeyManager*> m_bcSubkeyManagerList;
+	MyShmStringVector		*shmSubKeyVector;
 };
 
 #endif

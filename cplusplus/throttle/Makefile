@@ -9,7 +9,7 @@ INCLUDES	:= -I./include
 CPPFLAGS  	:= -g -DTIMELOG  -L/usr/local/zeromq-4.0.4/lib -I/usr/local/zeromq-4.0.4/include
 CPPFLAGS  	+= `pkg-config --cflags --libs protobuf`  
 
-LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lstdc++
+LIBS	   	:= -lzmq -levent -lpthread -lhiredis -lrt -lstdc++
 
 SRCDIRS		:= src src/json src/thread src/redis
 SRCTYPES   	:= .cpp .cc

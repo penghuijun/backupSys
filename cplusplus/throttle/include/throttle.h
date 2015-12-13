@@ -20,6 +20,7 @@
 #include "managerProto.pb.h"
 #include "redis/redisPoolManager.h"
 #include "bufferManager.h"
+
 using namespace com::rj::protos::manager;
 
 
@@ -188,6 +189,7 @@ public:
 	static void  masterPullMsg(int _, short __, void *pair);
 	static void  workerPullMsg(int fd, short event, void *pair);
 	void publishData(char *msgData, int msgLen);
+	void workerPublishData(char *msgData, int msgLen);
 	void parseAdRequest(char *msgData, int msgLen);
 
 	//sig event
@@ -249,6 +251,7 @@ private:
 	void           *m_workerPullHandler = NULL;
 	void           *m_workerPushHandler = NULL;
 	int             m_workerPullFd;
+
 };
 
 

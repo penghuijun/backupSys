@@ -290,7 +290,8 @@ void *throttleManager::get_throttle_manager_handler(){return m_throttleManagerHa
 void throttleManager::add_throttle_publish_key(bool fromBidder,const string& bidderIP, unsigned short bidderPort,const string& bcIP,
     unsigned short bcManagerPort, unsigned short bcDataPort)
 {
-	m_throttlePublish.add_publishKey(fromBidder, bidderIP, bidderPort, bcIP, bcManagerPort, bcDataPort);
+	if(m_throttlePublish.add_publishKey(fromBidder, bidderIP, bidderPort, bcIP, bcManagerPort, bcDataPort))
+		m_throttlePublish.syncShmSubKeyVector();
 }
 
 void *throttleManager::get_login_handler(int fd)
@@ -443,5 +444,9 @@ void throttleManager::publishData(void *pubVastHandler, char *msgData, int msgLe
     m_throttlePublish.publishData(pubVastHandler, msgData, msgLen);
 }
 
+void throttleManager::workerPublishData(void *pubVastHandler, char *msgData, int msgLen)
+{
+    m_throttlePublish.workerPublishData(pubVastHandler, msgData, msgLen);
+}
 
 

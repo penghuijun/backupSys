@@ -1183,15 +1183,17 @@ void throttleServ::start_worker()
     try
     {
     #if 0
+        sleep(10);
         cout << "worker run" << endl;
         boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
 	 MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
         string subKey;
-	 for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
+	 for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); )
 	{
 	        cout << "********" << endl;
 		subKey = (*it).data();
 		cout << subKey << endl;
+		it = vec->erase(it);
 	}
     #endif
         

@@ -100,7 +100,7 @@ void bcSubKeyManager::set(const string& bcIP, unsigned short bcManagerPort, unsi
 	m_bcDataPort = bcDataPort;	
 }
 
-bool bcSubKeyManager::add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+const string& bcSubKeyManager::add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort)
 {	
 	if(fromBidder)
@@ -115,7 +115,7 @@ bool bcSubKeyManager::add(bool fromBidder, const string& bidderIP, unsigned shor
 	}	
 }
 
-bool bcSubKeyManager::addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+const string& bcSubKeyManager::addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort )
 {
 
@@ -127,7 +127,7 @@ bool bcSubKeyManager::addKey(vector<zmqSubscribeKey*>& keyList, const string& bi
 			if((key->get_bidder_ip() == bidderIP) &&(key->get_bidder_port() == bidderPort))
 			{
 				g_manager_logger->warn("publish key exist:{0}", key->get_subKey());
-				return false;
+				return NULL;
 			}
 		}
 	}
@@ -135,7 +135,7 @@ bool bcSubKeyManager::addKey(vector<zmqSubscribeKey*>& keyList, const string& bi
 	zmqSubscribeKey *zmqkey = new zmqSubscribeKey(bidderIP, bidderPort, bcIP, bcManagerPort, bcDataPort);
 	keyList.push_back(zmqkey);	
 	g_manager_logger->warn("add new publish key:{0}", zmqkey->get_subKey());
-	return true;
+	return zmqkey->get_subKey();
 }
 
 void bcSubKeyManager::get_keypipe(const char* uuid, string& bidderKey, string& connectorKey)
@@ -348,7 +348,7 @@ throttlePubKeyManager::throttlePubKeyManager()
 #endif
 }
 
-bool throttlePubKeyManager::add_publishKey(bool frombidder, const string& bidder_ip, unsigned short bidder_port
+const string& throttlePubKeyManager::add_publishKey(bool frombidder, const string& bidder_ip, unsigned short bidder_port
     ,const string& bc_ip, unsigned short bcManagerPort, unsigned short bcDataPOort)
 {
     m_publishKey_lock.write_lock();
@@ -359,18 +359,19 @@ bool throttlePubKeyManager::add_publishKey(bool frombidder, const string& bidder
         if(keyManager == NULL) continue;
         if((keyManager->get_bc_ip() == bc_ip)&&(keyManager->get_bcManangerPort() == bcManagerPort)&&(keyManager->get_bcDataPort() == bcDataPOort))
         {
-        	bool ret = false;
-            if(keyManager->add(frombidder, bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort))
-				ret = true;
+            const string& tmp = keyManager->add(frombidder, bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort);
             m_publishKey_lock.read_write_unlock();
-            return ret;
+            return tmp;
         }
     }
 
     bcSubKeyManager *manager = new bcSubKeyManager(frombidder, bidder_ip, bidder_port, bc_ip, bcManagerPort, bcDataPOort);
     m_bcSubkeyManagerList.push_back(manager);	
     m_publishKey_lock.read_write_unlock();
-    return true;
+    ostringstream os;
+    os<<bc_ip<<":"<<bcManagerPort<<":"<<bcDataPOort<<"-"<<bidder_ip<<":"<<bidder_port;
+    m_subKey = os.str();
+    return m_subKey;
 }
 
 bool throttlePubKeyManager::get_publish_key(const char* uuid, string& bidderKey, string& connectorKey)
@@ -412,7 +413,7 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
     		{
     			delete key;
     			it = m_bcSubkeyManagerList.erase(it);
-				syncShmSubKeyVector();
+			//syncShmSubKeyVector();
     		}
     		else
     		{
@@ -429,7 +430,7 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
             {
                 delete *it;
                 it = m_bcSubkeyManagerList.erase(it);
-				syncShmSubKeyVector();
+		  //syncShmSubKeyVector();
             }
             else
             {
@@ -563,14 +564,29 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
 }
 
 
-void throttlePubKeyManager::syncShmSubKeyVector()
+void throttlePubKeyManager::syncShmSubKeyVector(const string& key)
 {
+    cout << "@@@ syncShareMemory" << endl;
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    const CharAllocator charalloctor(segment.get_segment_manager());
+    MyShmString mystring(charalloctor);	
+
+    mystring = key.c_str();
+    shmSubKeyVector->push_back(mystring);
+    cout << mystring << endl;
+
+    #if 0
     //shmSubKeyVector->clear();
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
+    vec->clear();
     for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
     {
         bcSubKeyManager* obj = *it;
-        obj->syncShareMemory(shmSubKeyVector);
+        obj->syncShareMemory(vec);
     }
+    #endif
+    
 }
 
 throttlePubKeyManager::~throttlePubKeyManager()

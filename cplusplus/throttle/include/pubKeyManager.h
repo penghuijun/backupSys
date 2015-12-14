@@ -75,9 +75,9 @@ public:
 		unsigned short bcManagerPort, unsigned short bcDataPort);
 
 	void set(const string& bcIP, unsigned short bcManagerPort, unsigned short bcDataPort);
-	bool add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+	const string& add(bool fromBidder, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort);
-	bool addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
+	const string& addKey(vector<zmqSubscribeKey*>& keyList, const string& bidderIP, unsigned short bidderPort,const string& bcIP,
 		unsigned short bcManagerPort, unsigned short bcDataPort );
 
 	void get_keypipe(const char* uuid, string& bidderKey, string& connectorKey);
@@ -108,7 +108,7 @@ class throttlePubKeyManager
 {
 public:
 	throttlePubKeyManager();	
-	bool add_publishKey(bool frombidder, const string& bidder_ip, unsigned short bidder_port,const string& bc_ip,
+	const string& add_publishKey(bool frombidder, const string& bidder_ip, unsigned short bidder_port,const string& bc_ip,
 		unsigned short bcManagerPort, unsigned short bcDataPOort);
 	bool get_publish_key(const char* uuid, string& bidderKey, string& connectorKey);
 	void erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport);
@@ -120,13 +120,14 @@ public:
 	void publishData(void *pubVastHandler, char *msgData, int msgLen);
 	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
 	void setShmSubKeyVector(MyShmStringVector *vec){shmSubKeyVector = vec;}
-	void syncShmSubKeyVector();
+	void syncShmSubKeyVector(const string& key);
 	~throttlePubKeyManager();
 private:
 
 	read_write_lock          m_publishKey_lock;
 	vector<bcSubKeyManager*> m_bcSubkeyManagerList;
 	MyShmStringVector		*shmSubKeyVector;
+	string 					m_subKey;
 };
 
 #endif

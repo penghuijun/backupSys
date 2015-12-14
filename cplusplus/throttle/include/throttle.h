@@ -188,7 +188,6 @@ public:
 	static void  recvAD_callback(int _, short __, void *pair);
 	static void  masterPullMsg(int _, short __, void *pair);
 	static void  workerPullMsg(int fd, short event, void *pair);
-	void publishData(char *msgData, int msgLen);
 	void workerPublishData(char *msgData, int msgLen);
 	void parseAdRequest(char *msgData, int msgLen);
 

@@ -6,8 +6,6 @@
 #include <boost/interprocess/containers/string.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 
-//using namespace boost::interprocess;
-
 typedef boost::interprocess::allocator<char, boost::interprocess::managed_shared_memory::segment_manager> CharAllocator;
 typedef boost::interprocess::basic_string<char, std::char_traits<char>, CharAllocator> MyShmString;
 typedef boost::interprocess::allocator<MyShmString, boost::interprocess::managed_shared_memory::segment_manager> StringAllocator;
@@ -91,8 +89,6 @@ public:
 
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
-	void publishData(void *pubVastHandler, char *msgData, int msgLen);
-	void syncShareMemory(MyShmStringVector *vec);
 	~bcSubKeyManager();
 
 private:
@@ -117,7 +113,6 @@ public:
 	bool bc_publishExist(const string& ip, unsigned short port);
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
-	void publishData(void *pubVastHandler, char *msgData, int msgLen);
 	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
 	void setShmSubKeyVector(MyShmStringVector *vec){shmSubKeyVector = vec;}
 	void syncShmSubKeyVector(const string& key);

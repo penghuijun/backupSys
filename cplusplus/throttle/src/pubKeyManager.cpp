@@ -250,66 +250,6 @@ bool bcSubKeyManager::connector_publishExist(const string& ip, unsigned short po
     return false;
 }
 
-void bcSubKeyManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
-{
-    int dataLen = msgLen - PUBLISHKEYLEN_MAX;
-    for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
-    {
-        zmqSubscribeKey* keyObj = *bidder_it;
-        string bidderKey = keyObj->get_subKey();
-        if(bidderKey.empty()==false)
-        {
-            //publish data to bidder and BC
-            zmq_send(pubVastHandler, bidderKey.c_str(), bidderKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
-            zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
-        }
-    }
-
-    for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
-    {
-        zmqSubscribeKey* keyObj = *connector_it;
-        string connectorKey = keyObj->get_subKey();
-        if(connectorKey.empty()==false)
-        {
-            //publish data to connector and BC
-            zmq_send(pubVastHandler, connectorKey.c_str(), connectorKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
-            zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, dataLen, ZMQ_DONTWAIT);  
-        }
-    }
-}
-
-void bcSubKeyManager::syncShareMemory(MyShmStringVector *shmSubKeyVector)
-{
-    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
-    const CharAllocator charalloctor(segment.get_segment_manager());
-    MyShmString mystring(charalloctor);	
-    cout << "@@@ syncShareMemory" << endl;
-    for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
-    {
-        zmqSubscribeKey* keyObj = *bidder_it;
-        string bidderKey = keyObj->get_subKey();
-        if(bidderKey.empty()==false)
-        {
-            mystring = bidderKey.c_str();
-            shmSubKeyVector->push_back(mystring);
-            cout << mystring << endl;
-        }
-    }
-    for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
-    {
-        zmqSubscribeKey* keyObj = *connector_it;
-        string connectorKey = keyObj->get_subKey();
-        if(connectorKey.empty()==false)
-        {
-            mystring = connectorKey.c_str();
-            shmSubKeyVector->push_back(mystring);
-            cout << mystring << endl;
-        }
-    }
-}
-
-
-
 bcSubKeyManager::~bcSubKeyManager()
 {
 	for(auto it = m_connectorKeyList.begin(); it != m_connectorKeyList.end();)
@@ -330,22 +270,6 @@ bcSubKeyManager::~bcSubKeyManager()
 throttlePubKeyManager::throttlePubKeyManager()
 {
     m_publishKey_lock.init();
-
-#if 0
-	/*
-	 * share memory vector<string> shmSubKeyVector
-	 */
-	 
-	struct shm_remove	{		
-		shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
-		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
-	}remover;	
-	#endif
-#if 0
-	boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
-	const StringAllocator stringalloctor(segment.get_segment_manager());
-	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);
-#endif
 }
 
 const string& throttlePubKeyManager::add_publishKey(bool frombidder, const string& bidder_ip, unsigned short bidder_port
@@ -536,15 +460,6 @@ bool throttlePubKeyManager::connector_publishExist(const string& ip, unsigned sh
     return ret;
 }
 
-void throttlePubKeyManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
-{
-    for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
-    {
-        bcSubKeyManager* obj = *it;
-        obj->publishData(pubVastHandler, msgData, msgLen);
-    }
-}
-
 void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgData, int msgLen)
 {
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
@@ -553,7 +468,6 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
     for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
     {
         subKey = (*it).data();
-        cout << "publishKey:" << subKey << endl;
         if(subKey.empty()==false)
         {
             //publish data to bidder connector and BC
@@ -567,27 +481,14 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
 
 void throttlePubKeyManager::syncShmSubKeyVector(const string& key)
 {
-    cout << "@@@ syncShareMemory" << endl;
+    //cout << "@@@ syncShareMemory" << endl;
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
     const CharAllocator charalloctor(segment.get_segment_manager());
     MyShmString mystring(charalloctor);	
 
     mystring = key.c_str();
     shmSubKeyVector->push_back(mystring);
-    cout << mystring << endl;
-
-    #if 0
-    //shmSubKeyVector->clear();
-    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
-    MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
-    vec->clear();
-    for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
-    {
-        bcSubKeyManager* obj = *it;
-        obj->syncShareMemory(vec);
-    }
-    #endif
-    
+    //cout << mystring << endl;    
 }
 
 throttlePubKeyManager::~throttlePubKeyManager()

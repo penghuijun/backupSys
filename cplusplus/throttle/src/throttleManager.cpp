@@ -95,23 +95,11 @@ void throttleManager::address_init(zeromqConnect &connector, throttleInformation
 	        		}    
                             zmq_setsockopt(m_throttleAdHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
 
-                            #if 0
-	        		m_throttlePubHandler = connector.establishConnect(false, "tcp", ZMQ_PUB, "*",
-							throttle->get_throttlePubPort(), NULL);	
-	        		if(m_throttlePubHandler == nullptr)
-	        		{
-                                zmq_close(m_throttlePubHandler);
-                                continue;
-	        		}    
-                            zmq_setsockopt(m_throttlePubHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
-				#endif
-
 	        		m_throttleManagerHandler = connector.establishConnect(false, "tcp", ZMQ_ROUTER, ip_str.c_str(),
 						throttle->get_throttleManagerPort(), &m_throttleManagerFd);	
 	        		if(m_throttleManagerHandler == nullptr)
                             {
-                                //zmq_close(m_throttlePubHandler);
-                                //zmq_close(m_throttlePubHandler);
+                                zmq_close(m_throttleManagerHandler);
                                 continue;
 	        		}    
                             zmq_setsockopt(m_throttleManagerHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
@@ -287,7 +275,6 @@ void throttleManager::connectAllDev(zeromqConnect& connector, struct event_base*
 }
 
 void *throttleManager::get_throttle_request_handler(){return m_throttleAdHandler;}
-void *throttleManager::get_throttle_publish_handler(){return m_throttlePubHandler;}
 void *throttleManager::get_throttle_manager_handler(){return m_throttleManagerHandler;}
 void throttleManager::add_throttle_publish_key(bool fromBidder,const string& bidderIP, unsigned short bidderPort,const string& bcIP,
     unsigned short bcManagerPort, unsigned short bcDataPort)
@@ -442,11 +429,6 @@ void throttleManager::delete_bc(string bcIP, unsigned short bcPort)
 	m_throttlePublish.erase_publishKey(sys_bc, bcIP, bcPort);
 }
 
-void throttleManager::publishData(void *pubVastHandler, char *msgData, int msgLen)
-{
-    m_throttlePublish.publishData(pubVastHandler, msgData, msgLen);
-}
-
 void throttleManager::workerPublishData(void *pubVastHandler, char *msgData, int msgLen)
 {
     m_throttlePublish.workerPublishData(pubVastHandler, msgData, msgLen);
@@ -455,41 +437,5 @@ void throttleManager::workerPublishData(void *pubVastHandler, char *msgData, int
 void throttleManager::setShmSubKeyVector(MyShmStringVector *vec)
 {
     m_throttlePublish.setShmSubKeyVector(vec);
-}
-void throttleManager::initPublishHandle(zeromqConnect &connector, throttleInformation& thro_info)
-{
-    int hwm = 30000;
-    const vector<throttleConfig*>& throttleList = thro_info.get_throttleConfigList();
-                
-    vector<string> ipAddrList;
-    ipAddress::get_local_ipaddr(ipAddrList);//get local ip address
-    bool estatblish=false;
-    for(auto it = ipAddrList.begin(); it != ipAddrList.end(); it++)
-    {
-        string &str = *it;
-        for(auto et = throttleList.begin(); et != throttleList.end(); et++)
-        {
-            throttleConfig* throttle = *et;
-            if(throttle == NULL) continue;
-            const string& ip_str = throttle->get_throttleIP();
-            if(ip_str.compare(0,ip_str.size(), str)==0)//find equal local address ip
-            {
-                g_manager_logger->info("local ip address:{0}", ip_str);
-            
-                m_throttlePubHandler = connector.establishConnect(false, "tcp", ZMQ_PUB, "*",
-                                throttle->get_throttlePubPort(), NULL); 
-                if(m_throttlePubHandler == nullptr)
-                {
-                    zmq_close(m_throttlePubHandler);
-                    continue;
-                }    
-                zmq_setsockopt(m_throttlePubHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
-    
-                break;
-            } 
-        }
-        if(estatblish) break;
-    } 
-
 }
 

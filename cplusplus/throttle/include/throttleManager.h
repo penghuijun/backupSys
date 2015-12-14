@@ -24,8 +24,6 @@ public:
 	void reloginDevice(bidderSymDevType sysType, const string& ip, unsigned short port);
 
 	void *get_throttle_request_handler();
-	void initPublishHandle(zeromqConnect &connector, throttleInformation& thro_info);
-	void *get_throttle_publish_handler();
 	void *get_throttle_manager_handler();
 	void *get_login_handler(int fd);
 	bool  get_throttle_publishKey(const char* uuid, string& bidderKey, string& connectorKey);
@@ -46,7 +44,6 @@ public:
 		, struct event_base* base,	event_callback_fn fn, void *arg);
 	void delete_bc(string bcIP, unsigned short bcPort);
 
-	void publishData(void *pubVastHandler, char *msgData, int msgLen);	
 	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
 	void setShmSubKeyVector(MyShmStringVector *vec);
 	
@@ -56,7 +53,6 @@ public:
 		zmq_close(m_throttleAdHandler);
 		event_del(m_throttleManagerEvent);
 		zmq_close(m_throttleManagerHandler);
-		zmq_close(m_throttlePubHandler);
 		g_manager_logger->info("throttleManager erase");
 	}
 
@@ -72,7 +68,6 @@ private:
 	struct event   *m_throttleManagerEvent = NULL;
 	int             m_throttleManagerFd;
 
-	void           *m_throttlePubHandler = NULL;
 	throttlePubKeyManager m_throttlePublish;
 //	throttlePublish m_connectorPublish;
 

@@ -553,7 +553,7 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
     for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
     {
         subKey = (*it).data();
-        cout << subKey << endl;
+        cout << "publishKey:" << subKey << endl;
         if(subKey.empty()==false)
         {
             //publish data to bidder connector and BC

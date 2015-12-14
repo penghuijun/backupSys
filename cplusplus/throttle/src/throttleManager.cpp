@@ -70,52 +70,54 @@ void throttleManager::address_init(zeromqConnect &connector, throttleInformation
 {
 	try
 	{
-		int hwm = 30000;
-		const vector<throttleConfig*>& throttleList = thro_info.get_throttleConfigList();
+            int hwm = 30000;
+            const vector<throttleConfig*>& throttleList = thro_info.get_throttleConfigList();
 			
-	   	vector<string> ipAddrList;
-	    ipAddress::get_local_ipaddr(ipAddrList);//get local ip address
-	    bool estatblish=false;
-	   	for(auto it = ipAddrList.begin(); it != ipAddrList.end(); it++)
-	   	{
-	        string &str = *it;
-	       	for(auto et = throttleList.begin(); et != throttleList.end(); et++)
-	       	{
-	           	throttleConfig* throttle = *et;
-				if(throttle == NULL) continue;
-                const string& ip_str = throttle->get_throttleIP();
-	            if(ip_str.compare(0,ip_str.size(), str)==0)//find equal local address ip
-	            {
-	                g_manager_logger->info("local ip address:{0}", ip_str);
+            vector<string> ipAddrList;
+            ipAddress::get_local_ipaddr(ipAddrList);//get local ip address
+            bool estatblish=false;
+            for(auto it = ipAddrList.begin(); it != ipAddrList.end(); it++)
+            {
+                string &str = *it;
+                for(auto et = throttleList.begin(); et != throttleList.end(); et++)
+                {
+                    throttleConfig* throttle = *et;
+                    if(throttle == NULL) continue;
+                    const string& ip_str = throttle->get_throttleIP();
+                    if(ip_str.compare(0,ip_str.size(), str)==0)//find equal local address ip
+                    {
+                            g_manager_logger->info("local ip address:{0}", ip_str);
 	        		m_throttleAdHandler = connector.establishConnect(false, "tcp", ZMQ_ROUTER, ip_str.c_str(),
 						throttle->get_throttleAdPort(), &m_throttleAdFd);	
 	        		if(m_throttleAdHandler == nullptr)
-	                {
-	                   	continue;
+                            {
+                                continue;
 	        		}    
-					zmq_setsockopt(m_throttleAdHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+                            zmq_setsockopt(m_throttleAdHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
 
+                            #if 0
 	        		m_throttlePubHandler = connector.establishConnect(false, "tcp", ZMQ_PUB, "*",
 							throttle->get_throttlePubPort(), NULL);	
 	        		if(m_throttlePubHandler == nullptr)
 	        		{
-	        		  	zmq_close(m_throttlePubHandler);
-	                   	continue;
+                                zmq_close(m_throttlePubHandler);
+                                continue;
 	        		}    
-					zmq_setsockopt(m_throttlePubHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+                            zmq_setsockopt(m_throttlePubHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+				#endif
 
 	        		m_throttleManagerHandler = connector.establishConnect(false, "tcp", ZMQ_ROUTER, ip_str.c_str(),
 						throttle->get_throttleManagerPort(), &m_throttleManagerFd);	
 	        		if(m_throttleManagerHandler == nullptr)
-	        	    {
-	        		    zmq_close(m_throttlePubHandler);
-						zmq_close(m_throttlePubHandler);
-	                   	continue;
+                            {
+                                //zmq_close(m_throttlePubHandler);
+                                //zmq_close(m_throttlePubHandler);
+                                continue;
 	        		}    
-					zmq_setsockopt(m_throttleManagerHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+                            zmq_setsockopt(m_throttleManagerHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
 		
-					m_throttle_config.set(throttle);
-		            estatblish = true;
+                            m_throttle_config.set(throttle);
+                            estatblish = true;
 	                break;
 	            } 
 	        }
@@ -454,5 +456,40 @@ void throttleManager::setShmSubKeyVector(MyShmStringVector *vec)
 {
     m_throttlePublish.setShmSubKeyVector(vec);
 }
+void throttleManager::initPublishHandle(zeromqConnect &connector, throttleInformation& thro_info)
+{
+    int hwm = 30000;
+    const vector<throttleConfig*>& throttleList = thro_info.get_throttleConfigList();
+                
+    vector<string> ipAddrList;
+    ipAddress::get_local_ipaddr(ipAddrList);//get local ip address
+    bool estatblish=false;
+    for(auto it = ipAddrList.begin(); it != ipAddrList.end(); it++)
+    {
+        string &str = *it;
+        for(auto et = throttleList.begin(); et != throttleList.end(); et++)
+        {
+            throttleConfig* throttle = *et;
+            if(throttle == NULL) continue;
+            const string& ip_str = throttle->get_throttleIP();
+            if(ip_str.compare(0,ip_str.size(), str)==0)//find equal local address ip
+            {
+                g_manager_logger->info("local ip address:{0}", ip_str);
+            
+                m_throttlePubHandler = connector.establishConnect(false, "tcp", ZMQ_PUB, "*",
+                                throttle->get_throttlePubPort(), NULL); 
+                if(m_throttlePubHandler == nullptr)
+                {
+                    zmq_close(m_throttlePubHandler);
+                    continue;
+                }    
+                zmq_setsockopt(m_throttlePubHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));
+    
+                break;
+            } 
+        }
+        if(estatblish) break;
+    } 
 
+}
 

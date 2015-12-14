@@ -24,6 +24,7 @@ public:
 	void reloginDevice(bidderSymDevType sysType, const string& ip, unsigned short port);
 
 	void *get_throttle_request_handler();
+	void initPublishHandle(zeromqConnect &connector, throttleInformation& thro_info);
 	void *get_throttle_publish_handler();
 	void *get_throttle_manager_handler();
 	void *get_login_handler(int fd);

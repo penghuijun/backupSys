@@ -155,7 +155,7 @@ try
     /*
 	 * share memory vector<string> shmSubKeyVector
 	 */
-	#if 0 
+	#if 0
 	struct shm_remove	{		
 		shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
 		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
@@ -368,12 +368,14 @@ bool throttleServ::masterRun()
 
     cout << "master run" << endl;
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    cout << "master open sharememory fail" << endl;
     const CharAllocator charalloctor(segment.get_segment_manager());
     MyShmString mystring(charalloctor);
 
     mystring = "master pull hello world";
 
     shmSubKeyVector->push_back(mystring);
+    cout << "master push_back success" << endl;
 
     
       //ad thread, expire thread, poll thread

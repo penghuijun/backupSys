@@ -127,7 +127,7 @@ const string& bcSubKeyManager::addKey(vector<zmqSubscribeKey*>& keyList, const s
 			if((key->get_bidder_ip() == bidderIP) &&(key->get_bidder_port() == bidderPort))
 			{
 				g_manager_logger->warn("publish key exist:{0}", key->get_subKey());
-				return NULL;
+				return "";
 			}
 		}
 	}

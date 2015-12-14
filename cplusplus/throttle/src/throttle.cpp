@@ -155,12 +155,13 @@ try
     /*
 	 * share memory vector<string> shmSubKeyVector
 	 */
-	 
+	#if 0 
 	struct shm_remove	{		
 		shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
 		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
 	}remover;		
-		
+	#endif
+	
 	boost::interprocess::managed_shared_memory segment(boost::interprocess::create_only, "ShareMemory", 65536);
 	const StringAllocator stringalloctor(segment.get_segment_manager());
 	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);
@@ -171,6 +172,8 @@ try
     mystring = "this is a test";
 
     shmSubKeyVector->push_back(mystring);
+
+    
 
 		
 //dev manager init
@@ -363,6 +366,7 @@ void *throttleServ::throttleManager_handler(void *throttle)
 bool throttleServ::masterRun()
 {     
 
+    cout << "master run" << endl;
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
     const CharAllocator charalloctor(segment.get_segment_manager());
     MyShmString mystring(charalloctor);
@@ -1168,12 +1172,13 @@ void throttleServ::start_worker()
 {
     try
     {
-
+        cout << "worker run" << endl;
         boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
 	 MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
         string subKey;
 	 for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
 	{
+	        cout << "********" << endl;
 		subKey = (*it).data();
 		cout << subKey << endl;
 	}

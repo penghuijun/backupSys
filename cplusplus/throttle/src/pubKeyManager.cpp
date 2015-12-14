@@ -342,7 +342,7 @@ throttlePubKeyManager::throttlePubKeyManager()
 		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
 	}remover;	
 	#endif
-#if 1
+#if 0
 	boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
 	const StringAllocator stringalloctor(segment.get_segment_manager());
 	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);

@@ -173,6 +173,8 @@ try
 
     shmSubKeyVector->push_back(mystring);
 
+    m_throttleManager.setShmSubKeyVector(shmSubKeyVector);
+
     
 
 		

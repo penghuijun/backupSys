@@ -449,4 +449,9 @@ void throttleManager::workerPublishData(void *pubVastHandler, char *msgData, int
     m_throttlePublish.workerPublishData(pubVastHandler, msgData, msgLen);
 }
 
+void throttleManager::setShmSubKeyVector(MyShmStringVector *vec)
+{
+    m_throttlePublish.setShmSubKeyVector(vec);
+}
+
 

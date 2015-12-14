@@ -47,6 +47,7 @@ public:
 
 	void publishData(void *pubVastHandler, char *msgData, int msgLen);	
 	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
+	void setShmSubKeyVector(MyShmStringVector *vec);
 	
 	~throttleManager()
 	{

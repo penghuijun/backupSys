@@ -119,6 +119,7 @@ public:
 	bool connector_publishExist(const string& ip, unsigned short port);
 	void publishData(void *pubVastHandler, char *msgData, int msgLen);
 	void workerPublishData(void *pubVastHandler, char *msgData, int msgLen);
+	void setShmSubKeyVector(MyShmStringVector *vec){shmSubKeyVector = vec;}
 	void syncShmSubKeyVector();
 	~throttlePubKeyManager();
 private:

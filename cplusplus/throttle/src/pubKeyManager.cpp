@@ -548,19 +548,20 @@ void throttlePubKeyManager::publishData(void *pubVastHandler, char *msgData, int
 void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgData, int msgLen)
 {
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
-	MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
-	string subKey;
-	for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
-	{
-		subKey = (*it).data();
-		if(subKey.empty()==false)
+    MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
+    string subKey;
+    for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
+    {
+        subKey = (*it).data();
+        cout << subKey << endl;
+        if(subKey.empty()==false)
         {
             //publish data to bidder connector and BC
             
             zmq_send(pubVastHandler, subKey.c_str(), subKey.size(), ZMQ_SNDMORE|ZMQ_DONTWAIT);
             zmq_send(pubVastHandler, msgData+PUBLISHKEYLEN_MAX, msgLen-PUBLISHKEYLEN_MAX, ZMQ_DONTWAIT);  
         }
-	}
+    }
 }
 
 

@@ -216,6 +216,7 @@ public:
 	{	
 		m_displayMutex.destroy();
 		m_timeMutex.destroy();
+		boost::interprocess::shared_memory_object::remove("ShareMemory");
 	}
 	
 	

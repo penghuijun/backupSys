@@ -161,7 +161,7 @@ try
 		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
 	}remover;		
 	#endif
-	
+	boost::interprocess::shared_memory_object::remove("ShareMemory");
 	boost::interprocess::managed_shared_memory segment(boost::interprocess::create_only, "ShareMemory", 65536);
 	const StringAllocator stringalloctor(segment.get_segment_manager());
 	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);

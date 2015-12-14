@@ -280,33 +280,32 @@ void bcSubKeyManager::publishData(void *pubVastHandler, char *msgData, int msgLe
 
 void bcSubKeyManager::syncShareMemory(MyShmStringVector *shmSubKeyVector)
 {
-	boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
-	const CharAllocator charalloctor(segment.get_segment_manager());
-	MyShmString mystring(charalloctor);	
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    const CharAllocator charalloctor(segment.get_segment_manager());
+    MyShmString mystring(charalloctor);	
+    cout << "@@@ syncShareMemory" << endl;
     for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
     {
-		zmqSubscribeKey* keyObj = *bidder_it;
+        zmqSubscribeKey* keyObj = *bidder_it;
         string bidderKey = keyObj->get_subKey();
         if(bidderKey.empty()==false)
         {
-                    cout << "@@@ syncShareMemory" << endl;
-			mystring = bidderKey.c_str();
-			shmSubKeyVector->push_back(mystring);
-			cout << mystring << endl;
-		}
-	}
-	for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
+            mystring = bidderKey.c_str();
+            shmSubKeyVector->push_back(mystring);
+            cout << mystring << endl;
+        }
+    }
+    for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
     {
-		zmqSubscribeKey* keyObj = *connector_it;
+        zmqSubscribeKey* keyObj = *connector_it;
         string connectorKey = keyObj->get_subKey();
         if(connectorKey.empty()==false)
         {
-                cout << "@@@ syncShareMemory" << endl;
-			mystring = connectorKey.c_str();
-			shmSubKeyVector->push_back(mystring);
-			cout << mystring << endl;
-		}
-	}
+            mystring = connectorKey.c_str();
+            shmSubKeyVector->push_back(mystring);
+            cout << mystring << endl;
+        }
+    }
 }
 
 
@@ -566,11 +565,11 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
 
 void throttlePubKeyManager::syncShmSubKeyVector()
 {
-	shmSubKeyVector->clear();
-	for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
+    //shmSubKeyVector->clear();
+    for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end(); it++)
     {
         bcSubKeyManager* obj = *it;
-		obj->syncShareMemory(shmSubKeyVector);
+        obj->syncShareMemory(shmSubKeyVector);
     }
 }
 

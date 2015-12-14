@@ -153,27 +153,32 @@ try
     m_logRedisPort         = m_config.get_logRedisPort();
 
     /*
-	 * share memory vector<string> shmSubKeyVector
-	 */
-	#if 0
-	struct shm_remove	{		
-		shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
-		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
-	}remover;		
-	#endif
-	boost::interprocess::shared_memory_object::remove("ShareMemory");
-	boost::interprocess::managed_shared_memory segment(boost::interprocess::create_only, "ShareMemory", 65536);
-	const StringAllocator stringalloctor(segment.get_segment_manager());
-	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);
-	
+      * share memory vector<string> shmSubKeyVector
+      */
+    #if 0
+    struct shm_remove	{		
+        shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
+        ~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
+    }remover;		
+    #endif
+
+    boost::interprocess::shared_memory_object::remove("ShareMemory");
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::create_only, "ShareMemory", 65536);
+    const StringAllocator stringalloctor(segment.get_segment_manager());
+    shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);
+    
+    m_throttleManager.setShmSubKeyVector(shmSubKeyVector);
+
+    #if 0	
     const CharAllocator charalloctor(segment.get_segment_manager());
     MyShmString mystring(charalloctor);
 
     mystring = "this is a test";
 
     shmSubKeyVector->push_back(mystring);
+    shmSubKeyVector->clear();
+    #endif
 
-    m_throttleManager.setShmSubKeyVector(shmSubKeyVector);
 
     
 
@@ -367,7 +372,7 @@ void *throttleServ::throttleManager_handler(void *throttle)
 
 bool throttleServ::masterRun()
 {     
-
+    #if 0
     cout << "master run" << endl;
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
     cout << "master open sharememory fail" << endl;
@@ -378,6 +383,7 @@ bool throttleServ::masterRun()
 
     shmSubKeyVector->push_back(mystring);
     cout << "master push_back success" << endl;
+    #endif
 
     
       //ad thread, expire thread, poll thread
@@ -1176,6 +1182,7 @@ void throttleServ::start_worker()
 {
     try
     {
+    #if 0
         cout << "worker run" << endl;
         boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
 	 MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
@@ -1186,6 +1193,7 @@ void throttleServ::start_worker()
 		subKey = (*it).data();
 		cout << subKey << endl;
 	}
+    #endif
         
         m_timeMutex.init();
         m_zmq_connect.init();

@@ -152,6 +152,26 @@ try
     m_logRedisIP           = m_config.get_logRedisIP();
     m_logRedisPort         = m_config.get_logRedisPort();
 
+    /*
+	 * share memory vector<string> shmSubKeyVector
+	 */
+	 
+	struct shm_remove	{		
+		shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}		
+		~shm_remove() {boost::interprocess::shared_memory_object::remove("ShareMemory");}	
+	}remover;		
+		
+	boost::interprocess::managed_shared_memory segment(boost::interprocess::create_only, "ShareMemory", 65536);
+	const StringAllocator stringalloctor(segment.get_segment_manager());
+	shmSubKeyVector = segment.construct<MyShmStringVector>("subKeyVector")(stringalloctor);
+	
+    const CharAllocator charalloctor(segment.get_segment_manager());
+    MyShmString mystring(charalloctor);
+
+    mystring = "this is a test";
+
+    shmSubKeyVector->push_back(mystring);
+
 		
 //dev manager init
     m_throttleManager.init(m_zmq_connect, m_config.get_throttle_info(), m_config.get_connector_info(), m_config.get_bidder_info()
@@ -342,6 +362,16 @@ void *throttleServ::throttleManager_handler(void *throttle)
 
 bool throttleServ::masterRun()
 {     
+
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    const CharAllocator charalloctor(segment.get_segment_manager());
+    MyShmString mystring(charalloctor);
+
+    mystring = "master pull hello world";
+
+    shmSubKeyVector->push_back(mystring);
+
+    
       //ad thread, expire thread, poll thread
       pthread_t pth;
       pthread_t pthl;
@@ -1138,6 +1168,16 @@ void throttleServ::start_worker()
 {
     try
     {
+
+        boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+	 MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
+        string subKey;
+	 for(MyShmStringVector::iterator it = vec->begin(); it != vec->end(); it++)
+	{
+		subKey = (*it).data();
+		cout << subKey << endl;
+	}
+        
         m_timeMutex.init();
         m_zmq_connect.init();
         pid_t pid = getpid();

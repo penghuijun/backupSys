@@ -252,6 +252,8 @@ private:
 	void           *m_workerPushHandler = NULL;
 	int             m_workerPullFd;
 
+	MyShmStringVector		*shmSubKeyVector;
+
 };
 
 

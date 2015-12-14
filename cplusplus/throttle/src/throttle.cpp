@@ -882,7 +882,7 @@ void throttleServ::workerPublishData(char *msgData, int msgLen)
     /*
       *each request send to all bidder and connector by loop
       */
-    #if 1
+    #if 0
     void *pubVastHandler = m_throttleManager.get_throttle_publish_handler();
     if(pubVastHandler)
     {
@@ -894,6 +894,9 @@ void throttleServ::workerPublishData(char *msgData, int msgLen)
         g_file_logger->error("pubVastHandler null");
     }
     #endif
+    
+    g_file_logger->debug("woker publish:{0}, {1:d}", uuid, sendNum++);
+    m_throttleManager.workerPublishData(m_workerPublishHandler, msgData, msgLen);
     
 }
 
@@ -1207,7 +1210,10 @@ void throttleServ::start_worker()
         pthread_create(&pth2, NULL,  getTime,  this); 
         pthread_create(&pth3, NULL,  logWrite,  this); 
 
-        m_throttleManager.initPublishHandle(m_zmq_connect, m_config.get_throttle_info());
+        //m_throttleManager.initPublishHandle(m_zmq_connect, m_config.get_throttle_info());
+         throttleConfig& configure = m_throttleManager.get_throttleConfig();
+        m_workerPublishHandler = m_zmq_connect.establishConnect(false, "tcp", ZMQ_PUB, "*",
+                                configure.get_throttlePubPort(), NULL); 
 
         m_logRedisPoolManger.connectorPool_init(m_logRedisIP, m_logRedisPort, 10);
         //g_file_logger = spdlog::rotating_logger_mt("worker", "logs/debugfile", 1048576*500, 3, true); 

@@ -254,6 +254,7 @@ private:
 	int             m_workerPullFd;
 
 	MyShmStringVector		*shmSubKeyVector;
+	void 	*m_workerPublishHandler;
 
 };
 

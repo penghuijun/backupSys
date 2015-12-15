@@ -21,6 +21,14 @@
 #include "managerProto.pb.h"
 #include "zmqSubKeyManager.h"
 using namespace com::rj::protos::manager;
+
+typedef struct m_recvAdReq_t
+{
+	void			*m_recvAdReqFromThrottleHandler;
+	int 		 	 m_recvAdReqFromThrottleFd;
+	struct event	*m_recvAdReqFromThrottleEvent;
+}recvAdReq_t;
+
 class throSubKeyObject
 {
 public:
@@ -47,7 +55,7 @@ class throttleObject
 {
 public:
 	throttleObject(){m_throSubKeyList_lock.init();}
-	throttleObject(const string& throttle_ip, unsigned short pub_port, unsigned short manager_port);
+	throttleObject(const string& throttle_ip, unsigned short pub_port, unsigned short manager_port, unsigned short worker_num);
 	string get_throttleIP(){return m_throttle_ip;}
 	unsigned short get_throttlePubPort(){return m_throttle_pubPort;}
 	unsigned short get_throttleManagerPort(){return m_throttle_managerPort;}	
@@ -69,14 +77,13 @@ private:
 	string              		m_throttle_ip;
 	unsigned short           	m_throttle_pubPort;
 	unsigned short           	m_throttle_managerPort;
+	unsigned short		m_throttle_workerNum;
 
 	void 					   *m_sendLHRToThrottleHandler = NULL; //L:Login H:Heart R:register
 	int 						m_sendLHRToThrottleFd;
 	struct event			   *m_sendLHRToThrottleEvent;
 
-	void 					   *m_recvAdReqFromThrottleHandler = NULL;
-	int 						m_recvAdReqFromThrottleFd;
-	struct event			   *m_recvAdReqFromThrottleEvent;
+	vector<recvAdReq_t *>		m_recvAdReqVector;
 
 	bool                     	m_connectorLoginToThro = false;
 

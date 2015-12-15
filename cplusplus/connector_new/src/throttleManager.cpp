@@ -1,12 +1,13 @@
 #include "throttleManager.h"
 
-throttleObject::throttleObject(const string& throttle_ip, unsigned short pub_port, unsigned short manager_port)
+throttleObject::throttleObject(const string& throttle_ip, unsigned short pub_port, unsigned short manager_port, unsigned short worker_num)
 {
     try
     {
     	m_throttle_ip = throttle_ip;
     	m_throttle_pubPort = pub_port;
     	m_throttle_managerPort = manager_port;
+    	m_throttle_workerNum = worker_num;
         g_manager_logger->info("[add new throttle]:{0}, {1:d}", throttle_ip, manager_port);
     }
     catch(...)
@@ -24,10 +25,16 @@ void throttleObject::connectToThrottleManagerPort(zeromqConnect &connector, stri
 }
 void throttleObject::connectToThrottlePubPort(zeromqConnect &connector, struct event_base * base, event_callback_fn fn, void * arg)
 {    
-    m_recvAdReqFromThrottleHandler = connector.establishConnect(true,"tcp", ZMQ_SUB, 
-									m_throttle_ip.c_str(), m_throttle_pubPort, &m_recvAdReqFromThrottleFd);    
-    m_recvAdReqFromThrottleEvent = event_new(base, m_recvAdReqFromThrottleFd, EV_READ|EV_PERSIST, fn, arg); 
-    event_add(m_recvAdReqFromThrottleEvent, NULL);
+    for(int i=0; i<m_throttle_workerNum; i++)
+    {
+        recvAdReq_t *recvAdReq = new recvAdReq_t();
+        recvAdReq->m_recvAdReqFromThrottleHandler = connector.establishConnect(true,"tcp", ZMQ_SUB, 
+									m_throttle_ip.c_str(), m_throttle_pubPort+i, &recvAdReq->m_recvAdReqFromThrottleFd);    
+        recvAdReq->m_recvAdReqFromThrottleEvent = event_new(base, recvAdReq->m_recvAdReqFromThrottleFd, EV_READ|EV_PERSIST, fn, arg); 
+        event_add(recvAdReq->m_recvAdReqFromThrottleEvent, NULL);   
+        m_recvAdReqVector.push_back(recvAdReq);
+    }
+    
 }
 
 void throttleObject::sendLoginRegisterToThrottle(const string& ip,unsigned short manager_port)
@@ -48,13 +55,18 @@ void throttleObject::sendLoginRegisterToThrottle(const string& ip,unsigned short
         if(subKeyObject->get_throSubscribed() == false)
         {
             //if don't setsockopt with ZMQ_SUBSCRIBE option,this zmq_socket will recv nothing !!!
-            int rc = zmq_setsockopt(m_recvAdReqFromThrottleHandler,ZMQ_SUBSCRIBE,key.c_str(),key.size());
-            if(rc == 0)
+            for(auto it=m_recvAdReqVector.begin(); it != m_recvAdReqVector.end(); it++)
             {
-                subKeyObject->set_throSubscribed(true);
-                g_manager_logger->info("[add ZMQ_SUBSCRIBE]: {0}",key);
-                cout << "[add ZMQ_SUBSCRIBE]: " << key << endl;
-            }                   
+                recvAdReq_t *obj = *it;
+                int rc = zmq_setsockopt(obj->m_recvAdReqFromThrottleHandler,ZMQ_SUBSCRIBE,key.c_str(),key.size());
+                if(rc == 0)
+                {
+                    subKeyObject->set_throSubscribed(true);
+                    g_manager_logger->info("[add ZMQ_SUBSCRIBE]: {0}",key);
+                    cout << "[add ZMQ_SUBSCRIBE]: " << key << endl;
+                }    
+            }
+                           
         }
         if(subKeyObject->get_throRegisted() == false)
         {
@@ -76,12 +88,16 @@ void *throttleObject::get_sendLoginRegisterToThrottleHandler(int fd)
 }
 void *throttleObject::get_recvAdReqFromThrottleHandler(int fd)
 {   
-    if(fd == m_recvAdReqFromThrottleFd)
-    {        
-        return m_recvAdReqFromThrottleHandler;
+    for(auto it=m_recvAdReqVector.begin(); it != m_recvAdReqVector.end(); it++)
+    {
+        recvAdReq_t *obj = *it;
+        if(fd == obj->m_recvAdReqFromThrottleFd)
+        {        
+            return obj->m_recvAdReqFromThrottleHandler;
+        }
     }
-    else
-        return NULL;
+
+    return NULL;
 }
 
 bool throttleObject::drop()
@@ -102,15 +118,19 @@ bool throttleObject::drop()
 }
 void throttleObject::set_zmqUnsubscribeKey(string& key)
 {
-    int rc =  zmq_setsockopt(m_recvAdReqFromThrottleHandler, ZMQ_UNSUBSCRIBE, key.c_str(), key.size());
-    if(rc!=0)
+    for(auto it=m_recvAdReqVector.begin(); it != m_recvAdReqVector.end(); it++)
     {
-    	g_manager_logger->info("unsucsribe {0} failure:: {1}", key, zmq_strerror(zmq_errno()));	    	
-    }
-    else
-    {
-    	g_manager_logger->info("unsucsribe {0} success", key);
-    }	
+        recvAdReq_t *obj = *it;
+        int rc =  zmq_setsockopt(obj->m_recvAdReqFromThrottleHandler, ZMQ_UNSUBSCRIBE, key.c_str(), key.size());
+        if(rc!=0)
+        {
+        	g_manager_logger->info("unsucsribe {0} failure:: {1}", key, zmq_strerror(zmq_errno()));	    	
+        }
+        else
+        {
+        	g_manager_logger->info("unsucsribe {0} success", key);
+        }	
+    }    
 }
 bool throttleObject::add_throSubKey(string &key)
 {
@@ -192,7 +212,7 @@ void throttleManager::init(throttleInformation& throttleInfo)
         {
             throttleConfig* thro_config = *thro_it;
             if(thro_config == NULL) continue;
-            throttleObject *thro_Obj = new throttleObject(thro_config->get_throttleIP(),thro_config->get_throttlePubPort(),thro_config->get_throttleManagerPort());
+            throttleObject *thro_Obj = new throttleObject(thro_config->get_throttleIP(),thro_config->get_throttlePubPort(),thro_config->get_throttleManagerPort(), thro_config->get_throttleWorkerNum());
 
             m_throttleList_lock.lock();
             m_throttle_list.push_back(thro_Obj);
@@ -282,7 +302,7 @@ bool throttleManager::add_throttle(const string& ip,unsigned short dataPort,unsi
 			return false;
         }
     }
-    throttleObject *throttle = new throttleObject(ip, dataPort, managerPort);
+    throttleObject *throttle = new throttleObject(ip, dataPort, managerPort, 3);
     throttle->connectToThrottleManagerPort(connector,Identify,base,fn,arg);
     m_throttle_list.push_back(throttle);
     m_throttleList_lock.unlock();

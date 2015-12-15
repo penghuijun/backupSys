@@ -776,7 +776,7 @@ void throttleServ::workerPublishData(char *msgData, int msgLen)
     //displayRecord();
     if(m_workerPublishHandler)
     {
-        g_file_logger->debug("woker publish:{0}, {1:d}", uuid, sendNum++);
+        g_file_logger->debug("worker[{0:d}] publish:{1}, sendNum:{2:d}", getpid(),uuid, sendNum++);
         m_throttleManager.workerPublishData(m_workerPublishHandler, msgData, msgLen);
     }
     else

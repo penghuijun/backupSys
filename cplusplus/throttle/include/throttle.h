@@ -245,7 +245,7 @@ private:
 	logManager      m_logManager;
 	
 	void           *m_masterPushHandler = NULL;
-	void		   *m_masterPullHandler = NULL;
+	//void		   *m_masterPullHandler = NULL;
 	int             m_masterPullFd;
 
 	void           *m_workerPullHandler = NULL;

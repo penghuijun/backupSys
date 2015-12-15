@@ -190,8 +190,9 @@ try
 
 //establish connect between master with worker    
     m_masterPushHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PUSH, "masterworker" , NULL);
-    m_masterPullHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PULL, "workermaster" , &m_masterPullFd);    
-    if((m_masterPushHandler == NULL)||(m_masterPullHandler == NULL))
+    //m_masterPullHandler = m_zmq_connect.establishConnect(false, "ipc", ZMQ_PULL, "workermaster" , &m_masterPullFd);    
+    //if((m_masterPushHandler == NULL)||(m_masterPullHandler == NULL))
+    if(m_masterPushHandler == NULL)
     {
         g_manager_logger->emerg("[master push or pull exception]");
         exit(1);
@@ -357,8 +358,8 @@ void *throttleServ::throttleManager_handler(void *throttle)
     eventArgment *arg = new eventArgment(base, throttle);
 
     //master pull worker handlered msg
-    struct event *masterPullEvent = event_new(base, serv->m_masterPullFd, EV_READ|EV_PERSIST, masterPullMsg, throttle); 
-    event_add(masterPullEvent, NULL);
+    //struct event *masterPullEvent = event_new(base, serv->m_masterPullFd, EV_READ|EV_PERSIST, masterPullMsg, throttle); 
+    //event_add(masterPullEvent, NULL);
 
     //subscribe throttle async event
     serv->m_throttleManager.throttleRequest_event_new(base, recvAD_callback, throttle);   

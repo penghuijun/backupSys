@@ -121,7 +121,7 @@ void throttleServ::updateConfigure()
 }
 
 //throttleServ structure
-throttleServ::throttleServ(configureObject &config):m_config(config)
+throttleServ::throttleServ(configureObject &config):m_config(config),m_workerPublishHandler(NULL)
 {
 try
 {

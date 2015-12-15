@@ -23,6 +23,12 @@ using namespace com::rj::protos::manager;
 
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
+typedef struct m_recvAdReq_t
+{
+	int                      m_throttle_pubFd;//throttle zeromq publish fd
+	void*                    m_throtlePubHandler = NULL;
+	struct event*            m_throttleEvent = NULL;
+}recvAdReq_t;
 
 class zmqSubscribeKey
 {
@@ -110,7 +116,7 @@ class throttleObject
 {
 public:
 	throttleObject(){}
-	throttleObject(const string& throttle_ip, unsigned short throttle_port, unsigned short manager_port);
+	throttleObject(const string& throttle_ip, unsigned short throttle_port, unsigned short manager_port, unsigned short throttle_workerNum);
 	bool add_subkey(string &key)
 	{
 		for(auto it = m_subThroKey_list.begin(); it != m_subThroKey_list.end(); it++)
@@ -135,8 +141,8 @@ public:
 	string&        get_throttle_ip(){return m_throttle_ip;}
 	unsigned short get_throttle_port(){return m_throttle_pubPort;}
 	unsigned short get_throttle_managerPort(){return m_throttle_managerPort;}
-	int            get_fd(){return m_throttle_pubFd;}
-	void*          get_handler(){return m_throtlePubHandler;}
+	//int            get_fd(){return m_throttle_pubFd;}
+	//void*          get_handler(){return m_throtlePubHandler;}
 	void*          get_manager_handler(int fd);
 	int            get_manager_fd(){return m_throttleManagerFd;}
 	
@@ -178,8 +184,15 @@ public:
 			it = m_subThroKey_list.erase(it);
 		}
 
-		if(m_throttleEvent) event_del(m_throttleEvent);
-		if(m_throtlePubHandler) zmq_close(m_throtlePubHandler);
+		for(auto it = m_recvAdReqVector.begin(); it != m_recvAdReqVector.end(); )
+		{
+		        recvAdReq_t *obj = *it;
+		        if(obj->m_throttleEvent) event_del(obj->m_throttleEvent);
+		        if(obj->m_throtlePubHandler) zmq_close(obj->m_throtlePubHandler);
+		        delete obj;
+		        obj = NULL;
+		        it = m_recvAdReqVector.erase(it);
+		}
 		if(m_throttleManagerEvent) event_del(m_throttleManagerEvent);
 		if(m_throtleManagerHandler) zmq_close(m_throtleManagerHandler);
 
@@ -189,10 +202,9 @@ private:
 	string                   m_throttle_ip;
 	unsigned short           m_throttle_pubPort;
 	unsigned short           m_throttle_managerPort;
+	unsigned short	     m_throttle_workerNum;
 
-	int                      m_throttle_pubFd;//throttle zeromq publish fd
-	void*                    m_throtlePubHandler = NULL;
-	struct event*            m_throttleEvent = NULL;
+	vector<recvAdReq_t *> m_recvAdReqVector;
 
 	int                      m_throttleManagerFd;//throttle zeromq publish fd
 	void*                    m_throtleManagerHandler = NULL;

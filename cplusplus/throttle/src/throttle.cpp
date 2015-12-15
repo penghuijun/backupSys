@@ -1100,14 +1100,14 @@ void throttleServ::start_worker()
         int hwm = 30000;
         throttleConfig& configure = m_throttleManager.get_throttleConfig();
 
-        int i = 0;
+        int pubPort = configure.get_throttlePubPort();
         while(m_workerPublishHandler == NULL)
         {
             m_workerPublishHandler = m_zmq_connect.establishConnect(false, "tcp", ZMQ_PUB, "*",
-                                configure.get_throttlePubPort()+i, NULL);
-            i++;
+                                pubPort, NULL);
+            pubPort++;
         }     
-        i--;
+        pubPort--;
         zmq_setsockopt(m_workerPublishHandler, ZMQ_RCVHWM, &hwm, sizeof(hwm));          
 
         m_logRedisPoolManger.connectorPool_init(m_logRedisIP, m_logRedisPort, 10);
@@ -1122,7 +1122,8 @@ void throttleServ::start_worker()
             g_file_logger->info("worker push or pull exception");
             exit(1); 
         }
-        g_file_logger->info("worker {0:d} push or pull success, pubPort: {1:d}", pid, configure.get_throttlePubPort()+i);
+        
+        g_file_logger->info("worker {0:d} push or pull success, pubPort: {1:d}", pid, pubPort);
         
         struct event_base* base = event_base_new();    
         struct event * hup_event = evsignal_new(base, SIGHUP, hupSigHandler, this);

@@ -22,6 +22,13 @@ using namespace com::rj::protos::manager;
 
 extern shared_ptr<spdlog::logger> g_manager_logger;
 
+typedef struct m_recvAdReq_t
+{
+	int                      	m_throttlepubFd;//throttle zeromq publish fd
+	void*                    m_throtllePubHandler = NULL;
+	struct event*          m_throttlePubEvent = NULL;
+}recvAdReq_t;
+
 class zmqSubscribeKey
 {
 public:
@@ -86,7 +93,7 @@ class throttleObject
 {
 public:
 	throttleObject();
-	throttleObject(const string& throttleIP, unsigned short throttleManagerPort, unsigned short throttlePubPort);
+	throttleObject(const string& throttleIP, unsigned short throttleManagerPort, unsigned short throttlePubPort, unsigned short 	throttleWorkerNum);
 	bool set_subscribe_opt(string &key);
 	bool set_unsubscribe_opt(string &key);
 	bool startSubThrottle(vector<zmqSubscribeKey*>& subKeyList, zeromqConnect& conntor, 
@@ -95,7 +102,7 @@ public:
 	int            get_fd();
 	string&        get_throttleIP();
 	unsigned short get_throttlePubPort();
-	void *         get_throttlePubHandler();
+	void *         get_throttlePubHandler(int fd);
 
 	unsigned short get_throttleManagerPort(){return m_throttleManagerPort;}
 	void *         get_throttleManagerHandler(int fd);
@@ -111,9 +118,9 @@ public:
 private:
 	string                   m_throttleIP;
 	unsigned short           m_throttlePubPort;
-	int                      m_throttlepubFd;//throttle zeromq publish fd
-	void*                    m_throtllePubHandler = NULL;
-	struct event*            m_throttlePubEvent = NULL;
+	unsigned short 	m_throttleWorkerNum;
+
+	vector<recvAdReq_t *> m_recvAdReqVector;
 
 	unsigned short           m_throttleManagerPort;
 	int                      m_throttleManagerFd;

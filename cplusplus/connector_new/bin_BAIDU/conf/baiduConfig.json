@@ -1,0 +1,48 @@
+ {
+    "name":"baidu dsp",
+
+/*HTTP REQUEST LINE*/
+    "adReqType": "GET ",    
+    "adReqDomain": "btlaunch.baidu.com",
+    "adReqPort": "80",    
+	"adReqUrl":"/baitong/index.php",
+    
+/*HTTP HEADER CONFIG*/
+    "Connection": "Keep-Alive", 
+    "Content-Type": "application/json",  
+    "charset": "UTF-8",   
+    "Host": "btlaunch.baidu.com",    
+    "X-Forwarded-For": "121.14.151.103",
+
+    "httpVersion": " HTTP/1.1",
+
+/*FILTER*/    
+    //"extNetId":"102",
+    "intNetId":"10",    
+	"maxConnectNum":50,	
+	"preConnectNum":10,
+    "maxFlowLimit":0,
+	
+	
+    
+    "price":20,
+	
+    "appFilter":[
+        "com.rj.rj2048"
+    ],
+    "adTypeFilter":[
+        "banner",
+        "interstitial"
+    ],
+    "paraFilter":[
+        "server16"
+    ],
+    "appTypeFilter":[
+        "app"
+    ],
+    "adSizeFilter":[
+        "320*50",
+        "300*250",
+        "728*90"
+    ]
+}

@@ -1,0 +1,27 @@
+{
+	"enChinaTelecom":false,
+	"logTeleReq":false,
+	"logTeleHttpRsp":false,
+	"logTeleRsp":false,
+
+	"enGYIN":false,
+	"logGYINReq":false,
+	"logGYINHttpRsp":false,
+	"logGYINRsp":false,
+
+	"enSmaato":false,
+	"logSmaatoReq":false,
+	"logSmaatoHttpRsp":false,
+	"logSmaatoRsp":false,
+
+	"enInMobi":true,
+	"logInMobiReq":false,
+	"logInMobiHttpRsp":false,
+	"logInMobiRsp":false,
+
+	"enBaidu":true,
+	"logBaiduReq":false,
+	"logBaiduHttpRsp":false,
+	"logBaiduRSP":false
+
+}

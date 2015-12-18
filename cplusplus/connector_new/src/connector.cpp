@@ -3896,8 +3896,11 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid brand");
-        return false;
+        string brand = "brand=Coolpad";
+        strcat(strbuf, brand.c_str());
+        strcat(strbuf, "&");
+        //g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid brand");
+        //return false;
     }
 
     if(!query_buf.at(3).empty())
@@ -3908,8 +3911,11 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid model");
-        return false;
+        string model = "model=Coolpad7296S";
+        strcat(strbuf, model.c_str());
+        strcat(strbuf, "&");
+        //g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid model");
+        //return false;
     }
 
     string resolution = "resolution="+dev.screenwidth()+"x"+dev.screenheight();
@@ -4010,8 +4016,9 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
-        return false;
+        log_id = "863278023205287" + mobile_request.timestamp();
+        //g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
+        //return false;
     }
     strcat(strbuf, log_id.c_str());
     strcat(strbuf, "&");

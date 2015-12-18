@@ -3818,6 +3818,29 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     MobileAdRequest_GeoInfo geo = mobile_request.geoinfo();    
     MobileAdRequest_Aid aid = mobile_request.aid();
 
+    string imei_v;
+    string imsi_v;
+    string mac_v;
+    int size = mobile_request.parameter_size();
+    int i=0;
+    for(; i<size; i++)
+    {
+        MobileAdRequest_Parameter parameter = mobile_request.parameter(i);
+        if(strcmp(parameter.key().c_str(),"imei") == 0)
+        {
+            imei_v  = parameter.value();            
+        }            
+        else if(strcmp(parameter.key().c_str(),"imsi") == 0)
+        {
+            imsi_v = parameter.value();    
+        }
+        else if(strcmp(parameter.key().c_str(),"imsi") == 0)
+        {
+            mac_v = parameter.value();
+        }
+    }
+    
+
     /*
       * query_buf :  [0]carrier         [1]language     [2]vender   [3]modelname
       *                     [4]platform      [5]platformversion     
@@ -3851,27 +3874,13 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     strcat(strbuf, product_version.c_str());
     strcat(strbuf, "&");
 
-    string imei = "imei=";
-    if((dev.has_udid())&&(dev.udid().empty() == false))
-    {
-        imei += dev.udid();
-    }
-    else if(dev.has_hidmd5() && dev.has_hidsha1())
-    {
-        string tempid = dev.hidmd5() + "-" + dev.hidsha1();
-        imei += tempid;
-    }   
-    else
-    {
-        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid imei");
-        return false;
-    }
+    string imei = "imei="+imei_v;    
     strcat(strbuf, imei.c_str());
     strcat(strbuf, "&");
 
     if(!strcmp(query_buf.at(4).c_str(), "Android"))     // if devive type = andriod
     {
-        string imsi = "imsi=460003841633126";
+        string imsi = "imsi="+imsi_v;
         strcat(strbuf, imsi.c_str());
         strcat(strbuf, "&");
     }
@@ -3922,7 +3931,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     strcat(strbuf, resolution.c_str());
     strcat(strbuf, "&");
 
-    string mac = "mac=22:c9:d0:88:90:00";
+    string mac = "mac="+mac_v;
     strcat(strbuf, mac.c_str());
 
     string params = "params=" + UrlEncode(strbuf);
@@ -4016,7 +4025,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        log_id = "863278023205287" + mobile_request.timestamp();
+        log_id = imei_v + mobile_request.timestamp();
         //g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
         //return false;
     }
@@ -4044,6 +4053,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
         strbuf[len-1] = '\0';
     }
 
+    g_workerBAIDU_logger->trace("Baidu_ConvertProtoToHttpGETArg");
     return true;
     
 }

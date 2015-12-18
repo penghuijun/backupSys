@@ -14,7 +14,7 @@
 	"logSmaatoHttpRsp":false,
 	"logSmaatoRsp":false,
 
-	"enInMobi":true,
+	"enInMobi":false,
 	"logInMobiReq":false,
 	"logInMobiHttpRsp":false,
 	"logInMobiRsp":false,

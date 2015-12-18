@@ -3810,7 +3810,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     char *strbuf = buf;
     if((!mobile_request.has_device()) || (!mobile_request.has_geoinfo()) ||(!mobile_request.has_aid()))
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid device |geoinfo |aid ");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid device |geoinfo |aid ");
         return false;
     }
     
@@ -3826,11 +3826,11 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     vector<string> query_buf;
     if(getStringFromSQLMAP(query_buf,dev,geo))
     {
-        g_workerSMAATO_logger->trace("get string from SQLMAP success!");
+        g_workerBAIDU_logger->trace("get string from SQLMAP success!");
     }
     else
     {
-        g_workerSMAATO_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
+        g_workerBAIDU_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
         return false;
     }         
 
@@ -3863,7 +3863,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }   
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid imei");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid imei");
         return false;
     }
     strcat(strbuf, imei.c_str());
@@ -3884,7 +3884,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid os_version");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid os_version");
         return false;
     }
 
@@ -3896,7 +3896,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid brand");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid brand");
         return false;
     }
 
@@ -3908,7 +3908,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid model");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid model");
         return false;
     }
 
@@ -3942,7 +3942,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid secret");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid secret");
         return false;
     }
 
@@ -3957,7 +3957,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     string apptype = mobile_request.apptype();
     if(strcmp(apptype.c_str(), "app"))      //is not app request filter
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid apptype [no app]");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid apptype [no app]");
         return false;
     }
 
@@ -3974,7 +3974,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
         case MobileAdRequest_AdType_NATIVE:            
         default:
             {
-                g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT ADTYPE");
+                g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT ADTYPE");
                 return false;
             }
             break;
@@ -3993,7 +3993,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT platform");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT platform");
         return false;
     }
     strcat(strbuf, platform.c_str());
@@ -4010,7 +4010,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     }
     else
     {
-        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
+        g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
         return false;
     }
     strcat(strbuf, log_id.c_str());
@@ -4358,24 +4358,24 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
           */
        if(m_config.get_enBaidu())
         {
-            int BAIDU_maxFlowLimit = m_dspManager.getSmaatoObject()->getMaxFlowLimit();
-            int BAIDU_curFlowCount = m_dspManager.getSmaatoObject()->getCurFlowCount();
+            int BAIDU_maxFlowLimit = m_dspManager.getBaiduObject()->getMaxFlowLimit();
+            int BAIDU_curFlowCount = m_dspManager.getBaiduObject()->getCurFlowCount();
             if((BAIDU_curFlowCount < BAIDU_maxFlowLimit)||(BAIDU_maxFlowLimit == 0))
             {
                 char *http_getArg = new char[4096];
                 memset(http_getArg, 0 ,4096*sizeof(char));
-                if(!Smaato_ConvertProtoToHttpGETArg(http_getArg, mobile_request))
+                if(!Baidu_ConvertProtoToHttpGETArg(http_getArg, mobile_request))
                     return ;
                 int sock = 0;
-                if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid, ua)) <= 0)
+                if((sock = m_dspManager.sendAdRequestToBaiduDSP(http_getArg, strlen(http_getArg), uuid, ua)) <= 0)
                 {
                     g_workerBAIDU_logger->debug("POST TO BAIDU fail uuid: {0}", uuid);
                 }
                 else
                 {
                     if(BAIDU_maxFlowLimit != 0)
-                        m_dspManager.getSmaatoObject()->curFlowCountIncrease();
-                    g_workerBAIDU_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+                        m_dspManager.getBaiduObject()->curFlowCountIncrease();
+                    g_workerBAIDU_logger->debug("POST TO BAIDU success uuid: {0}", uuid);
 	                
 
                     char *fullData = new char[BUF_SIZE];

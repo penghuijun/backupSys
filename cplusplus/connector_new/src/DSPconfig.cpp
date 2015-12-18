@@ -5,6 +5,8 @@ extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
 extern shared_ptr<spdlog::logger> g_workerINMOBI_logger;
+extern shared_ptr<spdlog::logger> g_workerBAIDU_logger;
+
 #if 0
 bool chinaTelecomObject::string_find(string& str1, const char* str2)
 {    
@@ -168,6 +170,9 @@ void dspObject::readDSPconfig(dspType type)
             break;
         case INMOBI:
             filename = "./conf/inmobiConfig.json";
+            break;
+        case BAIDU:
+            filename = "./conf/baiduConfig.json";
             break;
         default:
             break;
@@ -1359,6 +1364,240 @@ void inmobiObject::inmobiAddConnectToDSP(void *arg)
     return ;
     
 }
+
+void baiduObject::readBaiduConfig()
+{
+     ifstream ifile; 
+    ifile.open("./conf/baiduConfig.json",ios::in);
+    if(ifile.is_open() == false)
+    {               
+        g_master_logger->error("Open baiduConfig.json failure...");
+        exit(1);    
+    }   
+    
+    Json::Reader reader;
+    Json::Value root;
+    
+    if(reader.parse(ifile, root))
+    {
+        ifile.close();       
+    
+        //filter
+        
+        price = root["price"].asInt();
+        
+    }
+    else
+    {
+        g_master_logger->error("Parse baiduConfig.json failure...");
+        ifile.close();
+        exit(1);
+    }    
+}
+
+void baiduObject::baiduAddConnectToDSP(void *arg)
+{
+    baiduObject *baiduObj = (baiduObject *)arg;
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        g_workerBAIDU_logger->error("ADD CON SOCK CREATE FAIL ...");
+        baiduObj->connectNumReduce();
+        return ;
+    }   
+
+    //非阻塞
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    
+    //建立连接
+    //int ret = connect(sock, (const struct sockaddr *)&sin, sizeof(sockaddr_in));    
+    int ret = connect(sock, (const sockaddr*)baiduObj->getSockAddr_in(), sizeof(sockaddr_in));   
+    if(checkConnect(sock, ret) <= 0)
+    {
+        g_workerBAIDU_logger->error("ADD CON CONNECT FAIL ...");      
+        baiduObj->connectNumReduce();
+        close(sock);
+        baiduObj->addr_init();
+        return ;
+    }
+
+    //add this socket to event listen queue
+    baiduObj->baiduSocketList_Locklock();
+    baiduObj->getBaiduSocketList()->push_back(sock);
+    baiduObj->baiduSocketList_Lockunlock();
+    return ;
+}
+int baiduObject::sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua)
+{
+    //初始化发送信息
+    char *send_str = new char[4096];
+    memset(send_str,0,4096*sizeof(char));       
+
+    //请求行
+    strcat(send_str, getAdReqType().c_str());
+    string Url = getAdReqUrl() + "?" + data;
+    strcat(send_str, Url.c_str());    
+    strcat(send_str, getHttpVersion().c_str());    
+    strcat(send_str, "\r\n");        
+
+    //头信息
+    gen_HttpHeader(send_str, 0, ua);
+
+    strcat(send_str, "\r\n");
+
+    
+    if(getCurConnectNum() == 0)
+    {
+        g_workerBAIDU_logger->debug("NO CONNECTION TO BAIDU");
+        return false;
+    }
+    
+    
+    int sock = 0;
+
+    baiduSocketList_Lock.lock();
+    if(!baiduSocketList->empty())
+    {
+        sock = baiduSocketList->front();
+        baiduSocketList->pop_front();
+    }    
+    baiduSocketList_Lock.unlock();  
+
+    if(sock == 0)
+    {
+        g_workerBAIDU_logger->debug("NO IDLE SOCK , CurConnectNum: {0}", getCurConnectNum());
+        delete [] send_str;
+        return 0;
+    }
+    
+    
+    int ret_t = sock;
+    g_workerBAIDU_logger->debug("start send to dsp uuid: {0}", uuid);
+    g_workerBAIDU_logger->debug("SEND\r\n{0}", send_str);
+    if(socket_send(sock, send_str, strlen(send_str)) == -1)
+    {        
+        g_workerBAIDU_logger->error("adReqSock send failed ...");
+        close(sock);
+        baiduSocketList_Lock.lock();
+        connectNumReduce();
+        baiduSocketList_Lock.unlock();
+        ret_t  = -1;
+    }         
+
+    delete [] send_str;    
+    return ret_t;
+}
+bool baiduObject::recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t)
+{
+    //获取返回信息  
+        char *recv_str = new char[BUF_SIZE];
+        memset(recv_str, 0, BUF_SIZE*sizeof(char));    
+        int recv_bytes = 0;    
+        
+        //g_workerSMAATO_logger->debug("RECV {0} HTTP RSP by PID: {1:d}", dspName, getpid());
+        
+    
+        int temp = 0;
+        bool waitFlag = true;
+        timeval startTime;
+        memset(&startTime,0,sizeof(struct timeval));
+        gettimeofday(&startTime,NULL);
+        long long start_timeMs = startTime.tv_sec*1000 + startTime.tv_usec/1000;
+        
+    
+        timeval curTime;
+        
+        while(1)
+            {
+                memset(&curTime,0,sizeof(struct timeval));
+                gettimeofday(&curTime,NULL);
+                long long cur_timeMs = curTime.tv_sec*1000 + curTime.tv_usec/1000;
+    
+                if((cur_timeMs - start_timeMs) >= 600)  //600ms
+                {
+                    g_workerBAIDU_logger->debug("WAIT TIMEOUT CLOSE SOCKET");        
+                    baiduSocketList_Lock.lock();
+                    connectNumReduce();
+                    baiduSocketList_Lock.unlock();
+                    close(sock);
+                    delete [] recv_str;
+                    delete [] fullData_t->data;
+                    delete [] fullData_t;
+                    return false;
+                }
+                
+                memset(recv_str,0,BUF_SIZE*sizeof(char));    
+                recv_bytes = recv(sock, recv_str, BUF_SIZE*sizeof(char), 0);
+                if (recv_bytes == 0)    //connect abort
+                {
+                    g_workerBAIDU_logger->debug("server {0} CLOSE_WAIT ... \r\n", "SMAATO");    
+                    baiduSocketList_Lock.lock();
+                    connectNumReduce();
+                    baiduSocketList_Lock.unlock();
+                    close(sock);
+                    delete [] recv_str;
+                    delete [] fullData_t->data;
+                    delete [] fullData_t;
+                    return false;
+                }
+                else if (recv_bytes < 0)  //SOCKET_ERROR
+                {
+                    //socket type: O_NONBLOCK
+                    if(errno == EAGAIN)     //EAGAIN mean no data in recv_buf world be read, loop break
+                    {
+                        //g_workerSMAATO_logger->trace("ERRNO EAGAIN: RECV END");
+                        if(waitFlag)
+                        {
+                            usleep(10000); //10ms
+                            continue ;
+                        }
+                        else
+                        {
+                            baiduSocketList_Lock.lock();
+                            baiduSocketList->push_back(sock);
+                            baiduSocketList_Lock.unlock();
+                            break;
+                        }
+                    }
+                    else if(errno == EINTR) //function was interrupted by a signal that was caught, before any data was available.need recv again
+                    {
+                        g_workerBAIDU_logger->trace("ERRNO EINTR: RECV AGAIN");
+                        continue;
+                    }
+                }
+                else    //normal success
+                {
+                    waitFlag = false;
+                    if(temp)
+                        g_workerBAIDU_logger->trace("SPLICE HAPPEN");
+                    g_workerBAIDU_logger->debug("\r\n{0}", recv_str);            
+                    int full_expectLen = fullData_t->curLen + recv_bytes;
+                    if(full_expectLen > BUF_SIZE)
+                    {
+                        g_workerBAIDU_logger->error("RECV BYTES:{0:d} > BUF_SIZE[{1:d}], THROW AWAY", full_expectLen, BUF_SIZE);
+                        baiduSocketList_Lock.lock();
+                        connectNumReduce();
+                        baiduSocketList_Lock.unlock();
+                        close(sock);
+                        delete [] recv_str;
+                        delete [] fullData_t->data;
+                        delete [] fullData_t;
+                        return false;
+                    }
+                    char *curPos = fullData_t->data + fullData_t->curLen;
+                    memcpy(curPos, recv_str, recv_bytes);
+                    fullData_t->curLen += recv_bytes;
+                    temp++;            
+                }
+                //usleep(10000); //10ms
+            }
+            
+    delete [] recv_str;
+    return true;
+
+}
+
 
 
 

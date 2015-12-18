@@ -32,6 +32,7 @@ extern shared_ptr<spdlog::logger> g_worker_logger;
 extern shared_ptr<spdlog::logger> g_workerGYIN_logger;
 extern shared_ptr<spdlog::logger> g_workerSMAATO_logger;
 extern shared_ptr<spdlog::logger> g_workerINMOBI_logger;
+extern shared_ptr<spdlog::logger> g_workerBAIDU_logger;
 
 
 
@@ -2989,14 +2990,14 @@ bool connectorServ::Tele_AdReqJsonAddDevice(Json::Value &device,const MobileAdRe
     Json::Value dev_geo;
     Json::Value ext;
 
-    int size = mobile_request.paramter_size();
+    int size = mobile_request.parameter_size();
     int i=0;
     for(; i<size; i++)
     {
-        MobileAdRequest_Paramter paramter = mobile_request.paramter(i);
-        if(strcmp(paramter.key().c_str(),"imei") == 0)
+        MobileAdRequest_Parameter parameter = mobile_request.parameter(i);
+        if(strcmp(parameter.key().c_str(),"imei") == 0)
         {
-            ext["imei"]     = paramter.value();
+            ext["imei"]     = parameter.value();
             break;
         }            
     }
@@ -3060,7 +3061,7 @@ void connectorServ::Tele_AdReqJsonAddImp(Json::Value &impArray,const MobileAdReq
     imp["secure"] = 1;
     impArray.append(imp);
 }
-bool connectorServ::convertProtoToTeleJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request)
+bool connectorServ::Tele_convertProtoToJson(string &reqTeleJsonData,const MobileAdRequest& mobile_request)
 {
     string id = mobile_request.id();                           
         
@@ -3251,14 +3252,14 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
         return false;
     }           
     
-    int size = mobile_request.paramter_size();
+    int size = mobile_request.parameter_size();
     int i=0;
     for(; i<size; i++)
     {
-        MobileAdRequest_Paramter paramter = mobile_request.paramter(i);
-        if(strcmp(paramter.key().c_str(),"imei") == 0)
+        MobileAdRequest_Parameter parameter = mobile_request.parameter(i);
+        if(strcmp(parameter.key().c_str(),"imei") == 0)
         {
-            device->set_imei(paramter.value());
+            device->set_imei(parameter.value());
             break;
         }            
     }
@@ -3310,7 +3311,7 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     
 }
 
-bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request)
+bool connectorServ::GYin_ConvertProtoToProto(BidRequest& bidRequest,const MobileAdRequest& mobile_request)
 {
     MobileAdRequest_Device dev = mobile_request.device();
     
@@ -3422,7 +3423,7 @@ bool connectorServ::convertProtoToGYinProto(BidRequest& bidRequest,const MobileA
     return true;    
 }
 
-bool connectorServ::convertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request)
+bool connectorServ::Smaato_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request)
 {
     char *strbuf = buf;
     if((!mobile_request.has_device()) || (!mobile_request.has_geoinfo()) ||(!mobile_request.has_aid()))
@@ -3767,7 +3768,7 @@ bool connectorServ::InMobi_AdReqJsonAddUser(Json::Value &user, const MobileAdReq
 
     return true;
 }
-bool connectorServ::convertProtoToInMobiJson(string & reqTeleJsonData,const MobileAdRequest & mobile_request)
+bool connectorServ::InMobi_ConvertProtoToJson(string & reqTeleJsonData,const MobileAdRequest & mobile_request)
 {
     string apptype = mobile_request.apptype();      // 3 types: "app" "mweb" "pcweb"
 
@@ -3803,6 +3804,244 @@ bool connectorServ::convertProtoToInMobiJson(string & reqTeleJsonData,const Mobi
     g_workerINMOBI_logger->trace("MobileAdRequest.proto->TeleBidRequest.json success");
     return true;
 }
+
+bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequest& mobile_request)
+{
+    char *strbuf = buf;
+    if((!mobile_request.has_device()) || (!mobile_request.has_geoinfo()) ||(!mobile_request.has_aid()))
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid device |geoinfo |aid ");
+        return false;
+    }
+    
+    MobileAdRequest_Device dev = mobile_request.device();    
+    MobileAdRequest_GeoInfo geo = mobile_request.geoinfo();    
+    MobileAdRequest_Aid aid = mobile_request.aid();
+
+    /*
+      * query_buf :  [0]carrier         [1]language     [2]vender   [3]modelname
+      *                     [4]platform      [5]platformversion     
+      *                     [6]country        [7]region         [8]city
+      */
+    vector<string> query_buf;
+    if(getStringFromSQLMAP(query_buf,dev,geo))
+    {
+        g_workerSMAATO_logger->trace("get string from SQLMAP success!");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("get string from SQLMAP fail,AdRequest abort!!!!!");
+        return false;
+    }         
+
+    
+    string timestamp = "timestamp=" + mobile_request.timestamp();
+    strcat(strbuf, timestamp.c_str());
+    strcat(strbuf, "&");
+
+    string host_app_name = "host_app_name=JS_STORY";
+    strcat(strbuf, host_app_name.c_str());
+    strcat(strbuf, "&");
+
+    string action_type = "action_type=1";
+    strcat(strbuf, action_type.c_str());
+    strcat(strbuf, "&");
+
+    string product_version = "product_version=1.0";
+    strcat(strbuf, product_version.c_str());
+    strcat(strbuf, "&");
+
+    string imei = "imei=";
+    if((dev.has_udid())&&(dev.udid().empty() == false))
+    {
+        imei += dev.udid();
+    }
+    else if(dev.has_hidmd5() && dev.has_hidsha1())
+    {
+        string tempid = dev.hidmd5() + "-" + dev.hidsha1();
+        imei += tempid;
+    }   
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid imei");
+        return false;
+    }
+    strcat(strbuf, imei.c_str());
+    strcat(strbuf, "&");
+
+    if(!strcmp(query_buf.at(4).c_str(), "Android"))     // if devive type = andriod
+    {
+        string imsi = "imsi=460003841633126";
+        strcat(strbuf, imsi.c_str());
+        strcat(strbuf, "&");
+    }
+
+    if(!query_buf.at(5).empty())
+    {
+        string os_version = "os_version="+query_buf.at(5);
+        strcat(strbuf, os_version.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid os_version");
+        return false;
+    }
+
+    if(!query_buf.at(2).empty())
+    {
+        string brand = "brand="+query_buf.at(2);
+        strcat(strbuf, brand.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid brand");
+        return false;
+    }
+
+    if(!query_buf.at(3).empty())
+    {
+        string model = "model="+query_buf.at(3);
+        strcat(strbuf, model.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid model");
+        return false;
+    }
+
+    string resolution = "resolution="+dev.screenwidth()+"x"+dev.screenheight();
+    strcat(strbuf, resolution.c_str());
+    strcat(strbuf, "&");
+
+    string mac = "mac=22:c9:d0:88:90:00";
+    strcat(strbuf, mac.c_str());
+
+    string params = "params=" + UrlEncode(strbuf);
+    memset(strbuf, 0 ,4096*sizeof(char));  
+
+    string r = "r=InterfaceBTAction";
+    strcat(strbuf, r.c_str());
+    strcat(strbuf, "&");
+
+    string m = "m=get_api";
+    strcat(strbuf, m.c_str());
+    strcat(strbuf, "&");
+    
+    strcat(strbuf, params.c_str());
+    strcat(strbuf, "&");
+
+
+    if(!dev.hidmd5().empty())
+    {
+        string secret = "secret="+dev.hidmd5();
+        strcat(strbuf, secret.c_str());
+        strcat(strbuf, "&");
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid secret");
+        return false;
+    }
+
+    string api_key = "api_key=219850efe67fcdc29966b502c210f1d9";
+    strcat(strbuf, api_key.c_str());
+    strcat(strbuf, "&");
+
+    string client_type = "client_type=api";
+    strcat(strbuf, client_type.c_str());
+    strcat(strbuf, "&");
+
+    string apptype = mobile_request.apptype();
+    if(strcmp(apptype.c_str(), "app"))      //is not app request filter
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: invalid apptype [no app]");
+        return false;
+    }
+
+    MobileAdRequest_AdType adtype = mobile_request.type();
+    string ad_type = "ad_type=";
+    switch(adtype)
+    {
+        case MobileAdRequest_AdType_BANNER:
+            ad_type += "2";
+            break;
+        case MobileAdRequest_AdType_INTERSTITIAL:
+            ad_type += "3";
+            break;
+        case MobileAdRequest_AdType_NATIVE:            
+        default:
+            {
+                g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT ADTYPE");
+                return false;
+            }
+            break;
+    }
+    strcat(strbuf, ad_type.c_str());
+    strcat(strbuf, "&");
+
+    string platform;
+    if(!strcmp(query_buf.at(4).c_str(), "Android"))     // if devive type = andriod
+    {
+        platform = "platform=android";
+    }
+    else if(!strcmp(query_buf.at(4).c_str(), "Apple iOS"))
+    {
+        platform = "platform=Apple iOS";
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT platform");
+        return false;
+    }
+    strcat(strbuf, platform.c_str());
+    strcat(strbuf, "&");
+
+    string api_version = "api_version=20";
+    strcat(strbuf, api_version.c_str());
+    strcat(strbuf, "&");
+
+    string log_id;
+    if((dev.has_udid())&&(dev.udid().empty() == false))
+    {
+        log_id = dev.udid() + mobile_request.timestamp();
+    }
+    else
+    {
+        g_workerSMAATO_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
+        return false;
+    }
+    strcat(strbuf, log_id.c_str());
+    strcat(strbuf, "&");
+
+    string page = "page=1";
+    strcat(strbuf, page.c_str());
+    strcat(strbuf, "&");
+
+    string page_size = "page_size=20";
+    strcat(strbuf, page_size.c_str());
+    strcat(strbuf, "&");
+
+    if(mobile_request.has_dnsip()&&(!mobile_request.dnsip().empty()))
+    {
+        string user_ip = "user_ip="+mobile_request.dnsip();
+        strcat(strbuf, user_ip.c_str());
+    }
+    
+
+    int len = strlen(strbuf);
+    if(strbuf[len-1] == '&')
+    {
+        strbuf[len-1] = '\0';
+    }
+
+    return true;
+    
+}
+
+
 void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessage& request_commMsg)
 {
     try
@@ -3826,7 +4065,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             if((TELE_curFlowCount < TELE_maxFlowLimit)||(TELE_maxFlowLimit == 0))
             {
                     string reqTeleJsonData;
-                    if(convertProtoToTeleJson(reqTeleJsonData, mobile_request))
+                    if(Tele_convertProtoToJson(reqTeleJsonData, mobile_request))
                     {
                         //callback func: handle_recvAdResponseTele active by socket EV_READ event                
                         if(!m_dspManager.sendAdRequestToChinaTelecomDSP(reqTeleJsonData.c_str(), strlen(reqTeleJsonData.c_str()), m_config.get_logTeleReq(), ua))
@@ -3841,7 +4080,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                         }
                     }
                     else
-                        g_worker_logger->debug("convertProtoToTeleJson Failed ");  
+                        g_worker_logger->debug("Tele_convertProtoToJson Failed ");  
             }
             else if(TELE_curFlowCount == TELE_maxFlowLimit)
             {
@@ -3861,7 +4100,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             if((GYIN_curFlowCount < GYIN_maxFlowLimit)||(GYIN_maxFlowLimit == 0))
             {
                 BidRequest bidRequest;        
-                if(convertProtoToGYinProto(bidRequest,mobile_request))
+                if(GYin_ConvertProtoToProto(bidRequest,mobile_request))
                 {            
                     int length = bidRequest.ByteSize();
                     char* buf = new char[length];
@@ -3883,7 +4122,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     delete [] buf;
                 }     
                 else
-                    g_workerGYIN_logger->debug("convertProtoToGYinProto Failed ");  
+                    g_workerGYIN_logger->debug("GYin_ConvertProtoToProto Failed ");  
             }   
             else if(GYIN_curFlowCount == GYIN_maxFlowLimit)
             {
@@ -3903,7 +4142,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
             {
 		     char *http_getArg = new char[4096];
 	            memset(http_getArg, 0 ,4096*sizeof(char));
-	            if(!convertProtoToHttpGETArg(http_getArg, mobile_request))
+	            if(!Smaato_ConvertProtoToHttpGETArg(http_getArg, mobile_request))
 	                return ;
 	            int sock = 0;
 	            if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid, ua)) <= 0)
@@ -4029,7 +4268,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                     *   current only interstitial ads REQ come from mobile app could send to INMOBI 
 		      */
 		      
-	            if(convertProtoToInMobiJson(reqTeleJsonData, mobile_request))
+	            if(InMobi_ConvertProtoToJson(reqTeleJsonData, mobile_request))
 	            {
                         //callback func: handle_recvAdResponseTele active by socket EV_READ event     
 	                 int sock = 0;
@@ -4104,7 +4343,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
 			   }
 	            }
 	            else
-	                 g_workerINMOBI_logger->debug("convertProtoToInMobiJson Failed ");  
+	                 g_workerINMOBI_logger->debug("InMobi_ConvertProtoToJson Failed ");  
 	     }
 	     else if(INMOBI_curFlowCount == INMOBI_maxFlowLimit)
             {
@@ -4112,6 +4351,98 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                 g_workerINMOBI_logger->debug("FLOW LIMITED...");
             }
             
+        }
+
+        /*
+          * send to BaiDu
+          */
+       if(m_config.get_enBaidu())
+        {
+            int BAIDU_maxFlowLimit = m_dspManager.getSmaatoObject()->getMaxFlowLimit();
+            int BAIDU_curFlowCount = m_dspManager.getSmaatoObject()->getCurFlowCount();
+            if((BAIDU_curFlowCount < BAIDU_maxFlowLimit)||(BAIDU_maxFlowLimit == 0))
+            {
+                char *http_getArg = new char[4096];
+                memset(http_getArg, 0 ,4096*sizeof(char));
+                if(!Smaato_ConvertProtoToHttpGETArg(http_getArg, mobile_request))
+                    return ;
+                int sock = 0;
+                if((sock = m_dspManager.sendAdRequestToSmaatoDSP(http_getArg, strlen(http_getArg), uuid, ua)) <= 0)
+                {
+                    g_workerBAIDU_logger->debug("POST TO BAIDU fail uuid: {0}", uuid);
+                }
+                else
+                {
+                    if(BAIDU_maxFlowLimit != 0)
+                        m_dspManager.getSmaatoObject()->curFlowCountIncrease();
+                    g_workerBAIDU_logger->debug("POST TO SMAATO success uuid: {0}", uuid);
+	                
+
+                    char *fullData = new char[BUF_SIZE];
+                    memset(fullData, 0, BUF_SIZE*sizeof(char));
+
+                    struct spliceData_t *fullData_t = new spliceData_t();
+                    fullData_t->data = fullData;
+                    fullData_t->curLen = 0;
+
+                    if(m_dspManager.recvBidResponseFromBaiduDsp(sock, fullData_t))
+                    {
+                        int dataLen = 0;    
+                        char * bodyData = new char[BUF_SIZE];
+                        memset(bodyData, 0, BUF_SIZE*sizeof(char));
+
+                        struct spliceData_t *httpBodyData_t = new spliceData_t();
+                        httpBodyData_t->data = bodyData;
+                        httpBodyData_t->curLen = 0;
+
+                        string dspName = "BAIDU";
+                        switch(httpBodyTypeParse(fullData_t->data, fullData_t->curLen))
+                        {
+                            case HTTP_204_NO_CONTENT:
+                                g_workerBAIDU_logger->debug("{0} HTTP RSP: 204 No Content\r\n", dspName);
+                                break;
+                            case HTTP_CONTENT_LENGTH:
+                                g_workerBAIDU_logger->debug("{0} HTTP RSP 200 OK: Content-Length", dspName);
+                                dataLen = httpContentLengthParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);
+                                break;
+                            case HTTP_CHUNKED:
+                                g_workerBAIDU_logger->debug("{0} HTTP RSP 200 OK: Chunked", dspName);
+                                dataLen = httpChunkedParse(httpBodyData_t, fullData_t->data, fullData_t->curLen);                    
+                                g_workerBAIDU_logger->trace("\r\nCHUNKED:\r\n{0}", httpBodyData_t->data);
+                                break;
+                            case HTTP_UNKNOW_TYPE:
+                                g_workerBAIDU_logger->debug("{0} HTTP RSP: HTTP UNKNOW TYPE", dspName);
+                                break;
+                            default:
+                                break;                    
+                        }
+
+                        delete [] fullData;
+                        delete [] fullData_t;            
+                            
+                        if(dataLen == 0)
+                        {
+                            ; //already printf "GYIN HTTP RSP: 204 No Content"  
+                        }   
+                        else if(dataLen == -1)
+                        {
+                            g_workerBAIDU_logger->error("HTTP BODY DATA INCOMPLETE ");
+                        }
+                        else
+                        {
+                            g_workerBAIDU_logger->debug("BaiduRsponse: \r\n{0}", bodyData);                          
+                            //handle_BidResponseFromDSP(BAIDU, bodyData, dataLen, request_commMsg);   
+                        }        
+                        delete [] bodyData;
+                        delete httpBodyData_t;
+                    }
+                }
+            }
+            else if(BAIDU_curFlowCount == BAIDU_maxFlowLimit)
+            {
+                m_dspManager.getInMobiObject()->curFlowCountIncrease();
+                g_workerBAIDU_logger->debug("FLOW LIMITED...");
+            }
         }
              
     }
@@ -5343,6 +5674,7 @@ void *connectorServ::checkConnectNum(void *arg)
     int GYIN_maxConnectNum = 0;
     int SMAATO_maxConnectNum = 0;
     int INMOBI_maxConnectNum = 0;
+    int BAIDU_maxConnectNum = 0;
     struct connectDsp_t * con_t = (struct connectDsp_t *)malloc(sizeof(struct connectDsp_t));
     con_t->base = serv->m_base;
     con_t->arg = serv;
@@ -5367,6 +5699,10 @@ void *connectorServ::checkConnectNum(void *arg)
         con_t->fn = handle_recvAdResponseInMobi;
         con_t->dspObj = serv->m_dspManager.getInMobiObject();
         INMOBI_maxConnectNum = serv->m_dspManager.getInMobiObject()->getMaxConnectNum();
+    }
+    if(serv->m_config.get_enBaidu())
+    {
+        BAIDU_maxConnectNum = serv->m_dspManager.getBaiduObject()->getMaxConnectNum();
     }
     while(1)
     {        
@@ -5414,6 +5750,17 @@ void *connectorServ::checkConnectNum(void *arg)
                     g_workerINMOBI_logger->error("ADD TASK IN TASKPOOL FAIL");
             }
         }
+        if(serv->m_config.get_enBaidu())
+        {
+            int BAIDU_curConnectNum = serv->m_dspManager.getBaiduObject()->getCurConnectNum();
+            if(BAIDU_curConnectNum < BAIDU_maxConnectNum)
+            {
+                if(!serv->m_tConnect_manager.Run(serv->m_dspManager.getBaiduObject()->baiduAddConnectToDSP, serv->m_dspManager.getBaiduObject()))     //add task in taskPool success
+                    serv->m_dspManager.getBaiduObject()->connectNumIncrease();
+                else
+                    g_workerINMOBI_logger->error("ADD TASK IN TASKPOOL FAIL");
+            }
+        }
         usleep(1000);     //1ms
     }
     free(con_t);
@@ -5454,6 +5801,8 @@ void connectorServ::workerRun()
     g_workerSMAATO_logger->set_level(m_logLevel);
     g_workerINMOBI_logger= spdlog::daily_logger_mt("INMOBI", "logs/INMOBIdebugfile", true);
     g_workerINMOBI_logger->set_level(m_logLevel);
+    g_workerBAIDU_logger = spdlog::daily_logger_mt("BAIDU", "logs/BAIDUdebugfile", true);
+    g_workerBAIDU_logger->set_level(m_logLevel);
     
     g_worker_logger->info("worker start:{0:d}", getpid());
     

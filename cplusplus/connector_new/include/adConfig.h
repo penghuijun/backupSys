@@ -642,6 +642,11 @@ public:
 	bool					get_logInMobiHttpRsp(){return logInMobiHttpRsp;}
 	bool					get_logInMobiRsp(){return logInMobiRsp;}
 
+	bool 				get_enBaidu(){return enBaidu;}
+	bool					get_logBaiduReq(){return logBaiduReq;}
+	bool					get_logBaiduHttpRsp(){return logBaiduHttpRsp;}
+	bool					get_logBaiduRsp(){return logBaiduRsp;}
+
 	void clear()
 	{
 		m_throttle_info.throttleInformation_erase();
@@ -692,6 +697,11 @@ private:
 	bool 			logInMobiReq;
 	bool				logInMobiHttpRsp;
 	bool 			logInMobiRsp;
+
+	bool 			enBaidu;
+	bool				logBaiduReq;
+	bool				logBaiduHttpRsp;
+	bool				logBaiduRsp;
 };
 
 #endif

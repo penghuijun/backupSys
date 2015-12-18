@@ -30,7 +30,8 @@ enum dspType
 	TELE,		//China telecom
 	GYIN,		//GuangYin
 	SMAATO,	//Smaato
-	INMOBI  	//InMobi
+	INMOBI,  	//InMobi
+	BAIDU		//Baidu
 };
 
 struct listenObject
@@ -210,7 +211,7 @@ public:
 	}
 	void readSmaatoConfig();
 	void smaatoConnectDSP();
-	static void smaatoAddConnectToDSP(void *argc);
+	static void smaatoAddConnectToDSP(void *arg);
 	int sendAdRequestToSmaatoDSP(const char *data, int dataLen, string& uuid, string& ua);
 	bool recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t);
 	string& getAdSpaceId(){return adSpaceId;}
@@ -275,6 +276,39 @@ private:
 	int price;
 	mutex_lock inmobiSocketList_Lock;
 	list<int>* inmobiSocketList;
+};
+
+class baiduObject: public dspObject
+{
+public:
+	baiduObject()
+	{
+		baiduSocketList_Lock.init();
+		readDSPconfig(BAIDU);
+		readBaiduConfig();
+		if(!addr_init())
+			exit(1);
+	}
+	void readBaiduConfig();
+	static void baiduAddConnectToDSP(void *arg);
+	int sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua);
+	bool recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t);
+	void baiduSocketList_Locklock()
+	{
+		baiduSocketList_Lock.lock();
+	}
+	void baiduSocketList_Lockunlock()
+	{
+		baiduSocketList_Lock.unlock();
+	}
+	list<int>* getBaiduSocketList()
+	{
+		return baiduSocketList;
+	}
+private:
+	int price;
+	mutex_lock baiduSocketList_Lock;
+	list<int>*	baiduSocketList;
 };
 
 #endif

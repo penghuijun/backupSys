@@ -897,6 +897,11 @@ void configureObject::readLogConfig()
         logInMobiReq = root["logInMobiReq"].asBool();
         logInMobiHttpRsp = root["logInMobiHttpRsp"].asBool();
         logInMobiRsp = root["logInMobiRsp"].asBool();
+
+        enBaidu = root["enBaidu"].asBool();
+        logBaiduReq = root["logBaiduReq"].asBool();
+        logBaiduHttpRsp = root["logBaiduHttpRsp"].asBool();
+        logBaiduRsp = root["logBaiduRsp"].asBool();
         
     }
     else

@@ -10,6 +10,7 @@ shared_ptr<spdlog::logger> g_worker_logger;
 shared_ptr<spdlog::logger> g_workerGYIN_logger;
 shared_ptr<spdlog::logger> g_workerSMAATO_logger;
 shared_ptr<spdlog::logger> g_workerINMOBI_logger;
+shared_ptr<spdlog::logger> g_workerBAIDU_logger;
 
 
 

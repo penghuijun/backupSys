@@ -47,6 +47,10 @@ int dspManager::sendAdRequestToInMobiDSP(const char *data, int dataLen, bool enL
 {
     return m_inmobiObject->sendAdRequestToInMobiDSP(data, dataLen, enLogRsq, ua);
 }
+int dspManager::sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua)
+{
+    return m_baiduObject->sendAdRequestToBaiduDSP(data, dataLen, uuid, ua);
+}
 
 bool dspManager::recvBidResponseFromSmaatoDsp(int sock, struct spliceData_t *fullData_t)
 {
@@ -57,6 +61,12 @@ bool dspManager::recvBidResponseFromInmobiDsp(int sock, struct spliceData_t *ful
 {
     return m_inmobiObject->recvBidResponseFromInmobiDsp(sock, fullData_t);
 }
+
+bool dspManager::recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t)
+{
+    return m_baiduObject->recvBidResponseFromBaiduDsp(sock, fullData_t);
+}
+
 
 
 

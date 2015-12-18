@@ -31,7 +31,7 @@ message MobileAdRequest {
     optional string inventoryQuality = 22; // default is "reviewed"  <-- server
     optional TestFlag test = 23;
     optional Aid aid = 24;   
-    repeated Paramter paramter = 25;
+    repeated Parameter parameter = 25;
 
     //web
     optional string page = 26;  //web page 
@@ -150,7 +150,7 @@ message MobileAdRequest {
         optional string carrier = 11; //mobile_brand
     }
 
-    message Paramter {
+    message Parameter {
         optional string key = 1;
         optional string value = 2;
     }

@@ -24,8 +24,10 @@
     "maxFlowLimit":0,
 	
 	
+    "passcode": "baidur2o0s1e3qaq123465",
+    "api_key": "219850efe67fcdc29966b502c210f1d9",
     
-    "price":20,
+    "price":0.5,
 	
     "appFilter":[
         "com.rj.rj2048"

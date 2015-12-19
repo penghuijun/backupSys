@@ -1,4 +1,5 @@
 #include "DSPconfig.h"
+#include "md5.h"
 
 extern shared_ptr<spdlog::logger> g_master_logger;
 extern shared_ptr<spdlog::logger> g_worker_logger;
@@ -1385,6 +1386,8 @@ void baiduObject::readBaiduConfig()
         //filter
         
         price = root["price"].asInt();
+        passcode = root["passcode"].asString();
+        api_key = root["api_key"].asString();
         
     }
     else
@@ -1393,6 +1396,24 @@ void baiduObject::readBaiduConfig()
         ifile.close();
         exit(1);
     }    
+}
+
+void baiduObject::setSecret()
+{
+    string encrypt = passcode + api_key;
+
+    MD5_CTX md5;  
+    MD5Init(&md5);           
+    unsigned char decrypt[16];      
+    MD5Update(&md5,(unsigned char *)encrypt.c_str(),strlen((char *)encrypt.c_str()));  
+    MD5Final(&md5,decrypt);
+
+    char destStr[32];
+    for(int i=0;i<16;i++)  
+    {  
+        sprintf(destStr+i*2,"%02x",decrypt[i]);
+    }  
+    secret = destStr;
 }
 
 void baiduObject::baiduAddConnectToDSP(void *arg)

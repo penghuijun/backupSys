@@ -1320,7 +1320,7 @@ char* connectorServ::convertBaiduBidResponseJsonToProtobuf(char *data,int dataLe
             mobile_bidder->set_currency("CNY");
         
             MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative(); 
-            mobile_creative->set_creativeid(0);    
+            mobile_creative->set_creativeid("0");    
             mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP); 
 
             MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action(); 
@@ -4166,13 +4166,15 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
         return false;
     }
     #endif
-    string secret = "secret=e3016a94738d32bb326ec63c025a0401";
+    
+    string secret = "secret=" + m_dspManager.getBaiduObject()->getSecret();
     strcat(strbuf, secret.c_str());
     strcat(strbuf, "&");
 
-    string api_key = "api_key=219850efe67fcdc29966b502c210f1d9";
+    string api_key = "api_key=" + m_dspManager.getBaiduObject()->getApikey();
     strcat(strbuf, api_key.c_str());
     strcat(strbuf, "&");
+    g_workerBAIDU_logger->trace("secret: {0}, api_key: {1}", secret, api_key);
 
     string client_type = "client_type=api";
     strcat(strbuf, client_type.c_str());

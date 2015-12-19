@@ -287,14 +287,19 @@ public:
 		baiduSocketList = new list<int>();
 		readDSPconfig(BAIDU);
 		readBaiduConfig();
+		setSecret();
 		if(!addr_init())
 			exit(1);
 	}
 	void readBaiduConfig();
+	void setSecret();
 	static void baiduAddConnectToDSP(void *arg);
 	int sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua);
 	bool recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t);
 	int getPrice(){return price;}
+	string& getPasscode(){return passcode;}
+	string& getApikey(){return api_key;}
+	string& getSecret(){return secret;}
 	void baiduSocketList_Locklock()
 	{
 		baiduSocketList_Lock.lock();
@@ -309,6 +314,9 @@ public:
 	}
 private:
 	int price;
+	string passcode;
+	string api_key;
+	string secret;
 	mutex_lock baiduSocketList_Lock;
 	list<int>*	baiduSocketList;
 };

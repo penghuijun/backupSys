@@ -5,6 +5,8 @@ mobile
 tele_mobile
 gyin_mobile
 smaato_mobile
+inmobi_mobile
+baidu_mobile
 logs
 *.o
 *.d
@@ -23,3 +25,7 @@ cplusplus/connector_new/bin_TELE/TeleBidRequest.json
 cplusplus/connector_new/bin_TELE/TeleBidResponse.json
 cplusplus/connector_new/bin_TELE/adManagerConfig.txt
 cplusplus/connector_new/bin_TELE/core
+cplusplus/connector_new/bin_INMOBI/adManagerConfig.txt
+cplusplus/connector_new/bin_INMOBI/core
+cplusplus/connector_new/bin_BAIDU/adManagerConfig.txt
+cplusplus/connector_new/bin_BAIDU/core

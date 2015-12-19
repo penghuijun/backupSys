@@ -284,6 +284,7 @@ public:
 	baiduObject()
 	{
 		baiduSocketList_Lock.init();
+		baiduSocketList = new list<int>();
 		readDSPconfig(BAIDU);
 		readBaiduConfig();
 		if(!addr_init())

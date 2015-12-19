@@ -3949,6 +3949,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     strcat(strbuf, "&");
 
 
+    #if 0
     if(!dev.hidmd5().empty())
     {
         string secret = "secret="+dev.hidmd5();
@@ -3960,6 +3961,10 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
         g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: invalid secret");
         return false;
     }
+    #endif
+    string secret = "secret=e3016a94738d32bb326ec63c025a0401";
+    strcat(strbuf, secret.c_str());
+    strcat(strbuf, "&");
 
     string api_key = "api_key=219850efe67fcdc29966b502c210f1d9";
     strcat(strbuf, api_key.c_str());

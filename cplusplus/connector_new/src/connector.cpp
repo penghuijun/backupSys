@@ -1257,7 +1257,107 @@ char* connectorServ::convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLe
     return comMessBuf;
         
 }
+char* connectorServ::convertBaiduBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg)
+{
+    CommonMessage response_commMsg;
+    MobileAdResponse mobile_response;
 
+    const string& commMsg_data = request_commMsg.data();
+    MobileAdRequest mobile_request;
+    mobile_request.ParseFromString(commMsg_data);
+
+    MobileAdRequest_AdType requestAdtype;
+    requestAdtype = mobile_request.type();
+
+    uuid = mobile_request.id();
+
+    mobile_response.set_id(uuid);
+
+    string intNetId = m_dspManager.getBaiduObject()->getIntNetId();    
+    MobileAdResponse_Bidder *bidder_info = mobile_response.mutable_bidder();
+    bidder_info->set_bidderid(intNetId);
+
+    mobile_response.set_bidid("null");
+        
+      
+    Json::Reader reader;
+    Json::Value root;
+ 
+    if(reader.parse(data, root))
+    {
+        int count = root["count"].asInt();
+        int flag = root["flag"].asInt();
+        int end_mark = root["end_mark"].asInt();
+        string log_id = root["log_id"].asString();
+        if((count == 0) || (flag == 0) ||(end_mark == 0))
+        {
+            g_workerBAIDU_logger->debug("check BaiduBidResponseJson: count |flag |end_mark");
+            return NULL;
+        }
+
+        for(int i=0; i<count; i++)
+        {
+            MobileAdResponse_mobileBid *mobile_bidder = mobile_response.add_bidcontent();  
+
+            map<int,string>::iterator it = CampaignMap.find(atoi(intNetId.c_str()));
+            if(it == CampaignMap.end())
+            {
+                g_workerGYIN_logger->debug("BAIDU GEN FAILED : get campainId from CampaignMap fail .  intNetId: {0}",intNetId);
+                return NULL;
+            }
+            string campaignId = it->second;      
+            mobile_bidder->set_campaignid(campaignId);
+
+            int price = m_dspManager.getBaiduObject()->getPrice();
+            stringstream ss;
+            string s_price;
+            ss << price;
+            ss >> s_price;
+
+            mobile_bidder->set_biddingtype("CPM");                   
+            mobile_bidder->set_biddingvalue(s_price);
+            mobile_bidder->set_expectcpm(s_price);            
+            mobile_bidder->set_currency("CNY");
+        
+            MobileAdResponse_Creative  *mobile_creative =  mobile_bidder->add_creative(); 
+            mobile_creative->set_creativeid(0);    
+            mobile_creative->set_adchanneltype(MobileAdResponse_AdChannelType_MOBILE_APP); 
+
+            MobileAdResponse_Action *mobile_action = mobile_bidder->mutable_action(); 
+
+            Json::Value list = root["list"][i];
+
+            if(!BAIDU_mutableAction(mobile_request, mobile_action, list))
+                return NULL;
+
+            if(!BAIDU_creativeAddEvents(mobile_creative, list, requestAdtype))
+                return NULL;
+            
+        }
+    }
+    else
+    {
+        g_workerBAIDU_logger->error("parse BaiduBidResponseJson failure");
+        return NULL;
+    }
+
+    int dataSize = mobile_response.ByteSize();
+    char *dataBuf = new char[dataSize];
+    mobile_response.SerializeToArray(dataBuf, dataSize); 
+    response_commMsg.set_businesscode(request_commMsg.businesscode());
+    response_commMsg.set_datacodingtype(request_commMsg.datacodingtype());
+    response_commMsg.set_ttl(request_commMsg.ttl());    
+    response_commMsg.set_data(dataBuf, dataSize);
+     
+    dataSize = response_commMsg.ByteSize();
+    char* comMessBuf = new char[dataSize];
+    response_commMsg.SerializeToArray(comMessBuf, dataSize);
+    delete[] dataBuf;
+    ret_dataLen = dataSize;
+    g_workerINMOBI_logger->debug("BAIDU.json->MobileAdResponse.proto convert success !");
+    return comMessBuf;
+    
+}
 
 char *connectorServ::xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg)
 {
@@ -2433,6 +2533,104 @@ bool connectorServ::INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_
 
     return true;
 }
+bool connectorServ::BAIDU_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &list)
+{
+    Json::Value content;
+    Json::Value download;
+    int autoin = 1;
+    string str_acttype = "app_download";
+    
+    if(list.isMember("app_name"))
+        content["app_name"] = list["app_name"].asString();
+    if(list.isMember("category"))
+        content["category"] = list["category"].asString();
+
+    MobileAdRequest_Device dev = mobile_request.device();    
+    Json::Value item;
+    if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
+    {                
+        item["platform"] = "android";                
+    }
+    else if(strcmp("2",dev.platform().c_str()) == 0)    //apple IOS
+    {
+        item["platform"] = "ios";   
+    }
+    else
+    {
+        g_workerBAIDU_logger->debug("Get platform from adRequest fail...");
+    }
+    //item["in_app"] = inapp;     
+    item["auto_install"] = autoin;
+    item["url"] = list["real_dowload_url"].asString();
+               
+    download.append(item);
+    content["download"] = download;
+
+    if(list.isMember("app_name"))
+        mobile_action->set_name(list["app_name"].asString());
+        
+    
+    string str_content = content.toStyledString();
+    
+    mobile_action->set_content(str_content);    
+    mobile_action->set_actiontype(str_acttype);
+    mobile_action->set_inapp("1");      
+   
+    return true;
+    
+}
+
+bool connectorServ::BAIDU_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, Json::Value& list, MobileAdRequest_AdType& requestAdtype)
+{
+    int id = 0;
+    string mediaTypeId;
+    string RetCode;
+    string imgUrl;
+     
+    switch(requestAdtype)
+    {
+        case MobileAdRequest_AdType_BANNER:            
+            {
+                id = 61;
+                mediaTypeId = "1";
+                imgUrl = list["banner"].asString();
+                //g_workerBAIDU_logger->debug("CURRNET NOSUPPORT BANNER");
+                //return false;
+            }
+            break;
+        case MobileAdRequest_AdType_INTERSTITIAL:
+            id = 59;
+            mediaTypeId = "2";
+            imgUrl = list["screen2"].asString();
+            break;
+        default:
+            break;
+    }
+    if(id == 0)
+        return false;
+
+    map<int,string>::iterator it = Creative_template.find(id);
+    RetCode = it->second;  
+    if(RetCode.empty() == false)
+    {
+        string decodeStr;                        
+        
+        decodeStr = UrlDecode(RetCode);                  
+        replace(decodeStr,"${MY_IMAGE}", imgUrl);
+        
+        mobile_creative->set_admarkup(UrlEncode(decodeStr));
+        mobile_creative->set_mediatypeid("2");
+        mobile_creative->set_mediasubtypeid("5");
+    }   
+
+    #if 0
+    string real_download_url = list["real_dowload_url"].asString();
+    MobileAdResponse_TrackingEvents *creative_event = mobile_creative->add_events();
+    creative_event->set_event("IMP");
+    creative_event->set_trackurl(real_download_url);
+    #endif
+
+}
 
 void connectorServ::displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen)
 {
@@ -2798,17 +2996,23 @@ void connectorServ::handle_BidResponseFromDSP(dspType type,char *data,int dataLe
             dspName = "GYIN";
             flag_displayCommonMsgResponse = m_config.get_logGYINRsp();
             break;
-	case SMAATO:
+        case SMAATO:
 	     responseDataStr = convertSmaatoBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid, request_commMsg);
 	     g_logger = g_workerSMAATO_logger;
 	     dspName = "SMAATO";
 	     flag_displayCommonMsgResponse = m_config.get_logSmaatoRsp();
 	     break;
-	case INMOBI:
+        case INMOBI:
             responseDataStr = convertInmobiBidResponseXMLtoProtobuf(data,dataLen,responseDataLen,uuid, request_commMsg);
             g_logger = g_workerINMOBI_logger;
             dspName = "INMOBI";
             flag_displayCommonMsgResponse = m_config.get_logInMobiRsp();
+            break;
+        case BAIDU:
+            responseDataStr = convertBaiduBidResponseJsonToProtobuf(data,dataLen,responseDataLen,uuid, request_commMsg);
+            g_logger = g_workerBAIDU_logger;
+            dspName = "BAIDU";
+            flag_displayCommonMsgResponse = m_config.get_logBaiduRsp();
             break;
         default:
             break;
@@ -4453,7 +4657,7 @@ void connectorServ::mobile_AdRequestHandler(const char *pubKey,const CommonMessa
                         else
                         {
                             g_workerBAIDU_logger->debug("BaiduRsponse: \r\n{0}", bodyData);                          
-                            //handle_BidResponseFromDSP(BAIDU, bodyData, dataLen, request_commMsg);   
+                            handle_BidResponseFromDSP(BAIDU, bodyData, dataLen, request_commMsg);   
                         }        
                         delete [] bodyData;
                         delete httpBodyData_t;

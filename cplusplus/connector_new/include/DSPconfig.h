@@ -294,6 +294,7 @@ public:
 	static void baiduAddConnectToDSP(void *arg);
 	int sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua);
 	bool recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t);
+	int getPrice(){return price;}
 	void baiduSocketList_Locklock()
 	{
 		baiduSocketList_Lock.lock();

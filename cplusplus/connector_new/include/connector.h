@@ -221,6 +221,7 @@ public:
 	char* convertGYinBidResponseProtoToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid);
 	char* convertSmaatoBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
 	char* convertInmobiBidResponseXMLtoProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
+	char* convertBaiduBidResponseJsonToProtobuf(char *data,int dataLen,int& ret_dataLen,string& uuid, const CommonMessage& request_commMsg);
 	char* xmlParseAds(xmlNodePtr &adsNode, int& ret_dataLen, string& uuid, const CommonMessage& request_commMsg);
 	bool mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &action);
 	bool creativeAddEvents(MobileAdResponse_Creative  *mobile_creative,Json::Value &temp,string& nurl);
@@ -229,6 +230,8 @@ public:
 	bool SMAATO_mutableAction(MobileAdResponse_Action *mobile_action, xmlNodePtr &adNode, smRspType adType);
 	bool SMAATO_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, xmlNodePtr &adNode, smRspType adType, MobileAdRequest_AdType& requestAdtype);
 	bool INMOBI_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, string &ad_type, string &ad_content, MobileAdRequest_AdType& requestAdtype);
+	bool BAIDU_creativeAddEvents(MobileAdResponse_Creative  *mobile_creative, Json::Value& list, MobileAdRequest_AdType& requestAdtype);
+	bool BAIDU_mutableAction(MobileAdRequest &mobile_request,MobileAdResponse_Action *mobile_action,Json::Value &list);
 	commMsgRecord* checkValidId(const string& str_id);
 	void displayCommonMsgResponse(shared_ptr<spdlog::logger> &logger,char *data,int dataLen);
 	void displayGYinBidRequest(const char *data,int dataLen);

@@ -4174,7 +4174,6 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     string api_key = "api_key=" + m_dspManager.getBaiduObject()->getApikey();
     strcat(strbuf, api_key.c_str());
     strcat(strbuf, "&");
-    g_workerBAIDU_logger->trace("secret: {0}, api_key: {1}", secret, api_key);
 
     string client_type = "client_type=api";
     strcat(strbuf, client_type.c_str());
@@ -4230,16 +4229,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
     strcat(strbuf, "&");
 
     string log_id;
-    if((dev.has_udid())&&(dev.udid().empty() == false))
-    {
-        log_id = dev.udid() + mobile_request.timestamp();
-    }
-    else
-    {
-        log_id = imei_v + mobile_request.timestamp();
-        //g_workerBAIDU_logger->error("BAIDU GEN HTTP GET ARG error: NOSUPPORT log_id");
-        //return false;
-    }
+    log_id = "log_id=" + imei_v + mobile_request.timestamp();
     strcat(strbuf, log_id.c_str());
     strcat(strbuf, "&");
 

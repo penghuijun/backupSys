@@ -468,7 +468,7 @@ connectorServ::connectorServ(configureObject& config):m_config(config)
         m_throttle_manager.init(m_config.get_throttle_info());
         m_bc_manager.init(m_config.get_bc_info());
         m_connector_manager.init(m_config.get_connector_info());		
-        m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi());
+        m_dspManager.init(m_config.get_enChinaTelecom(), m_config.get_enGYIN(), m_config.get_enSmaato(), m_config.get_enInMobi(), m_config.get_enBaidu());
         
         m_workerNum = m_connector_manager.get_connector_config().get_connectorWorkerNum();
         cout << "<<<<<<<< m_workerNum = " << m_workerNum << endl;
@@ -4053,7 +4053,7 @@ bool connectorServ::Baidu_ConvertProtoToHttpGETArg(char *buf, const MobileAdRequ
         strbuf[len-1] = '\0';
     }
 
-    g_workerBAIDU_logger->trace("Baidu_ConvertProtoToHttpGETArg");
+    g_workerBAIDU_logger->trace("Baidu_ConvertProtoToHttpGETArg success");
     return true;
     
 }

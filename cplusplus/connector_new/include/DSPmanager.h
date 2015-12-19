@@ -7,7 +7,7 @@ class dspManager
 {
 public:
 	dspManager(){}
-	void init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi);		
+	void init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi, bool enBaidu);		
 	list<listenObject *> *getListenObjectList();
 	bool isChinaTelecomObjectCeritifyCodeEmpty();
 	bool getCeritifyCodeFromChinaTelecomDSP();

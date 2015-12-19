@@ -1,6 +1,6 @@
 #include "DSPmanager.h"
 
-void dspManager::init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi)
+void dspManager::init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi, bool enBaidu)
 {
     if(enTele)
     {        
@@ -17,6 +17,10 @@ void dspManager::init(bool enTele, bool enGYin, bool enSmaato, bool enInmobi)
     if(enInmobi)
     {
         m_inmobiObject = new inmobiObject();
+    }
+    if(enBaidu)
+    {
+        m_baiduObject = new baiduObject();
     }
 }
 bool dspManager::isChinaTelecomObjectCeritifyCodeEmpty()

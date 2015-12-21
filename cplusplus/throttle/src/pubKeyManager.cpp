@@ -269,13 +269,16 @@ void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVect
 }
 void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector, const string& key)
 {
-    for(auto it=shmSubKeyVector->begin(); it != shmSubKeyVector->end(); )
+    boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
+    MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
+    
+    for(auto it=vec->begin(); it != vec->end(); )
     {
         string objkey = (*it).data();
         if(objkey == key)
         {
             g_manager_logger->debug("SHARE MEMORY ERASE SUBKEY: {0}", objkey);
-            it = shmSubKeyVector->erase(it);
+            it = vec->erase(it);
         }
         else
             it++;

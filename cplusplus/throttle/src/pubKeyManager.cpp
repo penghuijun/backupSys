@@ -172,17 +172,17 @@ void bcSubKeyManager::get_keypipe(const char* uuid, string& bidderKey, string& c
 	}
 }
 
-bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport)
+bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport, MyShmStringVector *shmSubKeyVector)
 {
 	switch(type)
 	{
 		case sys_bidder:
 		{
-			return erase_publishKey(m_bidderKeyList,  ip, managerport);
+			return erase_publishKey(m_bidderKeyList,  ip, managerport, shmSubKeyVector);
 		}
 		case sys_connector:
 		{
-			return erase_publishKey(m_connectorKeyList,  ip, managerport);
+			return erase_publishKey(m_connectorKeyList,  ip, managerport, shmSubKeyVector);
 		}
 		default:
 		{
@@ -192,7 +192,7 @@ bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsign
 	return false;
 }
 	
-bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort)  
+bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort, MyShmStringVector *shmSubKeyVector)  
 {
 	for(auto it = keyList.begin(); it != keyList.end();)
 	{
@@ -201,6 +201,7 @@ bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string
 		{
 			if((key->get_bidder_ip() == ip) &&(key->get_bidder_port() == managerPort))
 			{
+                            syncShmSubKeyVectorDelete(shmSubKeyVector, key->get_subKey());
 				delete key;
 				it = keyList.erase(it);					
 			}
@@ -249,6 +250,39 @@ bool bcSubKeyManager::connector_publishExist(const string& ip, unsigned short po
 	}    
     return false;
 }
+
+void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector)
+{
+    for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
+    {
+        zmqSubscribeKey *subkeyObj = *bidder_it;
+        if(subkeyObj == NULL) continue;
+        syncShmSubKeyVectorDelete(shmSubKeyVector, subkeyObj->get_subKey());        
+    }
+    for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
+    {
+        zmqSubscribeKey *subkeyObj = *connector_it;
+        if(subkeyObj == NULL) continue;
+        syncShmSubKeyVectorDelete(shmSubKeyVector, subkeyObj->get_subKey());        
+    }   
+
+}
+void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector, const string& key)
+{
+    for(auto it=shmSubKeyVector->begin(); it != shmSubKeyVector->end(); )
+    {
+        string objkey = (*it).data();
+        if(objkey == key)
+        {
+            g_manager_logger->debug("SHARE MEMORY ERASE SUBKEY: {0}", objkey);
+            it = shmSubKeyVector->erase(it);
+        }
+        else
+            it++;
+    }
+
+}
+
 
 bcSubKeyManager::~bcSubKeyManager()
 {
@@ -335,9 +369,9 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
     		bcSubKeyManager* key = *it;
     		if(key&&(key->get_bc_ip()==ip)&&(key->get_bcManangerPort()==managerport))
     		{
+                     key->syncShmSubKeyVectorDelete(shmSubKeyVector);
     			delete key;
     			it = m_bcSubkeyManagerList.erase(it);
-			//syncShmSubKeyVector();
     		}
     		else
     		{
@@ -350,11 +384,10 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
     	for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end();)
     	{
     		bcSubKeyManager* key = *it;
-            if(key&&(key->erase_publishKey(type, ip, managerport)))
+            if(key&&(key->erase_publishKey(type, ip, managerport, shmSubKeyVector)))
             {
                 delete *it;
                 it = m_bcSubkeyManagerList.erase(it);
-		  //syncShmSubKeyVector();
             }
             else
             {
@@ -479,7 +512,7 @@ void throttlePubKeyManager::workerPublishData(void *pubVastHandler, char *msgDat
 }
 
 
-void throttlePubKeyManager::syncShmSubKeyVector(const string& key)
+void throttlePubKeyManager::syncShmSubKeyVectorAdd(const string& key)
 {
     //cout << "@@@ syncShareMemory" << endl;
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");

@@ -281,7 +281,7 @@ void throttleManager::add_throttle_publish_key(bool fromBidder,const string& bid
 {
 	const string& key = m_throttlePublish.add_publishKey(fromBidder, bidderIP, bidderPort, bcIP, bcManagerPort, bcDataPort);
 	if(key.empty() == false)
-		m_throttlePublish.syncShmSubKeyVector(key);
+		m_throttlePublish.syncShmSubKeyVectorAdd(key);
 }
 
 void *throttleManager::get_login_handler(int fd)

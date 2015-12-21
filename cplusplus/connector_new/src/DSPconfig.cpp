@@ -1385,7 +1385,7 @@ void baiduObject::readBaiduConfig()
     
         //filter
         
-        price = root["price"].asInt();
+        price = root["price"].asDouble();
         passcode = root["passcode"].asString();
         api_key = root["api_key"].asString();
         

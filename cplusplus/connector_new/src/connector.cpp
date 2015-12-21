@@ -1308,7 +1308,7 @@ char* connectorServ::convertBaiduBidResponseJsonToProtobuf(char *data,int dataLe
             string campaignId = it->second;      
             mobile_bidder->set_campaignid(campaignId);
 
-            int price = m_dspManager.getBaiduObject()->getPrice();
+            float price = m_dspManager.getBaiduObject()->getPrice();
             stringstream ss;
             string s_price;
             ss << price;

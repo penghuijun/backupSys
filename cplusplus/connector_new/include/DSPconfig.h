@@ -296,7 +296,7 @@ public:
 	static void baiduAddConnectToDSP(void *arg);
 	int sendAdRequestToBaiduDSP(const char *data, int dataLen, string& uuid, string& ua);
 	bool recvBidResponseFromBaiduDsp(int sock, struct spliceData_t *fullData_t);
-	int getPrice(){return price;}
+	float getPrice(){return price;}
 	string& getPasscode(){return passcode;}
 	string& getApikey(){return api_key;}
 	string& getSecret(){return secret;}
@@ -313,7 +313,7 @@ public:
 		return baiduSocketList;
 	}
 private:
-	int price;
+	float price;
 	string passcode;
 	string api_key;
 	string secret;

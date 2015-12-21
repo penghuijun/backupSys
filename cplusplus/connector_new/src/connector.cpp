@@ -3500,7 +3500,17 @@ bool connectorServ::GYin_AdReqProtoMutableDev(Device *device,const MobileAdReque
     geo->set_type(IP_ADDRESS);
 
     device->set_ip(mobile_request.dnsip());
-    device->set_devicetype(MOBILE);
+    
+    string appType = mobile_request.apptype();
+    if(!strcmp(appType.c_str(), "pcweb"))
+    {
+        device->set_devicetype(PC);
+    }
+    else
+    {
+        device->set_devicetype(MOBILE);
+    }
+    
     device->set_language(str_buf.at(1));
     device->set_make(str_buf.at(2));
     device->set_model(str_buf.at(3));
@@ -3542,34 +3552,43 @@ bool connectorServ::GYin_ConvertProtoToProto(BidRequest& bidRequest,const Mobile
     //banner->set_w(atoi(mobile_request.adspacewidth().c_str()));
     //banner->set_h(atoi(mobile_request.adspaceheight().c_str()));
     
-    MobileAdRequest_AdType adtype = mobile_request.type();
-    switch(adtype)
+    string appType = mobile_request.apptype();
+    if(!strcmp(appType.c_str(), "pcweb"))
     {
-        case MobileAdRequest_AdType_BANNER:
+        banner->set_w(300);
+        banner->set_h(250);
+    }
+    else
+    {
+        MobileAdRequest_AdType adtype = mobile_request.type();
+        switch(adtype)
         {
-            banner->set_w(320);
-            banner->set_h(50);
-        }
-        break;
-        case MobileAdRequest_AdType_INTERSTITIAL:
-        {
-            banner->set_w(360);
-            banner->set_h(300);
-        }
-        break;
-        default:
-        {
-            g_workerGYIN_logger->error("GYIN NO SUPPORT ADTYPE");
-            return false;
-        }
-        break;    
-    }    
+            case MobileAdRequest_AdType_BANNER:
+            {
+                banner->set_w(320);
+                banner->set_h(50);
+            }
+            break;
+            case MobileAdRequest_AdType_INTERSTITIAL:
+            {
+                banner->set_w(360);
+                banner->set_h(300);
+            }
+            break;
+            default:
+            {
+                g_workerGYIN_logger->error("GYIN NO SUPPORT ADTYPE");
+                return false;
+            }
+            break;    
+        }    
+    }
+    
     
     //btype : not support adtype
     banner->add_btype(IFRAME); 
     banner->add_btype(JS);
 
-    string appType = mobile_request.apptype();
     if(!strcmp(appType.c_str(), "app"))
     {
         //App

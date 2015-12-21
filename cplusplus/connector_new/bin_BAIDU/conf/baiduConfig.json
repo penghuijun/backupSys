@@ -3,7 +3,7 @@
 
 /*HTTP REQUEST LINE*/
     "adReqType": "GET ",    
-    "adReqDomain": "btlaunch.baidu.com",
+    "adReqDomain": "baitongsdk.baidu.com",
     "adReqPort": "80",    
 	"adReqUrl":"/baitong/index.php",
     

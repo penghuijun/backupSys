@@ -2550,10 +2550,12 @@ bool connectorServ::BAIDU_mutableAction(MobileAdRequest &mobile_request,MobileAd
     if(strcmp("1",dev.platform().c_str()) == 0)         //andriod
     {                
         item["platform"] = "android";                
+        item["url"] = list["dowload_url"].asString();
     }
     else if(strcmp("2",dev.platform().c_str()) == 0)    //apple IOS
     {
         item["platform"] = "ios";   
+        item["url"] = list["real_dowload_url"].asString();
     }
     else
     {
@@ -2561,7 +2563,6 @@ bool connectorServ::BAIDU_mutableAction(MobileAdRequest &mobile_request,MobileAd
     }
     //item["in_app"] = inapp;     
     item["auto_install"] = autoin;
-    item["url"] = list["real_dowload_url"].asString();
                
     download.append(item);
     content["download"] = download;

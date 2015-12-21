@@ -3544,7 +3544,7 @@ bool connectorServ::GYin_ConvertProtoToProto(BidRequest& bidRequest,const Mobile
     Imp *imp;
     imp = bidRequest.add_imp();
     imp->set_id("1");
-    imp->set_bidfloor(5.0); 
+    imp->set_bidfloor(50.0); 
     
     Banner *banner = imp->mutable_banner();
     banner->set_id("1");

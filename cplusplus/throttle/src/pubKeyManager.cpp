@@ -172,17 +172,17 @@ void bcSubKeyManager::get_keypipe(const char* uuid, string& bidderKey, string& c
 	}
 }
 
-bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport, MyShmStringVector *shmSubKeyVector)
+bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport)
 {
 	switch(type)
 	{
 		case sys_bidder:
 		{
-			return erase_publishKey(m_bidderKeyList,  ip, managerport, shmSubKeyVector);
+			return erase_publishKey(m_bidderKeyList,  ip, managerport);
 		}
 		case sys_connector:
 		{
-			return erase_publishKey(m_connectorKeyList,  ip, managerport, shmSubKeyVector);
+			return erase_publishKey(m_connectorKeyList,  ip, managerport);
 		}
 		default:
 		{
@@ -192,7 +192,7 @@ bool bcSubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, unsign
 	return false;
 }
 	
-bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort, MyShmStringVector *shmSubKeyVector)  
+bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort)  
 {
 	for(auto it = keyList.begin(); it != keyList.end();)
 	{
@@ -201,7 +201,7 @@ bool bcSubKeyManager::erase_publishKey(vector<zmqSubscribeKey*>& keyList, string
 		{
 			if((key->get_bidder_ip() == ip) &&(key->get_bidder_port() == managerPort))
 			{
-                            syncShmSubKeyVectorDelete(shmSubKeyVector, key->get_subKey());
+                            syncShmSubKeyVectorDelete(key->get_subKey());
 				delete key;
 				it = keyList.erase(it);					
 			}
@@ -251,23 +251,23 @@ bool bcSubKeyManager::connector_publishExist(const string& ip, unsigned short po
     return false;
 }
 
-void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector)
+void bcSubKeyManager::syncShmSubKeyVectorDelete()
 {
     for(auto bidder_it = m_bidderKeyList.begin(); bidder_it != m_bidderKeyList.end(); bidder_it++)
     {
         zmqSubscribeKey *subkeyObj = *bidder_it;
         if(subkeyObj == NULL) continue;
-        syncShmSubKeyVectorDelete(shmSubKeyVector, subkeyObj->get_subKey());        
+        syncShmSubKeyVectorDelete(subkeyObj->get_subKey());        
     }
     for(auto connector_it = m_connectorKeyList.begin(); connector_it != m_connectorKeyList.end(); connector_it++)
     {
         zmqSubscribeKey *subkeyObj = *connector_it;
         if(subkeyObj == NULL) continue;
-        syncShmSubKeyVectorDelete(shmSubKeyVector, subkeyObj->get_subKey());        
+        syncShmSubKeyVectorDelete(subkeyObj->get_subKey());        
     }   
 
 }
-void bcSubKeyManager::syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector, const string& key)
+void bcSubKeyManager::syncShmSubKeyVectorDelete(const string& key)
 {
     boost::interprocess::managed_shared_memory segment(boost::interprocess::open_only, "ShareMemory");
     MyShmStringVector *vec = segment.find<MyShmStringVector>("subKeyVector").first;
@@ -372,7 +372,7 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
     		bcSubKeyManager* key = *it;
     		if(key&&(key->get_bc_ip()==ip)&&(key->get_bcManangerPort()==managerport))
     		{
-                     key->syncShmSubKeyVectorDelete(shmSubKeyVector);
+                     key->syncShmSubKeyVectorDelete();
     			delete key;
     			it = m_bcSubkeyManagerList.erase(it);
     		}
@@ -387,7 +387,7 @@ void throttlePubKeyManager::erase_publishKey(bidderSymDevType type, string& ip, 
     	for(auto it = m_bcSubkeyManagerList.begin(); it != m_bcSubkeyManagerList.end();)
     	{
     		bcSubKeyManager* key = *it;
-            if(key&&(key->erase_publishKey(type, ip, managerport, shmSubKeyVector)))
+            if(key&&(key->erase_publishKey(type, ip, managerport)))
             {
                 delete *it;
                 it = m_bcSubkeyManagerList.erase(it);

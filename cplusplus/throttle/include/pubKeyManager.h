@@ -80,17 +80,17 @@ public:
 
 	void get_keypipe(const char* uuid, string& bidderKey, string& connectorKey);
 
-	bool erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport, MyShmStringVector *shmSubKeyVector);
+	bool erase_publishKey(bidderSymDevType type, string& ip, unsigned short managerport);
 
- 	bool erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort, MyShmStringVector *shmSubKeyVector);	
+ 	bool erase_publishKey(vector<zmqSubscribeKey*>& keyList, string& ip, unsigned short managerPort);	
 	const string&        get_bc_ip() const;
 	unsigned short get_bcManangerPort() const;
 	unsigned short get_bcDataPort() const;
 
 	bool bidder_publishExist(const string& ip, unsigned short port);
 	bool connector_publishExist(const string& ip, unsigned short port);
-	void syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector);
-	void syncShmSubKeyVectorDelete(MyShmStringVector	*shmSubKeyVector, const string& key);
+	void syncShmSubKeyVectorDelete();
+	void syncShmSubKeyVectorDelete(const string& key);
 	~bcSubKeyManager();
 
 private:

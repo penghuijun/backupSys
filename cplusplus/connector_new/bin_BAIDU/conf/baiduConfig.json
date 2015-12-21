@@ -11,7 +11,7 @@
     "Connection": "Keep-Alive", 
     "Content-Type": "application/json",  
     "charset": "UTF-8",   
-    "Host": "btlaunch.baidu.com",    
+    "Host": "baitongsdk.baidu.com",    
     "X-Forwarded-For": "121.14.151.103",
 
     "httpVersion": " HTTP/1.1",

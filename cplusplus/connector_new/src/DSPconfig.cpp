@@ -1464,6 +1464,32 @@ int baiduObject::sendAdRequestToBaiduDSP(const char *data, int dataLen, string& 
 
     //Õ∑–≈œ¢
     gen_HttpHeader(send_str, 0, ua);
+    #if 0
+    strcat(send_str, "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Accept-Encoding: gzip,deflate,sdch");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Accept-Language: zh-CN,zh;q=0.8");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Cache-Control: no-cache");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Connection: keep-alive");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Host: baitongsdk.baidu.com");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "Pragma: no-cache");
+    strcat(send_str, "\r\n");
+
+    strcat(send_str, "User-Agent:");
+    strcat(send_str, ua.c_str());
+    strcat(send_str, "\r\n");
+    #endif
 
     strcat(send_str, "\r\n");
 

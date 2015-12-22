@@ -937,8 +937,8 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         mobile_creative->set_creativeid("0");
         char str_w[16] = {0};
         char str_h[16] = {0};
-        sprintf(str_w,"%.1f",GYIN_bid.w());
-        sprintf(str_h,"%.1f",GYIN_bid.h());                
+        sprintf(str_w,"%.2f",GYIN_bid.w());
+        sprintf(str_h,"%.2f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
         mobile_creative->set_height(str_h);
 

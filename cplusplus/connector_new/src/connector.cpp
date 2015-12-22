@@ -927,7 +927,7 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
             return NULL;
         }
         char str_price[16] = {0};
-        sprintf(str_price,"%.1f",GYIN_price);                
+        sprintf(str_price,"%.2f",GYIN_price);                
         mobile_bidder->set_biddingvalue(str_price);
         mobile_bidder->set_expectcpm(str_price);        
         
@@ -937,8 +937,8 @@ char* connectorServ::convertGYinBidResponseProtoToProtobuf(char *data,int dataLe
         mobile_creative->set_creativeid("0");
         char str_w[16] = {0};
         char str_h[16] = {0};
-        sprintf(str_w,"%.2f",GYIN_bid.w());
-        sprintf(str_h,"%.2f",GYIN_bid.h());                
+        sprintf(str_w,"%.1f",GYIN_bid.w());
+        sprintf(str_h,"%.1f",GYIN_bid.h());                
         mobile_creative->set_width(str_w);
         mobile_creative->set_height(str_h);
 

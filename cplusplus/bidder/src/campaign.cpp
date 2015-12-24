@@ -90,6 +90,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                         
                         if((fre_type=="fe")&&(lifeTime_imps_max)&&(imps_times>=lifeTime_imps_max))
                         {               
+                            g_file_logger->trace("frequency.id: {0:d}, frequencyValue.frequencyType: {1}, frequencyValue.times: {2:d}, camp_frequency.lifetime: {3:d}", m_id, fre_type, imps_times, lifeTime_imps_max );
                             return false; 
                         }
                         else if((fre_type=="m")&&(month_imps_max)&&(imps_times>=month_imps_max))//month

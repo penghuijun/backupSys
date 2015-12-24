@@ -93,6 +93,7 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
 
                         if(curUnixtime > duedate)
                             continue;
+                        g_file_logger->trace("request duedate: {0:d} > curUnixTime: {1:d}", duedate, curUnixtime);
                             
                         if((fre_type=="fe")&&(lifeTime_imps_max)&&(imps_times>=lifeTime_imps_max))
                         {               

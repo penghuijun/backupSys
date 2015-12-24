@@ -75,6 +75,8 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
             }
             
             int MaxTimes_frequency = 0;
+            time_t timep;
+            long long curUnixtime = time(&timep);
             for(auto it = frequency.begin(); it != frequency.end(); it++)
             {
                 auto& fre = *it;
@@ -87,10 +89,13 @@ bool verifyTarget::target_valid(const CampaignProtoEntity_Targeting &camp_target
                         const MobileAdRequest_Frequency_FrequencyValue& value = fre.frequencyvalue(k);
                         const string& fre_type = value.frequencytype();
                         int imps_times = atoi(value.times().c_str());
-                        
+                        long long duedate = atoll(value.duedate().c_str())/1000;                        
+
+                        if(curUnixtime > duedate)
+                            continue;
+                            
                         if((fre_type=="fe")&&(lifeTime_imps_max)&&(imps_times>=lifeTime_imps_max))
                         {               
-                            g_file_logger->trace("frequency.id: {0:d}, frequencyValue.frequencyType: {1}, frequencyValue.times: {2:d}, camp_frequency.lifetime: {3:d}", m_id, fre_type, imps_times, lifeTime_imps_max );
                             return false; 
                         }
                         else if((fre_type=="m")&&(month_imps_max)&&(imps_times>=month_imps_max))//month

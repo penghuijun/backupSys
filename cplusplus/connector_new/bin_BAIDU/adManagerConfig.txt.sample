@@ -70,6 +70,13 @@ connectorInfo {
         #    2, 192.168.20.158, 6001, 1, 10
         # }
     }
+	mysqlConfig {
+		#{mysqlID,mysqlIP,mysqlDataPort,mysqlUserName,mysqlUserPwd}
+		{
+			1,192.168.100.1,3306,adecosystem,uh*rif%0
+		}
+	}
+	logLevel=1;
 }
 
 bcInfo {
